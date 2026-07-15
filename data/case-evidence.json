@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-16",
+  "disclosureRules": {
+    "allowedEvidenceLevels": ["confirmed", "organized", "pending", "not_public"],
+    "allowedCaseStatuses": ["planning", "in_progress", "completed", "archived"],
+    "requirePublicDisclaimer": true,
+    "forbidUnapprovedLogos": true,
+    "forbidUnverifiedCompletionClaims": true
+  },
+  "cases": [
+    {
+      "id": "keio-selection",
+      "title": "慶應義塾大学向け選定・正式見積・購買支援",
+      "detailPage": "cases/keio-selection.html",
+      "status": "in_progress",
+      "statusLabel": "進行中",
+      "customerType": "大学研究機関",
+      "publicDisclaimer": "大学または研究室によるAirAdmin8の推奨・認定を意味しません。納品・検収完了事例ではありません。",
+      "scope": [
+        "候補・構成整理",
+        "正式見積条件整理",
+        "大学購買条件整理",
+        "物流・規制確認項目整理"
+      ],
+      "evidence": [
+        {
+          "level": "confirmed",
+          "label": "大学側提出条件",
+          "description": "正式見積、二社見積、製品名、型番、メーカー、数量、価格、納期、税込総額等の記載条件"
+        },
+        {
+          "level": "confirmed",
+          "label": "候補・構成",
+          "description": "Unitree G1-D、ハンド、予備バッテリー、付属品、納品先・設置場所の整理"
+        },
+        {
+          "level": "organized",
+          "label": "AirAdmin8整理事項",
+          "description": "見積項目、購買確認事項、検収条件、物流・規制リスク、次の確認事項"
+        },
+        {
+          "level": "pending",
+          "label": "正式確定前",
+          "description": "正式発注、在庫、最終納期、保証、電池輸送資料、無線運用、納品・検収日程"
+        },
+        {
+          "level": "not_public",
+          "label": "非掲載",
+          "description": "個別価格、大学内部資料、個人情報、公開許可を得ていない見積書・メール内容"
+        }
+      ],
+      "progress": [
+        {"order": 1, "label": "研究用途・候補整理", "state": "done"},
+        {"order": 2, "label": "正式見積条件整理", "state": "done"},
+        {"order": 3, "label": "大学内部購買手続き", "state": "current"},
+        {"order": 4, "label": "正式発注・納期確定", "state": "pending"},
+        {"order": 5, "label": "納品・検収", "state": "pending"}
+      ]
+    }
+  ]
+}
