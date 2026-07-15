@@ -1,0 +1,31 @@
+/* 比較モーダル内の操作パネル。
+   site buildが共通footerと誤認しない独立クラスを使用する。 */
+.compare-dialog-action-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 26px 22px;
+  border-top: 1px solid #dce8ed;
+  background: #ffffff;
+}
+
+.compare-dialog-action-panel > p {
+  margin: 0;
+  color: #667d88;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 700px) {
+  .compare-dialog-action-panel {
+    align-items: stretch;
+    flex-direction: column;
+    padding-inline: 18px;
+  }
+}
+
+@media print {
+  body.is-printing-comparison .compare-dialog-action-panel {
+    display: none !important;
+  }
+}
