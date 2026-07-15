@@ -1,6 +1,6 @@
 /* ============================================================
    Contact conversion v2
-   入力順・確認画面・コピー代替導線を追加する。
+   入力順・確認画面・コピー代替導線・端末内下書き保存を追加する。
    ============================================================ */
 
 .contact-progress {
@@ -35,6 +35,47 @@
   color: #ffffff;
   background: #009ad2;
   font-size: 0.68rem;
+}
+
+.contact-draft-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin: 0 0 20px;
+  padding: 13px 14px;
+  border: 1px solid #d4e5eb;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+
+.contact-draft-panel > div {
+  display: grid;
+  gap: 3px;
+}
+
+.contact-draft-panel strong {
+  color: #173342;
+  font-size: .82rem;
+}
+
+.contact-draft-panel span {
+  color: #667d88;
+  font-size: .72rem;
+}
+
+.contact-draft-panel button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid #bcd2dc;
+  border-radius: 999px;
+  color: #173342;
+  background: #fff;
+  font: inherit;
+  font-size: .72rem;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .form-section {
@@ -265,6 +306,15 @@
   .contact-progress li {
     min-height: 36px;
     padding: 6px 10px;
+  }
+
+  .contact-draft-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .contact-draft-panel button {
+    width: 100%;
   }
 
   .form-section {
