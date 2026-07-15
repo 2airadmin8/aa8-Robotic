@@ -2,6 +2,53 @@
   'use strict';
 
   // ------------------------------------------------------------
+  // 計測基盤
+  // GA4 Measurement ID: G-XJYBMMPWWX
+  // Google Tag ID: GT-5NXF29HN
+  // 個人情報はイベントパラメータへ送信しない。
+  // ------------------------------------------------------------
+  initialiseAnalytics();
+
+  function initialiseAnalytics() {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function gtag() {
+      window.dataLayer.push(arguments);
+    };
+
+    if (!document.querySelector('script[data-ga4-loader]')) {
+      const gaScript = document.createElement('script');
+      gaScript.async = true;
+      gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-XJYBMMPWWX';
+      gaScript.dataset.ga4Loader = 'true';
+      document.head.appendChild(gaScript);
+
+      window.gtag('js', new Date());
+      window.gtag('config', 'G-XJYBMMPWWX', {
+        anonymize_ip: true,
+        send_page_view: true,
+      });
+    }
+
+    if (!document.querySelector('script[data-google-tag-loader]')) {
+      const tagScript = document.createElement('script');
+      tagScript.async = true;
+      tagScript.src = 'https://www.googletagmanager.com/gtm.js?id=GT-5NXF29HN';
+      tagScript.dataset.googleTagLoader = 'true';
+      document.head.appendChild(tagScript);
+    }
+  }
+
+  function trackEvent(eventName, parameters = {}) {
+    const safeParameters = {
+      page_path: window.location.pathname,
+      ...parameters,
+    };
+
+    window.dataLayer?.push({ event: eventName, ...safeParameters });
+    window.gtag?.('event', eventName, safeParameters);
+  }
+
+  // ------------------------------------------------------------
   // モバイルナビゲーション
   // ------------------------------------------------------------
   const menuButton = document.querySelector('.menu');
@@ -20,6 +67,25 @@
       });
     });
   }
+
+  // ------------------------------------------------------------
+  // 共通クリック計測
+  // ------------------------------------------------------------
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href') || '';
+    const label = link.textContent.trim().slice(0, 80);
+
+    if (href.startsWith('mailto:')) {
+      trackEvent('email_click', { link_label: label });
+    } else if (link.matches('.nav-cta, .button, .product-consult-link')) {
+      trackEvent('cta_click', { link_label: label, link_url: href });
+    } else if (link.target === '_blank' || /^https?:\/\//.test(href)) {
+      trackEvent('outbound_click', { link_label: label, link_url: href });
+    }
+  });
 
   // ------------------------------------------------------------
   // 製品カード
@@ -84,9 +150,6 @@
     }
   });
 
-  // ------------------------------------------------------------
-  // 製品カテゴリ絞り込み
-  // ------------------------------------------------------------
   function initialiseProductFilter(productRoot) {
     const filterButtons = document.querySelectorAll('[data-product-filter]');
     if (!filterButtons.length) return;
@@ -103,13 +166,14 @@
           const shouldShow = selectedGroup === 'all' || groups.includes(selectedGroup);
           card.hidden = !shouldShow;
         });
+
+        trackEvent('product_filter', { filter_name: selectedGroup });
       });
     });
   }
 
   // ------------------------------------------------------------
   // 資料・SDKセンター
-  // 公式URL、用途分類、確認状態は data/resources.json で管理する。
   // ------------------------------------------------------------
   document.querySelectorAll('[data-resource-list]').forEach(async (root) => {
     try {
@@ -132,15 +196,8 @@
           const makerMatch = maker === 'all' || item.makerId === maker;
           const productMatch = product === 'all' || item.productGroups.includes(product);
           const typeMatch = type === 'all' || item.types.includes(type);
-          const searchableText = [
-            item.title,
-            item.description,
-            item.makerName,
-            item.language,
-            ...(item.keywords || []),
-          ].join(' ').toLowerCase();
+          const searchableText = [item.title, item.description, item.makerName, item.language, ...(item.keywords || [])].join(' ').toLowerCase();
           const keywordMatch = !keyword || searchableText.includes(keyword);
-
           return makerMatch && productMatch && typeMatch && keywordMatch;
         });
 
@@ -149,23 +206,41 @@
         if (empty) empty.hidden = filtered.length !== 0;
       };
 
-      render();
+      const query = new URLSearchParams(window.location.search);
+      const initialConditions = {
+        maker: query.get('maker') || 'all',
+        product: query.get('product') || 'all',
+        type: query.get('type') || 'all',
+        keyword: query.get('keyword') || '',
+      };
+
+      if (form) {
+        Object.entries(initialConditions).forEach(([name, value]) => {
+          const field = form.elements.namedItem(name);
+          if (field && value) field.value = value;
+        });
+      }
+      render(initialConditions);
 
       if (form) {
         form.addEventListener('submit', (event) => {
           event.preventDefault();
           const values = new FormData(form);
-          render({
+          const conditions = {
             maker: values.get('maker'),
             product: values.get('product'),
             type: values.get('type'),
             keyword: values.get('keyword'),
+          };
+          render(conditions);
+          trackEvent('resource_search', {
+            maker_filter: String(conditions.maker),
+            product_filter: String(conditions.product),
+            type_filter: String(conditions.type),
           });
         });
 
-        form.addEventListener('reset', () => {
-          window.setTimeout(() => render(), 0);
-        });
+        form.addEventListener('reset', () => window.setTimeout(() => render(), 0));
       }
 
       document.querySelectorAll('[data-resource-shortcut]').forEach((button) => {
@@ -174,6 +249,7 @@
           const typeSelect = form?.querySelector('[name="type"]');
           if (typeSelect) typeSelect.value = selectedType;
           render({ type: selectedType });
+          trackEvent('resource_shortcut', { resource_type: selectedType });
           document.querySelector('#resource-search')?.scrollIntoView({ behavior: 'smooth' });
         });
       });
@@ -209,15 +285,139 @@
 
   function resourceTypeLabel(type) {
     const labels = {
-      official: '公式入口',
-      sdk: 'SDK',
-      ros: 'ROS・ROS2',
-      vla: 'VLA・学習',
-      teleoperation: 'テレオペ',
-      simulation: 'シミュレーション',
-      dataset: 'データセット',
+      official: '公式入口', sdk: 'SDK', ros: 'ROS・ROS2', vla: 'VLA・学習',
+      teleoperation: 'テレオペ', simulation: 'シミュレーション', dataset: 'データセット',
+    };
+    return labels[type] || type;
+  }
+
+  // ------------------------------------------------------------
+  // 問い合わせフォーム
+  // GitHub Pagesのため、入力内容からmailto文面を生成する。
+  // 実際の送信完了は利用者のメールアプリ側で行う。
+  // ------------------------------------------------------------
+  const contactForm = document.querySelector('[data-contact-form]');
+
+  if (contactForm) {
+    const query = new URLSearchParams(window.location.search);
+    const sourceFields = {
+      source_page: document.referrer || window.location.href,
+      source_product: query.get('product') || '',
+      source_maker: query.get('maker') || '',
+      source_service: query.get('service') || '',
+      source_theme: query.get('theme') || '',
     };
 
-    return labels[type] || type;
+    Object.entries(sourceFields).forEach(([name, value]) => {
+      const field = contactForm.elements.namedItem(name);
+      if (field) field.value = value;
+    });
+
+    const productField = contactForm.elements.namedItem('product');
+    const categoryField = contactForm.elements.namedItem('category');
+    if (productField && sourceFields.source_product) productField.value = sourceFields.source_product;
+    if (productField && sourceFields.source_maker && !productField.value) productField.value = sourceFields.source_maker;
+
+    const categoryMap = {
+      poc: 'PoC設計',
+      'university-procurement': '見積・大学購買',
+      'vla-data-collection': 'VLA・模倣学習データ収集',
+      'technical-review': 'SDK・ROS・開発環境',
+      'multi-brand-comparison': '製品比較・選定',
+    };
+    const mappedCategory = categoryMap[sourceFields.source_service] || categoryMap[sourceFields.source_theme];
+    if (categoryField && mappedCategory) categoryField.value = mappedCategory;
+
+    let formStarted = false;
+    contactForm.addEventListener('input', () => {
+      if (formStarted) return;
+      formStarted = true;
+      trackEvent('form_start', { form_name: 'robotics_contact' });
+    });
+
+    contactForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const errorBox = contactForm.querySelector('[data-form-error]');
+      const requiredFields = [...contactForm.querySelectorAll('[required]')];
+      let firstInvalid = null;
+
+      requiredFields.forEach((field) => {
+        const invalid = field.type === 'checkbox' ? !field.checked : !field.value.trim();
+        field.setAttribute('aria-invalid', String(invalid));
+        if (invalid && !firstInvalid) firstInvalid = field;
+      });
+
+      const emailField = contactForm.elements.namedItem('email');
+      if (emailField && emailField.value && !emailField.validity.valid) {
+        emailField.setAttribute('aria-invalid', 'true');
+        firstInvalid ||= emailField;
+      }
+
+      if (firstInvalid) {
+        if (errorBox) {
+          errorBox.hidden = false;
+          errorBox.textContent = '必須項目とメールアドレスをご確認ください。';
+        }
+        firstInvalid.focus();
+        trackEvent('form_error', { form_name: 'robotics_contact' });
+        return;
+      }
+
+      if (errorBox) errorBox.hidden = true;
+      const values = new FormData(contactForm);
+      const subject = createMailSubject(values);
+      const body = createMailBody(values);
+      const mailtoUrl = `mailto:airobot@robotics.air-admin8.co.jp?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      trackEvent('generate_lead', {
+        form_name: 'robotics_contact',
+        inquiry_category: String(values.get('category') || ''),
+        source_product: String(values.get('source_product') || ''),
+        source_maker: String(values.get('source_maker') || ''),
+        source_service: String(values.get('source_service') || ''),
+        source_theme: String(values.get('source_theme') || ''),
+        submission_method: 'mailto_intent',
+      });
+
+      window.location.href = mailtoUrl;
+    });
+  }
+
+  function createMailSubject(values) {
+    const category = String(values.get('category') || '製品・導入相談');
+    const organization = String(values.get('organization') || '');
+    return `【AirAdmin8 Robotics相談】${category}｜${organization}`;
+  }
+
+  function createMailBody(values) {
+    const lines = [
+      'AirAdmin8 Robotics ご担当者様',
+      '',
+      '下記の内容で相談します。',
+      '',
+      `大学・会社名：${values.get('organization') || ''}`,
+      `お名前：${values.get('name') || ''}`,
+      `メールアドレス：${values.get('email') || ''}`,
+      `電話番号：${values.get('phone') || '未記入'}`,
+      `相談区分：${values.get('category') || ''}`,
+      `検討中の製品・メーカー：${values.get('product') || '未定'}`,
+      `予算感：${values.get('budget') || '未定'}`,
+      `希望時期：${values.get('schedule') || '未定'}`,
+      `SDK・開発環境：${values.get('development') || '未記入'}`,
+      '',
+      '【研究・業務用途】',
+      values.get('use_case') || '',
+      '',
+      '【補足・確認したいこと】',
+      values.get('message') || '未記入',
+      '',
+      '【流入情報】',
+      `参照ページ：${values.get('source_page') || window.location.href}`,
+      `製品：${values.get('source_product') || ''}`,
+      `メーカー：${values.get('source_maker') || ''}`,
+      `支援：${values.get('source_service') || ''}`,
+      `用途：${values.get('source_theme') || ''}`,
+    ];
+    return lines.join('\n');
   }
 })();
