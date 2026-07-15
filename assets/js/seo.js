@@ -8,6 +8,8 @@
   const relativePath = path.startsWith(siteBase) ? path.slice(siteBase.length) : path.replace(/^\//, '');
   const cleanPath = relativePath || 'index.html';
 
+  injectBrowserIdentity();
+
   const pageMap = {
     'index.html': { name: 'AirAdmin8 Robotics', type: 'WebSite' },
     'products.html': { name: '研究用AIロボット製品比較', type: 'CollectionPage' },
@@ -57,6 +59,34 @@
   injectJsonLd(createBreadcrumbSchema(), 'breadcrumb-schema');
 
   if (cleanPath === 'faq.html') injectFaqSchema();
+
+  function injectBrowserIdentity() {
+    ensureMeta('theme-color', '#0b3143');
+    ensureMeta('apple-mobile-web-app-capable', 'yes');
+    ensureMeta('apple-mobile-web-app-status-bar-style', 'black-translucent');
+    ensureMeta('apple-mobile-web-app-title', 'A8 Robotics');
+    ensureLink('icon', `${siteBase}assets/img/favicon.svg`, 'image/svg+xml');
+    ensureLink('mask-icon', `${siteBase}assets/img/favicon.svg`, 'image/svg+xml', '#009ad2');
+    ensureLink('manifest', `${siteBase}site.webmanifest`);
+  }
+
+  function ensureMeta(name, content) {
+    if (document.querySelector(`meta[name="${name}"]`)) return;
+    const meta = document.createElement('meta');
+    meta.name = name;
+    meta.content = content;
+    document.head.appendChild(meta);
+  }
+
+  function ensureLink(rel, href, type = '', color = '') {
+    if (document.querySelector(`link[rel="${rel}"]`)) return;
+    const link = document.createElement('link');
+    link.rel = rel;
+    link.href = href;
+    if (type) link.type = type;
+    if (color) link.setAttribute('color', color);
+    document.head.appendChild(link);
+  }
 
   function createPageSchema(config) {
     const canonical = document.querySelector('link[rel="canonical"]')?.href || `${canonicalBase}${cleanPath === 'index.html' ? '' : cleanPath}`;
