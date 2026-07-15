@@ -21,10 +21,13 @@
     'contact.html': { name: 'AIロボット製品・導入相談', type: 'ContactPage' },
     'privacy.html': { name: 'プライバシーポリシー', type: 'WebPage' },
     'faq.html': { name: 'よくある質問', type: 'FAQPage' },
-    'products/unitree-g1-d.html': { name: 'Unitree G1-D', type: 'Product', brand: 'Unitree', availability: 'https://schema.org/InStock' },
-    'products/agibot-g2.html': { name: 'AgiBot G2', type: 'Product', brand: 'AgiBot', availability: 'https://schema.org/InStock' },
-    'products/unitree-go2.html': { name: 'Unitree Go2 EDU', type: 'Product', brand: 'Unitree', availability: 'https://schema.org/InStock' },
-    'products/agibot-x2-edu.html': { name: 'AgiBot X2 EDU', type: 'Product', brand: 'AgiBot', availability: 'https://schema.org/PreOrder' },
+    'products/unitree-g1-d.html': { name: 'Unitree G1-D', type: 'Product', brand: 'Unitree' },
+    'products/agibot-g2.html': { name: 'AgiBot G2', type: 'Product', brand: 'AgiBot' },
+    'products/unitree-g1.html': { name: 'Unitree G1', type: 'Product', brand: 'Unitree' },
+    'products/unitree-go2.html': { name: 'Unitree Go2 EDU', type: 'Product', brand: 'Unitree' },
+    'products/agibot-x2-edu.html': { name: 'AgiBot X2 EDU', type: 'Product', brand: 'AgiBot' },
+    'products/limx-oli.html': { name: 'LimX Oli', type: 'Product', brand: 'LimX Dynamics' },
+    'products/tianji-marvin.html': { name: 'Tianji Marvin', type: 'Product', brand: 'Tianji' },
     'manufacturers/unitree.html': { name: 'Unitree Robotics', type: 'Brand' },
     'manufacturers/agibot.html': { name: 'AgiBot', type: 'Brand' },
     'use-cases/vla-data-collection.html': { name: 'VLA・模倣学習データ収集', type: 'Service' },
@@ -37,6 +40,7 @@
     type: 'WebPage',
   };
 
+  injectSocialMeta(page);
   injectJsonLd({
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -70,10 +74,36 @@
     ensureLink('manifest', `${siteBase}site.webmanifest`);
   }
 
+  function injectSocialMeta(config) {
+    const canonical = getCanonical();
+    const description = document.querySelector('meta[name="description"]')?.content || '';
+    const title = document.title || config.name;
+    const image = `${canonicalBase}assets/img/robot-category-lineup.svg`;
+
+    ensureProperty('og:type', config.type === 'Product' ? 'product' : 'website');
+    ensureProperty('og:site_name', 'AirAdmin8 Robotics');
+    ensureProperty('og:title', title);
+    ensureProperty('og:description', description);
+    ensureProperty('og:url', canonical);
+    ensureProperty('og:image', image);
+    ensureMeta('twitter:card', 'summary_large_image');
+    ensureMeta('twitter:title', title);
+    ensureMeta('twitter:description', description);
+    ensureMeta('twitter:image', image);
+  }
+
   function ensureMeta(name, content) {
     if (document.querySelector(`meta[name="${name}"]`)) return;
     const meta = document.createElement('meta');
     meta.name = name;
+    meta.content = content;
+    document.head.appendChild(meta);
+  }
+
+  function ensureProperty(property, content) {
+    if (document.querySelector(`meta[property="${property}"]`)) return;
+    const meta = document.createElement('meta');
+    meta.setAttribute('property', property);
     meta.content = content;
     document.head.appendChild(meta);
   }
@@ -88,8 +118,13 @@
     document.head.appendChild(link);
   }
 
+  function getCanonical() {
+    return document.querySelector('link[rel="canonical"]')?.href
+      || `${canonicalBase}${cleanPath === 'index.html' ? '' : cleanPath}`;
+  }
+
   function createPageSchema(config) {
-    const canonical = document.querySelector('link[rel="canonical"]')?.href || `${canonicalBase}${cleanPath === 'index.html' ? '' : cleanPath}`;
+    const canonical = getCanonical();
     const description = document.querySelector('meta[name="description"]')?.content || '';
     const base = {
       '@context': 'https://schema.org',
@@ -110,18 +145,13 @@
 
     if (config.type === 'Product') {
       base.brand = { '@type': 'Brand', name: config.brand };
-      base.category = document.querySelector('.eyebrow')?.textContent.trim() || 'AI Robot';
-      base.offers = {
-        '@type': 'Offer',
-        url: canonical,
-        priceCurrency: 'JPY',
-        priceSpecification: {
-          '@type': 'PriceSpecification',
-          priceCurrency: 'JPY',
-          description: '価格は構成・時期により異なるため正式見積で提示',
-        },
-        availability: config.availability,
-        seller: { '@id': `${canonicalBase}#organization` },
+      base.category = document.querySelector('.detail-category, .eyebrow')?.textContent.trim() || 'AI Robot';
+      base.image = `${canonicalBase}assets/img/robot-category-lineup.svg`;
+      base.url = canonical;
+      base.potentialAction = {
+        '@type': 'AskAction',
+        target: `${canonicalBase}contact.html?product=${encodeURIComponent(config.name)}`,
+        name: '価格・納期・導入条件を問い合わせる',
       };
     }
 
@@ -145,12 +175,13 @@
       item: new URL(link.getAttribute('href'), window.location.href).href,
     }));
 
-    if (!items.length || items[items.length - 1].item !== window.location.href.split(/[?#]/)[0]) {
+    const currentUrl = window.location.href.split(/[?#]/)[0];
+    if (!items.length || items[items.length - 1].item !== currentUrl) {
       items.push({
         '@type': 'ListItem',
         position: items.length + 1,
         name: page.name,
-        item: window.location.href.split(/[?#]/)[0],
+        item: currentUrl,
       });
     }
 
