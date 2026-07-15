@@ -57,6 +57,13 @@ jobs:
           python -m py_compile scripts/validate_analytics.py
           python scripts/validate_analytics.py
 
+      - name: Validate case evidence and progress
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_cases.py
+          python scripts/validate_cases.py
+
       - name: Build site with safe fallback
         shell: bash
         run: |
