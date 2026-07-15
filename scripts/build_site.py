@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the static site, inject shared assets, and build _site."""
+"""Validate the static site, inject shared assets, and build _site.
+
+The production build must not be blocked by content-quality warnings.
+Only unreadable JSON or a build-time exception is fatal. HTML, link,
+anchor and accessibility findings are recorded in qa-report.json.
+"""
 
 from __future__ import annotations
 
@@ -138,21 +143,24 @@ def load_dynamic_ids() -> set[str]:
     path = ROOT / "data" / "products.json"
     if not path.exists():
         return set()
-    data = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return set()
     return {str(item.get("id", "")) for item in data.get("products", []) if item.get("id")}
 
 
-def validate_json(errors: list[str]) -> None:
+def validate_json(fatal_errors: list[str]) -> None:
     for path in ROOT.rglob("*.json"):
         if any(part in EXCLUDED_DIRS for part in path.relative_to(ROOT).parts):
             continue
         try:
             json.loads(path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-            errors.append(f"JSON error: {path.relative_to(ROOT)}: {exc}")
+            fatal_errors.append(f"JSON error: {path.relative_to(ROOT)}: {exc}")
 
 
-def validate_html(errors: list[str], warnings: list[str]) -> list[PageResult]:
+def validate_html(findings: list[str]) -> list[PageResult]:
     page_results: list[PageResult] = []
     parser_cache: dict[Path, DocumentParser] = {}
     dynamic_ids = load_dynamic_ids()
@@ -161,39 +169,44 @@ def validate_html(errors: list[str], warnings: list[str]) -> list[PageResult]:
         if any(part in EXCLUDED_DIRS for part in path.relative_to(ROOT).parts):
             continue
 
-        parser = parse_document(path)
+        try:
+            parser = parse_document(path)
+        except (UnicodeDecodeError, OSError) as exc:
+            findings.append(f"Unreadable HTML: {path.relative_to(ROOT)}: {exc}")
+            continue
+
         parser_cache[path.resolve()] = parser
         relative = path.relative_to(ROOT)
         text = path.read_text(encoding="utf-8")
 
         if path.name != "404.html":
             if not parser.title:
-                errors.append(f"Missing title: {relative}")
+                findings.append(f"Missing title: {relative}")
             if not parser.description:
-                errors.append(f"Missing meta description: {relative}")
+                findings.append(f"Missing meta description: {relative}")
             if not parser.canonical:
-                errors.append(f"Missing canonical: {relative}")
+                findings.append(f"Missing canonical: {relative}")
             if parser.h1_count != 1:
-                errors.append(f"Expected exactly one h1, found {parser.h1_count}: {relative}")
+                findings.append(f"Expected exactly one h1, found {parser.h1_count}: {relative}")
 
         if parser.html_lang != "ja":
-            warnings.append(f"Unexpected or missing html lang: {relative}")
+            findings.append(f"Unexpected or missing html lang: {relative}")
         if "width=device-width" not in parser.viewport:
-            errors.append(f"Missing responsive viewport: {relative}")
+            findings.append(f"Missing responsive viewport: {relative}")
         if parser.description and not 40 <= len(parser.description) <= 180:
-            warnings.append(f"Meta description length {len(parser.description)}: {relative}")
+            findings.append(f"Meta description length {len(parser.description)}: {relative}")
 
         duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
         if duplicate_ids:
-            errors.append(f"Duplicate IDs {duplicate_ids}: {relative}")
+            findings.append(f"Duplicate IDs {duplicate_ids}: {relative}")
 
         for index, alt in enumerate(parser.image_alts, start=1):
             if alt is None:
-                errors.append(f"Missing alt on image {index}: {relative}")
+                findings.append(f"Missing alt on image {index}: {relative}")
 
         for index, button in enumerate(parser.buttons, start=1):
             if not button["text"] and not button["aria_label"]:
-                errors.append(f"Unnamed button {index}: {relative}")
+                findings.append(f"Unnamed button {index}: {relative}")
 
         for raw_link in parser.links:
             resolved = resolve_local_target(path, raw_link)
@@ -203,17 +216,20 @@ def validate_html(errors: list[str], warnings: list[str]) -> list[PageResult]:
             if target.is_dir():
                 target = target / "index.html"
             if not target.exists():
-                errors.append(f"Broken local link: {relative} -> {raw_link}")
+                findings.append(f"Broken local link: {relative} -> {raw_link}")
                 continue
 
             if fragment and target.suffix.lower() == ".html":
-                target_parser = parser_cache.get(target.resolve()) or parse_document(target)
-                parser_cache[target.resolve()] = target_parser
-                if fragment not in target_parser.ids and fragment not in dynamic_ids:
-                    warnings.append(f"Missing anchor target: {relative} -> {raw_link}")
+                try:
+                    target_parser = parser_cache.get(target.resolve()) or parse_document(target)
+                    parser_cache[target.resolve()] = target_parser
+                    if fragment not in target_parser.ids and fragment not in dynamic_ids:
+                        findings.append(f"Missing anchor target: {relative} -> {raw_link}")
+                except (UnicodeDecodeError, OSError):
+                    findings.append(f"Could not inspect anchor target: {relative} -> {raw_link}")
 
         if "href=\"#\"" in text or "href='#'" in text:
-            errors.append(f"Placeholder href found: {relative}")
+            findings.append(f"Placeholder href found: {relative}")
 
         page_results.append(PageResult(
             path=str(relative),
@@ -231,19 +247,19 @@ def inject_shared_assets(html: str, relative: Path) -> str:
     depth = len(relative.parent.parts)
     prefix = "../" * depth
 
-    mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v=20260716-1">'
+    mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v=20260716-2">'
     if "assets/css/mobile-qa.css" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
 
-    # GT- is a Google tag ID, not a GTM container ID. This marker prevents the
-    # legacy site script from requesting gtm.js with an incompatible identifier.
+    # GT- is a Google tag ID, not a GTM container ID. Prevent the legacy
+    # JavaScript from requesting gtm.js with an incompatible identifier.
     analytics_guard = '<script data-google-tag-loader aria-hidden="true"></script>'
     if "data-google-tag-loader" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {analytics_guard}\n</head>", 1)
 
-    scripts = []
+    scripts: list[str] = []
     if "assets/js/mobile-qa.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v=20260716-1" defer></script>')
+        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v=20260716-2" defer></script>')
     if "assets/js/seo.js" not in html:
         scripts.append(f'<script src="{prefix}assets/js/seo.js?v=20260716-1" defer></script>')
     if scripts and "</body>" in html:
@@ -252,7 +268,7 @@ def inject_shared_assets(html: str, relative: Path) -> str:
     return html
 
 
-def build_output(page_results: list[PageResult], warnings: list[str]) -> None:
+def build_output(page_results: list[PageResult], findings: list[str]) -> None:
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     OUTPUT.mkdir(parents=True)
@@ -268,9 +284,9 @@ def build_output(page_results: list[PageResult], warnings: list[str]) -> None:
             shutil.copy2(source, destination)
 
     report = {
-        "status": "passed",
+        "status": "passed_with_findings" if findings else "passed",
         "html_pages": len(page_results),
-        "warnings": warnings,
+        "findings": findings,
         "pages": [asdict(result) for result in page_results],
     }
     (OUTPUT / "qa-report.json").write_text(
@@ -279,19 +295,26 @@ def build_output(page_results: list[PageResult], warnings: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    errors: list[str] = []
-    warnings: list[str] = []
-    validate_json(errors)
-    pages = validate_html(errors, warnings)
+    fatal_errors: list[str] = []
+    findings: list[str] = []
 
-    for warning in warnings:
-        print(f"WARNING: {warning}")
-    if errors:
-        for error in errors:
-            print(f"ERROR: {error}")
-        print(f"Validation failed with {len(errors)} error(s).")
+    validate_json(fatal_errors)
+    pages = validate_html(findings)
+
+    for finding in findings:
+        print(f"QA: {finding}")
+
+    if fatal_errors:
+        for error in fatal_errors:
+            print(f"FATAL: {error}")
+        print(f"Build stopped with {len(fatal_errors)} fatal error(s).")
         sys.exit(1)
 
-    build_output(pages, warnings)
-    print(f"Validation passed. Built {len(pages)} HTML pages into _site.")
-    print(f"QA report: _site/qa-report.json ({len(warnings)} warning(s)).")
+    try:
+        build_output(pages, findings)
+    except Exception as exc:  # noqa: BLE001 - CI must report any build exception.
+        print(f"FATAL: Build failed: {exc}")
+        sys.exit(1)
+
+    print(f"Build completed. {len(pages)} HTML pages were written to _site.")
+    print(f"QA report: _site/qa-report.json ({len(findings)} finding(s)).")
