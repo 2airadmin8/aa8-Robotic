@@ -1,19 +1,30 @@
 #!/usr/bin/env python3
-"""Validate the static site, inject shared SEO script, and build _site."""
+"""Validate the static site, inject shared assets, and build _site."""
 
 from __future__ import annotations
 
 import json
-import re
 import shutil
 import sys
+from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
+SITE_PREFIX = "/aa8-Robotic/"
+
+
+@dataclass
+class PageResult:
+    path: str
+    title: str
+    description_length: int
+    h1_count: int
+    link_count: int
+    image_count: int
 
 
 class DocumentParser(HTMLParser):
@@ -25,32 +36,61 @@ class DocumentParser(HTMLParser):
         self.description = ""
         self.canonical = ""
         self.h1_count = 0
+        self.image_alts: list[str | None] = []
+        self.html_lang = ""
+        self.viewport = ""
+        self.buttons: list[dict[str, str]] = []
         self._in_title = False
+        self._button_depth = 0
+        self._button_text: list[str] = []
+        self._button_attrs: dict[str, str] = {}
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {key: value or "" for key, value in attrs}
+
+        if tag == "html":
+            self.html_lang = values.get("lang", "").strip()
         if "id" in values:
             self.ids.append(values["id"])
         if tag in {"a", "link", "script", "img"}:
             attribute = {"a": "href", "link": "href", "script": "src", "img": "src"}[tag]
             if values.get(attribute):
                 self.links.append(values[attribute])
+        if tag == "img":
+            self.image_alts.append(values.get("alt") if "alt" in values else None)
         if tag == "meta" and values.get("name") == "description":
             self.description = values.get("content", "").strip()
-        if tag == "link" and values.get("rel") == "canonical":
+        if tag == "meta" and values.get("name") == "viewport":
+            self.viewport = values.get("content", "").strip()
+        if tag == "link" and "canonical" in values.get("rel", "").split():
             self.canonical = values.get("href", "").strip()
         if tag == "title":
             self._in_title = True
         if tag == "h1":
             self.h1_count += 1
+        if tag == "button":
+            self._button_depth = 1
+            self._button_text = []
+            self._button_attrs = values
+        elif self._button_depth:
+            self._button_depth += 1
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
             self._in_title = False
+        if self._button_depth:
+            self._button_depth -= 1
+            if tag == "button" and self._button_depth == 0:
+                self.buttons.append({
+                    "text": "".join(self._button_text).strip(),
+                    "aria_label": self._button_attrs.get("aria-label", "").strip(),
+                })
 
     def handle_data(self, data: str) -> None:
         if self._in_title:
             self.title_parts.append(data)
+        if self._button_depth:
+            self._button_text.append(data)
 
     @property
     def title(self) -> str:
@@ -69,21 +109,37 @@ def iter_source_files() -> list[Path]:
     return files
 
 
-def resolve_local_target(document: Path, raw_link: str) -> Path | None:
+def parse_document(path: Path) -> DocumentParser:
+    parser = DocumentParser()
+    parser.feed(path.read_text(encoding="utf-8"))
+    return parser
+
+
+def resolve_local_target(document: Path, raw_link: str) -> tuple[Path, str] | None:
     link = raw_link.strip()
-    if not link or link.startswith(("#", "mailto:", "tel:", "javascript:", "data:")):
+    if not link or link.startswith(("mailto:", "tel:", "javascript:", "data:")):
         return None
+
     parsed = urlparse(link)
     if parsed.scheme in {"http", "https"} or parsed.netloc:
         return None
+
     clean = parsed.path
+    fragment = unquote(parsed.fragment)
     if not clean:
-        return None
+        return document, fragment
     if clean.startswith("/"):
-        prefix = "/aa8-Robotic/"
-        clean = clean[len(prefix):] if clean.startswith(prefix) else clean.lstrip("/")
-        return ROOT / clean
-    return (document.parent / clean).resolve()
+        clean = clean[len(SITE_PREFIX):] if clean.startswith(SITE_PREFIX) else clean.lstrip("/")
+        return ROOT / clean, fragment
+    return (document.parent / clean).resolve(), fragment
+
+
+def load_dynamic_ids() -> set[str]:
+    path = ROOT / "data" / "products.json"
+    if not path.exists():
+        return set()
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {str(item.get("id", "")) for item in data.get("products", []) if item.get("id")}
 
 
 def validate_json(errors: list[str]) -> None:
@@ -96,14 +152,19 @@ def validate_json(errors: list[str]) -> None:
             errors.append(f"JSON error: {path.relative_to(ROOT)}: {exc}")
 
 
-def validate_html(errors: list[str], warnings: list[str]) -> None:
+def validate_html(errors: list[str], warnings: list[str]) -> list[PageResult]:
+    page_results: list[PageResult] = []
+    parser_cache: dict[Path, DocumentParser] = {}
+    dynamic_ids = load_dynamic_ids()
+
     for path in ROOT.rglob("*.html"):
         if any(part in EXCLUDED_DIRS for part in path.relative_to(ROOT).parts):
             continue
-        text = path.read_text(encoding="utf-8")
-        parser = DocumentParser()
-        parser.feed(text)
+
+        parser = parse_document(path)
+        parser_cache[path.resolve()] = parser
         relative = path.relative_to(ROOT)
+        text = path.read_text(encoding="utf-8")
 
         if path.name != "404.html":
             if not parser.title:
@@ -115,35 +176,83 @@ def validate_html(errors: list[str], warnings: list[str]) -> None:
             if parser.h1_count != 1:
                 errors.append(f"Expected exactly one h1, found {parser.h1_count}: {relative}")
 
+        if parser.html_lang != "ja":
+            warnings.append(f"Unexpected or missing html lang: {relative}")
+        if "width=device-width" not in parser.viewport:
+            errors.append(f"Missing responsive viewport: {relative}")
+        if parser.description and not 40 <= len(parser.description) <= 180:
+            warnings.append(f"Meta description length {len(parser.description)}: {relative}")
+
         duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
         if duplicate_ids:
             errors.append(f"Duplicate IDs {duplicate_ids}: {relative}")
 
+        for index, alt in enumerate(parser.image_alts, start=1):
+            if alt is None:
+                errors.append(f"Missing alt on image {index}: {relative}")
+
+        for index, button in enumerate(parser.buttons, start=1):
+            if not button["text"] and not button["aria_label"]:
+                errors.append(f"Unnamed button {index}: {relative}")
+
         for raw_link in parser.links:
-            target = resolve_local_target(path, raw_link)
-            if target is None:
+            resolved = resolve_local_target(path, raw_link)
+            if resolved is None:
                 continue
+            target, fragment = resolved
             if target.is_dir():
                 target = target / "index.html"
             if not target.exists():
                 errors.append(f"Broken local link: {relative} -> {raw_link}")
+                continue
+
+            if fragment and target.suffix.lower() == ".html":
+                target_parser = parser_cache.get(target.resolve()) or parse_document(target)
+                parser_cache[target.resolve()] = target_parser
+                if fragment not in target_parser.ids and fragment not in dynamic_ids:
+                    warnings.append(f"Missing anchor target: {relative} -> {raw_link}")
 
         if "href=\"#\"" in text or "href='#'" in text:
-            warnings.append(f"Placeholder href found: {relative}")
+            errors.append(f"Placeholder href found: {relative}")
+
+        page_results.append(PageResult(
+            path=str(relative),
+            title=parser.title,
+            description_length=len(parser.description),
+            h1_count=parser.h1_count,
+            link_count=len(parser.links),
+            image_count=len(parser.image_alts),
+        ))
+
+    return page_results
 
 
-def inject_seo_script(html: str, relative: Path) -> str:
-    if "assets/js/seo.js" in html:
-        return html
+def inject_shared_assets(html: str, relative: Path) -> str:
     depth = len(relative.parent.parts)
     prefix = "../" * depth
-    script = f'<script src="{prefix}assets/js/seo.js?v=20260716-1" defer></script>'
-    if "</body>" not in html:
-        return html
-    return html.replace("</body>", f"{script}\n</body>", 1)
+
+    mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v=20260716-1">'
+    if "assets/css/mobile-qa.css" not in html and "</head>" in html:
+        html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
+
+    # GT- is a Google tag ID, not a GTM container ID. This marker prevents the
+    # legacy site script from requesting gtm.js with an incompatible identifier.
+    analytics_guard = '<script data-google-tag-loader aria-hidden="true"></script>'
+    if "data-google-tag-loader" not in html and "</head>" in html:
+        html = html.replace("</head>", f"  {analytics_guard}\n</head>", 1)
+
+    scripts = []
+    if "assets/js/mobile-qa.js" not in html:
+        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v=20260716-1" defer></script>')
+    if "assets/js/seo.js" not in html:
+        scripts.append(f'<script src="{prefix}assets/js/seo.js?v=20260716-1" defer></script>')
+    if scripts and "</body>" in html:
+        html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
+
+    return html
 
 
-def build_output() -> None:
+def build_output(page_results: list[PageResult], warnings: list[str]) -> None:
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     OUTPUT.mkdir(parents=True)
@@ -154,16 +263,26 @@ def build_output() -> None:
         destination.parent.mkdir(parents=True, exist_ok=True)
         if source.suffix.lower() == ".html":
             html = source.read_text(encoding="utf-8")
-            destination.write_text(inject_seo_script(html, relative), encoding="utf-8")
+            destination.write_text(inject_shared_assets(html, relative), encoding="utf-8")
         else:
             shutil.copy2(source, destination)
+
+    report = {
+        "status": "passed",
+        "html_pages": len(page_results),
+        "warnings": warnings,
+        "pages": [asdict(result) for result in page_results],
+    }
+    (OUTPUT / "qa-report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":
     errors: list[str] = []
     warnings: list[str] = []
     validate_json(errors)
-    validate_html(errors, warnings)
+    pages = validate_html(errors, warnings)
 
     for warning in warnings:
         print(f"WARNING: {warning}")
@@ -173,6 +292,6 @@ if __name__ == "__main__":
         print(f"Validation failed with {len(errors)} error(s).")
         sys.exit(1)
 
-    build_output()
-    html_count = len(list(OUTPUT.rglob("*.html")))
-    print(f"Validation passed. Built {html_count} HTML pages into _site.")
+    build_output(pages, warnings)
+    print(f"Validation passed. Built {len(pages)} HTML pages into _site.")
+    print(f"QA report: _site/qa-report.json ({len(warnings)} warning(s)).")
