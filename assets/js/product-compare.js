@@ -17,6 +17,16 @@
   if (!productRoot || !compareBar || !dialog || !tableTarget) return;
 
   const selected = new Set();
+  const query = new URLSearchParams(window.location.search);
+  const sourceTheme = query.get('theme') || '';
+  const themeLabels = {
+    university: '大学研究・教育',
+    data: 'データ収集・VLA',
+    inspection: '巡回・点検',
+    transport: '搬送',
+    manipulation: '把持・操作',
+    lab: '実験室自動化',
+  };
   let products = [];
 
   initialise();
@@ -64,6 +74,7 @@
     });
 
     updateInterface();
+    openFromUrlWhenRequested();
   }
 
   function toggleProduct(productId, checkbox, card) {
@@ -99,14 +110,35 @@
     updateCompareUrl();
   }
 
+  function openFromUrlWhenRequested() {
+    if (query.get('open') !== 'compare' || selected.size < 2 || dialog.open) return;
+    window.setTimeout(() => {
+      openComparison();
+      document.querySelector('#lineup')?.scrollIntoView({ block: 'start' });
+    }, 80);
+  }
+
   function openComparison() {
     const selectedProducts = getSelectedProducts();
     if (selectedProducts.length < 2) return;
     tableTarget.innerHTML = buildPrintHeader(selectedProducts) + buildComparisonTable(selectedProducts);
 
+    const themeLabel = themeLabels[sourceTheme] || '';
+    const dialogTitle = dialog.querySelector('#compare-title');
+    if (dialogTitle) {
+      dialogTitle.textContent = themeLabel
+        ? `${themeLabel}の候補製品を比較。`
+        : '選択した製品を比較。';
+    }
+
     if (consultLink) {
       const names = selectedProducts.map((item) => item.name).join(' / ');
-      consultLink.href = `contact.html?product=${encodeURIComponent(names)}&service=multi-brand-comparison`;
+      const params = new URLSearchParams({
+        product: names,
+        service: 'multi-brand-comparison',
+      });
+      if (sourceTheme) params.set('theme', sourceTheme);
+      consultLink.href = `contact.html?${params.toString()}`;
     }
 
     if (copyStatus) copyStatus.textContent = '';
@@ -115,6 +147,7 @@
 
   function buildPrintHeader(items) {
     const date = new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date());
+    const themeLabel = themeLabels[sourceTheme] || '候補整理・大学内部共有用';
     return `
       <section class="compare-print-header" aria-hidden="true">
         <div>
@@ -124,7 +157,7 @@
         </div>
         <dl>
           <div><dt>作成日</dt><dd>${escapeHtml(date)}</dd></div>
-          <div><dt>用途</dt><dd>候補整理・大学内部共有用</dd></div>
+          <div><dt>用途</dt><dd>${escapeHtml(themeLabel)}</dd></div>
         </dl>
       </section>
     `;
@@ -146,42 +179,24 @@
 
     return `
       <table class="compare-table">
-        <thead>
-          <tr>
-            <th scope="col">比較項目</th>
-            ${items.map((item) => `
-              <th scope="col">
-                <div class="compare-product-head">
-                  <small>${escapeHtml(item.manufacturerName)}</small>
-                  <strong>${escapeHtml(item.name)}</strong>
-                  <a href="${escapeHtml(item.detailPage)}">詳細を見る →</a>
-                </div>
-              </th>
-            `).join('')}
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(([label, renderer]) => `
-            <tr>
-              <th scope="row">${escapeHtml(label)}</th>
-              ${items.map((item) => `<td>${renderer(item)}</td>`).join('')}
-            </tr>
-          `).join('')}
-        </tbody>
+        <thead><tr><th scope="col">比較項目</th>${items.map((item) => `
+          <th scope="col"><div class="compare-product-head"><small>${escapeHtml(item.manufacturerName)}</small><strong>${escapeHtml(item.name)}</strong><a href="${escapeHtml(item.detailPage)}">詳細を見る →</a></div></th>`).join('')}</tr></thead>
+        <tbody>${rows.map(([label, renderer]) => `
+          <tr><th scope="row">${escapeHtml(label)}</th>${items.map((item) => `<td>${renderer(item)}</td>`).join('')}</tr>`).join('')}</tbody>
       </table>
       <section class="compare-print-notes" aria-hidden="true">
         <h2>確認事項</h2>
         <p>本表は公開情報とAirAdmin8で整理した候補比較です。価格、納期、保証、SDK、ROS、輸送、設置条件は正式見積時に対象構成ごとに確認します。</p>
         <div class="compare-print-memo"><strong>学内・社内メモ</strong><span></span><span></span><span></span></div>
-      </section>
-    `;
+      </section>`;
   }
 
   function printComparison() {
     if (getSelectedProducts().length < 2) return;
     document.body.classList.add('is-printing-comparison');
     const previousTitle = document.title;
-    document.title = `AIロボット製品比較_${getSelectedProducts().map((item) => item.name).join('_')}`;
+    const themeLabel = themeLabels[sourceTheme];
+    document.title = `AIロボット製品比較_${themeLabel ? `${themeLabel}_` : ''}${getSelectedProducts().map((item) => item.name).join('_')}`;
     window.print();
     window.setTimeout(() => {
       document.body.classList.remove('is-printing-comparison');
@@ -210,7 +225,7 @@
   }
 
   function restoreSelectionFromUrl() {
-    const ids = new URLSearchParams(window.location.search).get('compare');
+    const ids = query.get('compare');
     if (!ids) return;
     ids.split(',').slice(0, 3).forEach((id) => {
       if (products.some((item) => item.id === id)) selected.add(id);
@@ -220,14 +235,16 @@
   function updateCompareUrl() {
     const url = new URL(window.location.href);
     if (selected.size) url.searchParams.set('compare', [...selected].join(','));
-    else url.searchParams.delete('compare');
+    else {
+      url.searchParams.delete('compare');
+      url.searchParams.delete('open');
+      url.searchParams.delete('theme');
+    }
     window.history.replaceState({}, '', url);
   }
 
   function getSelectedProducts() {
-    return [...selected]
-      .map((id) => products.find((item) => item.id === id))
-      .filter(Boolean);
+    return [...selected].map((id) => products.find((item) => item.id === id)).filter(Boolean);
   }
 
   function showLimitMessage(message) {
@@ -243,15 +260,13 @@
   }
 
   function resourceLabel(value) {
-    const map = {
-      sdk: 'SDK', ros2: 'ROS2', mujoco: 'MuJoCo', hdf5: 'HDF5', rlds: 'RLDS',
-    };
+    const map = { sdk: 'SDK', ros2: 'ROS2', mujoco: 'MuJoCo', hdf5: 'HDF5', rlds: 'RLDS' };
     return map[value] || value;
   }
 
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>'"]/g, (character) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot>',
     }[character]));
   }
 
