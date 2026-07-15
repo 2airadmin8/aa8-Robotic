@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VLA・模倣学習データ収集｜AirAdmin8 Robotics</title>
+  <meta name="description" content="テレオペ、観測・行動、HDF5・RLDS、センサー、再生、学習環境まで含めたVLA・模倣学習向けロボットデータ収集構成を整理します。">
+  <link rel="canonical" href="https://2airadmin8.github.io/aa8-Robotic/use-cases/vla-data-collection.html">
+  <link rel="stylesheet" href="../assets/css/site.css?v=20260716-4">
+  <link rel="stylesheet" href="../assets/css/content-hub.css?v=20260716-1">
+  <link rel="stylesheet" href="../assets/css/product-page.css?v=20260716-1">
+</head>
+<body>
+<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav"><a href="../products.html">製品を探す</a><a href="../use-cases.html">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html">相談する</a></nav></div></header>
+<main>
+<section class="page-hero hub-hero"><div class="wrap hub-hero-grid"><div><div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../use-cases.html">用途</a> / VLAデータ収集</div><p class="eyebrow">VLA / IMITATION LEARNING</p><h1>ロボットを買う前に、<br>収集するデータを決める。</h1><p class="lead">テレオペ装置、カメラ、観測、行動、制御周期、保存形式、再生、学習環境まで一つの収集系として設計します。</p><div class="actions"><a class="button primary" href="../contact.html?theme=vla-data-collection">構成を相談する</a><a class="button secondary" href="../products.html">候補製品を見る</a></div></div><aside class="hub-side-note"><p class="eyebrow">KEY DECISIONS</p><h2>機体以外に決めること。</h2><ul class="deliverable-list"><li>遠隔操作方式</li><li>観測・行動の定義</li><li>カメラ・センサー構成</li><li>記録形式と同期</li><li>再生・学習・評価方法</li></ul></aside></div></section>
+<section class="section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">SYSTEM ARCHITECTURE</p><h2>データ収集の基本構成。</h2></div></div><div class="logic-flow"><article><span>01</span><h3>テレオペ</h3><p>VR、データグローブ、マスター装置、ジョイスティック。</p></article><article><span>02</span><h3>ロボット・センサー</h3><p>双腕、ハンド、頭部・手先カメラ、移動ベース。</p></article><article><span>03</span><h3>記録・同期</h3><p>状態、行動、画像、タイムスタンプを同期して保存。</p></article><article><span>04</span><h3>再生・学習</h3><p>再生確認、品質評価、模倣学習・VLA学習へ接続。</p></article></div></div></section>
+<section class="section muted"><div class="wrap detail-grid"><div><p class="eyebrow">DATA DEFINITION</p><h2>最低限そろえるデータ。</h2><table class="specs"><tbody><tr><th>観測</th><td>RGB / Depth、関節状態、手先姿勢、力・トルク、移動状態</td></tr><tr><th>行動</th><td>関節指令、手先指令、グリッパ指令、移動ベース指令</td></tr><tr><th>記録形式</th><td>HDF5、RLDS、または学習基盤に合わせた変換形式</td></tr><tr><th>同期</th><td>画像・状態・行動のタイムスタンプと欠損管理</td></tr><tr><th>品質</th><td>成功・失敗、介入、リセット、異常、再現性</td></tr></tbody></table></div><aside class="sidebox"><h3>PoC前の確認事項</h3><ul class="check-list"><li>対象タスクと成功条件</li><li>必要な精度と制御周期</li><li>1エピソードの長さ</li><li>必要データ量</li><li>保存容量と計算環境</li></ul></aside></div></section>
+<section class="section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">CANDIDATE CONFIGURATIONS</p><h2>候補構成。</h2></div></div><div class="grid three"><article class="card"><h3>Unitree G1-D</h3><p>移動ベース、双腕、データ収集・模倣学習を前提に比較。</p><a class="text-link" href="../products/unitree-g1-d.html">詳細を見る →</a></article><article class="card"><h3>AgiBot G2</h3><p>移動、双腕操作、力制御を組み合わせた研究構成。</p><a class="text-link" href="../products/agibot-g2.html">詳細を見る →</a></article><article class="card"><h3>Tianji Marvin</h3><p>双腕力制御、全方向移動、VR・グローブ、HDF5・RLDS記録を含む候補構成。</p><a class="text-link" href="../products.html#tianji-marvin">製品カードを見る →</a></article></div></div></section>
+<section class="section dark compact-dark-cta"><div class="wrap contact-panel-dark"><div><p class="eyebrow">DESIGN BEFORE PURCHASE</p><h2>機体・テレオペ・データ形式をまとめて比較。</h2><p>必要なデータから逆算し、過不足のない構成とPoC範囲を整理します。</p></div><a class="button light-button" href="../contact.html?theme=vla-data-collection">相談する</a></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../contact.html">相談</a></div></div></footer><script src="../assets/js/site.js?v=20260716-4" defer></script>
+</body></html>
