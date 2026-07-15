@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">人型・四足・ロボットアームの技術線画</title>
+  <desc id="desc">AirAdmin8 Roboticsが比較する人型ロボット、四足ロボット、ロボットアームを示す技術イラスト</desc>
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00b2bc"/>
+      <stop offset="0.55" stop-color="#009bd2"/>
+      <stop offset="1" stop-color="#0069b5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#0b3143" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <rect x="1" y="1" width="1198" height="558" rx="36" fill="#ffffff" stroke="#d9e5ea" stroke-width="2"/>
+  <path d="M400 72V470M800 72V470" stroke="#d9e5ea" stroke-width="2" stroke-dasharray="8 12"/>
+  <path d="M70 470H1130" stroke="#c8dbe3" stroke-width="3"/>
+
+  <!-- Humanoid -->
+  <g transform="translate(85 55)" fill="none" stroke="#173342" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <rect x="105" y="20" width="120" height="105" rx="42" fill="#f8fcfe"/>
+    <path d="M142 71h46" stroke="url(#accent)" stroke-width="15"/>
+    <path d="M130 127l-38 72 24 105h98l24-105-38-72" fill="#f8fcfe"/>
+    <circle cx="165" cy="215" r="18" fill="url(#accent)" stroke="none"/>
+    <path d="M102 159L45 219l-24 93M228 159l57 60 24 93"/>
+    <circle cx="45" cy="219" r="15" fill="#fff"/>
+    <circle cx="285" cy="219" r="15" fill="#fff"/>
+    <path d="M116 304l-25 94-8 63M214 304l25 94 8 63"/>
+    <circle cx="91" cy="398" r="15" fill="#fff"/>
+    <circle cx="239" cy="398" r="15" fill="#fff"/>
+    <path d="M54 463h58M218 463h58"/>
+  </g>
+
+  <!-- Quadruped -->
+  <g transform="translate(428 130)" fill="none" stroke="#173342" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <rect x="50" y="60" width="250" height="125" rx="56" fill="#f8fcfe"/>
+    <rect x="272" y="82" width="78" height="82" rx="28" fill="#f8fcfe"/>
+    <path d="M299 112h22" stroke="url(#accent)" stroke-width="14"/>
+    <path d="M80 178l-26 92-4 85M135 180l15 87-4 88M225 180l-15 87 4 88M280 178l26 92 4 85"/>
+    <circle cx="54" cy="270" r="14" fill="#fff"/>
+    <circle cx="150" cy="267" r="14" fill="#fff"/>
+    <circle cx="210" cy="267" r="14" fill="#fff"/>
+    <circle cx="306" cy="270" r="14" fill="#fff"/>
+    <path d="M23 357h55M119 357h55M186 357h55M282 357h55"/>
+    <circle cx="126" cy="122" r="13" fill="url(#accent)" stroke="none"/>
+  </g>
+
+  <!-- Robot arm -->
+  <g transform="translate(835 70)" fill="none" stroke="#173342" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+    <path d="M50 402h260M95 402v-45h170v45" fill="#f8fcfe"/>
+    <circle cx="180" cy="338" r="50" fill="#f8fcfe"/>
+    <path d="M180 288l-4-118"/>
+    <circle cx="176" cy="150" r="42" fill="#f8fcfe"/>
+    <path d="M205 122l84-77"/>
+    <circle cx="304" cy="32" r="38" fill="#f8fcfe"/>
+    <path d="M330 58l55 92"/>
+    <circle cx="396" cy="170" r="34" fill="#f8fcfe"/>
+    <path d="M412 200l-3 77"/>
+    <path d="M385 278l24 30 24-30M409 308v40"/>
+    <circle cx="180" cy="338" r="15" fill="url(#accent)" stroke="none"/>
+    <circle cx="176" cy="150" r="13" fill="url(#accent)" stroke="none"/>
+    <circle cx="304" cy="32" r="12" fill="url(#accent)" stroke="none"/>
+  </g>
+
+  <g font-family="Noto Sans JP, sans-serif" text-anchor="middle">
+    <text x="200" y="515" fill="#173342" font-size="28" font-weight="800">人型ロボット</text>
+    <text x="600" y="515" fill="#173342" font-size="28" font-weight="800">四足ロボット</text>
+    <text x="1000" y="515" fill="#173342" font-size="28" font-weight="800">ロボットアーム</text>
+  </g>
+</svg>
