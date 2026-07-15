@@ -18,6 +18,7 @@
     maker: params.get('maker') || '',
     service: params.get('service') || '',
     theme: params.get('theme') || '',
+    caseId: params.get('case') || '',
     useCase: params.get('use_case') || '',
     message: params.get('message') || '',
   };
@@ -30,11 +31,16 @@
     'multi-brand-comparison': { category: '製品比較・選定', label: '複数メーカー比較' },
     'checklist-review': { category: '導入条件整理', label: '導入前チェック結果' },
     'company-inquiry': { category: '会社・協業相談', label: '会社・協業相談' },
+    'case-based-consultation': { category: '導入条件整理', label: '事例ベース相談' },
     inspection: { category: '導入条件整理', label: '巡回・点検' },
     transport: { category: '導入条件整理', label: '搬送' },
     manipulation: { category: '導入条件整理', label: '把持・操作' },
     'lab-automation': { category: 'PoC設計', label: '実験室自動化' },
     'use-case-review': { category: '導入条件整理', label: '用途からの条件整理' },
+  };
+
+  const caseLabels = {
+    'keio-selection': '慶應義塾大学向け選定・見積支援事例',
   };
 
   restoreDraft();
@@ -157,6 +163,7 @@
       source_maker: source.maker,
       source_service: source.service,
       source_theme: source.theme,
+      source_case: source.caseId,
       source_page: document.referrer || window.location.href,
     };
 
@@ -173,7 +180,11 @@
     const config = sourceConfig[source.service] || sourceConfig[source.theme];
     if (categoryField && config?.category) categoryField.value = config.category;
 
-    const labels = [source.product, source.maker, config?.label].filter(Boolean);
+    if (source.caseId && useCaseField && !useCaseField.value) {
+      useCaseField.value = `${caseLabels[source.caseId] || source.caseId}を参考に、同様の条件整理を希望`;
+    }
+
+    const labels = [source.product, source.maker, config?.label, caseLabels[source.caseId]].filter(Boolean);
     if (labels.length && prefillNotice) {
       prefillNotice.hidden = false;
       prefillNotice.textContent = `前のページから「${labels.join('・')}」を引き継ぎました。内容は自由に変更できます。`;
@@ -252,6 +263,7 @@
       `メーカー：${values.get('source_maker') || ''}`,
       `支援：${values.get('source_service') || ''}`,
       `用途：${values.get('source_theme') || ''}`,
+      `事例：${values.get('source_case') || ''}`,
     ].join('\n');
   }
 
