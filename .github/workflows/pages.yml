@@ -50,6 +50,13 @@ jobs:
           python -m py_compile scripts/validate_seo.py
           python scripts/validate_seo.py
 
+      - name: Validate GA4 event registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_analytics.py
+          python scripts/validate_analytics.py
+
       - name: Build site with safe fallback
         shell: bash
         run: |
