@@ -11,7 +11,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "data" / "analytics-events.json"
 SCRIPT_PATH = ROOT / "assets" / "js" / "analytics-events.js"
-EVENT_NAME = re.compile(r"send\(\s*['\"]([a-z0-9_]+)['\"]")
+DIRECT_EVENT_NAME = re.compile(r"send\(\s*['\"]([a-z0-9_]+)['\"]")
+TERNARY_EVENT_NAMES = re.compile(
+    r"\?\s*['\"]([a-z0-9_]+)['\"]\s*:\s*['\"]([a-z0-9_]+)['\"]"
+)
+
+
+def extract_implemented_events(script: str) -> list[str]:
+    """Extract direct and conditional event names from the analytics script."""
+    names = set(DIRECT_EVENT_NAME.findall(script))
+    for true_name, false_name in TERNARY_EVENT_NAMES.findall(script):
+        names.add(true_name)
+        names.add(false_name)
+    return sorted(names)
 
 
 def main() -> int:
@@ -31,7 +43,7 @@ def main() -> int:
 
     registered_events = registry.get("events", [])
     registered_names = [str(item.get("name", "")).strip() for item in registered_events]
-    implemented_names = sorted(set(EVENT_NAME.findall(script)))
+    implemented_names = extract_implemented_events(script)
 
     duplicates = sorted({name for name in registered_names if registered_names.count(name) > 1 and name})
     if duplicates:
@@ -62,7 +74,10 @@ def main() -> int:
 
         prohibited = {"name", "email", "phone", "organization", "message", "free_text"}
         if isinstance(parameters, list) and prohibited.intersection(parameters):
-            errors.append(f"PII-like parameter registered for event {name}: {sorted(prohibited.intersection(parameters))}")
+            errors.append(
+                f"PII-like parameter registered for event {name}: "
+                f"{sorted(prohibited.intersection(parameters))}"
+            )
 
     if errors:
         for error in errors:
