@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://2airadmin8.github.io/aa8-Robotic/sitemap.xml
