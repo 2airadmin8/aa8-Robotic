@@ -4,8 +4,8 @@
   // ------------------------------------------------------------
   // 計測基盤
   // GA4 Measurement ID: G-XJYBMMPWWX
-  // Google Tag ID: GT-5NXF29HN
-  // 個人情報はイベントパラメータへ送信しない。
+  // GT-5NXF29HN はGoogle tag IDであり、GTMコンテナIDではない。
+  // 本サイトではGA4のgtag.jsのみを読み込み、個人情報は送信しない。
   // ------------------------------------------------------------
   initialiseAnalytics();
 
@@ -27,14 +27,6 @@
         anonymize_ip: true,
         send_page_view: true,
       });
-    }
-
-    if (!document.querySelector('script[data-google-tag-loader]')) {
-      const tagScript = document.createElement('script');
-      tagScript.async = true;
-      tagScript.src = 'https://www.googletagmanager.com/gtm.js?id=GT-5NXF29HN';
-      tagScript.dataset.googleTagLoader = 'true';
-      document.head.appendChild(tagScript);
     }
   }
 
@@ -106,14 +98,14 @@
         const featureLabels = (item.featureLabels || []).slice(0, 4);
         const useLabels = (item.useLabels || []).slice(0, 4);
         const placeholderLabel = item.imageStatus === 'placeholder'
-          ? '<span class="image-note">製品画像準備中</span>'
+          ? '<span class="image-note">参考イメージ</span>'
           : '';
         const note = item.note
           ? `<p class="product-note">${item.note}</p>`
           : '';
 
         return `
-          <article id="${item.id}" class="product-card research-product-card" data-product-groups="${filterGroups}">
+          <article id="${item.id}" class="product-card research-product-card" data-product-groups="${filterGroups}" data-product-maker="${item.manufacturerId}">
             <a class="product-visual" href="${item.detailPage}" aria-label="${item.name}の詳細を見る">
               <img src="${item.image}" alt="${item.imageAlt || `${item.name}の製品イメージ`}" loading="lazy">
               ${placeholderLabel}
@@ -151,25 +143,42 @@
   });
 
   function initialiseProductFilter(productRoot) {
-    const filterButtons = document.querySelectorAll('[data-product-filter]');
+    const filterButtons = [...document.querySelectorAll('[data-product-filter]')];
     if (!filterButtons.length) return;
 
-    filterButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const selectedGroup = button.dataset.productFilter;
+    const query = new URLSearchParams(window.location.search);
+    const maker = query.get('maker') || 'all';
+    const requestedFilter = query.get('filter') || 'all';
+    const availableFilters = filterButtons.map((button) => button.dataset.productFilter);
+    const initialFilter = availableFilters.includes(requestedFilter) ? requestedFilter : 'all';
 
-        filterButtons.forEach((item) => item.classList.remove('is-active'));
-        button.classList.add('is-active');
-
-        productRoot.querySelectorAll('[data-product-groups]').forEach((card) => {
-          const groups = card.dataset.productGroups.split(' ');
-          const shouldShow = selectedGroup === 'all' || groups.includes(selectedGroup);
-          card.hidden = !shouldShow;
-        });
-
-        trackEvent('product_filter', { filter_name: selectedGroup });
+    const applyFilter = (selectedGroup, shouldTrack = false) => {
+      filterButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.productFilter === selectedGroup);
       });
+
+      productRoot.querySelectorAll('[data-product-groups]').forEach((card) => {
+        const groups = card.dataset.productGroups.split(' ');
+        const groupMatch = selectedGroup === 'all' || groups.includes(selectedGroup);
+        const makerMatch = maker === 'all' || card.dataset.productMaker === maker;
+        card.hidden = !(groupMatch && makerMatch);
+      });
+
+      const url = new URL(window.location.href);
+      if (selectedGroup === 'all') url.searchParams.delete('filter');
+      else url.searchParams.set('filter', selectedGroup);
+      window.history.replaceState({}, '', url);
+
+      if (shouldTrack) {
+        trackEvent('product_filter', { filter_name: selectedGroup, maker_filter: maker });
+      }
+    };
+
+    filterButtons.forEach((button) => {
+      button.addEventListener('click', () => applyFilter(button.dataset.productFilter, true));
     });
+
+    applyFilter(initialFilter);
   }
 
   // ------------------------------------------------------------
