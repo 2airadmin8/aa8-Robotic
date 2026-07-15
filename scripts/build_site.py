@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Validate the static site, normalise shared UI, and build _site.
+"""Validate, normalise and build the AirAdmin8 Robotics static site.
 
-The production build is blocked only by unreadable JSON or an unexpected
-build-time exception. Content, link, anchor and accessibility findings are
-written to qa-report.json without stopping publication.
+Content-quality findings are written to qa-report.json and never block release.
+Only unreadable JSON or an unexpected build exception is fatal.
 """
 
 from __future__ import annotations
@@ -21,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
 SITE_PREFIX = "/aa8-Robotic/"
-BUILD_VERSION = "20260716-8"
+BUILD_VERSION = "20260716-9"
 
 
 @dataclass
@@ -54,6 +53,7 @@ class DocumentParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {key: value or "" for key, value in attrs}
+
         if tag == "html":
             self.html_lang = values.get("lang", "").strip()
         if "id" in values:
@@ -87,10 +87,12 @@ class DocumentParser(HTMLParser):
         if self._button_depth:
             self._button_depth -= 1
             if tag == "button" and self._button_depth == 0:
-                self.buttons.append({
-                    "text": "".join(self._button_text).strip(),
-                    "aria_label": self._button_attrs.get("aria-label", "").strip(),
-                })
+                self.buttons.append(
+                    {
+                        "text": "".join(self._button_text).strip(),
+                        "aria_label": self._button_attrs.get("aria-label", "").strip(),
+                    }
+                )
 
     def handle_data(self, data: str) -> None:
         if self._in_title:
@@ -125,15 +127,17 @@ def resolve_local_target(document: Path, raw_link: str) -> tuple[Path, str] | No
     link = raw_link.strip()
     if not link or link.startswith(("mailto:", "tel:", "javascript:", "data:")):
         return None
+
     parsed = urlparse(link)
     if parsed.scheme in {"http", "https"} or parsed.netloc:
         return None
+
     clean = parsed.path
     fragment = unquote(parsed.fragment)
     if not clean:
         return document, fragment
     if clean.startswith("/"):
-        clean = clean[len(SITE_PREFIX):] if clean.startswith(SITE_PREFIX) else clean.lstrip("/")
+        clean = clean[len(SITE_PREFIX) :] if clean.startswith(SITE_PREFIX) else clean.lstrip("/")
         return ROOT / clean, fragment
     return (document.parent / clean).resolve(), fragment
 
@@ -160,22 +164,23 @@ def validate_json(fatal_errors: list[str]) -> None:
 
 
 def validate_html(findings: list[str]) -> list[PageResult]:
-    page_results: list[PageResult] = []
+    results: list[PageResult] = []
     parser_cache: dict[Path, DocumentParser] = {}
     dynamic_ids = load_dynamic_ids()
 
     for path in ROOT.rglob("*.html"):
         if any(part in EXCLUDED_DIRS for part in path.relative_to(ROOT).parts):
             continue
+
+        relative = path.relative_to(ROOT)
         try:
             parser = parse_document(path)
+            text = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError) as exc:
-            findings.append(f"Unreadable HTML: {path.relative_to(ROOT)}: {exc}")
+            findings.append(f"Unreadable HTML: {relative}: {exc}")
             continue
 
         parser_cache[path.resolve()] = parser
-        relative = path.relative_to(ROOT)
-        text = path.read_text(encoding="utf-8")
 
         if path.name != "404.html":
             if not parser.title:
@@ -194,12 +199,14 @@ def validate_html(findings: list[str]) -> list[PageResult]:
         if parser.description and not 40 <= len(parser.description) <= 180:
             findings.append(f"Meta description length {len(parser.description)}: {relative}")
 
-        duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
-        if duplicate_ids:
-            findings.append(f"Duplicate IDs {duplicate_ids}: {relative}")
+        duplicates = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
+        if duplicates:
+            findings.append(f"Duplicate IDs {duplicates}: {relative}")
+
         for index, alt in enumerate(parser.image_alts, start=1):
             if alt is None:
                 findings.append(f"Missing alt on image {index}: {relative}")
+
         for index, button in enumerate(parser.buttons, start=1):
             if not button["text"] and not button["aria_label"]:
                 findings.append(f"Unnamed button {index}: {relative}")
@@ -223,37 +230,36 @@ def validate_html(findings: list[str]) -> list[PageResult]:
                 except (UnicodeDecodeError, OSError):
                     findings.append(f"Could not inspect anchor target: {relative} -> {raw_link}")
 
-        if "href=\"#\"" in text or "href='#'" in text:
+        if 'href="#"' in text or "href='#'" in text:
             findings.append(f"Placeholder href found: {relative}")
 
-        page_results.append(PageResult(
-            path=str(relative),
-            title=parser.title,
-            description_length=len(parser.description),
-            h1_count=parser.h1_count,
-            link_count=len(parser.links),
-            image_count=len(parser.image_alts),
-        ))
-    return page_results
+        results.append(
+            PageResult(
+                path=str(relative),
+                title=parser.title,
+                description_length=len(parser.description),
+                h1_count=parser.h1_count,
+                link_count=len(parser.links),
+                image_count=len(parser.image_alts),
+            )
+        )
+
+    return results
 
 
 def current_section(relative: Path) -> str:
-    first = relative.parts[0] if len(relative.parts) > 1 else relative.name
-    if first == "products" or relative.name == "products.html":
+    path = relative.as_posix()
+    if path == "products.html" or path.startswith("products/"):
         return "products"
-    if first == "use-cases" or relative.name == "use-cases.html":
+    if path == "use-cases.html" or path.startswith("use-cases/"):
         return "uses"
-    if first == "support" or relative.name == "support.html":
+    if path == "support.html" or path.startswith("support/"):
         return "support"
-    if first == "cases" or relative.name == "cases.html":
+    if path == "cases.html" or path.startswith("cases/"):
         return "cases"
-    if relative.name == "resources.html":
+    if path == "resources.html":
         return "resources"
-    if relative.name == "manufacturers.html" or first == "manufacturers":
-        return "manufacturers"
-    if relative.name == "faq.html":
-        return "faq"
-    if relative.name == "contact.html":
+    if path == "contact.html":
         return "contact"
     return ""
 
@@ -265,6 +271,7 @@ def shared_header(prefix: str, relative: Path) -> str:
         current = ' aria-current="page"' if active == key else ""
         return f'<a href="{prefix}{href}"{current}>{label}</a>'
 
+    contact_current = ' aria-current="page"' if active == "contact" else ""
     return f'''<header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="{prefix}index.html" aria-label="AirAdmin8 Robotics ホーム">
@@ -277,7 +284,7 @@ def shared_header(prefix: str, relative: Path) -> str:
       {nav_link("support", "support.html", "導入支援")}
       {nav_link("cases", "cases.html", "導入事例")}
       {nav_link("resources", "resources.html", "資料・SDK")}
-      <a class="nav-cta" href="{prefix}contact.html"{' aria-current="page"' if active == 'contact' else ''}>製品・導入を相談する</a>
+      <a class="nav-cta" href="{prefix}contact.html"{contact_current}>製品・導入を相談する</a>
     </nav>
   </div>
 </header>'''
@@ -343,8 +350,8 @@ def inject_shared_assets(html: str, relative: Path) -> str:
     if "assets/css/mobile-qa.css" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
 
-    # GT- is a Google tag ID, not a GTM container ID. Prevent the legacy
-    # JavaScript from requesting gtm.js with an incompatible identifier.
+    # GT- is a Google tag ID, not a GTM container ID. This marker prevents
+    # site.js from requesting gtm.js with an incompatible identifier.
     analytics_guard = '<script data-google-tag-loader aria-hidden="true"></script>'
     if "data-google-tag-loader" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {analytics_guard}\n</head>", 1)
@@ -386,25 +393,32 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> int:
     fatal_errors: list[str] = []
     findings: list[str] = []
+
     validate_json(fatal_errors)
     pages = validate_html(findings)
 
     for finding in findings:
         print(f"QA: {finding}")
+
     if fatal_errors:
         for error in fatal_errors:
             print(f"FATAL: {error}")
         print(f"Build stopped with {len(fatal_errors)} fatal error(s).")
-        sys.exit(1)
+        return 1
 
     try:
         build_output(pages, findings)
     except Exception as exc:  # noqa: BLE001
         print(f"FATAL: Build failed: {exc}")
-        sys.exit(1)
+        return 1
 
     print(f"Build completed. {len(pages)} HTML pages were written to _site.")
     print(f"QA report: _site/qa-report.json ({len(findings)} finding(s)).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
