@@ -1,0 +1,133 @@
+/* ============================================================
+   用途・製品の双方向関連
+   - 用途ページでは候補製品を同じ基準で表示
+   - 製品詳細ページでは関連する研究テーマへ戻れる導線を表示
+   ============================================================ */
+
+.use-product-recommendations {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #dce8ed;
+}
+
+.use-product-recommendations > strong {
+  display: block;
+  margin-bottom: 10px;
+  color: #173342;
+  font-size: 0.8rem;
+}
+
+.use-product-list {
+  display: grid;
+  gap: 8px;
+}
+
+.use-product-link {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid #dce8ed;
+  border-radius: 12px;
+  color: #173342;
+  background: #ffffff;
+}
+
+.use-product-link:hover,
+.use-product-link:focus-visible {
+  border-color: #009ad2;
+  box-shadow: 0 8px 24px rgba(0, 154, 210, 0.1);
+}
+
+.use-product-link span {
+  display: grid;
+  gap: 2px;
+}
+
+.use-product-link small {
+  color: #607985;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.use-product-link b {
+  font-size: 0.86rem;
+}
+
+.use-product-link em {
+  color: #009ad2;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.use-product-caution {
+  margin: 10px 0 0;
+  color: #667d88;
+  font-size: 0.74rem;
+  line-height: 1.65;
+}
+
+.product-use-relations {
+  margin-top: 28px;
+  padding: 20px;
+  border: 1px solid #d8e7ed;
+  border-radius: 18px;
+  background: #f5fafc;
+}
+
+.product-use-relations h2 {
+  margin: 4px 0 8px;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+
+.product-use-relations > p {
+  margin: 0;
+  color: #667d88;
+}
+
+.product-use-link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.product-use-link-grid a {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid #dce8ed;
+  border-radius: 12px;
+  color: #173342;
+  background: #ffffff;
+}
+
+.product-use-link-grid a:hover,
+.product-use-link-grid a:focus-visible {
+  border-color: #009ad2;
+}
+
+.product-use-link-grid strong {
+  font-size: 0.88rem;
+}
+
+.product-use-link-grid span {
+  color: #667d88;
+  font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+  .use-product-link {
+    padding: 10px;
+  }
+
+  .product-use-relations {
+    padding: 16px;
+  }
+
+  .product-use-link-grid {
+    grid-template-columns: 1fr;
+  }
+}
