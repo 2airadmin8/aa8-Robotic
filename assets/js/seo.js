@@ -10,6 +10,7 @@
 
   injectBrowserIdentity();
   injectRelationAssets();
+  ensureScript(`${siteBase}assets/js/analytics-events.js?v=20260716-1`, 'analytics-events-loader');
 
   const pageMap = {
     'index.html': { name: 'AirAdmin8 Robotics', type: 'WebSite' },
