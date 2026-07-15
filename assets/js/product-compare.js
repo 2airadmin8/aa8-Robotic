@@ -9,6 +9,9 @@
   const dialog = document.querySelector('[data-compare-dialog]');
   const tableTarget = document.querySelector('[data-compare-table]');
   const consultLink = document.querySelector('[data-compare-consult]');
+  const printButton = document.querySelector('[data-compare-print]');
+  const copyButton = document.querySelector('[data-compare-copy]');
+  const copyStatus = document.querySelector('[data-compare-copy-status]');
   const limitMessage = document.querySelector('[data-compare-limit]');
 
   if (!productRoot || !compareBar || !dialog || !tableTarget) return;
@@ -99,28 +102,46 @@
   function openComparison() {
     const selectedProducts = getSelectedProducts();
     if (selectedProducts.length < 2) return;
-    tableTarget.innerHTML = buildComparisonTable(selectedProducts);
+    tableTarget.innerHTML = buildPrintHeader(selectedProducts) + buildComparisonTable(selectedProducts);
 
     if (consultLink) {
       const names = selectedProducts.map((item) => item.name).join(' / ');
       consultLink.href = `contact.html?product=${encodeURIComponent(names)}&service=multi-brand-comparison`;
     }
 
+    if (copyStatus) copyStatus.textContent = '';
     dialog.showModal();
+  }
+
+  function buildPrintHeader(items) {
+    const date = new Intl.DateTimeFormat('ja-JP', { dateStyle: 'long' }).format(new Date());
+    return `
+      <section class="compare-print-header" aria-hidden="true">
+        <div>
+          <p>AIRADMIN8 ROBOTICS</p>
+          <h1>研究用AIロボット 製品比較表</h1>
+          <p class="compare-print-products">${items.map((item) => escapeHtml(item.name)).join(' / ')}</p>
+        </div>
+        <dl>
+          <div><dt>作成日</dt><dd>${escapeHtml(date)}</dd></div>
+          <div><dt>用途</dt><dd>候補整理・大学内部共有用</dd></div>
+        </dl>
+      </section>
+    `;
   }
 
   function buildComparisonTable(items) {
     const rows = [
-      ['製品カテゴリ', (item) => item.categoryLabel],
-      ['取扱・確認状態', (item) => item.statusLabel],
-      ['概要', (item) => item.summary],
+      ['製品カテゴリ', (item) => escapeHtml(item.categoryLabel)],
+      ['取扱・確認状態', (item) => escapeHtml(item.statusLabel)],
+      ['概要', (item) => escapeHtml(item.summary)],
       ['主な構成・特徴', (item) => tags(item.featureLabels)],
       ['適した研究・用途', (item) => tags(item.useLabels)],
-      ['価格', (item) => item.priceLabel],
-      ['納期', (item) => item.leadTimeLabel],
+      ['価格', (item) => escapeHtml(item.priceLabel)],
+      ['納期', (item) => escapeHtml(item.leadTimeLabel)],
       ['SDK・ROS関連', (item) => tags((item.relatedResourceIds || []).map(resourceLabel))],
-      ['最終確認日', (item) => item.verifiedAt || '未確認'],
-      ['注意事項', (item) => item.note || '構成・時期・利用環境により正式確認'],
+      ['最終確認日', (item) => escapeHtml(item.verifiedAt || '未確認')],
+      ['注意事項', (item) => escapeHtml(item.note || '構成・時期・利用環境により正式確認')],
     ];
 
     return `
@@ -148,7 +169,34 @@
           `).join('')}
         </tbody>
       </table>
+      <section class="compare-print-notes" aria-hidden="true">
+        <h2>確認事項</h2>
+        <p>本表は公開情報とAirAdmin8で整理した候補比較です。価格、納期、保証、SDK、ROS、輸送、設置条件は正式見積時に対象構成ごとに確認します。</p>
+        <div class="compare-print-memo"><strong>学内・社内メモ</strong><span></span><span></span><span></span></div>
+      </section>
     `;
+  }
+
+  function printComparison() {
+    if (getSelectedProducts().length < 2) return;
+    document.body.classList.add('is-printing-comparison');
+    const previousTitle = document.title;
+    document.title = `AIロボット製品比較_${getSelectedProducts().map((item) => item.name).join('_')}`;
+    window.print();
+    window.setTimeout(() => {
+      document.body.classList.remove('is-printing-comparison');
+      document.title = previousTitle;
+    }, 300);
+  }
+
+  async function copyComparisonUrl() {
+    updateCompareUrl();
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      if (copyStatus) copyStatus.textContent = '比較リンクをコピーしました。';
+    } catch (error) {
+      if (copyStatus) copyStatus.textContent = 'コピーできませんでした。ブラウザのURLを共有してください。';
+    }
   }
 
   function clearSelection() {
@@ -209,6 +257,8 @@
 
   openButton?.addEventListener('click', openComparison);
   clearButton?.addEventListener('click', clearSelection);
+  printButton?.addEventListener('click', printComparison);
+  copyButton?.addEventListener('click', copyComparisonUrl);
   dialog.querySelector('[data-compare-close]')?.addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', (event) => {
     const box = dialog.getBoundingClientRect();
