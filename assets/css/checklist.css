@@ -1,0 +1,183 @@
+/* AIロボット導入前チェックリスト */
+.checklist-hero {
+  padding: 64px 0 50px;
+  background: linear-gradient(180deg, #eefaff 0%, #fff 100%);
+}
+
+.checklist-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  gap: 34px;
+  align-items: center;
+}
+
+.checklist-note {
+  padding: 24px;
+  border: 1px solid #d6e7ed;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.checklist-note strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.checklist-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.checklist-sheet {
+  display: grid;
+  gap: 22px;
+}
+
+.checklist-section {
+  padding: 24px;
+  border: 1px solid #d9e7ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(11,49,67,.05);
+}
+
+.checklist-section h2 {
+  margin: 0 0 6px;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.checklist-section > p {
+  margin: 0 0 16px;
+  color: #667d88;
+}
+
+.check-items {
+  display: grid;
+  gap: 10px;
+}
+
+.check-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(180px, .6fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px 0;
+  border-top: 1px solid #e7eef1;
+}
+
+.check-item:first-child {
+  border-top: 0;
+}
+
+.check-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #8fb6c5;
+  border-radius: 4px;
+}
+
+.check-item strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.check-item span {
+  color: #667d88;
+  font-size: .78rem;
+}
+
+.check-memo {
+  min-height: 38px;
+  border-bottom: 1px solid #b9ced7;
+  color: #82969f;
+  font-size: .76rem;
+}
+
+.checklist-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checklist-summary article {
+  padding: 18px;
+  border-radius: 14px;
+  background: #f5fafc;
+}
+
+.checklist-summary strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.print-only {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .checklist-intro,
+  .checklist-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .check-item {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .check-memo {
+    grid-column: 2;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    color: #111;
+    background: #fff;
+  }
+
+  .site-header,
+  .footer,
+  .breadcrumb,
+  .checklist-toolbar,
+  .no-print,
+  .compact-dark-cta {
+    display: none !important;
+  }
+
+  .checklist-hero,
+  .section {
+    padding: 0;
+    background: #fff;
+  }
+
+  .checklist-intro {
+    display: block;
+  }
+
+  .checklist-note {
+    margin-top: 10mm;
+    box-shadow: none;
+  }
+
+  .checklist-section {
+    break-inside: avoid;
+    padding: 12px 14px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .check-item {
+    padding: 8px 0;
+  }
+
+  .print-only {
+    display: block;
+  }
+}
