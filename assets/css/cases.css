@@ -1,0 +1,260 @@
+/* ============================================================
+   導入事例・進捗表示
+   実績、進行中案件、標準支援例を視覚的に分離する。
+   ============================================================ */
+
+.case-proof-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 34px;
+  padding: 34px;
+  border: 1px solid #d8e5ea;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(11, 49, 67, 0.10);
+}
+
+.case-proof-featured {
+  border-top: 5px solid #009ad2;
+}
+
+.case-status-line {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  color: #667d88;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.status-active {
+  color: #0f6d8a;
+  background: #e5f8ff;
+}
+
+.case-proof-main h3 {
+  margin: 12px 0 14px;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.case-proof-main > p:not(.case-kicker) {
+  color: #667d88;
+  font-size: 1.02rem;
+}
+
+.case-output-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.case-output-grid span {
+  padding: 13px 14px;
+  border: 1px solid #dce9ee;
+  border-radius: 12px;
+  background: #f7fbfc;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.case-proof-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.case-progress-panel {
+  padding: 24px;
+  border-radius: 20px;
+  background: #0b3143;
+  color: #ffffff;
+}
+
+.case-progress-panel-hero {
+  box-shadow: 0 18px 50px rgba(11, 49, 67, 0.18);
+}
+
+.progress-list {
+  display: grid;
+  gap: 0;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progress-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  align-items: center;
+  min-height: 62px;
+  padding: 8px 0;
+  color: #88a4b0;
+}
+
+.progress-list li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 49px;
+  left: 20px;
+  width: 2px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.progress-list strong {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  font-size: 0.72rem;
+}
+
+.progress-list .is-done,
+.progress-list .is-current {
+  color: #ffffff;
+}
+
+.progress-list .is-done strong {
+  border-color: #00b2bc;
+  background: #00b2bc;
+}
+
+.progress-list .is-current strong {
+  border-color: #78ddff;
+  color: #0b3143;
+  background: #78ddff;
+}
+
+.case-caution {
+  margin: 20px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid #78ddff;
+  color: #d7e9ef;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 0.78rem;
+}
+
+.case-example-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.case-example-grid article {
+  display: flex;
+  min-height: 280px;
+  padding: 24px;
+  border: 1px solid #d8e5ea;
+  border-radius: 20px;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.case-type {
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #0f6d8a;
+  background: #e8f8fd;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.case-example-grid h3 {
+  margin: 24px 0 10px;
+  font-size: 1.45rem;
+}
+
+.case-example-grid p {
+  margin: 0;
+  color: #667d88;
+}
+
+.case-example-grid a {
+  margin-top: auto;
+  padding-top: 22px;
+  color: #009ad2;
+  font-weight: 900;
+}
+
+.case-subheading {
+  margin-top: 42px;
+}
+
+.case-scope-grid,
+.case-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.case-scope-grid article,
+.case-evidence-grid article {
+  padding: 22px;
+  border: 1px solid #d8e5ea;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.case-scope-grid span {
+  color: #009ad2;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.case-scope-grid h3,
+.case-evidence-grid h3 {
+  margin: 18px 0 8px;
+}
+
+.case-scope-grid p,
+.case-evidence-grid p {
+  margin: 0;
+  color: #667d88;
+}
+
+.case-evidence-grid strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 980px) {
+  .case-proof-card {
+    grid-template-columns: 1fr;
+  }
+
+  .case-example-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .case-proof-card {
+    padding: 22px;
+  }
+
+  .case-proof-actions {
+    display: grid;
+  }
+
+  .case-output-grid,
+  .case-example-grid,
+  .case-scope-grid,
+  .case-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .case-example-grid article {
+    min-height: auto;
+  }
+}
