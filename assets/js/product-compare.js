@@ -133,10 +133,7 @@
 
     if (consultLink) {
       const names = selectedProducts.map((item) => item.name).join(' / ');
-      const params = new URLSearchParams({
-        product: names,
-        service: 'multi-brand-comparison',
-      });
+      const params = new URLSearchParams({ product: names, service: 'multi-brand-comparison' });
       if (sourceTheme) params.set('theme', sourceTheme);
       consultLink.href = `contact.html?${params.toString()}`;
     }
@@ -159,8 +156,7 @@
           <div><dt>作成日</dt><dd>${escapeHtml(date)}</dd></div>
           <div><dt>用途</dt><dd>${escapeHtml(themeLabel)}</dd></div>
         </dl>
-      </section>
-    `;
+      </section>`;
   }
 
   function buildComparisonTable(items) {
@@ -266,7 +262,7 @@
 
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>'"]/g, (character) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot>',
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
     }[character]));
   }
 
