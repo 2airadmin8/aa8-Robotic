@@ -55,21 +55,9 @@
   align-items: center;
 }
 
-.compare-bar-copy {
-  min-width: 0;
-}
-
-.compare-bar-copy strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.compare-selected-names {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-
+.compare-bar-copy { min-width: 0; }
+.compare-bar-copy strong { display: block; margin-bottom: 4px; }
+.compare-selected-names { display: flex; gap: 7px; flex-wrap: wrap; }
 .compare-selected-names span {
   padding: 4px 8px;
   border-radius: 999px;
@@ -79,11 +67,7 @@
   font-weight: 800;
 }
 
-.compare-bar-actions {
-  display: flex;
-  gap: 8px;
-}
-
+.compare-bar-actions { display: flex; gap: 8px; }
 .compare-bar button {
   min-height: 44px;
   padding: 9px 14px;
@@ -93,23 +77,9 @@
   font-weight: 900;
   cursor: pointer;
 }
-
-.compare-open-button {
-  border: 0;
-  color: #0b3143;
-  background: #ffffff;
-}
-
-.compare-open-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.compare-clear-button {
-  border: 1px solid rgba(255,255,255,0.36);
-  color: #ffffff;
-  background: transparent;
-}
+.compare-open-button { border: 0; color: #0b3143; background: #ffffff; }
+.compare-open-button:disabled { cursor: not-allowed; opacity: 0.45; }
+.compare-clear-button { border: 1px solid rgba(255,255,255,0.36); color: #ffffff; background: transparent; }
 
 .product-compare-dialog {
   width: min(1180px, calc(100% - 32px));
@@ -121,18 +91,8 @@
   background: #ffffff;
   box-shadow: 0 24px 80px rgba(11, 49, 67, 0.32);
 }
-
-.product-compare-dialog::backdrop {
-  background: rgba(5, 30, 43, 0.72);
-  backdrop-filter: blur(4px);
-}
-
-.compare-dialog-inner {
-  display: flex;
-  max-height: calc(100dvh - 32px);
-  flex-direction: column;
-}
-
+.product-compare-dialog::backdrop { background: rgba(5, 30, 43, 0.72); backdrop-filter: blur(4px); }
+.compare-dialog-inner { display: flex; max-height: calc(100dvh - 32px); flex-direction: column; }
 .compare-dialog-header {
   display: flex;
   justify-content: space-between;
@@ -141,17 +101,8 @@
   padding: 24px 26px 18px;
   border-bottom: 1px solid #dce8ed;
 }
-
-.compare-dialog-header h2 {
-  margin: 0 0 5px;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-}
-
-.compare-dialog-header p {
-  margin: 0;
-  color: #667d88;
-}
-
+.compare-dialog-header h2 { margin: 0 0 5px; font-size: clamp(1.6rem, 3vw, 2.4rem); }
+.compare-dialog-header p { margin: 0; color: #667d88; }
 .compare-dialog-close {
   flex: 0 0 auto;
   width: 44px;
@@ -163,18 +114,10 @@
   cursor: pointer;
 }
 
-.compare-table-wrap {
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.compare-table {
-  width: 100%;
-  min-width: 760px;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
+.compare-table-wrap { overflow: auto; -webkit-overflow-scrolling: touch; }
+.compare-print-header,
+.compare-print-notes { display: none; }
+.compare-table { width: 100%; min-width: 760px; border-collapse: separate; border-spacing: 0; }
 .compare-table th,
 .compare-table td {
   padding: 16px;
@@ -183,7 +126,6 @@
   vertical-align: top;
   text-align: left;
 }
-
 .compare-table th:first-child,
 .compare-table td:first-child {
   position: sticky;
@@ -196,46 +138,13 @@
   font-size: 0.8rem;
   font-weight: 900;
 }
-
-.compare-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  min-width: 210px;
-  background: #ffffff;
-}
-
-.compare-table thead th:first-child {
-  z-index: 4;
-  background: #f4f9fb;
-}
-
-.compare-product-head {
-  display: grid;
-  gap: 6px;
-}
-
-.compare-product-head small {
-  color: #009ad2;
-  font-weight: 900;
-}
-
-.compare-product-head strong {
-  font-size: 1.15rem;
-}
-
-.compare-product-head a {
-  color: #009ad2;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.compare-cell-tags {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
+.compare-table thead th { position: sticky; top: 0; z-index: 3; min-width: 210px; background: #ffffff; }
+.compare-table thead th:first-child { z-index: 4; background: #f4f9fb; }
+.compare-product-head { display: grid; gap: 6px; }
+.compare-product-head small { color: #009ad2; font-weight: 900; }
+.compare-product-head strong { font-size: 1.15rem; }
+.compare-product-head a { color: #009ad2; font-size: 0.78rem; font-weight: 900; }
+.compare-cell-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .compare-cell-tags span {
   padding: 5px 8px;
   border-radius: 999px;
@@ -254,56 +163,93 @@
   border-top: 1px solid #dce8ed;
   background: #ffffff;
 }
-
-.compare-dialog-footer p {
-  margin: 0;
-  color: #667d88;
-  font-size: 0.8rem;
-}
-
-.compare-consult-button {
-  flex: 0 0 auto;
-}
-
-.compare-limit-message {
-  margin: 12px 0 0;
-  color: #a24325;
+.compare-dialog-footer p { margin: 0; color: #667d88; font-size: 0.8rem; }
+.compare-dialog-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.compare-secondary-button {
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid #c9dce4;
+  border-radius: 999px;
+  color: #173342;
+  background: #ffffff;
+  font: inherit;
   font-size: 0.8rem;
   font-weight: 900;
+  cursor: pointer;
 }
+.compare-consult-button { flex: 0 0 auto; }
+.compare-copy-status { width: 100%; min-height: 1.2em; margin: 0; color: #0b718f; font-size: 0.76rem; text-align: right; }
+.compare-limit-message { margin: 12px 0 0; color: #a24325; font-size: 0.8rem; font-weight: 900; }
 
 @media (max-width: 700px) {
-  .compare-bar.is-visible {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .compare-bar-actions {
-    display: grid;
-    grid-template-columns: 1fr auto;
-  }
-
-  .product-compare-dialog {
-    width: calc(100% - 16px);
-    max-height: calc(100dvh - 16px);
-    border-radius: 18px;
-  }
-
-  .compare-dialog-inner {
-    max-height: calc(100dvh - 16px);
-  }
-
+  .compare-bar.is-visible { grid-template-columns: 1fr; gap: 10px; }
+  .compare-bar-actions { display: grid; grid-template-columns: 1fr auto; }
+  .product-compare-dialog { width: calc(100% - 16px); max-height: calc(100dvh - 16px); border-radius: 18px; }
+  .compare-dialog-inner { max-height: calc(100dvh - 16px); }
   .compare-dialog-header,
-  .compare-dialog-footer {
-    padding-inline: 18px;
-  }
+  .compare-dialog-footer { padding-inline: 18px; }
+  .compare-dialog-footer { align-items: stretch; flex-direction: column; }
+  .compare-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; justify-content: stretch; }
+  .compare-dialog-actions .compare-consult-button { grid-column: 1 / -1; width: 100%; }
+  .compare-secondary-button { width: 100%; }
+  .compare-copy-status { text-align: left; }
+}
 
-  .compare-dialog-footer {
-    align-items: stretch;
-    flex-direction: column;
-  }
+/* 印刷・PDF保存時は比較表だけをA4横で出力する。 */
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
 
-  .compare-consult-button {
-    width: 100%;
+  body.is-printing-comparison > *:not(.product-compare-dialog) { display: none !important; }
+  body.is-printing-comparison { background: #ffffff !important; }
+  body.is-printing-comparison .product-compare-dialog {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
+  body.is-printing-comparison .product-compare-dialog::backdrop,
+  body.is-printing-comparison .compare-dialog-header,
+  body.is-printing-comparison .compare-dialog-footer { display: none !important; }
+  body.is-printing-comparison .compare-dialog-inner,
+  body.is-printing-comparison .compare-table-wrap {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  body.is-printing-comparison .compare-print-header {
+    display: flex !important;
+    justify-content: space-between;
+    gap: 18mm;
+    align-items: flex-start;
+    margin-bottom: 7mm;
+    padding-bottom: 4mm;
+    border-bottom: 2px solid #0b3143;
+  }
+  body.is-printing-comparison .compare-print-header p { margin: 0; color: #46616d; font-size: 8pt; font-weight: 800; }
+  body.is-printing-comparison .compare-print-header h1 { margin: 2mm 0; font-size: 18pt; }
+  body.is-printing-comparison .compare-print-products { color: #009ad2 !important; font-size: 10pt !important; }
+  body.is-printing-comparison .compare-print-header dl { min-width: 58mm; margin: 0; font-size: 8pt; }
+  body.is-printing-comparison .compare-print-header dl div { display: grid; grid-template-columns: 18mm 1fr; border-bottom: 1px solid #dce8ed; }
+  body.is-printing-comparison .compare-print-header dt,
+  body.is-printing-comparison .compare-print-header dd { margin: 0; padding: 1.5mm; }
+  body.is-printing-comparison .compare-print-header dt { font-weight: 900; background: #f4f9fb; }
+  body.is-printing-comparison .compare-table { min-width: 0 !important; table-layout: fixed; border-collapse: collapse; font-size: 7.5pt; }
+  body.is-printing-comparison .compare-table th,
+  body.is-printing-comparison .compare-table td { position: static !important; padding: 2.3mm; border: 1px solid #bfcfd6; background: #ffffff; }
+  body.is-printing-comparison .compare-table th:first-child { width: 28mm; min-width: 0; background: #eef5f7; }
+  body.is-printing-comparison .compare-table thead th { min-width: 0; background: #f8fbfc; }
+  body.is-printing-comparison .compare-product-head a { display: none; }
+  body.is-printing-comparison .compare-product-head strong { font-size: 9pt; }
+  body.is-printing-comparison .compare-cell-tags { gap: 1mm; }
+  body.is-printing-comparison .compare-cell-tags span { padding: 1mm 1.5mm; font-size: 6.5pt; }
+  body.is-printing-comparison .compare-print-notes { display: block !important; margin-top: 6mm; break-inside: avoid; }
+  body.is-printing-comparison .compare-print-notes h2 { margin: 0 0 2mm; font-size: 11pt; }
+  body.is-printing-comparison .compare-print-notes p { margin: 0 0 4mm; font-size: 7.5pt; color: #46616d; }
+  body.is-printing-comparison .compare-print-memo { display: grid; grid-template-columns: 30mm 1fr; gap: 2mm; font-size: 8pt; }
+  body.is-printing-comparison .compare-print-memo span { min-height: 7mm; border-bottom: 1px solid #9fb3bc; }
 }
