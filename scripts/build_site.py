@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
 SITE_PREFIX = "/aa8-Robotic/"
-BUILD_VERSION = "20260716-10"
+BUILD_VERSION = "20260716-11"
 
 
 @dataclass
