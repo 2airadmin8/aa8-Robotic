@@ -84,6 +84,10 @@
           .map((id) => products.find((item) => item.id === id))
           .filter(Boolean);
 
+        const compareHref = recommended.length >= 2
+          ? createCompareHref(key, recommended.map((item) => item.id))
+          : '';
+
         const block = document.createElement('div');
         block.className = 'use-product-recommendations';
         block.dataset.useProducts = key;
@@ -96,6 +100,11 @@
                 <em>${escapeHtml(item.statusLabel)} →</em>
               </a>`).join('')}
           </div>
+          ${compareHref ? `
+            <a class="use-compare-action" href="${escapeHtml(compareHref)}">
+              <span><strong>${recommended.length}製品を比較する</strong><small>用途・SDK・価格・納期を横並び表示</small></span>
+              <b>比較表を開く →</b>
+            </a>` : ''}
           <p class="use-product-caution">${escapeHtml(config.caution)}</p>`;
         card.appendChild(block);
       });
@@ -128,8 +137,7 @@
         <div class="product-use-link-grid">
           ${keys.map((key) => {
             const item = useCaseMap[key];
-            const href = item.href.startsWith('use-cases/') ? `../${item.href}` : `../${item.href}`;
-            return `<a href="${escapeHtml(href)}"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.description)} →</span></a>`;
+            return `<a href="../${escapeHtml(item.href)}"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.description)} →</span></a>`;
           }).join('')}
         </div>`;
 
@@ -139,6 +147,15 @@
     } catch (error) {
       console.error('製品関連用途の読み込みに失敗しました。', error);
     }
+  }
+
+  function createCompareHref(theme, ids) {
+    const query = new URLSearchParams({
+      compare: ids.slice(0, 3).join(','),
+      open: 'compare',
+      theme,
+    });
+    return `products.html?${query.toString()}#lineup`;
   }
 
   function escapeHtml(value) {
