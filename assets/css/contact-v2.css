@@ -1,0 +1,294 @@
+/* ============================================================
+   Contact conversion v2
+   入力順・確認画面・コピー代替導線を追加する。
+   ============================================================ */
+
+.contact-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-progress li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  color: #647b86;
+  background: #f2f7f9;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.contact-progress strong {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #009ad2;
+  font-size: 0.68rem;
+}
+
+.form-section {
+  display: grid;
+  gap: 18px;
+  padding: 24px 0;
+  border-top: 1px solid #e0ebef;
+}
+
+.form-section:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.form-section-heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.form-section-number {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 10px;
+  color: #009ad2;
+  background: #e8f8fd;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.form-section-heading h3 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+}
+
+.form-section-heading p {
+  margin: 0;
+  color: #70858f;
+  font-size: 0.8rem;
+}
+
+.prefill-notice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid #b8deec;
+  border-radius: 12px;
+  color: #0b617c;
+  background: #eefaff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.prefill-notice[hidden] {
+  display: none;
+}
+
+.contact-submit-row {
+  display: grid;
+  gap: 10px;
+}
+
+.submit-explanation {
+  margin: 0;
+  text-align: center;
+  color: #667d88;
+  font-size: 0.78rem;
+}
+
+.contact-confirm-dialog {
+  width: min(680px, calc(100% - 28px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  color: #173342;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(0, 30, 46, 0.28);
+}
+
+.contact-confirm-dialog::backdrop {
+  background: rgba(4, 27, 39, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.confirm-dialog-inner {
+  display: grid;
+  max-height: calc(100dvh - 32px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.confirm-dialog-header {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid #e0ebef;
+}
+
+.confirm-dialog-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+}
+
+.confirm-dialog-header p {
+  margin: 0;
+  color: #667d88;
+  font-size: 0.84rem;
+}
+
+.confirm-summary {
+  overflow-y: auto;
+  padding: 18px 24px;
+}
+
+.confirm-summary dl {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.confirm-summary div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eef3f5;
+}
+
+.confirm-summary dt {
+  color: #6c828c;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.confirm-summary dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
+}
+
+.confirm-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e0ebef;
+}
+
+.confirm-dialog-actions button {
+  min-height: 50px;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.confirm-back {
+  border: 1px solid #bcd2dc;
+  color: #173342;
+  background: #ffffff;
+}
+
+.confirm-open-mail {
+  border: 0;
+  color: #ffffff;
+  background: #009ad2;
+}
+
+.mail-fallback-panel {
+  display: none;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid #cde2ea;
+  border-radius: 14px;
+  background: #f7fbfc;
+}
+
+.mail-fallback-panel.is-visible {
+  display: grid;
+}
+
+.mail-fallback-panel p {
+  margin: 0;
+  color: #5f7681;
+  font-size: 0.82rem;
+}
+
+.fallback-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fallback-actions button,
+.fallback-actions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #bcd2dc;
+  border-radius: 999px;
+  color: #173342;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.copy-status {
+  min-height: 1.4em;
+  color: #087844 !important;
+  font-weight: 900;
+}
+
+@media (max-width: 640px) {
+  .contact-progress {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .contact-progress li {
+    min-height: 36px;
+    padding: 6px 10px;
+  }
+
+  .form-section {
+    padding: 20px 0;
+  }
+
+  .form-section-heading {
+    gap: 9px;
+  }
+
+  .confirm-dialog-header,
+  .confirm-summary,
+  .confirm-dialog-actions {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .confirm-summary div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .confirm-dialog-actions,
+  .fallback-actions {
+    grid-template-columns: 1fr;
+  }
+}
