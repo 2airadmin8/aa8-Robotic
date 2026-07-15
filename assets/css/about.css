@@ -1,0 +1,135 @@
+/* 会社情報ページ */
+.about-hero {
+  padding: 68px 0 58px;
+  background: linear-gradient(180deg, #eefaff 0%, #ffffff 100%);
+}
+
+.about-hero-grid,
+.about-principles,
+.about-flow {
+  display: grid;
+  gap: 18px;
+}
+
+.about-hero-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
+  align-items: center;
+}
+
+.about-summary,
+.about-card,
+.company-table {
+  border: 1px solid #d7e7ed;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 42px rgba(11, 49, 67, .07);
+}
+
+.about-summary {
+  padding: 26px;
+}
+
+.about-summary dl,
+.company-table {
+  margin: 0;
+}
+
+.about-summary dl > div,
+.company-table > div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e5eef2;
+}
+
+.about-summary dl > div:last-child,
+.company-table > div:last-child {
+  border-bottom: 0;
+}
+
+.about-summary dt,
+.company-table dt {
+  color: #607985;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.about-summary dd,
+.company-table dd {
+  margin: 0;
+  color: #173342;
+  font-weight: 800;
+}
+
+.about-principles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-card {
+  padding: 24px;
+}
+
+.about-card span {
+  color: #009ad2;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.about-card h3 {
+  margin: 12px 0 8px;
+}
+
+.about-card p {
+  margin: 0;
+  color: #667d88;
+}
+
+.about-flow {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.about-flow article {
+  padding: 22px;
+  border-top: 3px solid #009ad2;
+  background: #f5fafc;
+}
+
+.about-flow strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.company-table {
+  padding: 10px 24px;
+}
+
+@media (max-width: 900px) {
+  .about-hero-grid,
+  .about-principles,
+  .about-flow {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-hero {
+    padding: 42px 0 46px;
+  }
+
+  .about-hero-grid,
+  .about-principles,
+  .about-flow {
+    grid-template-columns: 1fr;
+  }
+
+  .about-summary dl > div,
+  .company-table > div {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .company-table {
+    padding: 8px 18px;
+  }
+}
