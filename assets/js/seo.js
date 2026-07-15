@@ -78,6 +78,11 @@
   function injectRelationAssets() {
     ensureLink('stylesheet', `${siteBase}assets/css/manufacturer-relations.css`);
     ensureScript(`${siteBase}assets/js/manufacturer-relations.js`, 'manufacturer-relations-loader');
+
+    if (cleanPath === 'use-cases.html' || cleanPath.startsWith('products/')) {
+      ensureLink('stylesheet', `${siteBase}assets/css/use-case-relations.css?v=20260716-1`);
+      ensureScript(`${siteBase}assets/js/use-case-relations.js?v=20260716-1`, 'use-case-relations-loader');
+    }
   }
 
   function injectSocialMeta(config) {
