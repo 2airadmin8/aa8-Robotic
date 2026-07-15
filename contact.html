@@ -8,6 +8,7 @@
   <link rel="canonical" href="https://2airadmin8.github.io/aa8-Robotic/contact.html">
   <link rel="stylesheet" href="assets/css/site.css?v=20260716-4">
   <link rel="stylesheet" href="assets/css/contact.css?v=20260716-1">
+  <link rel="stylesheet" href="assets/css/contact-v2.css?v=20260716-1">
 </head>
 <body>
   <header class="site-header">
@@ -32,12 +33,7 @@
         <aside class="contact-response-panel">
           <p class="eyebrow">FIRST RESPONSE</p>
           <h2>最初にお返しする内容。</h2>
-          <ul>
-            <li>確認が必要な追加条件</li>
-            <li>候補となる製品形態</li>
-            <li>製品比較・見積の進め方</li>
-            <li>PoC・購買支援の要否</li>
-          </ul>
+          <ul><li>確認が必要な追加条件</li><li>候補となる製品形態</li><li>製品比較・見積の進め方</li><li>PoC・購買支援の要否</li></ul>
         </aside>
       </div>
     </section>
@@ -56,81 +52,91 @@
             <div class="contact-form-heading">
               <p class="eyebrow">INQUIRY FORM</p>
               <h2 id="contact-form-title">相談内容を入力。</h2>
-              <p>入力内容からメール文面を作成し、お使いのメールアプリを開きます。GitHub Pages上ではサーバー送信を行わないため、メールアプリ側で送信を完了してください。</p>
+              <p>入力後に確認画面を表示し、内容を確認してからメールアプリを開きます。</p>
             </div>
 
-            <form id="contact-form" data-contact-form novalidate>
+            <ol class="contact-progress" aria-label="問い合わせ入力の流れ">
+              <li><strong>1</strong>相談内容</li><li><strong>2</strong>連絡先・条件</li><li><strong>3</strong>確認してメール作成</li>
+            </ol>
+
+            <p class="prefill-notice" data-prefill-notice hidden></p>
+
+            <form id="contact-form" data-contact-form data-contact-v2 novalidate>
               <input type="hidden" name="source_page" value="">
               <input type="hidden" name="source_product" value="">
               <input type="hidden" name="source_maker" value="">
               <input type="hidden" name="source_service" value="">
               <input type="hidden" name="source_theme" value="">
 
-              <div class="form-grid two-columns">
-                <label>大学・会社名 <span>必須</span><input type="text" name="organization" autocomplete="organization" required></label>
-                <label>お名前 <span>必須</span><input type="text" name="name" autocomplete="name" required></label>
-                <label>メールアドレス <span>必須</span><input type="email" name="email" autocomplete="email" required></label>
-                <label>電話番号 <small>任意</small><input type="tel" name="phone" autocomplete="tel"></label>
-              </div>
-
-              <label>相談区分 <span>必須</span>
-                <select name="category" required>
-                  <option value="">選択してください</option>
-                  <option>製品比較・選定</option>
-                  <option>見積・大学購買</option>
-                  <option>PoC設計</option>
-                  <option>VLA・模倣学習データ収集</option>
-                  <option>SDK・ROS・開発環境</option>
-                  <option>初期設定・保守</option>
-                  <option>その他</option>
-                </select>
-              </label>
-
-              <label>検討中の製品・メーカー <small>未定でも可</small><input type="text" name="product" placeholder="例：Unitree G1-D、AgiBot G2、未定"></label>
-              <label>研究・業務用途 <span>必須</span><textarea name="use_case" rows="4" required placeholder="何を認識・移動・操作したいか、研究テーマや対象タスクをご記入ください。"></textarea></label>
-
-              <div class="form-grid two-columns">
-                <label>予算感 <small>任意</small>
-                  <select name="budget"><option value="">未定</option><option>〜100万円</option><option>100〜300万円</option><option>300〜500万円</option><option>500〜1,000万円</option><option>1,000万円以上</option></select>
+              <section class="form-section" aria-labelledby="form-section-1">
+                <div class="form-section-heading"><span class="form-section-number">01</span><div><h3 id="form-section-1">相談したい内容</h3><p>製品未定でも問題ありません。</p></div></div>
+                <label>相談区分 <span>必須</span>
+                  <select name="category" required>
+                    <option value="">選択してください</option><option>製品比較・選定</option><option>見積・大学購買</option><option>PoC設計</option><option>VLA・模倣学習データ収集</option><option>SDK・ROS・開発環境</option><option>初期設定・保守</option><option>その他</option>
+                  </select>
                 </label>
-                <label>希望時期 <small>任意</small><input type="text" name="schedule" placeholder="例：2026年度内、3か月以内"></label>
-              </div>
+                <label>検討中の製品・メーカー <small>未定でも可</small><input type="text" name="product" placeholder="例：Unitree G1-D、AgiBot G2、未定"></label>
+                <label>研究・業務用途 <span>必須</span><textarea name="use_case" rows="4" required placeholder="何を認識・移動・操作したいか、研究テーマや対象タスクをご記入ください。"></textarea></label>
+              </section>
 
-              <label>SDK・開発環境 <small>任意</small><input type="text" name="development" placeholder="例：ROS2 Humble、Ubuntu 22.04、Python、MuJoCo"></label>
-              <label>補足・確認したいこと <small>任意</small><textarea name="message" rows="5" placeholder="対象物、重量、精度、設置環境、二社見積の要否など"></textarea></label>
+              <section class="form-section" aria-labelledby="form-section-2">
+                <div class="form-section-heading"><span class="form-section-number">02</span><div><h3 id="form-section-2">ご連絡先</h3><p>回答に必要な基本情報です。</p></div></div>
+                <div class="form-grid two-columns">
+                  <label>大学・会社名 <span>必須</span><input type="text" name="organization" autocomplete="organization" required></label>
+                  <label>お名前 <span>必須</span><input type="text" name="name" autocomplete="name" required></label>
+                  <label>メールアドレス <span>必須</span><input type="email" name="email" autocomplete="email" inputmode="email" required></label>
+                  <label>電話番号 <small>任意</small><input type="tel" name="phone" autocomplete="tel" inputmode="tel"></label>
+                </div>
+              </section>
+
+              <section class="form-section" aria-labelledby="form-section-3">
+                <div class="form-section-heading"><span class="form-section-number">03</span><div><h3 id="form-section-3">検討条件</h3><p>未定の項目は空欄で構いません。</p></div></div>
+                <div class="form-grid two-columns">
+                  <label>予算感 <small>任意</small><select name="budget"><option value="">未定</option><option>〜100万円</option><option>100〜300万円</option><option>300〜500万円</option><option>500〜1,000万円</option><option>1,000万円以上</option></select></label>
+                  <label>希望時期 <small>任意</small><input type="text" name="schedule" placeholder="例：2026年度内、3か月以内"></label>
+                </div>
+                <label>SDK・開発環境 <small>任意</small><input type="text" name="development" placeholder="例：ROS2 Humble、Ubuntu 22.04、Python、MuJoCo"></label>
+                <label>補足・確認したいこと <small>任意</small><textarea name="message" rows="5" placeholder="対象物、重量、精度、設置環境、二社見積の要否など"></textarea></label>
+              </section>
 
               <label class="privacy-consent"><input type="checkbox" name="privacy" required><span><a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a>に同意します。</span></label>
-
               <div class="form-error" data-form-error role="alert" hidden></div>
-              <button class="button primary contact-submit" type="submit">メール作成へ</button>
-              <p class="form-assistance">メールアプリが開かない場合：<a href="mailto:airobot@robotics.air-admin8.co.jp" data-track="email_click">airobot@robotics.air-admin8.co.jp</a></p>
+
+              <div class="contact-submit-row">
+                <button class="button primary contact-submit" type="submit">入力内容を確認する</button>
+                <p class="submit-explanation">この時点では送信されません。次の確認画面からメールを作成します。</p>
+              </div>
+
+              <div class="mail-fallback-panel" data-mail-fallback>
+                <strong>メールアプリが開かなかった場合</strong>
+                <p>相談内容をコピーして、下記アドレス宛のメールに貼り付けてください。</p>
+                <div class="fallback-actions"><button type="button" data-copy-mail>相談内容をコピー</button><a href="mailto:airobot@robotics.air-admin8.co.jp">メールアドレスを開く</a></div>
+                <p class="copy-status" data-copy-status aria-live="polite"></p>
+                <a class="direct-email" href="mailto:airobot@robotics.air-admin8.co.jp">airobot@robotics.air-admin8.co.jp</a>
+              </div>
             </form>
           </section>
         </div>
 
         <aside class="contact-sidebar">
-          <section class="contact-side-card">
-            <p class="eyebrow">CHECKLIST</p>
-            <h3>分かる範囲で十分です。</h3>
-            <ul><li>研究・業務用途</li><li>対象物、重量、精度</li><li>移動範囲・設置環境</li><li>SDK、ROS2、Python要件</li><li>予算レンジ</li><li>希望納期</li></ul>
-          </section>
-          <section class="contact-side-card contact-side-card-accent">
-            <p class="eyebrow">DIRECT EMAIL</p>
-            <h3>メールで直接相談。</h3>
-            <a class="direct-email" href="mailto:airobot@robotics.air-admin8.co.jp" data-track="email_click">airobot@robotics.air-admin8.co.jp</a>
-            <p>件名例：大学研究向け人型ロボットの比較相談</p>
-          </section>
-          <section class="contact-side-card">
-            <p class="eyebrow">NOTICE</p>
-            <h3>見積前に条件確認。</h3>
-            <p>価格、納期、保証、SDK対応は製品構成・時期により変わります。正式見積時に対象条件を確認します。</p>
-          </section>
+          <section class="contact-side-card"><p class="eyebrow">CHECKLIST</p><h3>分かる範囲で十分です。</h3><ul><li>研究・業務用途</li><li>対象物、重量、精度</li><li>移動範囲・設置環境</li><li>SDK、ROS2、Python要件</li><li>予算レンジ</li><li>希望納期</li></ul></section>
+          <section class="contact-side-card contact-side-card-accent"><p class="eyebrow">DIRECT EMAIL</p><h3>メールで直接相談。</h3><a class="direct-email" href="mailto:airobot@robotics.air-admin8.co.jp">airobot@robotics.air-admin8.co.jp</a><p>件名例：大学研究向け人型ロボットの比較相談</p></section>
+          <section class="contact-side-card"><p class="eyebrow">NOTICE</p><h3>見積前に条件確認。</h3><p>価格、納期、保証、SDK対応は製品構成・時期により変わります。正式見積時に対象条件を確認します。</p></section>
         </aside>
       </div>
     </section>
   </main>
 
+  <dialog class="contact-confirm-dialog" data-contact-confirm>
+    <div class="confirm-dialog-inner">
+      <header class="confirm-dialog-header"><h2>入力内容を確認</h2><p>内容を確認後、「メールアプリを開く」を押してください。</p></header>
+      <div class="confirm-summary" data-confirm-summary></div>
+      <div class="confirm-dialog-actions"><button class="confirm-back" type="button" data-confirm-back>入力に戻る</button><button class="confirm-open-mail" type="button" data-confirm-send>メールアプリを開く</button></div>
+    </div>
+  </dialog>
+
   <footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="products.html">製品</a><a href="use-cases.html">用途</a><a href="support.html">導入支援</a><a href="cases.html">事例</a><a href="resources.html">資料・SDK</a><a href="privacy.html">個人情報保護</a></div></div></footer>
   <script src="assets/js/site.js?v=20260716-7" defer></script>
+  <script src="assets/js/contact-v2.js?v=20260716-1" defer></script>
 </body>
 </html>
