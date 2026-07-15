@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "updatedAt": "2026-07-16",
   "rules": {
     "onePrimaryKeywordPerPage": true,
@@ -7,117 +7,22 @@
     "factCheckRequired": true
   },
   "pages": [
-    {
-      "path": "index.html",
-      "pageType": "hub",
-      "primaryKeyword": "AIロボット 導入支援",
-      "secondaryKeywords": ["人型ロボット 導入", "中国ロボット 日本導入"],
-      "searchIntent": "会社・サービスを探す",
-      "priority": "S"
-    },
-    {
-      "path": "products.html",
-      "pageType": "product-hub",
-      "primaryKeyword": "研究用ロボット 比較",
-      "secondaryKeywords": ["人型ロボット 比較", "AIロボット 製品一覧"],
-      "searchIntent": "製品候補を比較したい",
-      "priority": "S"
-    },
-    {
-      "path": "use-cases.html",
-      "pageType": "use-case-hub",
-      "primaryKeyword": "AIロボット 用途",
-      "secondaryKeywords": ["ロボット PoC", "ロボット 導入事例"],
-      "searchIntent": "用途に合う構成を知りたい",
-      "priority": "S"
-    },
-    {
-      "path": "support.html",
-      "pageType": "service",
-      "primaryKeyword": "ロボット 導入支援",
-      "secondaryKeywords": ["ロボット PoC 支援", "ロボット 初期設定"],
-      "searchIntent": "支援会社を探す",
-      "priority": "S"
-    },
-    {
-      "path": "support/university-procurement.html",
-      "pageType": "service-detail",
-      "primaryKeyword": "大学 ロボット 購入",
-      "secondaryKeywords": ["大学 二社見積", "研究機器 見積"],
-      "searchIntent": "大学購買の進め方を知りたい",
-      "priority": "S"
-    },
-    {
-      "path": "use-cases/vla-data-collection.html",
-      "pageType": "use-case-detail",
-      "primaryKeyword": "VLA データ収集",
-      "secondaryKeywords": ["模倣学習 ロボット", "ロボット テレオペ"],
-      "searchIntent": "技術構成を知りたい",
-      "priority": "S"
-    },
-    {
-      "path": "products/unitree-g1-d.html",
-      "pageType": "product-detail",
-      "primaryKeyword": "Unitree G1-D 日本",
-      "secondaryKeywords": ["Unitree G1-D 価格", "Unitree G1-D SDK"],
-      "searchIntent": "製品仕様・価格・導入条件を確認したい",
-      "priority": "S"
-    },
-    {
-      "path": "products/unitree-g1.html",
-      "pageType": "product-detail",
-      "primaryKeyword": "Unitree G1 日本",
-      "secondaryKeywords": ["Unitree G1 価格", "Unitree G1 EDU"],
-      "searchIntent": "製品比較・購入を検討したい",
-      "priority": "A"
-    },
-    {
-      "path": "products/unitree-go2.html",
-      "pageType": "product-detail",
-      "primaryKeyword": "Unitree Go2 EDU 日本",
-      "secondaryKeywords": ["四足ロボット 研究用", "Unitree Go2 SDK"],
-      "searchIntent": "四足ロボットを比較したい",
-      "priority": "A"
-    },
-    {
-      "path": "products/agibot-g2.html",
-      "pageType": "product-detail",
-      "primaryKeyword": "AgiBot G2 日本",
-      "secondaryKeywords": ["智元ロボット G2", "移動操作ロボット"],
-      "searchIntent": "製品仕様・導入条件を確認したい",
-      "priority": "A"
-    },
-    {
-      "path": "resources.html",
-      "pageType": "resource-hub",
-      "primaryKeyword": "ロボット SDK",
-      "secondaryKeywords": ["Unitree ROS2", "人型ロボット GitHub"],
-      "searchIntent": "技術資料を探す",
-      "priority": "A"
-    },
-    {
-      "path": "checklist.html",
-      "pageType": "tool",
-      "primaryKeyword": "ロボット 導入 チェックリスト",
-      "secondaryKeywords": ["ロボット 見積 条件", "研究機器 購入 チェック"],
-      "searchIntent": "導入前の実務資料を探す",
-      "priority": "A"
-    },
-    {
-      "path": "cases.html",
-      "pageType": "case-hub",
-      "primaryKeyword": "ロボット 導入事例",
-      "secondaryKeywords": ["大学 ロボット 導入", "ロボット 選定 事例"],
-      "searchIntent": "実績と信頼性を確認したい",
-      "priority": "S"
-    },
-    {
-      "path": "about.html",
-      "pageType": "company",
-      "primaryKeyword": "AirAdmin8 Robotics",
-      "secondaryKeywords": ["ロボット 導入会社", "中国ロボット 日本"],
-      "searchIntent": "会社の信頼性を確認したい",
-      "priority": "A"
-    }
+    {"path":"index.html","pageType":"hub","primaryKeyword":"AIロボット 導入支援","secondaryKeywords":["人型ロボット 導入","中国ロボット 日本導入"],"searchIntent":"会社・サービスを探す","priority":"S"},
+    {"path":"products.html","pageType":"product-hub","primaryKeyword":"研究用ロボット 比較","secondaryKeywords":["人型ロボット 比較","AIロボット 製品一覧"],"searchIntent":"製品候補を比較したい","priority":"S"},
+    {"path":"use-cases.html","pageType":"use-case-hub","primaryKeyword":"AIロボット 用途","secondaryKeywords":["ロボット PoC","ロボット 導入事例"],"searchIntent":"用途に合う構成を知りたい","priority":"S"},
+    {"path":"support.html","pageType":"service","primaryKeyword":"ロボット 導入支援","secondaryKeywords":["ロボット PoC 支援","ロボット 初期設定"],"searchIntent":"支援会社を探す","priority":"S"},
+    {"path":"support/university-procurement.html","pageType":"service-detail","primaryKeyword":"大学 ロボット 購入","secondaryKeywords":["大学 二社見積","研究機器 見積"],"searchIntent":"大学購買の進め方を知りたい","priority":"S"},
+    {"path":"use-cases/vla-data-collection.html","pageType":"use-case-detail","primaryKeyword":"VLA データ収集","secondaryKeywords":["模倣学習 ロボット","ロボット テレオペ"],"searchIntent":"技術構成を知りたい","priority":"S"},
+    {"path":"products/unitree-g1-d.html","pageType":"product-detail","primaryKeyword":"Unitree G1-D 日本","secondaryKeywords":["Unitree G1-D 価格","Unitree G1-D SDK"],"searchIntent":"製品仕様・価格・導入条件を確認したい","priority":"S"},
+    {"path":"products/unitree-g1.html","pageType":"product-detail","primaryKeyword":"Unitree G1 日本","secondaryKeywords":["Unitree G1 価格","Unitree G1 EDU"],"searchIntent":"製品比較・購入を検討したい","priority":"A"},
+    {"path":"products/unitree-go2.html","pageType":"product-detail","primaryKeyword":"Unitree Go2 EDU 日本","secondaryKeywords":["四足ロボット 研究用","Unitree Go2 SDK"],"searchIntent":"四足ロボットを比較したい","priority":"A"},
+    {"path":"products/agibot-g2.html","pageType":"product-detail","primaryKeyword":"AgiBot G2 日本","secondaryKeywords":["移動操作ロボット","AgiBot G2 PoC"],"searchIntent":"製品仕様・導入条件を確認したい","priority":"A"},
+    {"path":"products/agibot-x2-edu.html","pageType":"product-detail","primaryKeyword":"AgiBot X2 EDU","secondaryKeywords":["ヒューマノイド 組立 実習","ROS2 ロボット 教育"],"searchIntent":"研究教育向け構成と提供状態を確認したい","priority":"B"},
+    {"path":"products/limx-oli.html","pageType":"product-detail","primaryKeyword":"LimX Oli 日本","secondaryKeywords":["二足歩行 ロボット 研究","全身制御 ロボット"],"searchIntent":"日本導入条件と研究用途を確認したい","priority":"B"},
+    {"path":"products/tianji-marvin.html","pageType":"product-detail","primaryKeyword":"Tianji Marvin VLA","secondaryKeywords":["双腕ロボット テレオペ","HDF5 RLDS ロボット"],"searchIntent":"VLAデータ収集構成を比較したい","priority":"B"},
+    {"path":"resources.html","pageType":"resource-hub","primaryKeyword":"ロボット SDK","secondaryKeywords":["Unitree ROS2","人型ロボット GitHub"],"searchIntent":"技術資料を探す","priority":"A"},
+    {"path":"checklist.html","pageType":"tool","primaryKeyword":"ロボット 導入 チェックリスト","secondaryKeywords":["ロボット 見積 条件","研究機器 購入 チェック"],"searchIntent":"導入前の実務資料を探す","priority":"A"},
+    {"path":"cases.html","pageType":"case-hub","primaryKeyword":"ロボット 導入事例","secondaryKeywords":["大学 ロボット 導入","ロボット 選定 事例"],"searchIntent":"実績と信頼性を確認したい","priority":"S"},
+    {"path":"about.html","pageType":"company","primaryKeyword":"AirAdmin8 Robotics","secondaryKeywords":["ロボット 導入会社","中国ロボット 日本"],"searchIntent":"会社の信頼性を確認したい","priority":"A"}
   ]
 }
