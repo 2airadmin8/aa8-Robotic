@@ -1,0 +1,32 @@
+# AirAdmin8 Robotics
+
+AirAdmin8 Roboticsは、大学・研究機関、製造、物流向けにAIロボットの選定、比較、正式見積、大学購買、PoC、初期設定、導入支援を提供します。
+
+## Main pages
+
+- Home: https://2airadmin8.github.io/aa8-Robotic/
+- Products: https://2airadmin8.github.io/aa8-Robotic/products.html
+- Use cases: https://2airadmin8.github.io/aa8-Robotic/use-cases.html
+- Implementation support: https://2airadmin8.github.io/aa8-Robotic/support.html
+- Cases: https://2airadmin8.github.io/aa8-Robotic/cases.html
+- Official SDK and technical resources: https://2airadmin8.github.io/aa8-Robotic/resources.html
+- Pre-implementation checklist: https://2airadmin8.github.io/aa8-Robotic/checklist.html
+- Company: https://2airadmin8.github.io/aa8-Robotic/about.html
+- Contact: https://2airadmin8.github.io/aa8-Robotic/contact.html
+
+## Core topics
+
+- AIロボット導入支援
+- 大学研究用ロボットの選定・見積・購買
+- 人型ロボット、四足ロボット、移動操作ロボット、ロボットアーム
+- VLA・模倣学習データ収集
+- SDK、ROS、ROS2、MuJoCo、テレオペ
+- PoC設計、初期設定、保守、二次開発支援
+
+## Information policy
+
+製品仕様、価格、納期、保証、SDK対応範囲は構成と時期により変わるため、正式見積時に確認します。公開済み、整理済み、未検証の情報を区別して表示します。
+
+## Contact
+
+airobot@robotics.air-admin8.co.jp
