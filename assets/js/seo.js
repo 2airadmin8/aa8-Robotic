@@ -9,6 +9,7 @@
   const cleanPath = relativePath || 'index.html';
 
   injectBrowserIdentity();
+  injectRelationAssets();
 
   const pageMap = {
     'index.html': { name: 'AirAdmin8 Robotics', type: 'WebSite' },
@@ -74,6 +75,11 @@
     ensureLink('manifest', `${siteBase}site.webmanifest`);
   }
 
+  function injectRelationAssets() {
+    ensureLink('stylesheet', `${siteBase}assets/css/manufacturer-relations.css`);
+    ensureScript(`${siteBase}assets/js/manufacturer-relations.js`, 'manufacturer-relations-loader');
+  }
+
   function injectSocialMeta(config) {
     const canonical = getCanonical();
     const description = document.querySelector('meta[name="description"]')?.content || '';
@@ -109,13 +115,22 @@
   }
 
   function ensureLink(rel, href, type = '', color = '') {
-    if (document.querySelector(`link[rel="${rel}"]`)) return;
+    if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) return;
     const link = document.createElement('link');
     link.rel = rel;
     link.href = href;
     if (type) link.type = type;
     if (color) link.setAttribute('color', color);
     document.head.appendChild(link);
+  }
+
+  function ensureScript(src, id) {
+    if (document.getElementById(id)) return;
+    const script = document.createElement('script');
+    script.id = id;
+    script.src = src;
+    script.defer = true;
+    document.head.appendChild(script);
   }
 
   function getCanonical() {
