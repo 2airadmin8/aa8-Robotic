@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-16",
+  "measurementId": "G-XJYBMMPWWX",
+  "privacyRule": "氏名、メールアドレス、電話番号、自由記述本文は送信しない",
+  "events": [
+    {
+      "name": "compare_product_add",
+      "purpose": "比較候補への製品追加",
+      "parameters": ["page_path", "page_type", "product_id", "selected_count"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "compare_open",
+      "purpose": "2〜3製品の比較表表示",
+      "parameters": ["page_path", "page_type", "selected_count", "theme"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "compare_link_copy",
+      "purpose": "比較URLの共有",
+      "parameters": ["page_path", "page_type", "selected_count"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "compare_pdf_print",
+      "purpose": "比較表の印刷・PDF保存",
+      "parameters": ["page_path", "page_type", "selected_count"],
+      "conversionCandidate": true
+    },
+    {
+      "name": "compare_consult_click",
+      "purpose": "比較結果から問い合わせへ移動",
+      "parameters": ["page_path", "page_type", "selected_count"],
+      "conversionCandidate": true
+    },
+    {
+      "name": "checklist_progress",
+      "purpose": "導入前チェックの進捗",
+      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "checklist_copy",
+      "purpose": "チェック結果のコピー",
+      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "checklist_consult_click",
+      "purpose": "チェック結果から問い合わせへ移動",
+      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "conversionCandidate": true
+    },
+    {
+      "name": "contact_review",
+      "purpose": "問い合わせ確認画面の表示",
+      "parameters": ["page_path", "page_type", "inquiry_category", "source_service", "source_theme", "has_product", "has_budget", "has_schedule"],
+      "conversionCandidate": true
+    },
+    {
+      "name": "contact_mail_open",
+      "purpose": "入力確認後のメールアプリ起動",
+      "parameters": ["page_path", "page_type", "inquiry_category", "source_service", "source_theme"],
+      "conversionCandidate": true
+    },
+    {
+      "name": "contact_copy_mail",
+      "purpose": "メール文面のコピー",
+      "parameters": ["page_path", "page_type", "inquiry_category"],
+      "conversionCandidate": true
+    }
+  ]
+}
