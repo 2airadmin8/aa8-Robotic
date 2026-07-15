@@ -1,12 +1,18 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "updatedAt": "2026-07-16",
   "measurementId": "G-XJYBMMPWWX",
-  "privacyRule": "氏名、メールアドレス、電話番号、自由記述本文は送信しない",
+  "privacyRule": "氏名、メールアドレス、電話番号、会社名、自由記述本文は送信しない",
   "events": [
     {
       "name": "compare_product_add",
       "purpose": "比較候補への製品追加",
+      "parameters": ["page_path", "page_type", "product_id", "selected_count"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "compare_product_remove",
+      "purpose": "比較候補からの製品削除",
       "parameters": ["page_path", "page_type", "product_id", "selected_count"],
       "conversionCandidate": false
     },
@@ -35,6 +41,12 @@
       "conversionCandidate": true
     },
     {
+      "name": "compare_clear",
+      "purpose": "比較候補の一括解除",
+      "parameters": ["page_path", "page_type", "selected_count"],
+      "conversionCandidate": false
+    },
+    {
       "name": "checklist_progress",
       "purpose": "導入前チェックの進捗",
       "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
@@ -43,6 +55,12 @@
     {
       "name": "checklist_copy",
       "purpose": "チェック結果のコピー",
+      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "conversionCandidate": false
+    },
+    {
+      "name": "checklist_reset",
+      "purpose": "チェック内容の消去",
       "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
       "conversionCandidate": false
     },
