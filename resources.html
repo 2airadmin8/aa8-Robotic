@@ -6,7 +6,7 @@
   <title>AIロボット開発資料・SDKナビ｜AirAdmin8 Robotics</title>
   <meta name="description" content="Unitree、AgiBotなどの公式SDK、ROS・ROS2、GitHub、Hugging Face、VLA、テレオペ、シミュレーション資料を製品・用途別に整理します。">
   <link rel="canonical" href="https://2airadmin8.github.io/aa8-Robotic/resources.html">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260716-4">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260716-11">
   <link rel="stylesheet" href="assets/css/resource-center.css?v=20260716-1">
 </head>
 <body>
@@ -44,6 +44,18 @@
 
     <section class="section section-tight">
       <div class="wrap">
+        <div class="section-heading"><div><p class="eyebrow">AIRADMIN8 TOOL</p><h2>見積前に、導入条件を一枚で整理。</h2><p class="section-intro">用途、身体構成、SDK、データ、購買、設置、安全、保守を先生・研究員・購買担当で共有できます。</p></div></div>
+        <div class="resource-judgement-grid">
+          <article><span>01</span><h3>印刷・PDF保存</h3><p>ブラウザからA4資料として保存し、学内・社内共有に使えます。</p></article>
+          <article><span>02</span><h3>正式見積前の確認</h3><p>本体以外の構成、納期、書類、保証、導入条件の漏れを減らします。</p></article>
+          <article><span>03</span><h3>未確認項目を可視化</h3><p>誰が、何を、いつまでに確認するかを案件単位で残せます。</p></article>
+          <article><span>04</span><h3>相談へ接続</h3><p><a class="button primary" href="checklist.html">導入前チェックリストを開く</a></p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="wrap">
         <div class="section-heading"><div><p class="eyebrow">START BY PURPOSE</p><h2>目的から公式資料へ。</h2></div></div>
         <div class="resource-purpose-grid">
           <button type="button" data-resource-shortcut="vla"><span>01</span><strong>VLA・模倣学習</strong><small>モデル、データセット、収集環境</small></button>
@@ -59,7 +71,6 @@
     <section id="resource-search" class="section muted">
       <div class="wrap">
         <div class="section-heading"><div><p class="eyebrow">RESOURCE FINDER</p><h2>公式入口と公開状況を絞り込む。</h2><p class="section-intro">検索結果はメーカー公式リンクを優先し、AirAdmin8の確認状態を併記します。</p></div></div>
-
         <form class="resource-filter-panel" data-resource-filter-form>
           <label>メーカー<select name="maker"><option value="all">すべて</option><option value="unitree">Unitree</option><option value="agibot">AgiBot</option></select></label>
           <label>製品・領域<select name="product"><option value="all">すべて</option><option value="humanoid">人型</option><option value="quadruped">四足</option><option value="arm">アーム</option><option value="components">コンポーネント</option><option value="platform">共通基盤</option></select></label>
@@ -68,7 +79,6 @@
           <button class="button primary resource-search-button" type="submit">検索する</button>
           <button class="resource-reset-button" type="reset">条件をクリア</button>
         </form>
-
         <div class="resource-result-summary" aria-live="polite"><strong data-resource-count>0</strong><span>件の公式・公開資料</span></div>
         <div class="resource-card-grid" data-resource-list data-source="data/resources.json"></div>
         <div class="resource-empty" data-resource-empty hidden><h3>該当する資料がありません。</h3><p>条件を減らすか、製品名・研究用途からご相談ください。</p></div>
@@ -87,12 +97,10 @@
       </div>
     </section>
 
-    <section class="section dark compact-resource-cta">
-      <div class="wrap resource-cta-grid"><div><p class="eyebrow">TECHNICAL DUE DILIGENCE</p><h2>SDKの有無ではなく、研究に使えるかを確認。</h2><p>対象型番、必要な制御、開発環境、データ形式を共有いただければ、確認項目を整理します。</p></div><a class="button resource-light-button" href="contact.html?service=technical-review">技術条件を相談する</a></div>
-    </section>
+    <section class="section dark compact-resource-cta"><div class="wrap resource-cta-grid"><div><p class="eyebrow">TECHNICAL DUE DILIGENCE</p><h2>SDKの有無ではなく、研究に使えるかを確認。</h2><p>対象型番、必要な制御、開発環境、データ形式を共有いただければ、確認項目を整理します。</p></div><a class="button resource-light-button" href="contact.html?service=technical-review">技術条件を相談する</a></div></section>
   </main>
 
-  <footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p><small>外部リンク先の内容・公開状態は各提供元に帰属します。</small></div><div class="footer-links"><a href="products.html">製品</a><a href="use-cases.html">用途</a><a href="support.html">導入支援</a><a href="cases.html">事例</a><a href="resources.html">資料・SDK</a><a href="contact.html">相談</a></div></div></footer>
-  <script src="assets/js/site.js?v=20260716-5" defer></script>
+  <footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p><small>外部リンク先の内容・公開状態は各提供元に帰属します。</small></div><div class="footer-links"><a href="products.html">製品</a><a href="use-cases.html">用途</a><a href="support.html">導入支援</a><a href="cases.html">事例</a><a href="resources.html">資料・SDK</a><a href="checklist.html">導入前チェック</a><a href="contact.html">相談</a></div></div></footer>
+  <script src="assets/js/site.js?v=20260716-11" defer></script>
 </body>
 </html>
