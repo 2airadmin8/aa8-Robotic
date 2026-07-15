@@ -4,7 +4,8 @@
    ============================================================ */
 
 html {
-  overflow-x: clip;
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-padding-top: 92px;
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
@@ -12,15 +13,41 @@ html {
 
 body {
   min-width: 320px;
+  max-width: 100%;
+  overflow-x: hidden;
   overflow-wrap: anywhere;
 }
 
 main,
 section,
+article,
+aside,
+header,
+footer,
 .wrap,
 .grid,
-.detail-grid {
+.detail-grid,
+.product-page-hero-grid,
+.hub-hero-grid,
+.theme-grid,
+.category-priority-grid,
+.product-lineup-grid,
+.comparison-axis-grid,
+.contact-panel-dark {
   min-width: 0;
+  max-width: 100%;
+}
+
+.grid > *,
+.detail-grid > *,
+.product-page-hero-grid > *,
+.hub-hero-grid > *,
+.theme-grid > *,
+.category-priority-grid > *,
+.product-lineup-grid > *,
+.comparison-axis-grid > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 img,
@@ -115,11 +142,23 @@ a[href^="mailto:"] {
   }
 
   .wrap {
-    width: min(var(--max), calc(100% - 28px));
+    width: calc(100% - 28px);
+    max-width: calc(100vw - 28px);
+    margin-inline: auto;
   }
 
   .header-inner {
     min-height: 68px;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .nav {
@@ -127,11 +166,23 @@ a[href^="mailto:"] {
     max-height: calc(100dvh - 68px - env(safe-area-inset-top, 0px));
   }
 
+  /* 日本語見出しに keep-all を使うと、iPhoneで一行が画面外へ伸びる。
+     モバイルでは自然な禁則処理に戻し、必要に応じて文字単位で折り返す。 */
   .hero h1,
   .page-hero h1,
-  .section h2 {
-    overflow-wrap: normal;
-    word-break: keep-all;
+  .section h2,
+  .theme-card h3,
+  .priority-category h3 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    line-break: strict;
+  }
+
+  .actions,
+  .theme-links,
+  .product-card-actions {
+    max-width: 100%;
   }
 
   .actions > *,
@@ -141,6 +192,23 @@ a[href^="mailto:"] {
   .manufacturer-search-button,
   .manufacturer-reset-button {
     width: 100%;
+    max-width: 100%;
+  }
+
+  .research-product-card,
+  .product-card,
+  .theme-card,
+  .priority-category,
+  .selection-note,
+  .sidebox {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .product-filter,
+  .feature-list {
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
   }
 
   .specs th,
