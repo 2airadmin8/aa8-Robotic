@@ -43,6 +43,13 @@ jobs:
             node --check "${file}"
           done
 
+      - name: Validate SEO keyword ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_seo.py
+          python scripts/validate_seo.py
+
       - name: Build site with safe fallback
         shell: bash
         run: |
