@@ -7,100 +7,59 @@
   <meta name="description" content="大学研究・企業PoCでAIロボットを導入する前に確認すべき用途、身体構成、SDK、データ、購買、設置、安全、保守条件を一枚で整理できます。">
   <link rel="canonical" href="https://2airadmin8.github.io/aa8-Robotic/checklist.html">
   <link rel="stylesheet" href="assets/css/site.css?v=20260716-11">
-  <link rel="stylesheet" href="assets/css/checklist.css?v=20260716-1">
+  <link rel="stylesheet" href="assets/css/checklist.css?v=20260716-2">
 </head>
 <body>
   <header class="site-header"><div class="wrap header-inner"><a class="brand" href="index.html" aria-label="AirAdmin8 Robotics ホーム"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav" aria-label="グローバルナビゲーション"><a href="products.html">製品を探す</a><a href="use-cases.html">用途から探す</a><a href="support.html">導入支援</a><a href="cases.html">導入事例</a><a href="resources.html">資料・SDK</a><a class="nav-cta" href="contact.html">製品・導入を相談する</a></nav></div></header>
 
   <main>
-    <section class="checklist-hero">
-      <div class="wrap checklist-intro">
-        <div>
-          <div class="breadcrumb"><a href="index.html">ホーム</a> / <a href="resources.html">資料・SDK</a> / 導入前チェックリスト</div>
-          <p class="eyebrow">PRE-IMPLEMENTATION CHECKLIST</p>
-          <h1>見積前に確認する、<br>AIロボット導入条件。</h1>
-          <p class="lead">製品名だけで判断せず、研究テーマ、対象タスク、SDK、データ、購買、設置、安全、保守を同じ順番で確認します。</p>
-          <div class="checklist-toolbar no-print"><button class="button primary" type="button" onclick="window.print()">印刷・PDF保存</button><a class="button secondary" href="contact.html?service=checklist-review">内容を相談する</a></div>
-        </div>
-        <aside class="checklist-note">
-          <strong>この資料の使い方</strong>
-          <p>先生、研究員、購買担当、開発担当で共有し、未確認項目を残したまま正式見積へ進まないための整理票です。</p>
-          <p class="print-only">作成日：　　　　　　　　　担当者：　　　　　　　　　案件名：</p>
-        </aside>
-      </div>
-    </section>
+    <section class="checklist-hero"><div class="wrap checklist-intro"><div><div class="breadcrumb"><a href="index.html">ホーム</a> / <a href="resources.html">資料・SDK</a> / 導入前チェックリスト</div><p class="eyebrow">PRE-IMPLEMENTATION CHECKLIST</p><h1>見積前に確認する、<br>AIロボット導入条件。</h1><p class="lead">製品名だけで判断せず、研究テーマ、対象タスク、SDK、データ、購買、設置、安全、保守を同じ順番で確認します。</p><div class="checklist-toolbar no-print"><button class="button primary" type="button" onclick="window.print()">印刷・PDF保存</button><button class="checklist-secondary-action" type="button" data-checklist-copy>結果をコピー</button><button class="checklist-secondary-action" type="button" data-checklist-reset>入力を消去</button><a class="button secondary" href="contact.html?service=checklist-review" data-checklist-consult>内容を相談する</a></div></div><aside class="checklist-note"><strong>この資料の使い方</strong><p>先生、研究員、購買担当、開発担当で共有し、未確認項目を残したまま正式見積へ進まないための整理票です。</p><p>入力内容は、この端末のブラウザ内だけに自動保存されます。</p><p class="print-only">作成日：　　　　　　　　　担当者：　　　　　　　　　案件名：</p></aside></div></section>
 
-    <section class="section">
-      <div class="wrap checklist-sheet">
-        <section class="checklist-section">
-          <p class="eyebrow">01 / PURPOSE</p><h2>用途と成功条件</h2><p>何をさせるかではなく、何をもって成功とするかまで決めます。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>対象タスク</strong><span>移動、巡回、把持、組立、データ収集、教育など</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>対象物・環境</strong><span>重量、寸法、床面、段差、照明、温度、屋内外</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>評価指標</strong><span>成功率、精度、速度、連続稼働時間、介入回数</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+    <section class="section"><div class="wrap"><div class="checklist-progress-row no-print"><strong data-checklist-progress>0 / 18 項目確認済み</strong><span class="checklist-save-status" data-checklist-status aria-live="polite"></span></div><div class="checklist-sheet" data-checklist-sheet>
+      <section class="checklist-section"><p class="eyebrow">01 / PURPOSE</p><h2>用途と成功条件</h2><p>何をさせるかではなく、何をもって成功とするかまで決めます。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>対象タスク</strong><span>移動、巡回、把持、組立、データ収集、教育など</span></div><input class="check-memo" data-check-memo placeholder="具体的なタスク"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>対象物・環境</strong><span>重量、寸法、床面、段差、照明、温度、屋内外</span></div><input class="check-memo" data-check-memo placeholder="対象物・環境条件"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>評価指標</strong><span>成功率、精度、速度、連続稼働時間、介入回数</span></div><input class="check-memo" data-check-memo placeholder="KPI・合格条件"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">02 / BODY & CONTROL</p><h2>身体構成と制御範囲</h2><p>本体価格だけでなく、必要な腕、ハンド、センサー、移動方式を確認します。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>必要な形態</strong><span>人型、四足、移動台車、単腕、双腕</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>ハンド・可搬・精度</strong><span>指構成、対象重量、位置精度、力制御</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>低レイヤ制御</strong><span>関節、速度、トルク、全身制御の公開範囲</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+      <section class="checklist-section"><p class="eyebrow">02 / BODY & CONTROL</p><h2>身体構成と制御範囲</h2><p>本体価格だけでなく、必要な腕、ハンド、センサー、移動方式を確認します。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>必要な形態</strong><span>人型、四足、移動台車、単腕、双腕</span></div><input class="check-memo" data-check-memo placeholder="必要な形態"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>ハンド・可搬・精度</strong><span>指構成、対象重量、位置精度、力制御</span></div><input class="check-memo" data-check-memo placeholder="数値・条件"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>低レイヤ制御</strong><span>関節、速度、トルク、全身制御の公開範囲</span></div><input class="check-memo" data-check-memo placeholder="必要な制御権限"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">03 / SOFTWARE & DATA</p><h2>SDK・ROS・データ</h2><p>購入後に研究環境へ接続できるかを事前に確認します。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>SDK・ROS</strong><span>対応OS、ROS1/ROS2、DDS、API、サンプル</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>シミュレータ</strong><span>MuJoCo、Isaac Sim、URDF、モデル利用条件</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>記録形式</strong><span>画像、状態、行動、時刻同期、HDF5、RLDS</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+      <section class="checklist-section"><p class="eyebrow">03 / SOFTWARE & DATA</p><h2>SDK・ROS・データ</h2><p>購入後に研究環境へ接続できるかを事前に確認します。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>SDK・ROS</strong><span>対応OS、ROS1/ROS2、DDS、API、サンプル</span></div><input class="check-memo" data-check-memo placeholder="OS・ROS・言語"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>シミュレータ</strong><span>MuJoCo、Isaac Sim、URDF、モデル利用条件</span></div><input class="check-memo" data-check-memo placeholder="利用予定環境"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>記録形式</strong><span>画像、状態、行動、時刻同期、HDF5、RLDS</span></div><input class="check-memo" data-check-memo placeholder="必要なデータ形式"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">04 / PROCUREMENT</p><h2>価格・納期・大学購買</h2><p>本体以外の費用と、発注に必要な書類を含めて確認します。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>見積構成</strong><span>本体、ハンド、予備電池、充電器、送料、設置</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>納期・在庫</strong><span>正式発注後の納期、空輸、輸入、在庫変動</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>購買条件</strong><span>二社見積、宛名、型番、社印、支払条件、検収</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+      <section class="checklist-section"><p class="eyebrow">04 / PROCUREMENT</p><h2>価格・納期・大学購買</h2><p>本体以外の費用と、発注に必要な書類を含めて確認します。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>見積構成</strong><span>本体、ハンド、予備電池、充電器、送料、設置</span></div><input class="check-memo" data-check-memo placeholder="必要な構成"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>納期・在庫</strong><span>正式発注後の納期、空輸、輸入、在庫変動</span></div><input class="check-memo" data-check-memo placeholder="希望納期"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>購買条件</strong><span>二社見積、宛名、型番、社印、支払条件、検収</span></div><input class="check-memo" data-check-memo placeholder="学内・社内条件"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">05 / INSTALLATION & SAFETY</p><h2>設置・安全・通信</h2><p>実験室・現場で稼働させるための条件を整理します。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>設置条件</strong><span>搬入口、床荷重、作業範囲、充電場所、保管</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>安全対策</strong><span>非常停止、立入範囲、転倒、挟まれ、監視者</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>通信・法規</strong><span>有線・無線、技適、PSE、バッテリー輸送書類</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+      <section class="checklist-section"><p class="eyebrow">05 / INSTALLATION & SAFETY</p><h2>設置・安全・通信</h2><p>実験室・現場で稼働させるための条件を整理します。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>設置条件</strong><span>搬入口、床荷重、作業範囲、充電場所、保管</span></div><input class="check-memo" data-check-memo placeholder="設置場所・制約"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>安全対策</strong><span>非常停止、立入範囲、転倒、挟まれ、監視者</span></div><input class="check-memo" data-check-memo placeholder="安全運用条件"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>通信・法規</strong><span>有線・無線、技適、PSE、バッテリー輸送書類</span></div><input class="check-memo" data-check-memo placeholder="通信・法規条件"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">06 / SUPPORT</p><h2>保証・保守・二次開発</h2><p>故障時、仕様変更時、研究拡張時の対応範囲を明確にします。</p>
-          <div class="check-items">
-            <div class="check-item"><i class="check-box"></i><div><strong>初期不良・保証</strong><span>連絡期限、対象部品、返送、修理、代替機</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>初期設定・研修</strong><span>開梱、動作確認、SDK導入、操作説明</span></div><div class="check-memo">記入欄</div></div>
-            <div class="check-item"><i class="check-box"></i><div><strong>二次開発</strong><span>治具、アプリ、データ収集、評価、運用改善</span></div><div class="check-memo">記入欄</div></div>
-          </div>
-        </section>
+      <section class="checklist-section"><p class="eyebrow">06 / SUPPORT</p><h2>保証・保守・二次開発</h2><p>故障時、仕様変更時、研究拡張時の対応範囲を明確にします。</p><div class="check-items">
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>初期不良・保証</strong><span>連絡期限、対象部品、返送、修理、代替機</span></div><input class="check-memo" data-check-memo placeholder="必要な保証条件"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>初期設定・研修</strong><span>開梱、動作確認、SDK導入、操作説明</span></div><input class="check-memo" data-check-memo placeholder="必要な支援"></label>
+        <label class="check-item" data-check-item><input class="check-box" type="checkbox"><div><strong>二次開発</strong><span>治具、アプリ、データ収集、評価、運用改善</span></div><input class="check-memo" data-check-memo placeholder="追加開発の想定"></label>
+      </div></section>
 
-        <section class="checklist-section">
-          <p class="eyebrow">DECISION</p><h2>正式見積へ進む前の判断。</h2>
-          <div class="checklist-summary">
-            <article><strong>候補製品</strong><p>　　　　　　　　　　　　　</p></article>
-            <article><strong>未確認項目</strong><p>　　　　　　　　　　　　　</p></article>
-            <article><strong>次の担当・期限</strong><p>　　　　　　　　　　　　　</p></article>
-          </div>
-        </section>
-      </div>
-    </section>
+      <section class="checklist-section"><p class="eyebrow">DECISION</p><h2>正式見積へ進む前の判断。</h2><div class="checklist-summary"><article><strong>候補製品</strong><textarea class="summary-input" data-summary-field data-summary-label="候補製品" rows="3"></textarea></article><article><strong>未確認項目</strong><textarea class="summary-input" data-summary-field data-summary-label="未確認項目" rows="3"></textarea></article><article><strong>次の担当・期限</strong><textarea class="summary-input" data-summary-field data-summary-label="次の担当・期限" rows="3"></textarea></article></div></section>
+    </div></div></section>
 
-    <section class="section dark compact-dark-cta"><div class="wrap contact-panel-dark"><div><p class="eyebrow">REVIEW WITH AIRADMIN8</p><h2>未確認項目を残したまま発注しません。</h2><p>チェック結果をもとに、製品候補、正式見積、PoC、大学購買条件を整理します。</p></div><a class="button light-button" href="contact.html?service=checklist-review">チェック内容を相談する</a></div></section>
+    <section class="section dark compact-dark-cta"><div class="wrap contact-panel-dark"><div><p class="eyebrow">REVIEW WITH AIRADMIN8</p><h2>未確認項目を残したまま発注しません。</h2><p>チェック結果をもとに、製品候補、正式見積、PoC、大学購買条件を整理します。</p></div><a class="button light-button" href="contact.html?service=checklist-review" data-checklist-consult>チェック内容を相談する</a></div></section>
   </main>
 
   <footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="products.html">製品</a><a href="use-cases.html">用途</a><a href="support.html">導入支援</a><a href="resources.html">資料・SDK</a><a href="checklist.html">導入前チェック</a><a href="contact.html">相談</a></div></div></footer>
   <script src="assets/js/site.js?v=20260716-11" defer></script>
+  <script src="assets/js/checklist.js?v=20260716-1" defer></script>
 </body>
 </html>
