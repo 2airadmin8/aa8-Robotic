@@ -11,6 +11,7 @@
 
   if (!form || !dialog || !summary) return;
 
+  const draftKey = 'airadmin8-contact-draft-v1';
   const params = new URLSearchParams(window.location.search);
   const source = {
     product: params.get('product') || '',
@@ -36,12 +37,18 @@
     'use-case-review': { category: '導入条件整理', label: '用途からの条件整理' },
   };
 
+  restoreDraft();
   applyPrefill();
+  installDraftControls();
+
+  form.addEventListener('input', debounce(saveDraft, 350));
+  form.addEventListener('change', saveDraft);
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (!validateForm()) return;
+    saveDraft();
     renderSummary();
     dialog.showModal();
   }, true);
@@ -53,6 +60,7 @@
     const body = createBody(values);
     const mailto = `mailto:airobot@robotics.air-admin8.co.jp?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
+    saveDraft();
     dialog.close();
     fallbackPanel?.classList.add('is-visible');
     fallbackPanel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -75,6 +83,69 @@
     const outside = event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
     if (outside) dialog.close();
   });
+
+  function installDraftControls() {
+    const anchor = prefillNotice?.parentElement ? prefillNotice : form;
+    const panel = document.createElement('div');
+    panel.className = 'contact-draft-panel';
+    panel.dataset.contactDraftPanel = '';
+    panel.innerHTML = `
+      <div>
+        <strong>入力内容はこの端末に自動保存されます。</strong>
+        <span data-contact-draft-status>未保存</span>
+      </div>
+      <button type="button" data-contact-draft-clear>下書きを消去</button>`;
+
+    if (anchor === form) form.prepend(panel);
+    else anchor.insertAdjacentElement('afterend', panel);
+
+    panel.querySelector('[data-contact-draft-clear]')?.addEventListener('click', () => {
+      if (!window.confirm('保存した下書きと現在の入力内容を消去しますか？')) return;
+      localStorage.removeItem(draftKey);
+      form.reset();
+      applyPrefill();
+      updateDraftStatus('下書きを消去しました。');
+    });
+
+    updateDraftStatus(localStorage.getItem(draftKey) ? '保存済みの下書きを復元しました。' : '入力すると自動保存されます。');
+  }
+
+  function saveDraft() {
+    const payload = {};
+    [...form.elements].forEach((field) => {
+      if (!field.name || field.type === 'hidden' || field.name === 'privacy' || field.disabled) return;
+      payload[field.name] = field.value;
+    });
+
+    const hasContent = Object.values(payload).some((value) => String(value || '').trim());
+    if (!hasContent) {
+      localStorage.removeItem(draftKey);
+      updateDraftStatus('入力すると自動保存されます。');
+      return;
+    }
+
+    localStorage.setItem(draftKey, JSON.stringify({ savedAt: Date.now(), values: payload }));
+    updateDraftStatus('この端末に保存しました。');
+  }
+
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      Object.entries(draft.values || {}).forEach(([name, value]) => {
+        const field = form.elements.namedItem(name);
+        if (field && typeof value === 'string') field.value = value;
+      });
+    } catch (error) {
+      localStorage.removeItem(draftKey);
+    }
+  }
+
+  function updateDraftStatus(message) {
+    const status = document.querySelector('[data-contact-draft-status]');
+    if (status) status.textContent = message;
+  }
 
   function applyPrefill() {
     const productField = form.elements.namedItem('product');
@@ -182,6 +253,14 @@
       `支援：${values.get('source_service') || ''}`,
       `用途：${values.get('source_theme') || ''}`,
     ].join('\n');
+  }
+
+  function debounce(callback, wait) {
+    let timer;
+    return (...args) => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => callback(...args), wait);
+    };
   }
 
   function escapeHtml(value) {
