@@ -23,10 +23,11 @@
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+    event.stopImmediatePropagation();
     if (!validateForm()) return;
     renderSummary();
     dialog.showModal();
-  });
+  }, true);
 
   dialog.querySelector('[data-confirm-back]')?.addEventListener('click', () => dialog.close());
   dialog.querySelector('[data-confirm-send]')?.addEventListener('click', () => {
