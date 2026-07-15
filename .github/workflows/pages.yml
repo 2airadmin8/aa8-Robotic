@@ -22,12 +22,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Validate and build static site
         run: python scripts/build_site.py
+
+      - name: Upload QA report
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-qa-report
+          path: _site/qa-report.json
+          retention-days: 30
+
       - name: Upload validated site artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
@@ -44,6 +54,7 @@ jobs:
     steps:
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
