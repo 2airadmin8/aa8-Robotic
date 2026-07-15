@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
 SITE_PREFIX = "/aa8-Robotic/"
-BUILD_VERSION = "20260716-9"
+BUILD_VERSION = "20260716-10"
 
 
 @dataclass
@@ -315,19 +315,22 @@ def shared_footer(prefix: str) -> str:
 
 def normalise_shared_ui(html: str, relative: Path) -> str:
     prefix = "../" * len(relative.parent.parts)
+    header_pattern = r'<header\b(?=[^>]*\bclass=["\'][^"\']*\bsite-header\b[^"\']*["\'])[^>]*>.*?</header>'
+    footer_pattern = r'<footer\b(?=[^>]*\bclass=["\'][^"\']*\bfooter\b[^"\']*["\'])[^>]*>.*?</footer>'
+
     html = re.sub(
-        r'<header\s+class="site-header"[^>]*>.*?</header>',
+        header_pattern,
         shared_header(prefix, relative),
         html,
         count=1,
-        flags=re.DOTALL,
+        flags=re.DOTALL | re.IGNORECASE,
     )
     html = re.sub(
-        r'<footer\s+class="footer"[^>]*>.*?</footer>',
+        footer_pattern,
         shared_footer(prefix),
         html,
         count=1,
-        flags=re.DOTALL,
+        flags=re.DOTALL | re.IGNORECASE,
     )
     html = re.sub(
         r'assets/css/site\.css(?:\?v=[^"\']+)?',
@@ -349,12 +352,6 @@ def inject_shared_assets(html: str, relative: Path) -> str:
     mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v={BUILD_VERSION}">'
     if "assets/css/mobile-qa.css" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
-
-    # GT- is a Google tag ID, not a GTM container ID. This marker prevents
-    # site.js from requesting gtm.js with an incompatible identifier.
-    analytics_guard = '<script data-google-tag-loader aria-hidden="true"></script>'
-    if "data-google-tag-loader" not in html and "</head>" in html:
-        html = html.replace("</head>", f"  {analytics_guard}\n</head>", 1)
 
     scripts: list[str] = []
     if "assets/js/mobile-qa.js" not in html:
