@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Validate the static site, inject shared assets, and build _site.
+"""Validate the static site, normalise shared UI, and build _site.
 
-The production build must not be blocked by content-quality warnings.
-Only unreadable JSON or a build-time exception is fatal. HTML, link,
-anchor and accessibility findings are recorded in qa-report.json.
+The production build is blocked only by unreadable JSON or an unexpected
+build-time exception. Content, link, anchor and accessibility findings are
+written to qa-report.json without stopping publication.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 from dataclasses import asdict, dataclass
@@ -20,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
 SITE_PREFIX = "/aa8-Robotic/"
+BUILD_VERSION = "20260716-8"
 
 
 @dataclass
@@ -52,7 +54,6 @@ class DocumentParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = {key: value or "" for key, value in attrs}
-
         if tag == "html":
             self.html_lang = values.get("lang", "").strip()
         if "id" in values:
@@ -124,11 +125,9 @@ def resolve_local_target(document: Path, raw_link: str) -> tuple[Path, str] | No
     link = raw_link.strip()
     if not link or link.startswith(("mailto:", "tel:", "javascript:", "data:")):
         return None
-
     parsed = urlparse(link)
     if parsed.scheme in {"http", "https"} or parsed.netloc:
         return None
-
     clean = parsed.path
     fragment = unquote(parsed.fragment)
     if not clean:
@@ -168,7 +167,6 @@ def validate_html(findings: list[str]) -> list[PageResult]:
     for path in ROOT.rglob("*.html"):
         if any(part in EXCLUDED_DIRS for part in path.relative_to(ROOT).parts):
             continue
-
         try:
             parser = parse_document(path)
         except (UnicodeDecodeError, OSError) as exc:
@@ -199,11 +197,9 @@ def validate_html(findings: list[str]) -> list[PageResult]:
         duplicate_ids = sorted({item for item in parser.ids if parser.ids.count(item) > 1})
         if duplicate_ids:
             findings.append(f"Duplicate IDs {duplicate_ids}: {relative}")
-
         for index, alt in enumerate(parser.image_alts, start=1):
             if alt is None:
                 findings.append(f"Missing alt on image {index}: {relative}")
-
         for index, button in enumerate(parser.buttons, start=1):
             if not button["text"] and not button["aria_label"]:
                 findings.append(f"Unnamed button {index}: {relative}")
@@ -218,7 +214,6 @@ def validate_html(findings: list[str]) -> list[PageResult]:
             if not target.exists():
                 findings.append(f"Broken local link: {relative} -> {raw_link}")
                 continue
-
             if fragment and target.suffix.lower() == ".html":
                 try:
                     target_parser = parser_cache.get(target.resolve()) or parse_document(target)
@@ -239,15 +234,112 @@ def validate_html(findings: list[str]) -> list[PageResult]:
             link_count=len(parser.links),
             image_count=len(parser.image_alts),
         ))
-
     return page_results
 
 
-def inject_shared_assets(html: str, relative: Path) -> str:
-    depth = len(relative.parent.parts)
-    prefix = "../" * depth
+def current_section(relative: Path) -> str:
+    first = relative.parts[0] if len(relative.parts) > 1 else relative.name
+    if first == "products" or relative.name == "products.html":
+        return "products"
+    if first == "use-cases" or relative.name == "use-cases.html":
+        return "uses"
+    if first == "support" or relative.name == "support.html":
+        return "support"
+    if first == "cases" or relative.name == "cases.html":
+        return "cases"
+    if relative.name == "resources.html":
+        return "resources"
+    if relative.name == "manufacturers.html" or first == "manufacturers":
+        return "manufacturers"
+    if relative.name == "faq.html":
+        return "faq"
+    if relative.name == "contact.html":
+        return "contact"
+    return ""
 
-    mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v=20260716-2">'
+
+def shared_header(prefix: str, relative: Path) -> str:
+    active = current_section(relative)
+
+    def nav_link(key: str, href: str, label: str) -> str:
+        current = ' aria-current="page"' if active == key else ""
+        return f'<a href="{prefix}{href}"{current}>{label}</a>'
+
+    return f'''<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="{prefix}index.html" aria-label="AirAdmin8 Robotics ホーム">
+      <span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span>
+    </a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button>
+    <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
+      {nav_link("products", "products.html", "製品を探す")}
+      {nav_link("uses", "use-cases.html", "用途から探す")}
+      {nav_link("support", "support.html", "導入支援")}
+      {nav_link("cases", "cases.html", "導入事例")}
+      {nav_link("resources", "resources.html", "資料・SDK")}
+      <a class="nav-cta" href="{prefix}contact.html"{' aria-current="page"' if active == 'contact' else ''}>製品・導入を相談する</a>
+    </nav>
+  </div>
+</header>'''
+
+
+def shared_footer(prefix: str) -> str:
+    return f'''<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <strong>AirAdmin8 Robotics</strong>
+      <p>AIロボットを、選ぶ・つなぐ・実装する。</p>
+      <small>製品仕様・価格・納期・保証は正式見積時に確認します。</small>
+    </div>
+    <div class="footer-links">
+      <a href="{prefix}products.html">製品</a>
+      <a href="{prefix}use-cases.html">用途</a>
+      <a href="{prefix}support.html">導入支援</a>
+      <a href="{prefix}cases.html">事例</a>
+      <a href="{prefix}resources.html">資料・SDK</a>
+      <a href="{prefix}manufacturers.html">メーカー</a>
+      <a href="{prefix}faq.html">よくある質問</a>
+      <a href="{prefix}contact.html">相談</a>
+      <a href="{prefix}privacy.html">個人情報保護</a>
+    </div>
+  </div>
+</footer>'''
+
+
+def normalise_shared_ui(html: str, relative: Path) -> str:
+    prefix = "../" * len(relative.parent.parts)
+    html = re.sub(
+        r'<header\s+class="site-header"[^>]*>.*?</header>',
+        shared_header(prefix, relative),
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+    html = re.sub(
+        r'<footer\s+class="footer"[^>]*>.*?</footer>',
+        shared_footer(prefix),
+        html,
+        count=1,
+        flags=re.DOTALL,
+    )
+    html = re.sub(
+        r'assets/css/site\.css(?:\?v=[^"\']+)?',
+        f'assets/css/site.css?v={BUILD_VERSION}',
+        html,
+    )
+    html = re.sub(
+        r'assets/js/site\.js(?:\?v=[^"\']+)?',
+        f'assets/js/site.js?v={BUILD_VERSION}',
+        html,
+    )
+    return html
+
+
+def inject_shared_assets(html: str, relative: Path) -> str:
+    prefix = "../" * len(relative.parent.parts)
+    html = normalise_shared_ui(html, relative)
+
+    mobile_css = f'<link rel="stylesheet" href="{prefix}assets/css/mobile-qa.css?v={BUILD_VERSION}">'
     if "assets/css/mobile-qa.css" not in html and "</head>" in html:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
 
@@ -259,12 +351,11 @@ def inject_shared_assets(html: str, relative: Path) -> str:
 
     scripts: list[str] = []
     if "assets/js/mobile-qa.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v=20260716-2" defer></script>')
+        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
     if "assets/js/seo.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/seo.js?v=20260716-1" defer></script>')
+        scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
     if scripts and "</body>" in html:
         html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
-
     return html
 
 
@@ -285,6 +376,7 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
 
     report = {
         "status": "passed_with_findings" if findings else "passed",
+        "build_version": BUILD_VERSION,
         "html_pages": len(page_results),
         "findings": findings,
         "pages": [asdict(result) for result in page_results],
@@ -297,13 +389,11 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
 if __name__ == "__main__":
     fatal_errors: list[str] = []
     findings: list[str] = []
-
     validate_json(fatal_errors)
     pages = validate_html(findings)
 
     for finding in findings:
         print(f"QA: {finding}")
-
     if fatal_errors:
         for error in fatal_errors:
             print(f"FATAL: {error}")
@@ -312,7 +402,7 @@ if __name__ == "__main__":
 
     try:
         build_output(pages, findings)
-    except Exception as exc:  # noqa: BLE001 - CI must report any build exception.
+    except Exception as exc:  # noqa: BLE001
         print(f"FATAL: Build failed: {exc}")
         sys.exit(1)
 
