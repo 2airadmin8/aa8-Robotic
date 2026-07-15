@@ -1,0 +1,309 @@
+/* ============================================================
+   Product comparison
+   2〜3製品を選択し、研究用途・状態・SDK条件を横並び比較する。
+   ============================================================ */
+
+.product-compare-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid #d7e5ea;
+  border-radius: 12px;
+  background: #f8fbfc;
+  color: #173342;
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.product-compare-select input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #009ad2;
+}
+
+.research-product-card.is-compare-selected {
+  border-color: #009ad2;
+  box-shadow: 0 18px 46px rgba(0, 154, 210, 0.18);
+}
+
+.compare-bar {
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  left: 18px;
+  z-index: 70;
+  display: none;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  color: #ffffff;
+  background: rgba(11, 49, 67, 0.96);
+  box-shadow: 0 18px 54px rgba(11, 49, 67, 0.28);
+  backdrop-filter: blur(12px);
+}
+
+.compare-bar.is-visible {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.compare-bar-copy {
+  min-width: 0;
+}
+
+.compare-bar-copy strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.compare-selected-names {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.compare-selected-names span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #dff7ff;
+  background: rgba(255,255,255,0.1);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.compare-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.compare-bar button {
+  min-height: 44px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.compare-open-button {
+  border: 0;
+  color: #0b3143;
+  background: #ffffff;
+}
+
+.compare-open-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.compare-clear-button {
+  border: 1px solid rgba(255,255,255,0.36);
+  color: #ffffff;
+  background: transparent;
+}
+
+.product-compare-dialog {
+  width: min(1180px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  color: #173342;
+  background: #ffffff;
+  box-shadow: 0 24px 80px rgba(11, 49, 67, 0.32);
+}
+
+.product-compare-dialog::backdrop {
+  background: rgba(5, 30, 43, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.compare-dialog-inner {
+  display: flex;
+  max-height: calc(100dvh - 32px);
+  flex-direction: column;
+}
+
+.compare-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 24px 26px 18px;
+  border-bottom: 1px solid #dce8ed;
+}
+
+.compare-dialog-header h2 {
+  margin: 0 0 5px;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.compare-dialog-header p {
+  margin: 0;
+  color: #667d88;
+}
+
+.compare-dialog-close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #d3e1e7;
+  border-radius: 999px;
+  background: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.compare-table-wrap {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.compare-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 16px;
+  border-right: 1px solid #e1ebef;
+  border-bottom: 1px solid #e1ebef;
+  vertical-align: top;
+  text-align: left;
+}
+
+.compare-table th:first-child,
+.compare-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  width: 150px;
+  min-width: 150px;
+  color: #46616d;
+  background: #f4f9fb;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.compare-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  min-width: 210px;
+  background: #ffffff;
+}
+
+.compare-table thead th:first-child {
+  z-index: 4;
+  background: #f4f9fb;
+}
+
+.compare-product-head {
+  display: grid;
+  gap: 6px;
+}
+
+.compare-product-head small {
+  color: #009ad2;
+  font-weight: 900;
+}
+
+.compare-product-head strong {
+  font-size: 1.15rem;
+}
+
+.compare-product-head a {
+  color: #009ad2;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.compare-cell-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.compare-cell-tags span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #0f6d8a;
+  background: #e8f8fd;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.compare-dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 26px 22px;
+  border-top: 1px solid #dce8ed;
+  background: #ffffff;
+}
+
+.compare-dialog-footer p {
+  margin: 0;
+  color: #667d88;
+  font-size: 0.8rem;
+}
+
+.compare-consult-button {
+  flex: 0 0 auto;
+}
+
+.compare-limit-message {
+  margin: 12px 0 0;
+  color: #a24325;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+@media (max-width: 700px) {
+  .compare-bar.is-visible {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .compare-bar-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .product-compare-dialog {
+    width: calc(100% - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 18px;
+  }
+
+  .compare-dialog-inner {
+    max-height: calc(100dvh - 16px);
+  }
+
+  .compare-dialog-header,
+  .compare-dialog-footer {
+    padding-inline: 18px;
+  }
+
+  .compare-dialog-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .compare-consult-button {
+    width: 100%;
+  }
+}
