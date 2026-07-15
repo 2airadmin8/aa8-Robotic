@@ -3,21 +3,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>VLA・模倣学習データ収集｜AirAdmin8 Robotics</title>
-  <meta name="description" content="テレオペ、観測・行動、HDF5・RLDS、センサー、再生、学習環境まで含めたVLA・模倣学習向けロボットデータ収集構成を整理します。">
+  <title>VLAデータ収集支援｜模倣学習・ロボットテレオペ設計｜AirAdmin8 Robotics</title>
+  <meta name="description" content="VLA・模倣学習向けに、ロボットテレオペ、観測・行動、カメラ、制御周期、HDF5・RLDS、同期、再生、品質評価まで含むデータ収集環境を整理します。">
   <link rel="canonical" href="https://2airadmin8.github.io/aa8-Robotic/use-cases/vla-data-collection.html">
-  <link rel="stylesheet" href="../assets/css/site.css?v=20260716-4">
+  <link rel="stylesheet" href="../assets/css/site.css?v=20260716-11">
   <link rel="stylesheet" href="../assets/css/content-hub.css?v=20260716-1">
   <link rel="stylesheet" href="../assets/css/product-page.css?v=20260716-1">
 </head>
 <body>
-<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav"><a href="../products.html">製品を探す</a><a href="../use-cases.html">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html">相談する</a></nav></div></header>
+<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html" aria-label="AirAdmin8 Robotics ホーム"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav" aria-label="グローバルナビゲーション"><a href="../products.html">製品を探す</a><a href="../use-cases.html" aria-current="page">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html">製品・導入を相談する</a></nav></div></header>
 <main>
-<section class="page-hero hub-hero"><div class="wrap hub-hero-grid"><div><div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../use-cases.html">用途</a> / VLAデータ収集</div><p class="eyebrow">VLA / IMITATION LEARNING</p><h1>ロボットを買う前に、<br>収集するデータを決める。</h1><p class="lead">テレオペ装置、カメラ、観測、行動、制御周期、保存形式、再生、学習環境まで一つの収集系として設計します。</p><div class="actions"><a class="button primary" href="../contact.html?theme=vla-data-collection">構成を相談する</a><a class="button secondary" href="../products.html">候補製品を見る</a></div></div><aside class="hub-side-note"><p class="eyebrow">KEY DECISIONS</p><h2>機体以外に決めること。</h2><ul class="deliverable-list"><li>遠隔操作方式</li><li>観測・行動の定義</li><li>カメラ・センサー構成</li><li>記録形式と同期</li><li>再生・学習・評価方法</li></ul></aside></div></section>
-<section class="section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">SYSTEM ARCHITECTURE</p><h2>データ収集の基本構成。</h2></div></div><div class="logic-flow"><article><span>01</span><h3>テレオペ</h3><p>VR、データグローブ、マスター装置、ジョイスティック。</p></article><article><span>02</span><h3>ロボット・センサー</h3><p>双腕、ハンド、頭部・手先カメラ、移動ベース。</p></article><article><span>03</span><h3>記録・同期</h3><p>状態、行動、画像、タイムスタンプを同期して保存。</p></article><article><span>04</span><h3>再生・学習</h3><p>再生確認、品質評価、模倣学習・VLA学習へ接続。</p></article></div></div></section>
-<section class="section muted"><div class="wrap detail-grid"><div><p class="eyebrow">DATA DEFINITION</p><h2>最低限そろえるデータ。</h2><table class="specs"><tbody><tr><th>観測</th><td>RGB / Depth、関節状態、手先姿勢、力・トルク、移動状態</td></tr><tr><th>行動</th><td>関節指令、手先指令、グリッパ指令、移動ベース指令</td></tr><tr><th>記録形式</th><td>HDF5、RLDS、または学習基盤に合わせた変換形式</td></tr><tr><th>同期</th><td>画像・状態・行動のタイムスタンプと欠損管理</td></tr><tr><th>品質</th><td>成功・失敗、介入、リセット、異常、再現性</td></tr></tbody></table></div><aside class="sidebox"><h3>PoC前の確認事項</h3><ul class="check-list"><li>対象タスクと成功条件</li><li>必要な精度と制御周期</li><li>1エピソードの長さ</li><li>必要データ量</li><li>保存容量と計算環境</li></ul></aside></div></section>
-<section class="section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">CANDIDATE CONFIGURATIONS</p><h2>候補構成。</h2></div></div><div class="grid three"><article class="card"><h3>Unitree G1-D</h3><p>移動ベース、双腕、データ収集・模倣学習を前提に比較。</p><a class="text-link" href="../products/unitree-g1-d.html">詳細を見る →</a></article><article class="card"><h3>AgiBot G2</h3><p>移動、双腕操作、力制御を組み合わせた研究構成。</p><a class="text-link" href="../products/agibot-g2.html">詳細を見る →</a></article><article class="card"><h3>Tianji Marvin</h3><p>双腕力制御、全方向移動、VR・グローブ、HDF5・RLDS記録を含む候補構成。</p><a class="text-link" href="../products.html#tianji-marvin">製品カードを見る →</a></article></div></div></section>
-<section class="section dark compact-dark-cta"><div class="wrap contact-panel-dark"><div><p class="eyebrow">DESIGN BEFORE PURCHASE</p><h2>機体・テレオペ・データ形式をまとめて比較。</h2><p>必要なデータから逆算し、過不足のない構成とPoC範囲を整理します。</p></div><a class="button light-button" href="../contact.html?theme=vla-data-collection">相談する</a></div></section>
+  <section class="page-hero hub-hero">
+    <div class="wrap hub-hero-grid">
+      <div>
+        <div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../use-cases.html">用途</a> / VLAデータ収集</div>
+        <p class="eyebrow">VLA / IMITATION LEARNING / TELEOPERATION</p>
+        <h1>VLAデータ収集を、<br>ロボットとテレオペから設計。</h1>
+        <p class="lead">模倣学習で使う観測・行動を先に定義し、機体、ロボットテレオペ、カメラ、制御周期、保存形式、再生、品質評価までを一つの収集系として整理します。</p>
+        <div class="actions"><a class="button primary" href="../contact.html?service=vla-data-collection">VLA構成を相談する</a><a class="button secondary" href="../products.html?compare=unitree-g1-d,agibot-g2,tianji-marvin&open=compare&theme=data#lineup">候補機体を比較する</a></div>
+      </div>
+      <aside class="hub-side-note">
+        <p class="eyebrow">KEY DECISIONS</p><h2>機体以外に決めること。</h2>
+        <ul class="deliverable-list"><li>遠隔操作方式と操作者</li><li>観測・行動の定義</li><li>カメラ・センサー構成</li><li>記録形式・時刻同期・欠損管理</li><li>再生・品質評価・学習への受け渡し</li></ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section-tight">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">WHY DESIGN FIRST</p><h2>ロボットを先に買うと、収集できないデータが残る。</h2><p class="section-intro">同じロボットでも、公開SDK、制御可能範囲、カメラ配置、制御周期、ハンド、保存方法によって、取得できる模倣学習データは変わります。</p></div></div>
+      <div class="comparison-axis-grid">
+        <article><span>01</span><h3>タスク</h3><p>対象物、開始状態、成功条件、失敗条件、リセット方法。</p></article>
+        <article><span>02</span><h3>操作方式</h3><p>VR、マスター装置、グローブ、ジョイスティック、直接教示。</p></article>
+        <article><span>03</span><h3>データ</h3><p>画像、関節、手先、力、移動、言語指示、タイムスタンプ。</p></article>
+        <article><span>04</span><h3>評価</h3><p>成功率、介入、欠損、遅延、再現性、学習後の実行評価。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">SYSTEM ARCHITECTURE</p><h2>模倣学習データ収集の基本構成。</h2></div></div>
+      <div class="logic-flow">
+        <article><span>01</span><h3>ロボットテレオペ</h3><p>操作者の入力をロボットの腕、ハンド、移動指令へ変換。</p></article>
+        <article><span>02</span><h3>ロボット・センサー</h3><p>双腕、ハンド、頭部・手先カメラ、移動ベース、必要な外部センサー。</p></article>
+        <article><span>03</span><h3>記録・同期</h3><p>観測、行動、画像、状態、言語指示を同一時系列で保存。</p></article>
+        <article><span>04</span><h3>再生・学習・評価</h3><p>エピソード再生、品質判定、変換、学習、ロボット上での評価へ接続。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section muted">
+    <div class="wrap detail-grid">
+      <div>
+        <p class="eyebrow">DATA DEFINITION</p><h2>最低限そろえる観測・行動データ。</h2>
+        <table class="specs"><tbody>
+          <tr><th>観測</th><td>RGB / Depth、関節状態、手先姿勢、力・トルク、グリッパ状態、移動状態</td></tr>
+          <tr><th>行動</th><td>関節指令、手先指令、グリッパ指令、移動ベース指令</td></tr>
+          <tr><th>タスク情報</th><td>言語指示、対象物、開始条件、成功・失敗、介入、リセット</td></tr>
+          <tr><th>記録形式</th><td>HDF5、RLDS、または利用する学習基盤に合わせた変換形式</td></tr>
+          <tr><th>同期</th><td>画像・状態・行動のタイムスタンプ、遅延、欠損、周波数差の管理</td></tr>
+          <tr><th>品質</th><td>成功率、操作の滑らかさ、異常、再現性、データ除外理由</td></tr>
+        </tbody></table>
+      </div>
+      <aside class="sidebox">
+        <h3>PoC前の確認事項</h3>
+        <ul class="check-list"><li>対象タスクと成功条件</li><li>必要な精度と制御周期</li><li>1エピソードの長さ</li><li>必要データ量と収集時間</li><li>保存容量と計算環境</li><li>自律実行時の評価方法</li></ul>
+        <a class="text-link" href="../checklist.html">導入前チェックリストを使う →</a>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">TELEOPERATION OPTIONS</p><h2>ロボットテレオペ方式を比較する。</h2></div></div>
+      <div class="grid three">
+        <article class="card"><h3>マスター装置・同型操作</h3><p>操作者の腕や手の動きを対応付けやすい一方、追加機材、校正、安全確認が必要です。</p></article>
+        <article class="card"><h3>VR・モーション入力</h3><p>移動を含む操作構成を作りやすい一方、遅延、座標変換、触覚情報の不足を確認します。</p></article>
+        <article class="card"><h3>ジョイスティック・段階操作</h3><p>構成を簡素化しやすい一方、双腕・多指操作では入力次元と操作負荷を評価します。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section muted">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">CANDIDATE ROBOTS</p><h2>VLA・模倣学習向け候補機体。</h2><p class="section-intro">標準機能だけで要件を満たすとは限りません。公開SDK、制御対象、ハンド、センサー、追加開発範囲を機体ごとに確認します。</p></div></div>
+      <div class="grid three">
+        <article class="card"><h3>Unitree G1-D</h3><p>移動ベースと双腕を含む研究構成の候補。制御範囲、ハンド、収集環境を正式構成で確認します。</p><a class="text-link" href="../products/unitree-g1-d.html">詳細を見る →</a></article>
+        <article class="card"><h3>AgiBot G2</h3><p>移動と双腕操作を組み合わせる候補。SDK、操作方式、センサー、PoC範囲を確認します。</p><a class="text-link" href="../products/agibot-g2.html">詳細を見る →</a></article>
+        <article class="card"><h3>Tianji Marvin</h3><p>双腕・移動操作の候補。対応するテレオペ機材、記録形式、提供範囲を正式資料で確認します。</p><a class="text-link" href="../products/tianji-marvin.html">詳細を見る →</a></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-heading"><div><p class="eyebrow">FAQ</p><h2>VLA・模倣学習データ収集のよくある質問。</h2></div></div>
+      <div class="faq-list">
+        <details><summary>ロボットのSDKが公開されていれば、すぐにデータ収集できますか。</summary><p>公開SDKの有無だけでは判断できません。制御可能な関節、指令方式、取得できる状態、カメラ同期、制御周期、ハンドの制御範囲を確認します。</p></details>
+        <details><summary>HDF5とRLDSのどちらで保存すべきですか。</summary><p>利用する学習基盤、既存データセット、再生方法、変換コストで決めます。最初に必要なフィールドと時刻同期を定義し、変換可能な中間形式を検討します。</p></details>
+        <details><summary>成功データだけ収集すればよいですか。</summary><p>学習方法によりますが、失敗、介入、リセット、異常の記録も品質管理と再現性評価に重要です。採用・除外基準を事前に決めます。</p></details>
+        <details><summary>必要なデータ量を先に決められますか。</summary><p>タスクの長さ、ばらつき、対象物、操作者、モデル、評価条件で変わります。まず小規模PoCで収集速度と品質を測り、必要量を見積もります。</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark compact-dark-cta"><div class="wrap contact-panel-dark"><div><p class="eyebrow">DESIGN BEFORE PURCHASE</p><h2>機体・テレオペ・データ形式をまとめて比較。</h2><p>必要な観測・行動から逆算し、候補機体、追加機材、PoC範囲、未確認事項を整理します。</p></div><a class="button light-button" href="../contact.html?service=vla-data-collection">VLAデータ収集を相談する</a></div></section>
 </main>
-<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../contact.html">相談</a></div></div></footer><script src="../assets/js/site.js?v=20260716-4" defer></script>
-</body></html>
+<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../contact.html">相談</a></div></div></footer>
+<script src="../assets/js/site.js?v=20260716-11" defer></script>
+</body>
+</html>
