@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 REPORT = OUTPUT / "qa-report.json"
+PRODUCTS_DATA = OUTPUT / "data" / "products.json"
 REQUIRED_FILES = [
     "index.html",
     "products.html",
@@ -182,6 +183,25 @@ def main() -> int:
         products_text = products.read_text(encoding="utf-8", errors="replace")
         if "data-product-list" not in products_text:
             errors.append("Products artifact is missing dynamic product list root")
+        if 'data-prerendered-products="true"' not in products_text:
+            errors.append("Products artifact is missing pre-render marker")
+
+        try:
+            catalog = json.loads(PRODUCTS_DATA.read_text(encoding="utf-8"))
+            public_products = [
+                item for item in catalog.get("products", []) if item.get("visibility") == "public"
+            ]
+            card_count = products_text.count('class="product-card research-product-card"')
+            if card_count != len(public_products):
+                errors.append(
+                    f"Pre-rendered product card count mismatch: {card_count} != {len(public_products)}"
+                )
+            for item in public_products:
+                product_id = str(item.get("id", ""))
+                if f'id="{product_id}" class="product-card research-product-card"' not in products_text:
+                    errors.append(f"Pre-rendered product card missing: {product_id}")
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            errors.append(f"Cannot validate pre-rendered product cards: {exc}")
 
     sitemap = OUTPUT / "sitemap.xml"
     if sitemap.exists():
