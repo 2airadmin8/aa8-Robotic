@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-16",
+  "property": {
+    "currentPublicBase": "https://2airadmin8.github.io/aa8-Robotic/",
+    "preferredFutureDomain": "https://robotics.air-admin8.co.jp/",
+    "verificationStatus": "manual_action_required",
+    "sitemapPath": "sitemap.xml",
+    "robotsPath": "robots.txt"
+  },
+  "technicalChecks": [
+    {"id":"robots_allows_crawl","label":"robots.txtで公開ページのクロールを許可","status":"implemented"},
+    {"id":"robots_has_sitemap","label":"robots.txtにSitemap URLを記載","status":"implemented"},
+    {"id":"sitemap_urls_exist","label":"Sitemap掲載URLと実ファイルを一致","status":"automated"},
+    {"id":"canonical_matches_sitemap","label":"CanonicalとSitemap URLを一致","status":"automated"},
+    {"id":"seo_pages_in_sitemap","label":"SEO管理対象ページをSitemapへ登録","status":"automated"},
+    {"id":"search_console_property","label":"Google Search Consoleでプロパティ確認","status":"manual_action_required"},
+    {"id":"sitemap_submission","label":"Search ConsoleへSitemap送信","status":"manual_action_required"},
+    {"id":"index_request_priority_pages","label":"S優先ページのURL検査・登録リクエスト","status":"manual_action_required"}
+  ],
+  "priorityInspectionPages": [
+    "https://2airadmin8.github.io/aa8-Robotic/",
+    "https://2airadmin8.github.io/aa8-Robotic/products.html",
+    "https://2airadmin8.github.io/aa8-Robotic/support.html",
+    "https://2airadmin8.github.io/aa8-Robotic/support/university-procurement.html",
+    "https://2airadmin8.github.io/aa8-Robotic/use-cases/vla-data-collection.html",
+    "https://2airadmin8.github.io/aa8-Robotic/products/unitree-g1-d.html",
+    "https://2airadmin8.github.io/aa8-Robotic/cases.html"
+  ],
+  "weeklyMetrics": [
+    "表示回数",
+    "クリック数",
+    "平均CTR",
+    "平均掲載順位",
+    "検索クエリ",
+    "ページ別流入",
+    "未登録・除外ページ"
+  ]
+}
