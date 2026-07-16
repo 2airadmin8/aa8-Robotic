@@ -29,6 +29,7 @@ REQUIRED_FILES = [
     "assets/img/robot-category-lineup.svg",
     "assets/js/site.js",
     "assets/js/seo.js",
+    "assets/js/resource-static-filter.js",
     "assets/css/site.css",
     "assets/css/accessibility.css",
     "data/products.json",
@@ -211,6 +212,8 @@ def main() -> int:
         resources_text = resources.read_text(encoding="utf-8", errors="replace")
         if "data-resource-list" not in resources_text:
             errors.append("Resources artifact is missing dynamic resource list root")
+        if "assets/js/resource-static-filter.js" not in resources_text:
+            errors.append("Resources artifact is missing static resource filter script")
 
         try:
             resource_catalog = json.loads(RESOURCES_DATA.read_text(encoding="utf-8"))
