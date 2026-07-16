@@ -125,6 +125,13 @@ jobs:
           test -f _site/qa-report.json
           exit 0
 
+      - name: Pre-render public product cards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/prerender_product_cards.py
+          python scripts/prerender_product_cards.py
+
       - name: Inject accessibility helpers
         shell: bash
         run: |
