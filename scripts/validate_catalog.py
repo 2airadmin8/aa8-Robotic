@@ -187,7 +187,6 @@ def main() -> int:
         resource_id = str(item.get("id", "")).strip()
         label = f"Resource {resource_id or '<unknown>'}"
         resource_ids.append(resource_id)
-        resource_urls.append(str(item.get("url", "")).strip())
 
         add_required_text_errors(
             errors,
@@ -198,7 +197,6 @@ def main() -> int:
                 "makerName",
                 "title",
                 "description",
-                "url",
                 "sourceLabel",
                 "reviewStatus",
                 "reviewLabel",
@@ -223,10 +221,20 @@ def main() -> int:
             if not isinstance(values, list) or not values or not all(isinstance(value, str) and value.strip() for value in values):
                 errors.append(f"Invalid or empty {field} for {resource_id}")
 
-        url = str(item.get("url", "")).strip()
-        parsed = urlparse(url)
-        if parsed.scheme != "https" or not parsed.netloc:
-            errors.append(f"Resource URL must be absolute HTTPS for {resource_id}: {url}")
+        raw_url = item.get("url")
+        url = str(raw_url or "").strip()
+        if url:
+            resource_urls.append(url)
+            parsed = urlparse(url)
+            if parsed.scheme != "https" or not parsed.netloc:
+                errors.append(f"Resource URL must be absolute HTTPS for {resource_id}: {url}")
+        else:
+            review_status = str(item.get("reviewStatus", ""))
+            review_label = str(item.get("reviewLabel", ""))
+            if review_status != "unverified" or "確認中" not in review_label:
+                errors.append(
+                    f"Missing resource URL must be explicitly marked unverified/確認中: {resource_id}"
+                )
 
     duplicate_resource_ids = sorted({value for value in resource_ids if value and resource_ids.count(value) > 1})
     if duplicate_resource_ids:
