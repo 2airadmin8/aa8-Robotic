@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 REPORT = OUTPUT / "qa-report.json"
 PRODUCTS_DATA = OUTPUT / "data" / "products.json"
+RESOURCES_DATA = OUTPUT / "data" / "resources.json"
 REQUIRED_FILES = [
     "index.html",
     "products.html",
@@ -19,6 +20,7 @@ REQUIRED_FILES = [
     "cases.html",
     "contact.html",
     "faq.html",
+    "resources.html",
     "sitemap.xml",
     "robots.txt",
     "llms.txt",
@@ -30,6 +32,7 @@ REQUIRED_FILES = [
     "assets/css/site.css",
     "assets/css/accessibility.css",
     "data/products.json",
+    "data/resources.json",
 ]
 
 STATIC_META_MARKERS = [
@@ -202,6 +205,32 @@ def main() -> int:
                     errors.append(f"Pre-rendered product card missing: {product_id}")
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             errors.append(f"Cannot validate pre-rendered product cards: {exc}")
+
+    resources = OUTPUT / "resources.html"
+    if resources.exists():
+        resources_text = resources.read_text(encoding="utf-8", errors="replace")
+        if "data-resource-list" not in resources_text:
+            errors.append("Resources artifact is missing dynamic resource list root")
+
+        try:
+            resource_catalog = json.loads(RESOURCES_DATA.read_text(encoding="utf-8"))
+            resource_items = resource_catalog.get("resources", [])
+            expected_count = len(resource_items)
+            marker = f'data-prerendered-resources="{expected_count}"'
+            if marker not in resources_text:
+                errors.append(f"Resources artifact is missing pre-render marker: {marker}")
+
+            card_count = resources_text.count('class="resource-card" data-resource-id=')
+            if card_count != expected_count:
+                errors.append(
+                    f"Pre-rendered resource card count mismatch: {card_count} != {expected_count}"
+                )
+            for item in resource_items:
+                resource_id = str(item.get("id", ""))
+                if f'id="resource-{resource_id}" class="resource-card"' not in resources_text:
+                    errors.append(f"Pre-rendered resource card missing: {resource_id}")
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            errors.append(f"Cannot validate pre-rendered resource cards: {exc}")
 
     sitemap = OUTPUT / "sitemap.xml"
     if sitemap.exists():
