@@ -125,6 +125,13 @@ jobs:
           test -f _site/qa-report.json
           exit 0
 
+      - name: Inject accessibility helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/inject_accessibility.py
+          python scripts/inject_accessibility.py
+
       - name: Inject static browser and social metadata
         shell: bash
         run: |
