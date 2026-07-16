@@ -27,6 +27,7 @@ REQUIRED_FILES = [
     "assets/js/site.js",
     "assets/js/seo.js",
     "assets/css/site.css",
+    "assets/css/accessibility.css",
     "data/products.json",
 ]
 
@@ -45,6 +46,12 @@ STRUCTURED_DATA_IDS = [
     "organization-schema",
     "page-schema",
     "breadcrumb-schema",
+]
+
+ACCESSIBILITY_MARKERS = [
+    'class="skip-link" href="#main-content"',
+    'id="main-content"',
+    'assets/css/accessibility.css',
 ]
 
 
@@ -105,6 +112,17 @@ def main() -> int:
             if marker not in text:
                 errors.append(f"Static metadata marker missing from {relative}: {marker}")
 
+        for marker in ACCESSIBILITY_MARKERS:
+            count = text.count(marker)
+            if count != 1:
+                errors.append(
+                    f"Accessibility marker must appear exactly once in {relative}: "
+                    f"{marker} ({count})"
+                )
+
+        if not re.search(r'<main\b[^>]*\bid="main-content"[^>]*>', text, flags=re.IGNORECASE):
+            errors.append(f"main-content id is not attached to <main>: {relative}")
+
         for element_id in STRUCTURED_DATA_IDS:
             marker = f'id="{element_id}" type="application/ld+json"'
             count = text.count(marker)
@@ -134,7 +152,10 @@ def main() -> int:
                     if payload.get("@type") != "FAQPage":
                         errors.append("faq-schema @type must be FAQPage")
                     if not isinstance(entries, list) or len(entries) < 5:
-                        errors.append(f"faq-schema contains too few questions: {len(entries) if isinstance(entries, list) else 0}")
+                        errors.append(
+                            f"faq-schema contains too few questions: "
+                            f"{len(entries) if isinstance(entries, list) else 0}"
+                        )
                     for index, entry in enumerate(entries, start=1):
                         question = str(entry.get("name", "")).strip()
                         answer = str(entry.get("acceptedAnswer", {}).get("text", "")).strip()
