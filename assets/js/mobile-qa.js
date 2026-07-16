@@ -40,26 +40,6 @@
     });
   }
 
-  // 構築時の共通フッターに会社情報が未反映でも、全ページから到達できるよう補完する。
-  const footerLinks = document.querySelector('.footer-links');
-  if (footerLinks && !footerLinks.querySelector('a[href$="about.html"]')) {
-    const depth = window.location.pathname.includes('/products/')
-      || window.location.pathname.includes('/manufacturers/')
-      || window.location.pathname.includes('/use-cases/')
-      || window.location.pathname.includes('/support/')
-      || window.location.pathname.includes('/cases/')
-      ? '../'
-      : '';
-    const companyLink = document.createElement('a');
-    companyLink.href = `${depth}about.html`;
-    companyLink.textContent = '会社情報';
-
-    const privacyLink = [...footerLinks.querySelectorAll('a')]
-      .find((link) => link.getAttribute('href')?.endsWith('privacy.html'));
-    if (privacyLink) footerLinks.insertBefore(companyLink, privacyLink);
-    else footerLinks.appendChild(companyLink);
-  }
-
   // 製品一覧はJSON描画後にIDが生成されるため、描画完了後にアンカー移動する。
   const productList = document.querySelector('[data-product-list]');
   if (productList && window.location.hash) {
