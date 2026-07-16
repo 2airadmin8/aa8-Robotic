@@ -132,6 +132,13 @@ jobs:
           python -m py_compile scripts/prerender_product_cards.py
           python scripts/prerender_product_cards.py
 
+      - name: Pre-render public resource cards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/prerender_resources.py
+          python scripts/prerender_resources.py
+
       - name: Inject accessibility helpers
         shell: bash
         run: |
