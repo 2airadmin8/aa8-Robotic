@@ -82,8 +82,17 @@
   // ------------------------------------------------------------
   // 製品カード
   // 製品情報は data/products.json を唯一の主データとして扱う。
+  // 公開HTMLに事前描画済みの場合は、その内容をそのまま利用する。
   // ------------------------------------------------------------
   document.querySelectorAll('[data-product-list]').forEach(async (root) => {
+    const hasPrerenderedCards = root.dataset.prerenderedProducts === 'true'
+      && root.querySelector('.research-product-card');
+
+    if (hasPrerenderedCards) {
+      initialiseProductFilter(root);
+      return;
+    }
+
     try {
       const response = await fetch(root.dataset.source || 'data/products.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -138,13 +147,16 @@
       initialiseProductFilter(root);
     } catch (error) {
       console.error('製品情報の読み込みに失敗しました。', error);
-      root.innerHTML = '<p>製品情報を読み込めませんでした。</p>';
+      if (!root.querySelector('.research-product-card')) {
+        root.innerHTML = '<p>製品情報を読み込めませんでした。</p>';
+      }
     }
   });
 
   function initialiseProductFilter(productRoot) {
     const filterButtons = [...document.querySelectorAll('[data-product-filter]')];
-    if (!filterButtons.length) return;
+    if (!filterButtons.length || productRoot.dataset.filterReady === 'true') return;
+    productRoot.dataset.filterReady = 'true';
 
     const query = new URLSearchParams(window.location.search);
     const maker = query.get('maker') || 'all';
@@ -185,6 +197,9 @@
   // 資料・SDKセンター
   // ------------------------------------------------------------
   document.querySelectorAll('[data-resource-list]').forEach(async (root) => {
+    const hasPrerenderedCards = root.dataset.prerenderedResources === 'true'
+      && root.querySelector('.resource-card');
+
     try {
       const response = await fetch(root.dataset.source || 'data/resources.json');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -264,7 +279,13 @@
       });
     } catch (error) {
       console.error('資料情報の読み込みに失敗しました。', error);
-      root.innerHTML = '<p>資料情報を読み込めませんでした。</p>';
+      if (hasPrerenderedCards) {
+        const count = document.querySelector('[data-resource-count]');
+        if (count) count.textContent = String(root.querySelectorAll('.resource-card').length);
+        root.dataset.runtimeStatus = 'static-fallback';
+      } else {
+        root.innerHTML = '<p>資料情報を読み込めませんでした。</p>';
+      }
     }
   });
 
