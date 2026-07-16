@@ -160,6 +160,13 @@ jobs:
           python -m py_compile scripts/inject_structured_data.py
           python scripts/inject_structured_data.py
 
+      - name: Prepare and validate comparison print assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/prepare_compare_print_assets.py
+          python scripts/prepare_compare_print_assets.py
+
       - name: Smoke-test built Pages artifact
         shell: bash
         run: |
