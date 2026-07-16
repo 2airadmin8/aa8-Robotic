@@ -40,6 +40,12 @@ STATIC_META_MARKERS = [
     'name="twitter:card"',
 ]
 
+STRUCTURED_DATA_IDS = [
+    "organization-schema",
+    "page-schema",
+    "breadcrumb-schema",
+]
+
 
 def main() -> int:
     errors: list[str] = []
@@ -86,6 +92,26 @@ def main() -> int:
         for marker in STATIC_META_MARKERS:
             if marker not in text:
                 errors.append(f"Static metadata marker missing from {relative}: {marker}")
+
+        for element_id in STRUCTURED_DATA_IDS:
+            marker = f'id="{element_id}" type="application/ld+json"'
+            count = text.count(marker)
+            if count != 1:
+                errors.append(
+                    f"Structured data id must appear exactly once in {relative}: "
+                    f"{element_id} ({count})"
+                )
+
+        json_ld_payloads = re.findall(
+            r'<script\s+id="(?:organization-schema|page-schema|breadcrumb-schema)"\s+type="application/ld\+json">(.*?)</script>',
+            text,
+            flags=re.DOTALL,
+        )
+        for index, payload in enumerate(json_ld_payloads, start=1):
+            try:
+                json.loads(payload.replace("<\\/", "</"))
+            except json.JSONDecodeError as exc:
+                errors.append(f"Invalid JSON-LD in {relative} #{index}: {exc}")
 
     contact = OUTPUT / "contact.html"
     if contact.exists():
