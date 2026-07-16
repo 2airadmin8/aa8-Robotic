@@ -125,6 +125,13 @@ jobs:
           test -f _site/qa-report.json
           exit 0
 
+      - name: Inject static browser and social metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/inject_static_meta.py
+          python scripts/inject_static_meta.py
+
       - name: Smoke-test built Pages artifact
         shell: bash
         run: |
