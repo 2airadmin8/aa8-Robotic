@@ -132,6 +132,13 @@ jobs:
           python -m py_compile scripts/inject_static_meta.py
           python scripts/inject_static_meta.py
 
+      - name: Inject static structured data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/inject_structured_data.py
+          python scripts/inject_structured_data.py
+
       - name: Smoke-test built Pages artifact
         shell: bash
         run: |
