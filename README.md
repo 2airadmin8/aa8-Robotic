@@ -5,8 +5,8 @@
 
 ## 公開サイト
 
-- 現在: https://2airadmin8.github.io/aa8-Robotic/
-- 将来候補: https://robotics.air-admin8.co.jp/
+- 現在開発: https://2airadmin8.github.io/aa8-Robotic/
+- 将来本番: https://robotics.air-admin8.co.jp/
 
 ## サイトの目的
 
