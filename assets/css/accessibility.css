@@ -1,0 +1,51 @@
+/* ============================================================
+   アクセシビリティ共通補助
+   キーボード利用者が本文へ移動し、現在位置を確認できるようにする。
+   ============================================================ */
+
+.skip-link {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 10000;
+  max-width: calc(100vw - 20px);
+  padding: 12px 18px;
+  border: 2px solid #ffffff;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #0b3143;
+  box-shadow: 0 8px 24px rgba(11, 49, 67, 0.28);
+  font-weight: 900;
+  line-height: 1.4;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.16s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #00a7db;
+  outline-offset: 3px;
+}
+
+:where(input, select, textarea):focus-visible {
+  border-color: #007fae;
+  box-shadow: 0 0 0 4px rgba(0, 167, 219, 0.16);
+}
+
+#main-content {
+  scroll-margin-top: 110px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link {
+    transition: none;
+  }
+
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+}
