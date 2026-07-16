@@ -28,6 +28,7 @@
     lab: '実験室自動化',
   };
   let products = [];
+  let printCleanupTimer = 0;
 
   initialise();
 
@@ -188,16 +189,48 @@
   }
 
   function printComparison() {
-    if (getSelectedProducts().length < 2) return;
-    document.body.classList.add('is-printing-comparison');
+    const selectedProducts = getSelectedProducts();
+    if (selectedProducts.length < 2) return;
+
+    cleanupPrintSheet();
+
+    const printSheet = document.createElement('main');
+    printSheet.className = 'compare-print-sheet';
+    printSheet.setAttribute('aria-hidden', 'true');
+    printSheet.innerHTML = buildPrintHeader(selectedProducts) + buildComparisonTable(selectedProducts);
+    document.body.appendChild(printSheet);
+
     const previousTitle = document.title;
     const themeLabel = themeLabels[sourceTheme];
-    document.title = `AIロボット製品比較_${themeLabel ? `${themeLabel}_` : ''}${getSelectedProducts().map((item) => item.name).join('_')}`;
-    window.print();
-    window.setTimeout(() => {
+    const wasDialogOpen = dialog.open;
+    document.title = `AIロボット製品比較_${themeLabel ? `${themeLabel}_` : ''}${selectedProducts.map((item) => item.name).join('_')}`;
+    document.body.classList.add('is-printing-comparison');
+    if (wasDialogOpen) dialog.close();
+
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      window.clearTimeout(printCleanupTimer);
       document.body.classList.remove('is-printing-comparison');
+      document.querySelector('.compare-print-sheet')?.remove();
       document.title = previousTitle;
-    }, 300);
+      if (wasDialogOpen && !dialog.open) dialog.showModal();
+    };
+
+    window.addEventListener('afterprint', cleanup, { once: true });
+    printCleanupTimer = window.setTimeout(cleanup, 60000);
+
+    // iOS Safariはprint()直後に描画を確定しないため、専用シート反映後に開始する。
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => window.print());
+    });
+  }
+
+  function cleanupPrintSheet() {
+    window.clearTimeout(printCleanupTimer);
+    document.body.classList.remove('is-printing-comparison');
+    document.querySelector('.compare-print-sheet')?.remove();
   }
 
   async function copyComparisonUrl() {
