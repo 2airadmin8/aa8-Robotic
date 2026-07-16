@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Inject core JSON-LD into the built HTML artifact.
 
-Search engines should receive Organization, page and breadcrumb schemas without
-having to execute JavaScript. The runtime SEO script keeps the same element IDs,
-so it becomes a fallback and does not create duplicates.
+Search engines should receive Organization, page, breadcrumb and FAQ schemas
+without having to execute JavaScript. The runtime SEO script keeps the same
+IDs, so it becomes a fallback and does not create duplicates.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ CANONICAL_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 MANAGED_SCRIPT_PATTERN = re.compile(
-    r'\s*<script\s+id=["\'](?:organization-schema|page-schema|breadcrumb-schema)["\']\s+type=["\']application/ld\+json["\']>.*?</script>',
+    r'\s*<script\s+id=["\'](?:organization-schema|page-schema|breadcrumb-schema|faq-schema)["\']\s+type=["\']application/ld\+json["\']>.*?</script>',
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -91,6 +91,50 @@ class BreadcrumbParser(HTMLParser):
             self.current_text = []
         elif self.in_breadcrumb and tag == "div":
             self.in_breadcrumb = False
+
+
+class FaqParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.in_item = False
+        self.in_summary = False
+        self.answer_depth = 0
+        self.question_parts: list[str] = []
+        self.answer_parts: list[str] = []
+        self.entries: list[tuple[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {key: value or "" for key, value in attrs}
+        if tag == "details" and "data-faq-item" in values:
+            self.in_item = True
+            self.question_parts = []
+            self.answer_parts = []
+        elif self.in_item and tag == "summary":
+            self.in_summary = True
+        elif self.in_item and "faq-answer" in values.get("class", "").split():
+            self.answer_depth = 1
+        elif self.answer_depth:
+            self.answer_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.in_summary and tag == "summary":
+            self.in_summary = False
+        elif self.answer_depth:
+            self.answer_depth -= 1
+        if self.in_item and tag == "details":
+            question = " ".join("".join(self.question_parts).split())
+            answer = " ".join("".join(self.answer_parts).split())
+            if question and answer:
+                self.entries.append((question, answer))
+            self.in_item = False
+            self.in_summary = False
+            self.answer_depth = 0
+
+    def handle_data(self, data: str) -> None:
+        if self.in_summary:
+            self.question_parts.append(data)
+        elif self.answer_depth:
+            self.answer_parts.append(data)
 
 
 def extract(pattern: re.Pattern[str], text: str) -> str:
@@ -183,6 +227,28 @@ def breadcrumb_schema(text: str, canonical: str, page_name: str) -> dict[str, ob
     }
 
 
+def faq_schema(text: str) -> dict[str, object]:
+    parser = FaqParser()
+    parser.feed(text)
+    if not parser.entries:
+        raise ValueError("FAQ page contains no valid data-faq-item entries")
+    return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": answer,
+                },
+            }
+            for question, answer in parser.entries
+        ],
+    }
+
+
 def script_tag(element_id: str, data: dict[str, object]) -> str:
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return f'<script id="{element_id}" type="application/ld+json">{payload}</script>'
@@ -203,6 +269,9 @@ def process_html(text: str, relative: Path) -> str:
         script_tag("page-schema", page_schema(config, canonical, description)),
         script_tag("breadcrumb-schema", breadcrumb_schema(text, canonical, config["name"])),
     ]
+    if relative_name == "faq.html":
+        scripts.append(script_tag("faq-schema", faq_schema(text)))
+
     if "</head>" not in text:
         raise ValueError(f"Missing </head>: {relative_name}")
     return text.replace("</head>", "  " + "\n  ".join(scripts) + "\n</head>", 1)
