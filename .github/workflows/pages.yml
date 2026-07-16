@@ -43,6 +43,13 @@ jobs:
             node --check "${file}"
           done
 
+      - name: Validate product and resource catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_catalog.py
+          python scripts/validate_catalog.py
+
       - name: Validate SEO keyword ownership
         shell: bash
         run: |
