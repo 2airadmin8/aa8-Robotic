@@ -17,6 +17,7 @@ REQUIRED_FILES = [
     "support.html",
     "cases.html",
     "contact.html",
+    "faq.html",
     "sitemap.xml",
     "robots.txt",
     "llms.txt",
@@ -45,6 +46,17 @@ STRUCTURED_DATA_IDS = [
     "page-schema",
     "breadcrumb-schema",
 ]
+
+
+def extract_json_ld(text: str, element_id: str) -> dict[str, object] | None:
+    match = re.search(
+        rf'<script\s+id="{re.escape(element_id)}"\s+type="application/ld\+json">(.*?)</script>',
+        text,
+        flags=re.DOTALL,
+    )
+    if not match:
+        return None
+    return json.loads(match.group(1).replace("<\\/", "</"))
 
 
 def main() -> int:
@@ -102,16 +114,34 @@ def main() -> int:
                     f"{element_id} ({count})"
                 )
 
-        json_ld_payloads = re.findall(
-            r'<script\s+id="(?:organization-schema|page-schema|breadcrumb-schema)"\s+type="application/ld\+json">(.*?)</script>',
-            text,
-            flags=re.DOTALL,
-        )
-        for index, payload in enumerate(json_ld_payloads, start=1):
+        ids_to_parse = list(STRUCTURED_DATA_IDS)
+        if relative.as_posix() == "faq.html":
+            faq_marker = 'id="faq-schema" type="application/ld+json"'
+            faq_count = text.count(faq_marker)
+            if faq_count != 1:
+                errors.append(f"FAQ schema must appear exactly once in faq.html ({faq_count})")
+            ids_to_parse.append("faq-schema")
+        elif 'id="faq-schema"' in text:
+            errors.append(f"FAQ schema must not appear outside faq.html: {relative}")
+
+        for element_id in ids_to_parse:
             try:
-                json.loads(payload.replace("<\\/", "</"))
+                payload = extract_json_ld(text, element_id)
+                if payload is None:
+                    continue
+                if element_id == "faq-schema":
+                    entries = payload.get("mainEntity", [])
+                    if payload.get("@type") != "FAQPage":
+                        errors.append("faq-schema @type must be FAQPage")
+                    if not isinstance(entries, list) or len(entries) < 5:
+                        errors.append(f"faq-schema contains too few questions: {len(entries) if isinstance(entries, list) else 0}")
+                    for index, entry in enumerate(entries, start=1):
+                        question = str(entry.get("name", "")).strip()
+                        answer = str(entry.get("acceptedAnswer", {}).get("text", "")).strip()
+                        if not question or not answer:
+                            errors.append(f"Incomplete FAQ entry #{index}")
             except json.JSONDecodeError as exc:
-                errors.append(f"Invalid JSON-LD in {relative} #{index}: {exc}")
+                errors.append(f"Invalid JSON-LD in {relative} ({element_id}): {exc}")
 
     contact = OUTPUT / "contact.html"
     if contact.exists():
