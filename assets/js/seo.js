@@ -121,7 +121,12 @@
   }
 
   function ensureLink(rel, href, type = '', color = '') {
-    if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) return;
+    const singletonRels = new Set(['icon', 'mask-icon', 'manifest']);
+    const selector = singletonRels.has(rel)
+      ? `link[rel="${rel}"]`
+      : `link[rel="${rel}"][href="${href}"]`;
+    if (document.querySelector(selector)) return;
+
     const link = document.createElement('link');
     link.rel = rel;
     link.href = href;
