@@ -20,10 +20,24 @@ REQUIRED_FILES = [
     "sitemap.xml",
     "robots.txt",
     "llms.txt",
+    "site.webmanifest",
+    "assets/img/favicon.svg",
+    "assets/img/robot-category-lineup.svg",
     "assets/js/site.js",
     "assets/js/seo.js",
     "assets/css/site.css",
     "data/products.json",
+]
+
+STATIC_META_MARKERS = [
+    'name="theme-color"',
+    'rel="icon"',
+    'rel="manifest"',
+    'property="og:title"',
+    'property="og:description"',
+    'property="og:url"',
+    'property="og:image"',
+    'name="twitter:card"',
 ]
 
 
@@ -68,6 +82,10 @@ def main() -> int:
             errors.append(f"Shared header/footer missing from built HTML: {relative}")
         if "会社情報" not in text:
             errors.append(f"Company information link missing from built HTML: {relative}")
+
+        for marker in STATIC_META_MARKERS:
+            if marker not in text:
+                errors.append(f"Static metadata marker missing from {relative}: {marker}")
 
     contact = OUTPUT / "contact.html"
     if contact.exists():
