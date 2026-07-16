@@ -64,6 +64,13 @@ jobs:
           python -m py_compile scripts/validate_cases.py
           python scripts/validate_cases.py
 
+      - name: Validate Search Console readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/validate_search_index.py
+          python scripts/validate_search_index.py
+
       - name: Build site with safe fallback
         shell: bash
         run: |
