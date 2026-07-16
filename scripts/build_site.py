@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts"}
 SITE_PREFIX = "/aa8-Robotic/"
-BUILD_VERSION = "20260716-11"
+BUILD_VERSION = "20260716-12"
 
 
 @dataclass
@@ -306,6 +306,7 @@ def shared_footer(prefix: str) -> str:
       <a href="{prefix}resources.html">資料・SDK</a>
       <a href="{prefix}manufacturers.html">メーカー</a>
       <a href="{prefix}faq.html">よくある質問</a>
+      <a href="{prefix}about.html">会社情報</a>
       <a href="{prefix}contact.html">相談</a>
       <a href="{prefix}privacy.html">個人情報保護</a>
     </div>
