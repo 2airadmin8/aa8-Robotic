@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AgiBot World｜データセット・基盤モデル・VLA研究の確認ポイント｜AirAdmin8 Robotics</title>
+  <meta name="description" content="AgiBot Worldを、データセット、基盤モデル、VLA・模倣学習、データ収集、実機評価の観点で整理。研究利用時に確認すべき公開範囲と接続条件をまとめます。">
+  <link rel="canonical" href="https://robotics.air-admin8.co.jp/aa8-Robotic/guides/agibot-world.html">
+  <link rel="stylesheet" href="../assets/css/site.css?v=20260716-11">
+  <link rel="stylesheet" href="../assets/css/product-detail-v2.css?v=20260716-1">
+</head>
+<body>
+<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav"><a href="../products.html">製品を探す</a><a href="../use-cases.html">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html?maker=AgiBot&theme=world">研究利用を相談する</a></nav></div></header>
+<main>
+<section class="product-detail-hero"><div class="wrap product-detail-hero-grid"><div><div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../manufacturers/agibot.html">AgiBot</a> / AgiBot World</div><p class="eyebrow">AGIBOT WORLD</p><h1>AgiBot Worldを、<br>研究利用の視点で整理。</h1><p class="lead">公開データセットや基盤モデル関連資産を、そのまま使えるかではなく、研究タスク、データ形式、実機接続、再現性、評価条件まで含めて確認します。</p><div class="actions"><a class="button primary" href="../contact.html?maker=AgiBot&theme=world">研究利用を相談する</a><a class="button secondary" href="agibot-vla.html">VLA・データ収集を見る</a></div></div><figure class="product-detail-visual"><img src="../assets/img/robot-category-lineup.svg" alt="AgiBot WorldとVLA研究のイメージ"><figcaption><span>研究利用イメージ</span><span>公開範囲・利用条件は対象資産ごとに確認</span></figcaption></figure></div></section>
+<section class="section"><div class="wrap product-detail-main-grid"><div>
+<section class="product-detail-section"><p class="eyebrow">RESEARCH CHECK</p><h2>AgiBot Worldで確認する4点。</h2><div class="product-use-grid"><article><h3>データの中身</h3><p>観測、行動、画像、状態、タスク定義、成功・失敗ラベルなど、研究に必要な項目を確認。</p></article><article><h3>保存・変換</h3><p>公開形式、変換要否、学習パイプラインへの接続方法を確認。</p></article><article><h3>実機接続</h3><p>公開データと対象機体の制御・センサー構成が一致するかを確認。</p></article><article><h3>評価方法</h3><p>再生、再学習、実機推論、成功率、再現性の評価条件を整理。</p></article></div></section>
+<section class="product-detail-section"><p class="eyebrow">USE CASE</p><h2>研究での主な使い方。</h2><table class="product-detail-table"><tbody><tr><th>模倣学習</th><td>デモデータの観測・行動定義を確認し、学習・再生・評価へ接続。</td></tr><tr><th>VLA</th><td>画像、言語指示、状態、行動の対応関係と対象タスクを整理。</td></tr><tr><th>データ収集設計</th><td>既存データだけで足りない部分を、テレオペ・追加収集で補う構成を検討。</td></tr><tr><th>実機評価</th><td>対象機体、制御周期、センサー、環境差を確認し、実機推論の評価条件を設計。</td></tr></tbody></table></section>
+<section class="product-detail-section"><p class="eyebrow">RELATED</p><h2>AgiBot研究クラスタ。</h2><div class="product-related-grid"><a href="agibot-vla.html"><h3>AgiBot VLA</h3><p>テレオペ、データ収集、模倣学習。</p></a><a href="agibot-sdk.html"><h3>AgiBot SDK</h3><p>ROS2・DDS、OS、Runtime、APIの確認。</p></a><a href="../products/agibot-g2.html"><h3>AgiBot G2</h3><p>移動操作、双腕、力制御、PoC。</p></a><a href="../products/agibot-x2-edu.html"><h3>AgiBot X2 EDU</h3><p>組立・運動制御・研究教育。</p></a></div></section>
+<p class="product-detail-note">公開データ、モデル、コードの存在と、特定の研究目的・対象機体でそのまま利用できることは同義ではありません。利用条件と対象環境は個別に確認します。</p>
+</div><aside><div class="product-detail-sidebox"><p class="eyebrow">DISCOVERY CHECKLIST</p><h3>研究利用前に確認。</h3><ul><li>研究タスク</li><li>必要な観測・行動</li><li>データ形式</li><li>対象機体</li><li>学習環境</li><li>実機評価条件</li></ul><div class="actions"><a class="button primary" href="../contact.html?maker=AgiBot&theme=world">研究構成を相談する</a></div></div></aside></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../contact.html">相談</a></div></div></footer><script src="../assets/js/site.js?v=20260716-11" defer></script>
+</body></html>
