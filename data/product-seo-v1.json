@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-28",
+  "pages": {
+    "products/unitree-g1-d.html": {
+      "title": "Unitree G1-D｜価格・SDK・VLA・大学研究向け導入支援｜AirAdmin8 Robotics",
+      "description": "Unitree G1-Dの価格・納期、SDK・ROS、VLA・模倣学習、テレオペ、大学購買の確認項目を整理。研究用途に合わせた構成比較・正式見積・導入支援に対応します。"
+    },
+    "products/unitree-g1.html": {
+      "title": "Unitree G1｜価格・EDU・SDK・研究用ヒューマノイド比較｜AirAdmin8 Robotics",
+      "description": "Unitree G1の価格・納期、EDU構成、SDK・ROS2、二足歩行・全身制御・強化学習の研究用途を整理。大学向けの比較・見積・購買支援に対応します。"
+    },
+    "products/unitree-go2.html": {
+      "title": "Unitree Go2 EDU｜価格・SDK・研究用四足ロボット｜AirAdmin8 Robotics",
+      "description": "Unitree Go2 EDUの価格・納期、SDK・ROS2、四足歩行、ナビゲーション、巡回点検PoC、大学研究での導入条件を整理。比較・見積・導入支援に対応します。"
+    },
+    "products/agibot-g2.html": {
+      "title": "AgiBot G2｜価格・SDK・双腕・VLA・移動操作PoC｜AirAdmin8 Robotics",
+      "description": "AgiBot G2の価格・納期、双腕操作、力制御、VLA・模倣学習、SDK・API、企業PoCの確認項目を整理。研究・R&D向けの構成比較と導入支援に対応します。"
+    },
+    "products/agibot-x2-edu.html": {
+      "title": "AgiBot X2 EDU｜ROS2・組立実習・研究教育向けヒューマノイド｜AirAdmin8 Robotics",
+      "description": "AgiBot X2 EDUの研究教育用途、組立・調整実習、ROS2・DDS、MuJoCo、運動制御、価格・納期・提供条件を整理。大学・教育機関向けに比較支援します。"
+    },
+    "products/limx-oli.html": {
+      "title": "LimX Oli｜二足歩行・全身制御・強化学習・SDK研究｜AirAdmin8 Robotics",
+      "description": "LimX Oliの二足歩行、全身制御、強化学習、模倣学習、SDK・ROS、価格・納期・提供条件を整理。研究用ヒューマノイド候補として比較支援します。"
+    },
+    "products/tianji-marvin.html": {
+      "title": "Tianji Marvin｜VLA・双腕テレオペ・HDF5/RLDSデータ収集｜AirAdmin8 Robotics",
+      "description": "Tianji Marvinの双腕力制御、全方向移動、テレオペ、HDF5・RLDS、VLA・模倣学習向けデータ収集、価格・納期・構成条件を整理します。"
+    }
+  }
+}
