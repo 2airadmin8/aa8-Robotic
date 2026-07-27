@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets and normalize the built public origin."""
+"""Prepare comparison print assets, normalize public origin, and validate links."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from normalize_public_origin import normalize_public_origin
+from validate_internal_links import validate_internal_links
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
@@ -77,16 +78,17 @@ def main() -> int:
 
     normalized_count, origin_errors = normalize_public_origin(OUTPUT)
     errors.extend(origin_errors)
+    errors.extend(validate_internal_links(OUTPUT))
 
     if errors:
         for error in errors:
-            print(f"COMPARE PRINT ERROR: {error}")
-        print(f"Comparison print/public-origin preparation failed with {len(errors)} error(s).")
+            print(f"BUILD FINALIZE ERROR: {error}")
+        print(f"Final build preparation failed with {len(errors)} error(s).")
         return 1
 
     print(
-        "Comparison print assets prepared and public origin normalized "
-        f"in {normalized_count} built file(s)."
+        "Comparison print assets prepared, public origin normalized, and internal links validated "
+        f"({normalized_count} origin-normalized file(s))."
     )
     return 0
 
