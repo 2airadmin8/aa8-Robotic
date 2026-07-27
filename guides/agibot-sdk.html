@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AgiBot SDK｜ROS2・DDS・Link-U OS・AimRTの確認ポイント｜AirAdmin8 Robotics</title>
+  <meta name="description" content="AgiBotのSDK、ROS2、DDS、Link-U OS、AimRT、外部センサー連携、制御範囲を研究・PoC用途の視点で整理。対象機体ごとの確認ポイントをまとめます。">
+  <link rel="canonical" href="https://robotics.air-admin8.co.jp/aa8-Robotic/guides/agibot-sdk.html">
+  <link rel="stylesheet" href="../assets/css/site.css?v=20260716-11">
+  <link rel="stylesheet" href="../assets/css/product-detail-v2.css?v=20260716-1">
+</head>
+<body>
+<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html"><span class="brand-mark">A8</span><span>AirAdmin8 Robotics</span></a><button class="menu" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav"><a href="../products.html">製品を探す</a><a href="../use-cases.html">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html?maker=AgiBot&theme=sdk">SDK対応を確認する</a></nav></div></header>
+<main>
+<section class="product-detail-hero"><div class="wrap product-detail-hero-grid"><div><div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../manufacturers/agibot.html">AgiBot</a> / SDK</div><p class="eyebrow">AGIBOT SDK / DEVELOPMENT</p><h1>AgiBot SDKを、<br>対象機体ごとに確認。</h1><p class="lead">SDKやROS2の記載だけで判断せず、対象型番、OS、通信、DDS、制御レイヤー、外部センサー、シミュレーションまで研究・PoCに必要な範囲を整理します。</p><div class="actions"><a class="button primary" href="../contact.html?maker=AgiBot&theme=sdk">SDK対応を確認する</a><a class="button secondary" href="../resources.html?maker=agibot">関連資料を見る</a></div></div><figure class="product-detail-visual"><img src="../assets/img/robot-category-lineup.svg" alt="AgiBot SDKとROS2開発環境のイメージ"><figcaption><span>開発環境イメージ</span><span>利用範囲は対象機体・構成ごとに確認</span></figcaption></figure></div></section>
+<section class="section"><div class="wrap product-detail-main-grid"><div>
+<section class="product-detail-section"><p class="eyebrow">CHECK POINTS</p><h2>SDKで確認する項目。</h2><table class="product-detail-table"><tbody><tr><th>対象型番</th><td>G2、X2 EDUなど、対象機体と対象バージョンを特定。</td></tr><tr><th>通信・Middleware</th><td>ROS2、DDS、API、通信方式、Message定義などを確認。</td></tr><tr><th>制御範囲</th><td>移動、腕、ハンド、関節、センサー取得など、利用できる制御レイヤーを確認。</td></tr><tr><th>OS・Runtime</th><td>Link-U OS、AimRT等の公開・提供範囲と対象環境を確認。</td></tr><tr><th>外部機器</th><td>カメラ、力覚、入力機器、外部演算機、テレオペ機器との接続条件を確認。</td></tr><tr><th>シミュレーション</th><td>利用可能なシミュレータ、モデル、実機接続との差分を確認。</td></tr></tbody></table></section>
+<section class="product-detail-section"><p class="eyebrow">WHY IT MATTERS</p><h2>Repositoryがあるだけでは足りません。</h2><div class="product-use-grid"><article><h3>対象機体差</h3><p>同じメーカーでも製品・バージョンによって制御可能範囲が異なる可能性があります。</p></article><article><h3>研究タスク差</h3><p>歩行、双腕、VLA、教育では必要なAPI・周期・センサーが変わります。</p></article><article><h3>実機条件</h3><p>通信、ファームウェア、安全停止、外部機器接続を含めて確認します。</p></article><article><h3>追加開発</h3><p>標準提供、設定対応、個別開発を分け、PoC範囲を明確にします。</p></article></div></section>
+<section class="product-detail-section"><p class="eyebrow">RELATED</p><h2>AgiBot開発情報。</h2><div class="product-related-grid"><a href="agibot-vla.html"><h3>AgiBot VLA</h3><p>テレオペ・データ収集・模倣学習。</p></a><a href="agibot-world.html"><h3>AgiBot World</h3><p>データセット・基盤モデル関連資産。</p></a><a href="../products/agibot-g2.html"><h3>AgiBot G2</h3><p>移動操作・双腕・力制御・PoC。</p></a><a href="../products/agibot-x2-edu.html"><h3>AgiBot X2 EDU</h3><p>ROS2・DDS・組立・研究教育。</p></a></div></section>
+<p class="product-detail-note">公開Repositoryや資料の存在と、特定の製品構成で同じ機能を利用できることは同義ではありません。正式導入前に対象型番と実行環境を確認します。</p>
+</div><aside><div class="product-detail-sidebox"><p class="eyebrow">DEVELOPMENT CHECK</p><h3>相談時に確認。</h3><ul><li>対象機体</li><li>ROS2・DDS要件</li><li>必要な制御対象</li><li>制御周期</li><li>センサー・外部機器</li><li>シミュレーション要件</li></ul><div class="actions"><a class="button primary" href="../contact.html?maker=AgiBot&theme=sdk">開発条件を相談する</a></div></div></aside></div></section>
+</main>
+<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>AIロボットを、選ぶ・つなぐ・実装する。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../contact.html">相談</a></div></div></footer><script src="../assets/js/site.js?v=20260716-11" defer></script>
+</body></html>
