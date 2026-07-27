@@ -15,8 +15,18 @@ OUTPUT = ROOT / "_site"
 PRODUCTS_HTML = OUTPUT / "products.html"
 COMPARE_JS = OUTPUT / "assets" / "js" / "product-compare.js"
 COMPARE_CSS = OUTPUT / "assets" / "css" / "product-compare.css"
+BUILD_LOG = ROOT / "build.log"
 CSS_VERSION = "20260716-5"
 JS_VERSION = "20260716-4"
+
+
+def persist_errors(errors: list[str]) -> None:
+    if not errors:
+        return
+    with BUILD_LOG.open("a", encoding="utf-8") as handle:
+        handle.write("\n--- FINAL BUILD VALIDATION ---\n")
+        for error in errors:
+            handle.write(f"BUILD FINALIZE ERROR: {error}\n")
 
 
 def main() -> int:
@@ -27,6 +37,7 @@ def main() -> int:
             errors.append(f"Missing comparison print asset: {path.relative_to(OUTPUT)}")
 
     if errors:
+        persist_errors(errors)
         for error in errors:
             print(f"COMPARE PRINT ERROR: {error}")
         return 1
@@ -81,6 +92,7 @@ def main() -> int:
     errors.extend(validate_internal_links(OUTPUT))
 
     if errors:
+        persist_errors(errors)
         for error in errors:
             print(f"BUILD FINALIZE ERROR: {error}")
         print(f"Final build preparation failed with {len(errors)} error(s).")
