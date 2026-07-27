@@ -41,7 +41,7 @@ def render_card(item: dict[str, object]) -> str:
         f"<span>{esc(TYPE_LABELS.get(str(resource_type), resource_type))}</span>"
         for resource_type in item.get("types", [])
     )
-    url = str(item.get("url", "")).strip()
+    url = str(item.get("url") or "").strip()
     if url:
         action = (
             f'<a class="resource-open-link" href="{esc(url)}" '
