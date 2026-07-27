@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Prepare and validate the product comparison print assets in the built site."""
+"""Prepare comparison print assets and normalize the built public origin."""
 
 from __future__ import annotations
 
 import re
 import sys
 from pathlib import Path
+
+from normalize_public_origin import normalize_public_origin
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
@@ -73,13 +75,19 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
+    normalized_count, origin_errors = normalize_public_origin(OUTPUT)
+    errors.extend(origin_errors)
+
     if errors:
         for error in errors:
             print(f"COMPARE PRINT ERROR: {error}")
-        print(f"Comparison print preparation failed with {len(errors)} error(s).")
+        print(f"Comparison print/public-origin preparation failed with {len(errors)} error(s).")
         return 1
 
-    print("Comparison print assets prepared and validated for iPhone Safari.")
+    print(
+        "Comparison print assets prepared and public origin normalized "
+        f"in {normalized_count} built file(s)."
+    )
     return 0
 
 
