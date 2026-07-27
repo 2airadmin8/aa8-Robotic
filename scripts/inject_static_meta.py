@@ -2,8 +2,8 @@
 """Inject browser identity and social metadata into the built HTML artifact.
 
 The runtime SEO script remains as a safety net, but crawlers and link preview bots
-should receive favicon, manifest, theme color, Open Graph and Twitter metadata in
-the initial HTML response.
+should receive favicon, manifest, theme color, canonical, Open Graph and Twitter
+metadata in the initial HTML response.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-PUBLIC_BASE = "https://2airadmin8.github.io/aa8-Robotic/"
+PUBLIC_BASE = "https://robotics.air-admin8.co.jp/aa8-Robotic/"
 SOCIAL_IMAGE = f"{PUBLIC_BASE}assets/img/robot-category-lineup.svg"
 
 TITLE_PATTERN = re.compile(r"<title>(.*?)</title>", re.IGNORECASE | re.DOTALL)
@@ -38,15 +38,24 @@ def meta_tag(attribute: str, key: str, value: str) -> str:
     return f'<meta {attribute}="{html.escape(key, quote=True)}" content="{html.escape(value, quote=True)}">'
 
 
+def canonical_for(relative: Path) -> str:
+    if relative.as_posix() == "index.html":
+        return PUBLIC_BASE
+    return f"{PUBLIC_BASE}{relative.as_posix()}"
+
+
 def build_static_meta(text: str, relative: Path) -> str:
     title = extract(TITLE_PATTERN, text) or "AirAdmin8 Robotics"
     description = extract(DESCRIPTION_PATTERN, text)
-    canonical = extract(CANONICAL_PATTERN, text)
-    if not canonical:
-        canonical = PUBLIC_BASE if relative.as_posix() == "index.html" else f"{PUBLIC_BASE}{relative.as_posix()}"
-
+    canonical = canonical_for(relative)
     og_type = "product" if relative.parts and relative.parts[0] == "products" else "website"
     prefix = "../" * len(relative.parent.parts)
+
+    canonical_tag = f'<link rel="canonical" href="{html.escape(canonical, quote=True)}">'
+    if CANONICAL_PATTERN.search(text):
+        text = CANONICAL_PATTERN.sub(canonical_tag, text, count=1)
+    elif "</head>" in text:
+        text = text.replace("</head>", f"  {canonical_tag}\n</head>", 1)
 
     tags = [
         '<meta name="theme-color" content="#0b3143">',
