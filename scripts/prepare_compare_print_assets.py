@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare and validate the product comparison print assets in the built site."""
+"""Prepare comparison print assets, normalize public origin, and validate links."""
 
 from __future__ import annotations
 
@@ -7,13 +7,26 @@ import re
 import sys
 from pathlib import Path
 
+from normalize_public_origin import normalize_public_origin
+from validate_internal_links import validate_internal_links
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 PRODUCTS_HTML = OUTPUT / "products.html"
 COMPARE_JS = OUTPUT / "assets" / "js" / "product-compare.js"
 COMPARE_CSS = OUTPUT / "assets" / "css" / "product-compare.css"
+BUILD_LOG = ROOT / "build.log"
 CSS_VERSION = "20260716-5"
 JS_VERSION = "20260716-4"
+
+
+def persist_errors(errors: list[str]) -> None:
+    if not errors:
+        return
+    with BUILD_LOG.open("a", encoding="utf-8") as handle:
+        handle.write("\n--- FINAL BUILD VALIDATION ---\n")
+        for error in errors:
+            handle.write(f"BUILD FINALIZE ERROR: {error}\n")
 
 
 def main() -> int:
@@ -24,6 +37,7 @@ def main() -> int:
             errors.append(f"Missing comparison print asset: {path.relative_to(OUTPUT)}")
 
     if errors:
+        persist_errors(errors)
         for error in errors:
             print(f"COMPARE PRINT ERROR: {error}")
         return 1
@@ -73,13 +87,21 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
+    normalized_count, origin_errors = normalize_public_origin(OUTPUT)
+    errors.extend(origin_errors)
+    errors.extend(validate_internal_links(OUTPUT))
+
     if errors:
+        persist_errors(errors)
         for error in errors:
-            print(f"COMPARE PRINT ERROR: {error}")
-        print(f"Comparison print preparation failed with {len(errors)} error(s).")
+            print(f"BUILD FINALIZE ERROR: {error}")
+        print(f"Final build preparation failed with {len(errors)} error(s).")
         return 1
 
-    print("Comparison print assets prepared and validated for iPhone Safari.")
+    print(
+        "Comparison print assets prepared, public origin normalized, and internal links validated "
+        f"({normalized_count} origin-normalized file(s))."
+    )
     return 0
 
 
