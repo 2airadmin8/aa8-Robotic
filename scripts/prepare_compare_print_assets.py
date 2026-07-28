@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, normalize public origin, and validate links."""
+"""Prepare comparison print assets, strengthen brand entity, normalize public origin, and validate links."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from normalize_public_origin import normalize_public_origin
+from strengthen_brand_entity import strengthen_brand_entity
 from validate_internal_links import validate_internal_links
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -87,6 +88,8 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
+    brand_count, brand_errors = strengthen_brand_entity(OUTPUT)
+    errors.extend(brand_errors)
     normalized_count, origin_errors = normalize_public_origin(OUTPUT)
     errors.extend(origin_errors)
     errors.extend(validate_internal_links(OUTPUT))
@@ -99,8 +102,9 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, public origin normalized, and internal links validated "
-        f"({normalized_count} origin-normalized file(s))."
+        "Comparison print assets prepared, AirAdmin8 brand entity strengthened, public origin normalized, "
+        "and internal links validated "
+        f"({brand_count} brand-updated page(s), {normalized_count} origin-normalized file(s))."
     )
     return 0
 
