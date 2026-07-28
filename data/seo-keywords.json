@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "updatedAt": "2026-07-28",
   "rules": {
     "onePrimaryKeywordPerPage": true,
@@ -7,26 +7,26 @@
     "factCheckRequired": true
   },
   "pages": [
-    {"path":"index.html","pageType":"hub","primaryKeyword":"AirAdmin8 Robotics","secondaryKeywords":["AirAdmin8 ロボティックス","AirAdmin8 AIロボット","AIロボット 導入支援","Physical AI 導入支援"],"searchIntent":"AirAdmin8のロボティクス事業・AIロボット導入支援を探す","priority":"S"},
-    {"path":"products.html","pageType":"product-hub","primaryKeyword":"研究用ロボット 比較","secondaryKeywords":["人型ロボット 比較","AIロボット 製品一覧"],"searchIntent":"製品候補を比較したい","priority":"S"},
-    {"path":"use-cases.html","pageType":"use-case-hub","primaryKeyword":"AIロボット 用途","secondaryKeywords":["ロボット PoC","ロボット 導入事例"],"searchIntent":"用途に合う構成を知りたい","priority":"S"},
+    {"path":"index.html","pageType":"hub","primaryKeyword":"AirAdmin8 ロボティクス","secondaryKeywords":["airadmin8 ロボティクス","株式会社AirAdmin8 ロボティクス","AirAdmin8 AIロボット","airadmin8 AIロボット","AirAdmin8 ロボット","airadmin8 ロボット","AirAdmin8 フィジカルAI","airadmin8 フィジカルAI","AirAdmin8 ヒューマノイドロボット","AirAdmin8 ヒューマノイド","AirAdmin8 四足ロボット"],"searchIntent":"AirAdmin8のロボティクス事業・AIロボット・フィジカルAI導入支援を探す","priority":"S"},
+    {"path":"products.html","pageType":"product-hub","primaryKeyword":"研究用ロボット 比較","secondaryKeywords":["人型ロボット 比較","AIロボット 製品一覧","ヒューマノイドロボット 比較","四足ロボット 比較"],"searchIntent":"製品候補を比較したい","priority":"S"},
+    {"path":"use-cases.html","pageType":"use-case-hub","primaryKeyword":"AIロボット 用途","secondaryKeywords":["ロボット PoC","ロボット 導入事例","フィジカルAI 活用"],"searchIntent":"用途に合う構成を知りたい","priority":"S"},
     {"path":"support.html","pageType":"service","primaryKeyword":"ロボット 導入支援","secondaryKeywords":["ロボット PoC 支援","ロボット 初期設定"],"searchIntent":"支援会社を探す","priority":"S"},
     {"path":"support/university-procurement.html","pageType":"service-detail","primaryKeyword":"大学 ロボット 購入","secondaryKeywords":["大学 二社見積","研究機器 見積"],"searchIntent":"大学購買の進め方を知りたい","priority":"S"},
     {"path":"use-cases/vla-data-collection.html","pageType":"use-case-detail","primaryKeyword":"VLA データ収集","secondaryKeywords":["模倣学習 ロボット","ロボット テレオペ"],"searchIntent":"技術構成を知りたい","priority":"S"},
-    {"path":"manufacturers/unitree.html","pageType":"brand-hub","primaryKeyword":"Unitree","secondaryKeywords":["宇樹科技","Unitree G1","Unitree G1-D","Unitree Go2 EDU","AirAdmin8 Unitree"],"searchIntent":"Unitreeの製品・日本導入・価格・開発情報をまとめて確認したい","priority":"S"},
+    {"path":"manufacturers/unitree.html","pageType":"brand-hub","primaryKeyword":"Unitree","secondaryKeywords":["ユニツリー","宇樹科技","Unitree G1","Unitree G1-D","Unitree Go2 EDU","AirAdmin8 Unitree","AirAdmin8 ユニツリー","airadmin8 ユニツリー"],"searchIntent":"Unitreeの製品・日本導入・価格・開発情報をまとめて確認したい","priority":"S"},
     {"path":"manufacturers/agibot.html","pageType":"brand-hub","primaryKeyword":"AgiBot","secondaryKeywords":["智元ロボット","AgiBot G2","AgiBot X2 EDU","AirAdmin8 AgiBot"],"searchIntent":"AgiBotの製品・日本導入・開発情報をまとめて確認したい","priority":"S"},
-    {"path":"products/unitree-g1-d.html","pageType":"product-detail","primaryKeyword":"Unitree G1-D","secondaryKeywords":["Unitree G1-D 価格","Unitree G1-D SDK","Unitree G1-D VLA"],"searchIntent":"製品仕様・価格・導入条件を確認したい","priority":"S"},
-    {"path":"products/unitree-g1.html","pageType":"product-detail","primaryKeyword":"Unitree G1","secondaryKeywords":["Unitree G1 EDU","Unitree G1 SDK","Unitree G1 研究"],"searchIntent":"製品比較・購入を検討したい","priority":"S"},
-    {"path":"products/unitree-go2.html","pageType":"product-detail","primaryKeyword":"Unitree Go2 EDU","secondaryKeywords":["四足ロボット 研究用","Unitree Go2 SDK","Unitree Go2 価格"],"searchIntent":"四足ロボットを比較したい","priority":"A"},
+    {"path":"products/unitree-g1-d.html","pageType":"product-detail","primaryKeyword":"Unitree G1-D","secondaryKeywords":["Unitree G1-D 価格","Unitree G1-D SDK","Unitree G1-D VLA","AirAdmin8 ヒューマノイドロボット"],"searchIntent":"製品仕様・価格・導入条件を確認したい","priority":"S"},
+    {"path":"products/unitree-g1.html","pageType":"product-detail","primaryKeyword":"Unitree G1","secondaryKeywords":["Unitree G1 EDU","Unitree G1 SDK","Unitree G1 研究","AirAdmin8 ヒューマノイド"],"searchIntent":"製品比較・購入を検討したい","priority":"S"},
+    {"path":"products/unitree-go2.html","pageType":"product-detail","primaryKeyword":"Unitree Go2 EDU","secondaryKeywords":["四足ロボット 研究用","Unitree Go2 SDK","Unitree Go2 価格","AirAdmin8 四足ロボット","airadmin8 四足ロボット"],"searchIntent":"四足ロボットを比較したい","priority":"A"},
     {"path":"products/agibot-g2.html","pageType":"product-detail","primaryKeyword":"AgiBot G2","secondaryKeywords":["AgiBot G2 価格","AgiBot G2 SDK","移動操作ロボット"],"searchIntent":"製品仕様・導入条件を確認したい","priority":"S"},
-    {"path":"products/agibot-x2-edu.html","pageType":"product-detail","primaryKeyword":"AgiBot X2 EDU","secondaryKeywords":["ヒューマノイド 組立 実習","ROS2 ロボット 教育","AgiBot X2 EDU 価格"],"searchIntent":"研究教育向け構成と提供状態を確認したい","priority":"A"},
+    {"path":"products/agibot-x2-edu.html","pageType":"product-detail","primaryKeyword":"AgiBot X2 EDU","secondaryKeywords":["ヒューマノイド 組立 実習","ROS2 ロボット 教育","AgiBot X2 EDU 価格","AirAdmin8 X2","airadmin8 X2"],"searchIntent":"研究教育向け構成と提供状態を確認したい","priority":"A"},
     {"path":"products/limx-oli.html","pageType":"product-detail","primaryKeyword":"LimX Oli","secondaryKeywords":["二足歩行 ロボット 研究","全身制御 ロボット","LimX Oli SDK"],"searchIntent":"研究用途と提供条件を確認したい","priority":"B"},
     {"path":"products/tianji-marvin.html","pageType":"product-detail","primaryKeyword":"Tianji Marvin","secondaryKeywords":["Tianji Marvin VLA","双腕ロボット テレオペ","HDF5 RLDS ロボット"],"searchIntent":"VLAデータ収集構成を比較したい","priority":"B"},
     {"path":"compare/unitree-vs-agibot.html","pageType":"comparison","primaryKeyword":"Unitree AgiBot 比較","secondaryKeywords":["Unitree 智元 比較","AgiBot Unitree 違い","研究用ロボット メーカー 比較"],"searchIntent":"UnitreeとAgiBotのどちらを選ぶか判断したい","priority":"S"},
     {"path":"compare/unitree-g1-vs-g1-d.html","pageType":"comparison","primaryKeyword":"Unitree G1 G1-D 違い","secondaryKeywords":["Unitree G1 G1-D 比較","G1 G1-D 価格","G1-D G1 研究用途"],"searchIntent":"G1とG1-Dのどちらを選ぶか判断したい","priority":"S"},
     {"path":"compare/unitree-g1-vs-agibot-g2.html","pageType":"comparison","primaryKeyword":"Unitree G1 AgiBot G2 比較","secondaryKeywords":["G1 G2 比較 ロボット","Unitree AgiBot G2 違い","研究用ヒューマノイド 比較"],"searchIntent":"G1とAgiBot G2の研究適合性を比較したい","priority":"S"},
     {"path":"compare/agibot-g2-vs-x2-edu.html","pageType":"comparison","primaryKeyword":"AgiBot G2 X2 EDU 比較","secondaryKeywords":["AgiBot G2 X2 EDU 違い","G2 X2 EDU 価格","AgiBot 研究用 ロボット 比較"],"searchIntent":"AgiBot G2とX2 EDUのどちらを選ぶか判断したい","priority":"S"},
-    {"path":"guides/unitree-japan.html","pageType":"commercial-guide","primaryKeyword":"Unitree 日本","secondaryKeywords":["宇樹科技 日本","Unitree 日本導入","Unitree 購入 日本","AirAdmin8 Unitree"],"searchIntent":"Unitreeを日本で導入できるか確認したい","priority":"S"},
+    {"path":"guides/unitree-japan.html","pageType":"commercial-guide","primaryKeyword":"Unitree 日本","secondaryKeywords":["ユニツリー 日本","宇樹科技 日本","Unitree 日本導入","Unitree 購入 日本","AirAdmin8 ユニツリー"],"searchIntent":"Unitreeを日本で導入できるか確認したい","priority":"S"},
     {"path":"guides/unitree-g1-price.html","pageType":"commercial-guide","primaryKeyword":"Unitree G1 価格","secondaryKeywords":["Unitree G1 購入","Unitree G1 見積","Unitree G1 EDU 価格"],"searchIntent":"Unitree G1の価格・見積・購入条件を確認したい","priority":"S"},
     {"path":"guides/unitree-sdk.html","pageType":"technical-guide","primaryKeyword":"Unitree SDK","secondaryKeywords":["Unitree ROS2","Unitree DDS","Unitree MuJoCo"],"searchIntent":"Unitreeの開発環境と制御範囲を確認したい","priority":"S"},
     {"path":"guides/agibot-japan.html","pageType":"commercial-guide","primaryKeyword":"AgiBot 日本","secondaryKeywords":["智元ロボット 日本","AgiBot 日本導入","AgiBot 購入 日本","AirAdmin8 AgiBot"],"searchIntent":"AgiBotを日本で導入できるか確認したい","priority":"S"},
@@ -37,6 +37,6 @@
     {"path":"resources.html","pageType":"resource-hub","primaryKeyword":"ロボット SDK","secondaryKeywords":["Unitree ROS2","人型ロボット GitHub"],"searchIntent":"技術資料を探す","priority":"A"},
     {"path":"checklist.html","pageType":"tool","primaryKeyword":"ロボット 導入 チェックリスト","secondaryKeywords":["ロボット 見積 条件","研究機器 購入 チェック"],"searchIntent":"導入前の実務資料を探す","priority":"A"},
     {"path":"cases.html","pageType":"case-hub","primaryKeyword":"ロボット 導入事例","secondaryKeywords":["大学 ロボット 導入","ロボット 選定 事例"],"searchIntent":"実績と信頼性を確認したい","priority":"S"},
-    {"path":"about.html","pageType":"company","primaryKeyword":"AirAdmin8 Robotics 会社情報","secondaryKeywords":["株式会社AirAdmin8 ロボティクス","AirAdmin8 Physical AI","AirAdmin8 AIロボット"],"searchIntent":"AirAdmin8とAirAdmin8 Roboticsの会社・事業関係を確認したい","priority":"S"}
+    {"path":"about.html","pageType":"company","primaryKeyword":"AirAdmin8 ロボティクス 会社情報","secondaryKeywords":["株式会社AirAdmin8 ロボティクス","AirAdmin8 フィジカルAI","AirAdmin8 AIロボット","AirAdmin8 ロボット"],"searchIntent":"AirAdmin8とロボティクス事業の会社・事業関係を確認したい","priority":"S"}
   ]
 }
