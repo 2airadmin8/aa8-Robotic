@@ -47,16 +47,30 @@ def strengthen_brand_entity(output: Path = OUTPUT) -> tuple[int, list[str]]:
         data["alternateName"] = [
             "AirAdmin8",
             "Air Admin8",
+            "AirAdmin8 ロボティクス",
             "AirAdmin8 Robotics",
-            "AirAdmin8 ロボティックス",
         ]
         data["url"] = CORPORATE_URL
         data["brand"] = {
             "@type": "Brand",
-            "name": "AirAdmin8 Robotics",
-            "alternateName": "AirAdmin8 ロボティックス",
+            "name": "AirAdmin8 ロボティクス",
+            "alternateName": ["AirAdmin8 Robotics", "AirAdmin8"],
             "url": ROBOTICS_URL,
         }
+        data["knowsAbout"] = [
+            "AIロボット",
+            "ロボット",
+            "フィジカルAI",
+            "ヒューマノイドロボット",
+            "ヒューマノイド",
+            "四足ロボット",
+            "Unitree",
+            "ユニツリー",
+            "AgiBot",
+            "X2",
+            "VLA",
+            "ROS2",
+        ]
 
         payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
         replacement = f"{match.group(1)}{payload}{match.group(3)}"
