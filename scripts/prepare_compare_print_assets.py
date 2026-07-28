@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, strengthen brand entity, normalize public origin, and validate links."""
+"""Prepare comparison print assets, prefer Japanese brand wording, strengthen entity signals, normalize origin, and validate links."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import re
 import sys
 from pathlib import Path
 
+from japanese_brand_language import prefer_japanese_brand_language
 from normalize_public_origin import normalize_public_origin
 from strengthen_brand_entity import strengthen_brand_entity
 from validate_internal_links import validate_internal_links
@@ -88,6 +89,8 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
+    japanese_count, japanese_errors = prefer_japanese_brand_language(OUTPUT)
+    errors.extend(japanese_errors)
     brand_count, brand_errors = strengthen_brand_entity(OUTPUT)
     errors.extend(brand_errors)
     normalized_count, origin_errors = normalize_public_origin(OUTPUT)
@@ -102,9 +105,10 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, AirAdmin8 brand entity strengthened, public origin normalized, "
-        "and internal links validated "
-        f"({brand_count} brand-updated page(s), {normalized_count} origin-normalized file(s))."
+        "Comparison print assets prepared, Japanese-first AirAdmin8 wording applied, brand entity strengthened, "
+        "public origin normalized, and internal links validated "
+        f"({japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
+        f"{normalized_count} origin-normalized file(s))."
     )
     return 0
 
