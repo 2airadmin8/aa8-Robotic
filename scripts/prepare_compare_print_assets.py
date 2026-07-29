@@ -7,6 +7,7 @@ import re
 import sys
 from pathlib import Path
 
+from fix_unconfirmed_product_schema import fix_unconfirmed_product_schema
 from japanese_brand_language import prefer_japanese_brand_language
 from normalize_public_origin import normalize_public_origin
 from strengthen_brand_entity import strengthen_brand_entity
@@ -93,6 +94,8 @@ def main() -> int:
     errors.extend(japanese_errors)
     brand_count, brand_errors = strengthen_brand_entity(OUTPUT)
     errors.extend(brand_errors)
+    product_schema_count, product_schema_errors = fix_unconfirmed_product_schema(OUTPUT)
+    errors.extend(product_schema_errors)
     normalized_count, origin_errors = normalize_public_origin(OUTPUT)
     errors.extend(origin_errors)
     errors.extend(validate_internal_links(OUTPUT))
@@ -106,9 +109,9 @@ def main() -> int:
 
     print(
         "Comparison print assets prepared, Japanese-first AirAdmin8 wording applied, brand entity strengthened, "
-        "public origin normalized, and internal links validated "
+        "unconfirmed Product rich-result markup cleaned, public origin normalized, and internal links validated "
         f"({japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
-        f"{normalized_count} origin-normalized file(s))."
+        f"{product_schema_count} product-schema-cleaned page(s), {normalized_count} origin-normalized file(s))."
     )
     return 0
 
