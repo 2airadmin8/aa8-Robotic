@@ -41,8 +41,8 @@ def release_robot_ai_glossary(output: Path = OUTPUT) -> tuple[int, list[str]]:
         urls.append(BASE + f"glossary/{slug}.html")
         count += 1
     update_sitemap(urls)
-    if len(TERMS) != 65:
-        errors.append(f"Glossary must contain 65 terms, found {len(TERMS)}")
-    if count < 16:
-        errors.append(f"Glossary must provide at least 15 priority detail pages, found {count - 1}")
+    if len(TERMS) != 79:
+        errors.append(f"Glossary must contain 79 terms, found {len(TERMS)}")
+    if count < 24:
+        errors.append(f"Glossary must provide at least 23 priority detail pages, found {count - 1}")
     return count, errors
