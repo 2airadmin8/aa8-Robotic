@@ -42,6 +42,7 @@
 .category-lineup {
   margin: 0;
   padding: 14px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 26px;
   background: rgba(255, 255, 255, 0.9);
@@ -49,9 +50,12 @@
 }
 
 .category-lineup img {
+  display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   border-radius: 18px;
+  object-fit: contain;
 }
 
 .category-lineup figcaption {
@@ -177,6 +181,7 @@
   }
 
   .category-lineup {
+    width: 100%;
     max-width: 820px;
   }
 
@@ -227,14 +232,23 @@
   }
 
   .category-lineup {
-    padding: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    overflow: hidden;
     border-radius: 18px;
     box-shadow: 0 12px 30px rgba(11, 49, 67, 0.08);
   }
 
   .category-lineup img {
-    max-height: 240px;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 1200 / 560;
     object-fit: contain;
+    object-position: center;
     border-radius: 12px;
   }
 
@@ -244,8 +258,12 @@
   }
 
   .category-lineup figcaption a {
+    min-width: 0;
     min-height: 40px;
-    font-size: 0.76rem;
+    padding: 0 5px;
+    font-size: 0.74rem;
+    line-height: 1.25;
+    text-align: center;
   }
 
   .audience-grid {
