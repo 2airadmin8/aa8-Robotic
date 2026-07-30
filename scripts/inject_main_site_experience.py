@@ -6,6 +6,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
+
 CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-2"
 FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260731-1"
 LOGO_CSS_ASSET = "assets/css/main-logo.css?v=20260731-1"
@@ -36,7 +38,7 @@ def add_glossary_navigation(markup: str, prefix: str) -> str:
         replacement = footer_match.group(1) + footer_match.group(2) + learning + footer_match.group(3)
         markup = markup[:footer_match.start()] + replacement + markup[footer_match.end():]
 
-    return markup
+    return cleanup_footer(markup)
 
 
 def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
@@ -122,6 +124,8 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
                 errors.append(f"Glossary navigation missing: {relative.as_posix()}")
             if relative.name != "404.html" and "aa8-footer-learning__links" not in new_html:
                 errors.append(f"Footer learning links missing: {relative.as_posix()}")
+            if NOTICE_TEXT in new_html:
+                errors.append(f"Footer notice was not removed: {relative.as_posix()}")
 
     if updated == 0:
         errors.append("Shared UI assets were not injected into any HTML page")
