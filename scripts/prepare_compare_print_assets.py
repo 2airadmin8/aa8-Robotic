@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, shared UI, Japanese wording, entity signals, origin, and links."""
+"""Prepare comparison print assets and finalize the shared static-site experience."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import re
 import sys
 from pathlib import Path
 
+from final_site_cleanup import finalize_site
 from fix_unconfirmed_product_schema import fix_unconfirmed_product_schema
 from inject_main_site_experience import inject_main_site_experience
 from inject_typography_system import inject_typography_system
@@ -48,35 +49,14 @@ def main() -> int:
         return 1
 
     html = PRODUCTS_HTML.read_text(encoding="utf-8")
-    html = re.sub(
-        r'assets/css/product-compare\.css(?:\?v=[^"\']+)?',
-        f'assets/css/product-compare.css?v={CSS_VERSION}',
-        html,
-    )
-    html = re.sub(
-        r'assets/js/product-compare\.js(?:\?v=[^"\']+)?',
-        f'assets/js/product-compare.js?v={JS_VERSION}',
-        html,
-    )
+    html = re.sub(r'assets/css/product-compare\.css(?:\?v=[^"\']+)?', f'assets/css/product-compare.css?v={CSS_VERSION}', html)
+    html = re.sub(r'assets/js/product-compare\.js(?:\?v=[^"\']+)?', f'assets/js/product-compare.js?v={JS_VERSION}', html)
     PRODUCTS_HTML.write_text(html, encoding="utf-8")
 
     js = COMPARE_JS.read_text(encoding="utf-8")
     css = COMPARE_CSS.read_text(encoding="utf-8")
-
-    required_js_markers = [
-        "compare-print-sheet",
-        "afterprint",
-        "requestAnimationFrame",
-        "60000",
-        "dialog.close()",
-    ]
-    required_css_markers = [
-        "body.is-printing-comparison > *",
-        "body.is-printing-comparison > .compare-print-sheet",
-        "@page { size: A4 landscape",
-        "display: table-header-group",
-        "page-break-inside: avoid",
-    ]
+    required_js_markers = ["compare-print-sheet", "afterprint", "requestAnimationFrame", "60000", "dialog.close()"]
+    required_css_markers = ["body.is-printing-comparison > *", "body.is-printing-comparison > .compare-print-sheet", "@page { size: A4 landscape", "display: table-header-group", "page-break-inside: avoid"]
 
     for marker in required_js_markers:
         if marker not in js:
@@ -102,6 +82,8 @@ def main() -> int:
     errors.extend(brand_errors)
     product_schema_count, product_schema_errors = fix_unconfirmed_product_schema(OUTPUT)
     errors.extend(product_schema_errors)
+    cleanup_count, cleanup_errors = finalize_site(OUTPUT)
+    errors.extend(cleanup_errors)
     normalized_count, origin_errors = normalize_public_origin(OUTPUT)
     errors.extend(origin_errors)
     errors.extend(validate_internal_links(OUTPUT))
@@ -114,11 +96,10 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, shared typography and main-site UI applied, Japanese-first wording applied, "
-        "brand entity strengthened, unconfirmed Product markup cleaned, public origin normalized, and links validated "
-        f"({typography_count} typography page(s), {experience_count} experience page(s), "
-        f"{japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
-        f"{product_schema_count} product-schema-cleaned page(s), {normalized_count} origin-normalized file(s))."
+        "Comparison assets prepared; typography, UI, Japanese-first wording, brand entity, product schema, "
+        "sitewide cleanup, public origin and link validation completed "
+        f"({typography_count} typography, {experience_count} experience, {japanese_count} Japanese, "
+        f"{brand_count} brand, {product_schema_count} schema, {cleanup_count} cleanup, {normalized_count} origin)."
     )
     return 0
 
