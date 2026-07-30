@@ -1,0 +1,64 @@
+/* 導入事例ページ PC表示の微調整。
+   長い日本語見出しの過剰改行と、画像・カードの横崩れを防ぐ。 */
+
+@media (min-width: 981px) {
+  .hub-hero-grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+    gap: 40px;
+  }
+
+  .hub-hero h1 {
+    max-width: 780px;
+    font-size: clamp(2.7rem, 4.2vw, 4.6rem);
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    word-break: auto-phrase;
+    overflow-wrap: normal;
+  }
+
+  .case-proof-main h3 {
+    max-width: 760px;
+    font-size: clamp(1.8rem, 2.35vw, 2.65rem);
+    line-height: 1.24;
+    letter-spacing: -0.025em;
+    word-break: auto-phrase;
+    overflow-wrap: normal;
+  }
+
+  .case-proof-card {
+    grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+    align-items: stretch;
+  }
+
+  .case-proof-main,
+  .case-progress-panel,
+  .hub-hero-grid > * {
+    min-width: 0;
+  }
+
+  .case-proof-card img,
+  .hub-hero img,
+  .product-detail-visual img,
+  .category-lineup img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .progress-list li {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .progress-list span {
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 980px) {
+  .case-proof-main h3 {
+    font-size: clamp(1.75rem, 6vw, 2.5rem);
+  }
+}
