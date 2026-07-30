@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, shared UI, Japanese brand wording, entity signals, origin, and links."""
+"""Prepare comparison print assets, shared UI, Japanese wording, entity signals, origin, and links."""
 
 from __future__ import annotations
 

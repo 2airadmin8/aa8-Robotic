@@ -14,6 +14,8 @@ import re
 import sys
 from pathlib import Path
 
+from release_robot_ai_glossary import release_robot_ai_glossary
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 PRODUCTS_PATH = ROOT / "data" / "products.json"
@@ -101,6 +103,12 @@ def main() -> int:
         print("PRODUCT PRERENDER ERROR: _site directory does not exist")
         return 1
 
+    glossary_count, glossary_errors = release_robot_ai_glossary(OUTPUT)
+    if glossary_errors:
+        for error in glossary_errors:
+            print(f"GLOSSARY BUILD ERROR: {error}")
+        return 1
+
     try:
         data = json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
         products = list(data.get("products", []))
@@ -131,6 +139,7 @@ def main() -> int:
         print("PRODUCT PRERENDER ERROR: no data-product-list roots found")
         return 1
 
+    print(f"Generated {glossary_count} glossary page(s).")
     print(f"Product cards pre-rendered into {root_count} root(s) across {page_count} page(s).")
     return 0
 
