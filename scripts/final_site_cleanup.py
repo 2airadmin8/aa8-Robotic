@@ -12,15 +12,15 @@ CONTACT_EMAIL = "airobot@robotics.air-admin8.co.jp"
 
 
 def remove_company_breadcrumb(markup: str) -> str:
-    """Remove only breadcrumb-like blocks that display both ホーム and 会社情報."""
-    patterns = (
-        r'<p\b[^>]*class=["\'][^"\']*(?:breadcrumb|breadcrumbs)[^"\']*["\'][^>]*>.*?ホーム.*?会社情報.*?</p>',
-        r'<nav\b[^>]*class=["\'][^"\']*(?:breadcrumb|breadcrumbs)[^"\']*["\'][^>]*>.*?ホーム.*?会社情報.*?</nav>',
-        r'<div\b[^>]*class=["\'][^"\']*(?:breadcrumb|breadcrumbs)[^"\']*["\'][^>]*>.*?ホーム.*?会社情報.*?</div>',
+    """Remove only the visible ホーム / 会社情報 breadcrumb text without deleting containers."""
+    markup = markup.replace("ホーム / 会社情報", "")
+    markup = markup.replace("ホーム／会社情報", "")
+    markup = re.sub(
+        r'<a\b[^>]*>\s*ホーム\s*</a>\s*[/／›&gt;]+\s*(?:<a\b[^>]*>)?\s*会社情報\s*(?:</a>)?',
+        "",
+        markup,
+        flags=re.IGNORECASE,
     )
-    for pattern in patterns:
-        markup = re.sub(pattern, "", markup, flags=re.IGNORECASE | re.DOTALL)
-    markup = re.sub(r'<p\b[^>]*>\s*ホーム\s*/\s*会社情報\s*</p>', "", markup, flags=re.IGNORECASE)
     return markup
 
 
@@ -37,8 +37,7 @@ def add_robotics_contact(markup: str) -> str:
         f'<a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a>'
         '</div>'
     )
-    body = footer.group(2) + contact
-    replacement = footer.group(1) + body + footer.group(3)
+    replacement = footer.group(1) + footer.group(2) + contact + footer.group(3)
     return markup[:footer.start()] + replacement + markup[footer.end():]
 
 
@@ -75,7 +74,7 @@ def finalize_site(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Visible glossary count remains: {path.relative_to(output)}")
         if CONTACT_EMAIL not in new:
             errors.append(f"Robotics contact missing: {path.relative_to(output)}")
-        if re.search(r'ホーム\s*/\s*会社情報', new):
+        if "ホーム / 会社情報" in new or "ホーム／会社情報" in new:
             errors.append(f"Company breadcrumb remains: {path.relative_to(output)}")
 
     glossary = output / "glossary.html"
