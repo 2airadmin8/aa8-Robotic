@@ -1,0 +1,29 @@
+/* AirAdmin8メインサイト共通ロゴ */
+.site-header .brand,
+.header .brand,
+header[role="banner"] .brand {
+  min-width: 0;
+  text-decoration: none;
+}
+
+.aa8-main-logo {
+  display: block;
+  width: clamp(190px, 20vw, 260px);
+  height: auto;
+  max-height: 48px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+@media (max-width: 760px) {
+  .aa8-main-logo {
+    width: clamp(170px, 52vw, 220px);
+    max-height: 40px;
+  }
+}
+
+@media (max-width: 390px) {
+  .aa8-main-logo {
+    width: 165px;
+  }
+}
