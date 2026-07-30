@@ -28,6 +28,15 @@ def finalize_site(output: Path) -> tuple[int, list[str]]:
             if hero and tools and hero.start() < tools.start():
                 new = new[:hero.start()] + tools.group(0) + hero.group(0) + new[tools.end():]
 
+        if path.name == "404.html" and "company.html" not in new:
+            company_link = '<a href="company.html">会社情報</a>'
+            footer_links = re.search(r'(<div class="footer-links"[^>]*>)(.*?)(</div>)', new, flags=re.DOTALL)
+            if footer_links:
+                replacement = footer_links.group(1) + company_link + footer_links.group(2) + footer_links.group(3)
+                new = new[:footer_links.start()] + replacement + new[footer_links.end():]
+            elif "</footer>" in new:
+                new = new.replace("</footer>", company_link + "</footer>", 1)
+
         if new != text:
             path.write_text(new, encoding="utf-8")
             updated += 1
