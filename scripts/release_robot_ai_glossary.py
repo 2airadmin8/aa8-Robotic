@@ -15,24 +15,29 @@ ORGANIZATION_SCHEMA = '''<script id="organization-schema" type="application/ld+j
 }</script>'''
 
 
-def add_organization_schema(markup: str) -> str:
-    if 'id="organization-schema"' in markup:
-        return markup
-    return markup.replace("</head>", ORGANIZATION_SCHEMA + "</head>", 1)
+def normalize_shell(markup: str, depth: int) -> str:
+    prefix = "../" * depth
+    markup = markup.replace('<footer class="site-footer">', '<footer class="footer site-footer">')
+    company_link = f'<p><a href="{prefix}company.html">会社情報</a></p>'
+    if "会社情報" not in markup:
+        markup = markup.replace("</footer>", company_link + "</footer>", 1)
+    if 'id="organization-schema"' not in markup:
+        markup = markup.replace("</head>", ORGANIZATION_SCHEMA + "</head>", 1)
+    return markup
 
 
 def release_robot_ai_glossary(output: Path = OUTPUT) -> tuple[int, list[str]]:
     errors: list[str] = []
     glossary_dir = output / "glossary"
     glossary_dir.mkdir(parents=True, exist_ok=True)
-    (output / "glossary.html").write_text(add_organization_schema(make_index()), encoding="utf-8")
+    (output / "glossary.html").write_text(normalize_shell(make_index(), 0), encoding="utf-8")
     count = 1
     urls = [BASE + "glossary.html"]
     for term in TERMS:
         slug = term[4]
         if not slug:
             continue
-        markup = add_organization_schema(make_detail(term))
+        markup = normalize_shell(make_detail(term), 1)
         (glossary_dir / f"{slug}.html").write_text(markup, encoding="utf-8")
         urls.append(BASE + f"glossary/{slug}.html")
         count += 1
