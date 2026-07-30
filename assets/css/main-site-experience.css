@@ -22,11 +22,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 母站と同じく、見出しは濃色、青はアクセントに限定。 */
 h1, h2, h3, h4, h5, h6 { color: var(--aa8-ink); }
 a { text-underline-offset: 0.18em; }
 
-/* ヘッダー：白背景＋細い境界線で軽く。 */
 .site-header,
 .header,
 header[role="banner"] {
@@ -35,13 +33,58 @@ header[role="banner"] {
   box-shadow: 0 3px 16px rgba(23,51,66,.04) !important;
   backdrop-filter: blur(10px);
 }
+
+/* ロゴ・メニューの基準線を統一。 */
+.site-header .header-inner,
+.header .header-inner,
+header[role="banner"] .header-inner {
+  display: flex;
+  align-items: center;
+}
+.site-header .brand,
+.header .brand,
+header[role="banner"] .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  line-height: 1;
+}
+.site-header .brand-mark,
+.header .brand-mark,
+header[role="banner"] .brand-mark {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  line-height: 1;
+}
+.site-header .brand > span:last-child,
+.header .brand > span:last-child,
+header[role="banner"] .brand > span:last-child {
+  display: block;
+  margin: 0;
+  line-height: 1.15;
+  transform: translateY(-1px);
+  white-space: nowrap;
+}
+.site-header .menu,
+.header .menu,
+header[role="banner"] .menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1;
+}
 .menu,
 .menu-button,
 .nav-toggle {
   color: var(--aa8-blue-dark) !important;
 }
 
-/* 背景の統一：強いグラデーションを抑え、白と淡青を交互に使用。 */
 main > section:nth-of-type(even):not(.dark):not(.cta):not(.cta-band),
 .section.alt,
 .section.soft,
@@ -65,7 +108,6 @@ main > section:nth-of-type(odd):not(.dark):not(.cta):not(.cta-band) {
                     linear-gradient(135deg, #ffffff 0%, #f0fafc 55%, #e8f7fb 100%) !important;
 }
 
-/* カード：主站のような白面＋薄い線。 */
 .card,
 .panel,
 .tile,
@@ -79,7 +121,6 @@ main > section:nth-of-type(odd):not(.dark):not(.cta):not(.cta-band) {
   box-shadow: 0 10px 28px rgba(23,51,66,.06) !important;
 }
 
-/* CTAとボタンをブランドカラーへ統一。 */
 .btn-primary,
 .button-primary,
 a.button.primary,
@@ -97,7 +138,6 @@ a.button.secondary {
   border-color: var(--aa8-ink) !important;
 }
 
-/* フッター：画面最下部でも主要メニューが見つかるように整理。 */
 footer,
 .site-footer {
   background: var(--aa8-footer) !important;
@@ -110,7 +150,6 @@ footer h2, footer h3, footer h4, footer strong,
 footer a, .site-footer a { color: rgba(255,255,255,.88) !important; }
 footer a:hover, .site-footer a:hover { color: #fff !important; }
 
-/* 常時使えるページ上部ボタン。 */
 .aa8-back-to-top {
   position: fixed;
   right: max(18px, env(safe-area-inset-right));
@@ -137,13 +176,44 @@ footer a:hover, .site-footer a:hover { color: #fff !important; }
   transform: translateY(0);
 }
 .aa8-back-to-top span { font-size: 22px; line-height: 1; }
-
-/* スクロールしても導線を失わないモバイル下部ナビ。 */
 .aa8-mobile-quicknav { display: none; }
+
+@media (max-width: 980px) {
+  .site-header .menu,
+  .header .menu,
+  header[role="banner"] .menu {
+    display: inline-flex;
+  }
+}
 
 @media (max-width: 760px) {
   body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
   main > section { overflow: clip; }
+
+  .site-header .header-inner,
+  .header .header-inner,
+  header[role="banner"] .header-inner {
+    min-height: 68px;
+    gap: 14px;
+  }
+  .site-header .brand,
+  .header .brand,
+  header[role="banner"] .brand {
+    gap: 10px;
+  }
+  .site-header .brand-mark,
+  .header .brand-mark,
+  header[role="banner"] .brand-mark {
+    width: 38px;
+    height: 38px;
+  }
+  .site-header .brand > span:last-child,
+  .header .brand > span:last-child,
+  header[role="banner"] .brand > span:last-child {
+    font-size: .94rem;
+    line-height: 1.1;
+    transform: none;
+  }
 
   .aa8-back-to-top {
     right: 14px;
