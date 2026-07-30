@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, prefer Japanese brand wording, strengthen entity signals, normalize origin, and validate links."""
+"""Prepare comparison print assets, shared UI, Japanese brand wording, entity signals, origin, and links."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from fix_unconfirmed_product_schema import fix_unconfirmed_product_schema
+from inject_main_site_experience import inject_main_site_experience
 from inject_typography_system import inject_typography_system
 from japanese_brand_language import prefer_japanese_brand_language
 from normalize_public_origin import normalize_public_origin
@@ -93,6 +94,8 @@ def main() -> int:
 
     typography_count, typography_errors = inject_typography_system(OUTPUT)
     errors.extend(typography_errors)
+    experience_count, experience_errors = inject_main_site_experience(OUTPUT)
+    errors.extend(experience_errors)
     japanese_count, japanese_errors = prefer_japanese_brand_language(OUTPUT)
     errors.extend(japanese_errors)
     brand_count, brand_errors = strengthen_brand_entity(OUTPUT)
@@ -111,12 +114,11 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, shared typography applied, Japanese-first AirAdmin8 wording applied, "
-        "brand entity strengthened, unconfirmed Product rich-result markup cleaned, public origin normalized, "
-        "and internal links validated "
-        f"({typography_count} typography-updated page(s), {japanese_count} Japanese-updated page(s), "
-        f"{brand_count} brand-updated page(s), {product_schema_count} product-schema-cleaned page(s), "
-        f"{normalized_count} origin-normalized file(s))."
+        "Comparison print assets prepared, shared typography and main-site UI applied, Japanese-first wording applied, "
+        "brand entity strengthened, unconfirmed Product markup cleaned, public origin normalized, and links validated "
+        f"({typography_count} typography page(s), {experience_count} experience page(s), "
+        f"{japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
+        f"{product_schema_count} product-schema-cleaned page(s), {normalized_count} origin-normalized file(s))."
     )
     return 0
 
