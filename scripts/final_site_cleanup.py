@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply final sitewide brand wording, glossary layout, and 404-page rules."""
+"""Apply final sitewide brand wording and glossary layout rules."""
 
 from __future__ import annotations
 
@@ -9,48 +9,51 @@ from pathlib import Path
 REMOVE_SENTENCE = "AIロボット・フィジカルAIの選定、比較、導入、PoCを支援します。"
 
 
-def make_404() -> str:
-    return '''<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>ページが見つかりません｜AirAdmin8 ロボティクス</title><meta name="description" content="お探しのページは移動、削除、またはURLが変更された可能性があります。"><link rel="canonical" href="https://robotics.air-admin8.co.jp/404.html"><link rel="stylesheet" href="assets/css/site.css?v=20260731-1"><style>
-body{margin:0;background:linear-gradient(135deg,#fff,#edf9fd);color:#173342;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}.error-header{background:#fff;border-bottom:1px solid #dbe8ed}.error-header__inner{width:min(1080px,calc(100% - 40px));min-height:76px;margin:auto;display:flex;align-items:center;justify-content:space-between}.error-header img{display:block;width:min(220px,58vw);height:auto}.error-header a{text-decoration:none}.error-menu{color:#078fc4;font-weight:800}.error-wrap{width:min(1080px,calc(100% - 40px));margin:auto}.error-main{min-height:68vh;display:grid;grid-template-columns:1fr .85fr;gap:48px;align-items:center;padding:72px 0}.error-code{margin:0;font-size:clamp(5rem,15vw,10rem);line-height:.85;color:#0a527f}.error-main h1{font-size:clamp(2rem,4vw,3.4rem);margin:24px 0 14px}.error-main p{font-size:1.08rem;line-height:1.9;color:#58707d}.error-actions{display:grid;gap:14px;max-width:440px;margin-top:32px}.error-actions a{display:flex;justify-content:center;align-items:center;min-height:56px;border-radius:12px;border:2px solid #078fc4;text-decoration:none;font-weight:800;color:#0076aa;background:#fff}.error-actions a:first-child{color:#fff;background:linear-gradient(90deg,#0bb8c7,#078fc4)}.robot{width:100%;max-width:390px;margin:auto}.error-links{margin:0 0 72px;padding:28px;border:1px solid #d8e7ed;border-radius:18px;background:#fff}.error-links h2{margin-top:0}.error-links a{display:block;padding:16px 0;border-bottom:1px solid #e3edf1;color:#087cae;text-decoration:none;font-weight:800}.error-links a:last-child{border:0}.error-footer{padding:32px 0;background:#062633;color:#fff}.error-footer a{color:#fff}@media(max-width:760px){.error-main{grid-template-columns:1fr;padding:44px 0}.robot{order:-1;max-width:260px}.error-links{margin-bottom:34px}.error-header__inner{min-height:68px}}
-</style></head><body><header class="error-header"><div class="error-header__inner"><a href="index.html" aria-label="AirAdmin8 ロボティクス ホーム"><img src="assets/img/airadmin8-main-logo.svg?v=20260731-2" alt="AirAdmin8"></a><span class="error-menu">メニュー</span></div></header><main class="error-wrap"><section class="error-main"><div><p class="error-code">404</p><h1>ページが見つかりません</h1><p>お探しのページは移動、削除、またはURLが変更された可能性があります。</p><div class="error-actions"><a href="index.html">トップへ戻る</a><a href="products.html">製品を見る</a><a href="contact.html">お問い合わせ</a></div></div><svg class="robot" viewBox="0 0 420 460" role="img" aria-label="案内するロボット"><g fill="none" stroke="#086aaa" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><circle cx="210" cy="205" r="145" fill="#eaf8fd" stroke="#cdebf6"/><rect x="118" y="105" width="184" height="142" rx="56" fill="#fff"/><circle cx="168" cy="168" r="12" fill="#086aaa"/><circle cx="252" cy="168" r="12" fill="#086aaa"/><path d="M174 211q36 28 72 0"/><path d="M210 104V72m0 0h1"/><circle cx="210" cy="59" r="12" fill="#fff"/><rect x="135" y="252" width="150" height="145" rx="35" fill="#fff"/><path d="M135 282L80 248m205 34 52-43M80 248l-25-49m25 49-45 5m302-14 18 43m-18-43 44 8"/><path d="M165 397v38m90-38v38M141 438h48m42 0h48"/><path d="M183 310c12-18 42-18 54 0 10 16-2 34-27 51-25-17-37-35-27-51z" fill="#dff5fb" stroke="#38aacb"/></g></svg></section><section class="error-links"><h2>こちらもおすすめ</h2><a href="products.html">製品を探す →</a><a href="use-cases.html">用途から探す →</a><a href="glossary.html">用語集を見る →</a></section></main><footer class="error-footer"><div class="error-wrap"><strong>AirAdmin8 ロボティクス</strong><p><a href="privacy.html">プライバシーポリシー</a>　<a href="sitemap.xml">サイトマップ</a></p></div></footer></body></html>'''
-
-
 def finalize_site(output: Path) -> tuple[int, list[str]]:
     errors: list[str] = []
     updated = 0
+
     for path in output.rglob("*.html"):
         text = path.read_text(encoding="utf-8")
-        if path.name == "404.html":
-            new = make_404()
-        else:
-            new = text.replace("AIRADMIN8", "AirAdmin8")
-            new = new.replace(REMOVE_SENTENCE, "")
-            new = new.replace("79用語の一覧へ", "用語の一覧へ")
-            new = new.replace("79用語", "用語")
-            new = new.replace("glossary.css?v=20260731-2", "glossary.css?v=20260731-3")
-            new = new.replace("main-site-experience.js?v=20260731-2", "main-site-experience.js?v=20260731-3")
-            if path.name == "glossary.html":
-                hero = re.search(r'<section class="glossary-hero">.*?</section>', new, flags=re.DOTALL)
-                tools = re.search(r'<section class="glossary-tools">.*?</section>', new, flags=re.DOTALL)
-                if hero and tools and hero.start() < tools.start():
-                    new = new[:hero.start()] + tools.group(0) + hero.group(0) + new[tools.end():]
+        new = text.replace("AIRADMIN8", "AirAdmin8")
+        new = new.replace(REMOVE_SENTENCE, "")
+        new = new.replace("79用語の一覧へ", "用語の一覧へ")
+        new = new.replace("79用語", "用語")
+        new = new.replace("glossary.css?v=20260731-2", "glossary.css?v=20260731-3")
+        new = new.replace("main-site-experience.js?v=20260731-2", "main-site-experience.js?v=20260731-3")
+
+        if path.name == "glossary.html":
+            hero = re.search(r'<section class="glossary-hero">.*?</section>', new, flags=re.DOTALL)
+            tools = re.search(r'<section class="glossary-tools">.*?</section>', new, flags=re.DOTALL)
+            if hero and tools and hero.start() < tools.start():
+                new = new[:hero.start()] + tools.group(0) + hero.group(0) + new[tools.end():]
+
         if new != text:
             path.write_text(new, encoding="utf-8")
             updated += 1
+
         if "AIRADMIN8" in new:
             errors.append(f"Uppercase AIRADMIN8 remains: {path.relative_to(output)}")
         if REMOVE_SENTENCE in new:
             errors.append(f"Removed footer sentence remains: {path.relative_to(output)}")
         if "79用語" in new:
             errors.append(f"Visible glossary count remains: {path.relative_to(output)}")
+
     glossary = output / "glossary.html"
     if glossary.is_file():
-        g = glossary.read_text(encoding="utf-8")
-        if g.find('class="glossary-tools"') > g.find('class="glossary-hero"'):
+        built = glossary.read_text(encoding="utf-8")
+        if built.find('class="glossary-tools"') > built.find('class="glossary-hero"'):
             errors.append("Glossary search is not displayed before the hero")
     else:
         errors.append("Missing glossary.html")
+
     error_page = output / "404.html"
-    if not error_page.is_file() or "ページが見つかりません" not in error_page.read_text(encoding="utf-8"):
+    if not error_page.is_file():
         errors.append("Custom 404 page was not generated")
+    else:
+        built_404 = error_page.read_text(encoding="utf-8")
+        for marker in ("ページが見つかりません", 'href="company.html"', 'id="main-content"'):
+            if marker not in built_404:
+                errors.append(f"Custom 404 marker missing: {marker}")
+
     return updated, errors
