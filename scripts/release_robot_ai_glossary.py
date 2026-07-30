@@ -16,9 +16,8 @@ ORGANIZATION_SCHEMA = '''<script id="organization-schema" type="application/ld+j
 
 
 def normalize_shell(markup: str, depth: int) -> str:
-    prefix = "../" * depth
     markup = markup.replace('<footer class="site-footer">', '<footer class="footer site-footer">')
-    company_link = f'<p><a href="{prefix}company.html">会社情報</a></p>'
+    company_link = '<p><a href="https://www.air-admin8.co.jp/company/">会社情報</a></p>'
     if "会社情報" not in markup:
         markup = markup.replace("</footer>", company_link + "</footer>", 1)
     if 'id="organization-schema"' not in markup:
