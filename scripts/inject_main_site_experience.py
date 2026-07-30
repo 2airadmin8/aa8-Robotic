@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-2"
+CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-3"
 JS_ASSET = "assets/js/main-site-experience.js?v=20260731-1"
 
 
@@ -22,12 +22,14 @@ def add_glossary_navigation(markup: str, prefix: str) -> str:
     footer_match = re.search(r"(<footer\b[^>]*>)(.*?)(</footer>)", markup, flags=re.IGNORECASE | re.DOTALL)
     if footer_match and "aa8-footer-learning" not in footer_match.group(2):
         learning = (
-            '<div class="aa8-footer-learning">'
-            '<strong>学ぶ・調べる</strong>'
+            '<section class="aa8-footer-learning" aria-labelledby="aa8-footer-learning-title">'
+            '<strong id="aa8-footer-learning-title">学ぶ・調べる</strong>'
+            '<nav class="aa8-footer-learning-links" aria-label="学ぶ・調べる">'
             f'<a href="{glossary_href}">ロボット・フィジカルAI用語集</a>'
             f'<a href="{prefix}resources.html">資料・SDK</a>'
             f'<a href="{prefix}faq.html">よくある質問</a>'
-            '</div>'
+            '</nav>'
+            '</section>'
         )
         replacement = footer_match.group(1) + footer_match.group(2) + learning + footer_match.group(3)
         markup = markup[:footer_match.start()] + replacement + markup[footer_match.end():]
@@ -96,7 +98,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Shared UI injection failed: {relative.as_posix()}")
         if relative.name != "404.html" and "glossary.html" not in new_html:
             errors.append(f"Glossary navigation missing: {relative.as_posix()}")
-        if relative.name != "404.html" and "aa8-footer-learning" not in new_html:
+        if relative.name != "404.html" and "aa8-footer-learning-links" not in new_html:
             errors.append(f"Footer learning links missing: {relative.as_posix()}")
 
     if updated == 0:
