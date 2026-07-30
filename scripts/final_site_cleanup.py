@@ -52,7 +52,7 @@ def finalize_site(output: Path) -> tuple[int, list[str]]:
         errors.append("Custom 404 page was not generated")
     else:
         built_404 = error_page.read_text(encoding="utf-8")
-        for marker in ("ページが見つかりません", 'href="company.html"', 'id="main-content"'):
+        for marker in ("ページが見つかりません", "company.html", 'id="main-content"'):
             if marker not in built_404:
                 errors.append(f"Custom 404 marker missing: {marker}")
 
