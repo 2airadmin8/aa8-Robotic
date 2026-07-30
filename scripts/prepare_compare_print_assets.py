@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from fix_unconfirmed_product_schema import fix_unconfirmed_product_schema
+from inject_typography_system import inject_typography_system
 from japanese_brand_language import prefer_japanese_brand_language
 from normalize_public_origin import normalize_public_origin
 from strengthen_brand_entity import strengthen_brand_entity
@@ -90,6 +91,8 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
+    typography_count, typography_errors = inject_typography_system(OUTPUT)
+    errors.extend(typography_errors)
     japanese_count, japanese_errors = prefer_japanese_brand_language(OUTPUT)
     errors.extend(japanese_errors)
     brand_count, brand_errors = strengthen_brand_entity(OUTPUT)
@@ -108,10 +111,12 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, Japanese-first AirAdmin8 wording applied, brand entity strengthened, "
-        "unconfirmed Product rich-result markup cleaned, public origin normalized, and internal links validated "
-        f"({japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
-        f"{product_schema_count} product-schema-cleaned page(s), {normalized_count} origin-normalized file(s))."
+        "Comparison print assets prepared, shared typography applied, Japanese-first AirAdmin8 wording applied, "
+        "brand entity strengthened, unconfirmed Product rich-result markup cleaned, public origin normalized, "
+        "and internal links validated "
+        f"({typography_count} typography-updated page(s), {japanese_count} Japanese-updated page(s), "
+        f"{brand_count} brand-updated page(s), {product_schema_count} product-schema-cleaned page(s), "
+        f"{normalized_count} origin-normalized file(s))."
     )
     return 0
 
