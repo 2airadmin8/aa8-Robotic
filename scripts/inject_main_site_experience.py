@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-3"
+FOOTER_CSS_ASSET = "assets/css/footer-cleanup.css?v=20260731-1"
 JS_ASSET = "assets/js/main-site-experience.js?v=20260731-1"
 
 
@@ -43,6 +44,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
 
     required = [
         output / "assets" / "css" / "main-site-experience.css",
+        output / "assets" / "css" / "footer-cleanup.css",
         output / "assets" / "js" / "main-site-experience.js",
     ]
     for path in required:
@@ -55,6 +57,10 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-site-experience\.css(?:\?v=[^"\']*)?["\']\s*/?>',
         flags=re.IGNORECASE,
     )
+    footer_css_pattern = re.compile(
+        r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*footer-cleanup\.css(?:\?v=[^"\']*)?["\']\s*/?>',
+        flags=re.IGNORECASE,
+    )
     js_pattern = re.compile(
         r'<script\s+src=["\'][^"\']*main-site-experience\.js(?:\?v=[^"\']*)?["\']\s*(?:defer)?\s*></script>',
         flags=re.IGNORECASE,
@@ -65,8 +71,10 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         depth = len(relative.parents) - 1
         prefix = "../" * depth
         css_href = prefix + CSS_ASSET
+        footer_css_href = prefix + FOOTER_CSS_ASSET
         js_src = prefix + JS_ASSET
         css_link = f'<link rel="stylesheet" href="{css_href}">'
+        footer_css_link = f'<link rel="stylesheet" href="{footer_css_href}">'
         js_tag = f'<script src="{js_src}" defer></script>'
 
         html = html_path.read_text(encoding="utf-8")
@@ -77,6 +85,15 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
             new_html = new_html[:css_match.start()] + css_link + new_html[css_match.end():]
         elif "</head>" in new_html:
             new_html = new_html.replace("</head>", f"  {css_link}\n</head>", 1)
+        else:
+            errors.append(f"Missing </head> in {relative.as_posix()}")
+            continue
+
+        footer_css_match = footer_css_pattern.search(new_html)
+        if footer_css_match:
+            new_html = new_html[:footer_css_match.start()] + footer_css_link + new_html[footer_css_match.end():]
+        elif "</head>" in new_html:
+            new_html = new_html.replace("</head>", f"  {footer_css_link}\n</head>", 1)
         else:
             errors.append(f"Missing </head> in {relative.as_posix()}")
             continue
@@ -94,7 +111,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
             html_path.write_text(new_html, encoding="utf-8")
             updated += 1
 
-        if css_href not in new_html or js_src not in new_html:
+        if css_href not in new_html or footer_css_href not in new_html or js_src not in new_html:
             errors.append(f"Shared UI injection failed: {relative.as_posix()}")
         if relative.name != "404.html" and "glossary.html" not in new_html:
             errors.append(f"Glossary navigation missing: {relative.as_posix()}")
