@@ -1,0 +1,129 @@
+/* AirAdmin8 ロボティクス：Footerの情報整理とモバイル可読性改善 */
+
+footer,
+.site-footer,
+.footer {
+  overflow: hidden;
+}
+
+.aa8-footer-learning {
+  width: min(1120px, calc(100% - 48px));
+  margin: 28px auto 0;
+  padding: 24px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.aa8-footer-learning__title {
+  display: block;
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+}
+
+.aa8-footer-learning__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+
+.aa8-footer-learning__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  text-decoration: none;
+}
+
+.aa8-footer-learning__links a::after {
+  content: "→";
+  margin-left: 0.45em;
+  color: #42c2e4;
+}
+
+@media (max-width: 760px) {
+  footer,
+  .site-footer,
+  .footer {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom)) !important;
+  }
+
+  footer p,
+  footer ul,
+  footer ol,
+  .site-footer p,
+  .site-footer ul,
+  .site-footer ol,
+  .footer p,
+  .footer ul,
+  .footer ol {
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+  }
+
+  footer li,
+  .site-footer li,
+  .footer li {
+    margin: 0 !important;
+  }
+
+  footer nav,
+  footer .footer-nav,
+  footer .footer-links,
+  footer .footer-grid,
+  .site-footer nav,
+  .site-footer .footer-nav,
+  .site-footer .footer-links,
+  .site-footer .footer-grid,
+  .footer nav,
+  .footer .footer-nav,
+  .footer .footer-links,
+  .footer .footer-grid {
+    row-gap: 0 !important;
+    column-gap: 20px !important;
+  }
+
+  footer a:not(.button):not(.btn),
+  .site-footer a:not(.button):not(.btn),
+  .footer a:not(.button):not(.btn) {
+    min-height: 38px;
+    margin: 0 !important;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 0.94rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .aa8-footer-learning {
+    width: calc(100% - 40px);
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+
+  .aa8-footer-learning__title {
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,.72);
+  }
+
+  .aa8-footer-learning__links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .aa8-footer-learning__links a {
+    justify-content: space-between;
+    min-height: 44px;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    white-space: normal;
+  }
+
+  .aa8-footer-learning__links a:last-child {
+    border-bottom: 0;
+  }
+}
