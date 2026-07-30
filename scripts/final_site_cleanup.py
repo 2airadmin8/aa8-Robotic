@@ -28,8 +28,8 @@ def finalize_site(output: Path) -> tuple[int, list[str]]:
             if hero and tools and hero.start() < tools.start():
                 new = new[:hero.start()] + tools.group(0) + hero.group(0) + new[tools.end():]
 
-        if path.name == "404.html" and "company.html" not in new:
-            company_link = '<a href="company.html">会社情報</a>'
+        if path.name == "404.html" and "about.html" not in new:
+            company_link = '<a href="about.html">会社情報</a>'
             footer_links = re.search(r'(<div class="footer-links"[^>]*>)(.*?)(</div>)', new, flags=re.DOTALL)
             if footer_links:
                 replacement = footer_links.group(1) + company_link + footer_links.group(2) + footer_links.group(3)
@@ -61,7 +61,7 @@ def finalize_site(output: Path) -> tuple[int, list[str]]:
         errors.append("Custom 404 page was not generated")
     else:
         built_404 = error_page.read_text(encoding="utf-8")
-        for marker in ("ページが見つかりません", "company.html", 'id="main-content"'):
+        for marker in ("ページが見つかりません", "about.html", 'id="main-content"'):
             if marker not in built_404:
                 errors.append(f"Custom 404 marker missing: {marker}")
 
