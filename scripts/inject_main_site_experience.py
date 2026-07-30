@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-2"
+FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260731-1"
 JS_ASSET = "assets/js/main-site-experience.js?v=20260731-1"
 
 
@@ -22,12 +23,14 @@ def add_glossary_navigation(markup: str, prefix: str) -> str:
     footer_match = re.search(r"(<footer\b[^>]*>)(.*?)(</footer>)", markup, flags=re.IGNORECASE | re.DOTALL)
     if footer_match and "aa8-footer-learning" not in footer_match.group(2):
         learning = (
-            '<div class="aa8-footer-learning">'
-            '<strong>学ぶ・調べる</strong>'
+            '<section class="aa8-footer-learning" aria-labelledby="aa8-footer-learning-title">'
+            '<h2 class="aa8-footer-learning__title" id="aa8-footer-learning-title">学ぶ・調べる</h2>'
+            '<nav class="aa8-footer-learning__links" aria-label="学ぶ・調べる">'
             f'<a href="{glossary_href}">ロボット・フィジカルAI用語集</a>'
             f'<a href="{prefix}resources.html">資料・SDK</a>'
             f'<a href="{prefix}faq.html">よくある質問</a>'
-            '</div>'
+            '</nav>'
+            '</section>'
         )
         replacement = footer_match.group(1) + footer_match.group(2) + learning + footer_match.group(3)
         markup = markup[:footer_match.start()] + replacement + markup[footer_match.end():]
@@ -41,6 +44,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
 
     required = [
         output / "assets" / "css" / "main-site-experience.css",
+        output / "assets" / "css" / "footer-mobile-cleanup.css",
         output / "assets" / "js" / "main-site-experience.js",
     ]
     for path in required:
@@ -53,6 +57,10 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-site-experience\.css(?:\?v=[^"\']*)?["\']\s*/?>',
         flags=re.IGNORECASE,
     )
+    footer_css_pattern = re.compile(
+        r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*footer-mobile-cleanup\.css(?:\?v=[^"\']*)?["\']\s*/?>',
+        flags=re.IGNORECASE,
+    )
     js_pattern = re.compile(
         r'<script\s+src=["\'][^"\']*main-site-experience\.js(?:\?v=[^"\']*)?["\']\s*(?:defer)?\s*></script>',
         flags=re.IGNORECASE,
@@ -63,8 +71,10 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         depth = len(relative.parents) - 1
         prefix = "../" * depth
         css_href = prefix + CSS_ASSET
+        footer_css_href = prefix + FOOTER_CSS_ASSET
         js_src = prefix + JS_ASSET
         css_link = f'<link rel="stylesheet" href="{css_href}">'
+        footer_css_link = f'<link rel="stylesheet" href="{footer_css_href}">'
         js_tag = f'<script src="{js_src}" defer></script>'
 
         html = html_path.read_text(encoding="utf-8")
@@ -75,6 +85,15 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
             new_html = new_html[:css_match.start()] + css_link + new_html[css_match.end():]
         elif "</head>" in new_html:
             new_html = new_html.replace("</head>", f"  {css_link}\n</head>", 1)
+        else:
+            errors.append(f"Missing </head> in {relative.as_posix()}")
+            continue
+
+        footer_css_match = footer_css_pattern.search(new_html)
+        if footer_css_match:
+            new_html = new_html[:footer_css_match.start()] + footer_css_link + new_html[footer_css_match.end():]
+        elif "</head>" in new_html:
+            new_html = new_html.replace("</head>", f"  {footer_css_link}\n</head>", 1)
         else:
             errors.append(f"Missing </head> in {relative.as_posix()}")
             continue
@@ -92,11 +111,11 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
             html_path.write_text(new_html, encoding="utf-8")
             updated += 1
 
-        if css_href not in new_html or js_src not in new_html:
+        if css_href not in new_html or footer_css_href not in new_html or js_src not in new_html:
             errors.append(f"Shared UI injection failed: {relative.as_posix()}")
         if relative.name != "404.html" and "glossary.html" not in new_html:
             errors.append(f"Glossary navigation missing: {relative.as_posix()}")
-        if relative.name != "404.html" and "aa8-footer-learning" not in new_html:
+        if relative.name != "404.html" and "aa8-footer-learning__links" not in new_html:
             errors.append(f"Footer learning links missing: {relative.as_posix()}")
 
     if updated == 0:
