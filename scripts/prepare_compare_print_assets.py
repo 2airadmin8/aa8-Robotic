@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare comparison print assets, shared UI, glossary, Japanese wording, entity signals, origin, and links."""
+"""Prepare comparison print assets, shared UI, Japanese wording, entity signals, origin, and links."""
 
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ from inject_main_site_experience import inject_main_site_experience
 from inject_typography_system import inject_typography_system
 from japanese_brand_language import prefer_japanese_brand_language
 from normalize_public_origin import normalize_public_origin
-from release_robot_ai_glossary import release_robot_ai_glossary
 from strengthen_brand_entity import strengthen_brand_entity
 from validate_internal_links import validate_internal_links
 
@@ -93,8 +92,6 @@ def main() -> int:
     if expected_js not in html:
         errors.append(f"Built products.html is missing cache-busted JS: {expected_js}")
 
-    glossary_count, glossary_errors = release_robot_ai_glossary(OUTPUT)
-    errors.extend(glossary_errors)
     typography_count, typography_errors = inject_typography_system(OUTPUT)
     errors.extend(typography_errors)
     experience_count, experience_errors = inject_main_site_experience(OUTPUT)
@@ -117,13 +114,11 @@ def main() -> int:
         return 1
 
     print(
-        "Comparison print assets prepared, glossary generated, shared typography and main-site UI applied, "
-        "Japanese-first wording applied, brand entity strengthened, unconfirmed Product markup cleaned, "
-        "public origin normalized, and links validated "
-        f"({glossary_count} glossary page(s), {typography_count} typography page(s), "
-        f"{experience_count} experience page(s), {japanese_count} Japanese-updated page(s), "
-        f"{brand_count} brand-updated page(s), {product_schema_count} product-schema-cleaned page(s), "
-        f"{normalized_count} origin-normalized file(s))."
+        "Comparison print assets prepared, shared typography and main-site UI applied, Japanese-first wording applied, "
+        "brand entity strengthened, unconfirmed Product markup cleaned, public origin normalized, and links validated "
+        f"({typography_count} typography page(s), {experience_count} experience page(s), "
+        f"{japanese_count} Japanese-updated page(s), {brand_count} brand-updated page(s), "
+        f"{product_schema_count} product-schema-cleaned page(s), {normalized_count} origin-normalized file(s))."
     )
     return 0
 
