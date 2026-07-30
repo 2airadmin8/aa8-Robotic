@@ -8,6 +8,12 @@
 
   const makeUrl = (path) => new URL(path, baseUrl).href;
 
+  document.querySelectorAll('.site-header .brand, .header .brand, header[role="banner"] .brand').forEach((brand) => {
+    if (!(brand instanceof HTMLElement)) return;
+    brand.setAttribute('aria-label', 'AirAdmin8 ロボティクス ホーム');
+    brand.innerHTML = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-main-logo.svg')}" alt="air admin8">`;
+  });
+
   const topButton = document.createElement('button');
   topButton.className = 'aa8-back-to-top';
   topButton.type = 'button';
@@ -35,7 +41,6 @@
   ].map(([label, path]) => `<a href="${makeUrl(path)}">${label}</a>`).join('');
   document.body.appendChild(quickNav);
 
-  // 同一ページ内リンクは固定ヘッダーを考慮して読みやすい位置へ。
   document.querySelectorAll('[id]').forEach((node) => {
     if (node instanceof HTMLElement) node.style.scrollMarginTop = '96px';
   });
