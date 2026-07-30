@@ -1,6 +1,31 @@
 /* 導入事例ページ PC表示の微調整。
    長い日本語見出しの過剰改行と、画像・カードの横崩れを防ぐ。 */
 
+.case-current-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-top: 22px;
+  padding: 15px 16px;
+  border: 1px solid rgba(120, 221, 255, 0.38);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.case-current-status span {
+  color: #b8d5df;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.case-current-status strong {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
 @media (min-width: 981px) {
   .hub-hero-grid {
     grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
@@ -60,5 +85,12 @@
 @media (max-width: 980px) {
   .case-proof-main h3 {
     font-size: clamp(1.75rem, 6vw, 2.5rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .case-current-status {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
