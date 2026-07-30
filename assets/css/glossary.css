@@ -1,14 +1,16 @@
 /* AirAdmin8 ロボティクス：ロボット・フィジカルAI用語集 */
-.glossary-hero{padding:72px 0 48px;background:linear-gradient(135deg,#fff 0%,#f2fbfd 58%,#e9f7fb 100%)}
 .glossary-wrap{width:min(1120px,calc(100% - 40px));margin:0 auto}
+.glossary-tools{position:static;z-index:auto;padding:28px 0;background:#f4fafc;border-bottom:1px solid #d9e7ec}
+.glossary-tools .glossary-wrap{padding:22px;border:1px solid #d7e6ec;border-radius:18px;background:#fff;box-shadow:0 10px 28px rgba(23,51,66,.05)}
+.glossary-tools label{display:block;margin-bottom:10px;color:#173342;font-weight:800}
+.glossary-search{box-sizing:border-box;width:100%;min-height:56px;padding:14px 16px;border:1px solid #cfe0e7;border-radius:12px;font:inherit;color:#173342;background:#fff}
+.glossary-index{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.glossary-index a{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:0 13px;border:1px solid #d5e4ea;border-radius:999px;color:#006f9e;background:#fff;text-decoration:none;font-weight:700}
+.glossary-hero{padding:54px 0 46px;background:linear-gradient(135deg,#fff 0%,#f2fbfd 58%,#e9f7fb 100%)}
 .glossary-hero p{max-width:760px;color:#5f7682;line-height:1.9}
-.glossary-tools{position:sticky;top:72px;z-index:15;padding:14px 0;background:rgba(255,255,255,.94);border-bottom:1px solid #d9e7ec;backdrop-filter:blur(10px)}
-.glossary-search{width:100%;padding:14px 16px;border:1px solid #cfe0e7;border-radius:12px;font:inherit;color:#173342;background:#fff}
-.glossary-index{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.glossary-index a{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:36px;padding:0 10px;border:1px solid #d5e4ea;border-radius:999px;color:#006f9e;background:#fff;text-decoration:none;font-weight:700}
 .glossary-section{padding:56px 0}
 .glossary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-.term-card{scroll-margin-top:160px;padding:24px;border:1px solid #d8e6eb;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(23,51,66,.05)}
+.term-card{scroll-margin-top:96px;padding:24px;border:1px solid #d8e6eb;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(23,51,66,.05)}
 .term-card h2{margin:0 0 6px;font-size:1.25rem!important;line-height:1.35!important}
 .term-en{margin:0 0 12px;color:#168db9;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .term-card p{margin:0;color:#536c78;line-height:1.75}
@@ -23,4 +25,17 @@
 .glossary-side{position:sticky;top:104px}
 .glossary-side a{display:block;padding:10px 0;border-bottom:1px solid #e3edf1;color:#006f9e;text-decoration:none;font-weight:700}
 .glossary-note{padding:18px;border-left:4px solid #12a4cc;background:#eef9fc;color:#365763;line-height:1.8}
-@media(max-width:760px){.glossary-hero{padding:48px 0 34px}.glossary-wrap{width:min(100% - 28px,1120px)}.glossary-tools{top:68px}.glossary-grid{grid-template-columns:1fr}.term-card{padding:20px}.glossary-detail-grid{grid-template-columns:1fr}.glossary-side{position:static}.glossary-section,.glossary-detail{padding:40px 0}}
+@media(max-width:760px){
+  .glossary-wrap{width:min(100% - 28px,1120px)}
+  .glossary-tools{padding:14px 0 18px}
+  .glossary-tools .glossary-wrap{padding:14px;border-radius:14px}
+  .glossary-search{min-height:52px;font-size:16px}
+  .glossary-index{gap:7px;margin-top:12px}
+  .glossary-index a{min-height:38px;padding:0 11px;font-size:.88rem}
+  .glossary-hero{padding:38px 0 32px}
+  .glossary-grid{grid-template-columns:1fr}
+  .term-card{padding:20px}
+  .glossary-detail-grid{grid-template-columns:1fr}
+  .glossary-side{position:static}
+  .glossary-section,.glossary-detail{padding:40px 0}
+}
