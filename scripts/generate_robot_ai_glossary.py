@@ -16,6 +16,8 @@ BASE = "https://robotics.air-admin8.co.jp/"
 TERMS = [
     ("AIロボット", "AI Robot", "認識・判断・行動の一部にAIを使い、環境や対象物に応じて動作を変えられるロボット。", "基礎", "ai-robot"),
     ("フィジカルAI", "Physical AI", "現実世界の身体、センサー、環境との相互作用を前提に学習・推論するAIの考え方。", "基礎", "physical-ai"),
+    ("AGI", "Artificial General Intelligence", "特定用途に限定されず、幅広い知的課題へ柔軟に対応することを目指す汎用人工知能の概念。", "基礎", None),
+    ("ASI", "Artificial Superintelligence", "多くの知的領域で人間を上回る能力を持つと想定される、将来概念としての人工超知能。", "基礎", None),
     ("ヒューマノイドロボット", "Humanoid Robot", "人に近い身体構造を持ち、人向けに設計された空間や道具を扱うことを目指すロボット。", "ロボット", "humanoid-robot"),
     ("四足ロボット", "Quadruped Robot", "4本脚で移動し、段差や不整地での巡検・計測・研究に使われるロボット。", "ロボット", None),
     ("ロボットアーム", "Robot Arm", "複数の関節を制御し、把持、組立、計測、実験操作などを行う機構。", "ロボット", None),
@@ -24,14 +26,19 @@ TERMS = [
     ("AGV", "Automated Guided Vehicle", "磁気テープやマーカーなど、あらかじめ定めた経路に沿って移動する搬送車。", "ロボット", None),
     ("サービスロボット", "Service Robot", "製造以外の分野で、人や設備を支援する目的で使われるロボット。", "ロボット", None),
     ("テレオペレーション", "Teleoperation", "離れた場所から人がロボットを操作し、作業やデータ収集を行う方式。", "操作", None),
+    ("UMI", "Universal Manipulation Interface", "人の実演から視覚・動作データを収集し、操作方策の学習へつなげるためのインターフェース構成。", "操作", "umi"),
     ("自律制御", "Autonomous Control", "センサー入力と内部判断に基づき、人の逐次操作なしで動作を決める制御。", "制御", None),
     ("モーションプランニング", "Motion Planning", "障害物や関節制約を考慮し、目的姿勢までの安全な動作経路を計算する技術。", "制御", None),
+    ("タスクプランニング", "Task Planning", "目的を複数のサブタスクへ分解し、実行順序や失敗時の再計画を組み立てる技術。", "制御", "task-planning"),
+    ("モーションスキル", "Motion Skill", "歩行、把持、配置、起き上がりなど、再利用可能な学習済み・プリセット動作の単位。", "制御", None),
+    ("全身制御", "Whole-Body Control", "重心、接触、複数関節を同時に扱い、全身のバランスと作業動作を統合する制御。", "制御", None),
     ("逆運動学", "Inverse Kinematics", "手先などの目標位置から、必要な各関節角度を求める計算。", "制御", None),
     ("順運動学", "Forward Kinematics", "関節角度から手先や各部位の位置・姿勢を求める計算。", "制御", None),
     ("インピーダンス制御", "Impedance Control", "接触時の力と位置の関係を調整し、柔らかく安全な動作を実現する制御。", "制御", None),
     ("VLA", "Vision-Language-Action", "画像、言語指示、ロボット行動を一つのモデルで結び付けるアプローチ。", "AI", "vla"),
     ("VLM", "Vision-Language Model", "画像と文章を同時に理解し、説明、質問応答、認識支援を行うモデル。", "AI", None),
     ("LLM", "Large Language Model", "大量の文章から言語パターンを学び、生成や推論に使われる大規模モデル。", "AI", None),
+    ("世界モデル", "World Model", "環境状態と行動結果の変化を内部表現として学び、予測や計画に利用するモデル。", "AI", None),
     ("生成AI", "Generative AI", "文章、画像、音声、コード、動作候補など新しい内容を生成するAI。", "AI", None),
     ("マルチモーダルAI", "Multimodal AI", "文章、画像、音声、センサー値など複数形式の情報を統合して扱うAI。", "AI", None),
     ("機械学習", "Machine Learning", "明示的な全ルールを書かず、データから予測や判断の規則を学ぶ技術。", "AI", None),
@@ -49,14 +56,16 @@ TERMS = [
     ("SDK", "Software Development Kit", "ロボット機能を利用・拡張するためのライブラリ、仕様書、サンプル群。", "開発", "sdk"),
     ("API", "Application Programming Interface", "外部ソフトウェアから機能やデータを呼び出すための接続仕様。", "開発", "api"),
     ("ミドルウェア", "Middleware", "OSとアプリケーションの間で通信、データ変換、実行管理を支えるソフトウェア。", "開発", None),
+    ("ロボットワークフロー", "Robot Workflow", "認識、判断、移動、把持、配置、例外処理などを一連の実行工程として連携させる構成。", "開発", "robot-workflow"),
     ("リアルタイム制御", "Real-Time Control", "決められた時間内に処理を完了し、遅延を抑えて動作を制御する考え方。", "制御", None),
     ("SLAM", "Simultaneous Localization and Mapping", "自己位置推定と周辺地図作成を同時に行う技術。", "認識", "slam"),
     ("自己位置推定", "Localization", "センサーや地図を使い、ロボットが現在位置と向きを推定する処理。", "認識", None),
     ("物体認識", "Object Recognition", "カメラ等から対象物の種類、位置、姿勢を推定する技術。", "認識", None),
     ("姿勢推定", "Pose Estimation", "人、物体、ロボットの位置と向き、関節状態などを推定する技術。", "認識", None),
+    ("3Dシーン再構成", "3D Scene Reconstruction", "カメラや距離センサーから周囲の三次元形状と配置を復元する技術。", "認識", "3d-scene-reconstruction"),
     ("センサーフュージョン", "Sensor Fusion", "複数センサーの長所を組み合わせ、認識や推定の安定性を高める処理。", "認識", None),
     ("LiDAR", "Light Detection and Ranging", "レーザー光の反射時間から周囲までの距離を測るセンサー。", "センサー", "lidar"),
-    ("RGB-Dカメラ", "RGB-D Camera", "カラー画像と奥行き情報を同時に取得できるカメラ。", "センサー", None),
+    ("RGB-Dカメラ", "RGB-D Camera", "カラー画像と奥行き情報を同時に取得し、点群、物体認識、SLAM、把持位置推定に使うカメラ。", "センサー", "rgb-d-camera"),
     ("IMU", "Inertial Measurement Unit", "加速度と角速度を測り、姿勢や運動状態の推定に使うセンサー。", "センサー", None),
     ("力覚センサー", "Force/Torque Sensor", "接触時の力やトルクを測り、組立、把持、安全制御に使うセンサー。", "センサー", "force-sensor"),
     ("触覚センサー", "Tactile Sensor", "接触位置、圧力、滑りなどを検知し、繊細な把持に使うセンサー。", "センサー", "tactile-sensor"),
@@ -68,11 +77,16 @@ TERMS = [
     ("繰返し精度", "Repeatability", "同じ指令を繰り返したとき、同じ位置へ戻れる度合い。", "仕様", None),
     ("シミュレーション", "Simulation", "実機を動かす前に、仮想環境で動作、学習、安全性を検証する方法。", "開発", "simulation"),
     ("Sim-to-Real", "Simulation to Reality", "シミュレーションで学習・検証した内容を実機へ移す考え方と技術。", "開発", "sim-to-real"),
-    ("デジタルツイン", "Digital Twin", "実設備やロボットの状態を仮想空間に対応付け、分析や予測に使う仕組み。", "開発", None),
+    ("Zero-shot Sim-to-Real", "Zero-shot Simulation to Reality", "実機での追加学習や調整を前提とせず、シミュレーションで得た方策を実機へ直接適用する考え方。", "開発", None),
+    ("デジタルツイン", "Digital Twin", "実設備やロボットの状態を仮想空間に対応付け、分析や予測に使う仕組み。", "開発", "digital-twin"),
+    ("デジタルツイン成熟度", "Digital Twin Maturity", "3Dモデル、シミュレーション、実機データ連携、双方向制御、最適化までの実装段階を整理する考え方。", "開発", "digital-twin-maturity"),
     ("Isaac Sim", "NVIDIA Isaac Sim", "NVIDIA Omniverse上でロボットシミュレーションや合成データ生成を行う環境。", "開発", None),
     ("MuJoCo", "Multi-Joint dynamics with Contact", "接触を含むロボット力学の研究や強化学習で使われる物理シミュレータ。", "開発", None),
     ("Gazebo", "Gazebo Simulator", "ROS連携を含むロボットシミュレーションで広く使われる環境。", "開発", None),
-    ("データ収集", "Data Collection", "学習、評価、再現性確認のためにセンサー値、画像、操作、結果を記録する工程。", "導入", "data-collection"),
+    ("データ収集", "Data Collection", "学習、評価、再現性確認のためにセンサー値、画像、操作、結果を記録する工程。", "データ", "data-collection"),
+    ("ロボットデータセット", "Robot Dataset", "画像、言語指示、関節状態、動作軌跡、力覚などを学習・評価用に整理したデータ集合。", "データ", "robot-dataset"),
+    ("マルチモーダルロボットデータ", "Multimodal Robot Data", "RGB、Depth、音声、力覚、触覚、関節角度、位置姿勢、言語指示などを組み合わせたロボットデータ。", "データ", "multimodal-robot-data"),
+    ("実環境ロボットデータ", "Real-World Robot Data", "照明変化、ノイズ、人や物体の変動を含む実環境で収集された学習・評価用データ。", "データ", None),
     ("PoC", "Proof of Concept", "限定した範囲で技術成立性、効果、運用条件を確認する検証。", "導入", "poc"),
     ("KPI", "Key Performance Indicator", "PoCや導入の成否を判断するために事前に定める評価指標。", "導入", None),
     ("エッジAI", "Edge AI", "クラウドだけに依存せず、端末やロボット側でAI推論を実行する構成。", "導入", None),
@@ -105,7 +119,7 @@ def base_head(title: str, description: str, canonical: str, depth: int = 0, sche
     schema_html = f'<script type="application/ld+json">{json.dumps(schema, ensure_ascii=False)}</script>' if schema else ""
     return f'''<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title><meta name="description" content="{esc(description)}"><link rel="canonical" href="{canonical}">
-<link rel="stylesheet" href="{p}assets/css/glossary.css?v=20260731-1">{schema_html}</head><body>'''
+<link rel="stylesheet" href="{p}assets/css/glossary.css?v=20260731-2">{schema_html}</head><body>'''
 
 
 def make_index() -> str:
@@ -117,8 +131,9 @@ def make_index() -> str:
     defined_terms = [{"@type": "DefinedTerm", "name": t[0], "alternateName": t[1], "description": t[2]} for t in TERMS]
     schema = {"@context": "https://schema.org", "@type": "DefinedTermSet", "name": "ロボット・フィジカルAI用語集", "url": BASE + "glossary.html", "publisher": {"@type": "Organization", "name": "株式会社AirAdmin8"}, "hasDefinedTerm": defined_terms}
     script = """<script>const q=document.querySelector('#glossary-search');q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();document.querySelectorAll('.term-card').forEach(c=>{c.hidden=v&&!c.dataset.term.toLowerCase().includes(v)&&!c.textContent.toLowerCase().includes(v);});});</script>"""
-    return base_head("ロボット・フィジカルAI用語集｜AirAdmin8 ロボティクス", "AIロボット、フィジカルAI、VLA、ROS 2、SDK、SLAM、センサー、PoC、技適、UN38.3まで、導入判断に役立つ65用語を独自解説。", BASE + "glossary.html", schema=schema) + header() + f'''<main><section class="glossary-hero"><div class="glossary-wrap"><p class="eyebrow">ROBOT & PHYSICAL AI GLOSSARY</p><h1>ロボット・フィジカルAI用語集</h1><p>研究・教育・企業導入の現場で使われる65用語を、単なる定義ではなく、ロボット選定・PoC・運用判断につながる視点で整理しました。</p></div></section>
-<section class="glossary-tools"><div class="glossary-wrap"><label for="glossary-search">用語を検索</label><input id="glossary-search" class="glossary-search" type="search" placeholder="例：VLA、ROS 2、LiDAR、PoC"><div class="glossary-index"><a href="#term-ai-robot">AI</a><a href="#term-physical-ai">フィジカルAI</a><a href="#term-vla">VLA</a><a href="#term-ros2">ROS 2</a><a href="#term-sdk">SDK</a><a href="#term-slam">SLAM</a><a href="#term-poc">PoC</a></div></div></section>
+    count = len(TERMS)
+    return base_head("ロボット・フィジカルAI用語集｜AirAdmin8 ロボティクス", f"AIロボット、フィジカルAI、UMI、VLA、ROS 2、RGB-D、デジタルツイン、ロボットデータセットなど、導入判断に役立つ{count}用語を独自解説。", BASE + "glossary.html", schema=schema) + header() + f'''<main><section class="glossary-hero"><div class="glossary-wrap"><p class="eyebrow">ROBOT & PHYSICAL AI GLOSSARY</p><h1>ロボット・フィジカルAI用語集</h1><p>研究・教育・企業導入の現場で使われる{count}用語を、単なる定義ではなく、ロボット選定・データ収集・PoC・運用判断につながる視点で整理しました。</p></div></section>
+<section class="glossary-tools"><div class="glossary-wrap"><label for="glossary-search">用語を検索</label><input id="glossary-search" class="glossary-search" type="search" placeholder="例：UMI、VLA、RGB-D、デジタルツイン"><div class="glossary-index"><a href="#term-ai-robot">AI</a><a href="#term-physical-ai">フィジカルAI</a><a href="#term-umi">UMI</a><a href="#term-vla">VLA</a><a href="#term-ros2">ROS 2</a><a href="#term-robot-dataset">データセット</a><a href="#term-poc">PoC</a></div></div></section>
 <section class="glossary-section"><div class="glossary-wrap"><div class="glossary-grid">{''.join(cards)}</div></div></section></main>''' + footer() + script + "</body></html>"
 
 
@@ -130,7 +145,8 @@ def make_detail(term: tuple[str, str, str, str, str]) -> str:
     importance = f"{jp}は、製品仕様だけでは判断しにくいロボット導入において、研究目的、データ、制御構成、運用条件を整理するための重要な概念です。"
     use = f"大学・研究機関では実験再現性や拡張性、企業PoCでは安全性、評価指標、既存システムとの接続条件を確認する際に、{jp}の理解が役立ちます。"
     checklist = ["目的と対象タスクを先に決める", "必要なセンサー・計算環境・SDKを確認する", "評価方法とデータ取得条件を定義する", "実機導入前にPoC範囲と安全条件を整理する"]
-    return base_head(f"{jp}とは？ロボット導入での意味｜AirAdmin8 ロボティクス", f"{jp}（{en}）の意味、ロボット導入・研究で重要な理由、確認項目をAirAdmin8 ロボティクスが解説。", BASE + f"glossary/{slug}.html", depth=1, schema=schema) + header(1) + f'''<main><section class="glossary-hero"><div class="glossary-wrap"><p class="breadcrumb"><a href="../glossary.html">用語集</a> / {esc(jp)}</p><p class="eyebrow">{esc(category.upper())}</p><h1>{esc(jp)}とは？</h1><p>{esc(en)}</p></div></section><section class="glossary-detail"><div class="glossary-wrap glossary-detail-grid"><article class="glossary-copy"><p class="glossary-note">{esc(definition)}</p><h2>ロボット導入で重要な理由</h2><p>{esc(importance)}</p><h2>研究・PoCでの使われ方</h2><p>{esc(use)}</p><h2>導入前の確認項目</h2><ul>{''.join(f'<li>{esc(x)}</li>' for x in checklist)}</ul><h2>AirAdmin8の整理視点</h2><p>用語だけで判断せず、対象タスク、製品構成、納期、法規、データ取得、SDK、保守まで一つの導入条件として確認します。</p></article><aside class="glossary-side"><h2>関連用語</h2>{links}<a href="../glossary.html">65用語の一覧へ</a></aside></div></section></main>''' + footer(1) + "</body></html>"
+    count = len(TERMS)
+    return base_head(f"{jp}とは？ロボット導入での意味｜AirAdmin8 ロボティクス", f"{jp}（{en}）の意味、ロボット導入・研究で重要な理由、確認項目をAirAdmin8 ロボティクスが解説。", BASE + f"glossary/{slug}.html", depth=1, schema=schema) + header(1) + f'''<main><section class="glossary-hero"><div class="glossary-wrap"><p class="breadcrumb"><a href="../glossary.html">用語集</a> / {esc(jp)}</p><p class="eyebrow">{esc(category.upper())}</p><h1>{esc(jp)}とは？</h1><p>{esc(en)}</p></div></section><section class="glossary-detail"><div class="glossary-wrap glossary-detail-grid"><article class="glossary-copy"><p class="glossary-note">{esc(definition)}</p><h2>ロボット導入で重要な理由</h2><p>{esc(importance)}</p><h2>研究・PoCでの使われ方</h2><p>{esc(use)}</p><h2>導入前の確認項目</h2><ul>{''.join(f'<li>{esc(x)}</li>' for x in checklist)}</ul><h2>AirAdmin8の整理視点</h2><p>用語だけで判断せず、対象タスク、製品構成、納期、法規、データ取得、SDK、保守まで一つの導入条件として確認します。</p></article><aside class="glossary-side"><h2>関連用語</h2>{links}<a href="../glossary.html">{count}用語の一覧へ</a></aside></div></section></main>''' + footer(1) + "</body></html>"
 
 
 def update_sitemap(urls: list[str]) -> None:
@@ -159,11 +175,11 @@ def generate_robot_ai_glossary(output: Path = OUTPUT) -> tuple[int, list[str]]:
         count += 1
         urls.append(BASE + f"glossary/{term[4]}.html")
     update_sitemap(urls)
-    if len(TERMS) != 65:
-        errors.append(f"Glossary must contain 65 terms, found {len(TERMS)}")
-    if count != 16:
-        errors.append(f"Glossary must generate 16 pages, found {count}")
-    for required in ("physical-ai", "vla", "ros2", "sdk", "poc", "giteki", "un38-3"):
+    if len(TERMS) != 79:
+        errors.append(f"Glossary must contain 79 terms, found {len(TERMS)}")
+    if count < 24:
+        errors.append(f"Glossary must generate at least 24 pages, found {count}")
+    for required in ("physical-ai", "umi", "vla", "ros2", "sdk", "rgb-d-camera", "robot-dataset", "multimodal-robot-data", "digital-twin", "digital-twin-maturity", "robot-workflow", "task-planning", "poc", "giteki", "un38-3"):
         if required not in DETAIL_SLUGS:
             errors.append(f"Missing priority glossary detail: {required}")
     return count, errors
