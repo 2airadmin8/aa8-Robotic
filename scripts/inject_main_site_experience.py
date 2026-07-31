@@ -8,7 +8,7 @@ from pathlib import Path
 
 from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
 
-CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-3"
+CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-4"
 FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260731-1"
 LOGO_CSS_ASSET = "assets/css/main-logo.css?v=20260731-2"
 JS_ASSET = "assets/js/main-site-experience.js?v=20260731-6"
@@ -79,7 +79,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         html = html_path.read_text(encoding="utf-8")
         new_html = add_glossary_navigation(html, prefix)
 
-        for pattern, link in ((css_pattern, css_link),(footer_css_pattern, footer_css_link),(logo_css_pattern, logo_css_link)):
+        for pattern, link in ((css_pattern, css_link), (footer_css_pattern, footer_css_link), (logo_css_pattern, logo_css_link)):
             match = pattern.search(new_html)
             if match:
                 new_html = new_html[:match.start()] + link + new_html[match.end():]
