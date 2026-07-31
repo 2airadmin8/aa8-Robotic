@@ -11,7 +11,7 @@ from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
 CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-2"
 FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260731-1"
 LOGO_CSS_ASSET = "assets/css/main-logo.css?v=20260731-1"
-JS_ASSET = "assets/js/main-site-experience.js?v=20260731-4"
+JS_ASSET = "assets/js/main-site-experience.js?v=20260731-5"
 
 
 def add_glossary_navigation(markup: str, prefix: str) -> str:
