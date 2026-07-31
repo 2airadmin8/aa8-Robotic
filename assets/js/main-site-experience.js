@@ -11,7 +11,7 @@
   document.querySelectorAll('.site-header .brand, .header .brand, header[role="banner"] .brand').forEach((brand) => {
     if (!(brand instanceof HTMLElement)) return;
     brand.setAttribute('aria-label', 'AirAdmin8 ロボティクス ホーム');
-    brand.innerHTML = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-main-logo.svg?v=20260731-4')}" alt="AirAdmin8">`;
+    brand.innerHTML = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-main-logo.svg?v=20260731-5')}" alt="AirAdmin8">`;
   });
 
   const topButton = document.createElement('button');
