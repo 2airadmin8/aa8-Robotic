@@ -1,7 +1,11 @@
-/* AirAdmin8メインサイト共通ロゴ */
+/* AirAdmin8公式ロゴ共通表示 */
 .site-header .brand,
 .header .brand,
-header[role="banner"] .brand {
+header[role="banner"] .brand,
+.mobile-menu .brand,
+.drawer .brand,
+.menu-drawer .brand,
+.nav-drawer .brand {
   min-width: 0;
   text-decoration: none;
 }
@@ -15,10 +19,26 @@ header[role="banner"] .brand {
   object-position: left center;
 }
 
+.aa8-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.aa8-footer-brand .aa8-main-logo {
+  width: min(220px, 62vw);
+  max-height: 42px;
+}
+
 @media (max-width: 760px) {
   .aa8-main-logo {
     width: clamp(170px, 52vw, 220px);
     max-height: 40px;
+  }
+
+  .aa8-footer-brand .aa8-main-logo {
+    width: min(200px, 64vw);
+    max-height: 38px;
   }
 }
 
