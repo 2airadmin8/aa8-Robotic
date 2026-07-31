@@ -1,59 +1,64 @@
-/* 2026-07-31 画面レビュー反映
-   - ヘッダー中央揃え
-   - ファーストビューの文字密度を低減
-   - フッターの不要な矢印を非表示
-   - 公開メールアドレスを表示しない前提の補助スタイル
+/* 2026-07-31 最終画面修正
+   共通UIを確実に上書きするため、対象セレクタを明示し!importantを使用。
 */
 
 @media (min-width: 981px) {
-  .header-inner {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
-    gap: 22px;
+  .site-header .header-inner {
+    display: grid !important;
+    grid-template-columns: minmax(240px, 1fr) auto !important;
+    align-items: center !important;
+    gap: 28px !important;
   }
 
-  .brand {
-    justify-self: start;
+  .site-header .brand {
+    justify-self: start !important;
   }
 
-  .nav {
-    grid-column: 2 / 4;
-    justify-self: end;
+  .site-header .nav {
+    position: static !important;
+    display: flex !important;
+    justify-self: end !important;
+    align-items: center !important;
+    gap: 20px !important;
   }
 }
 
 .hero {
-  padding-top: 62px;
-  padding-bottom: 58px;
+  padding-top: 56px !important;
+  padding-bottom: 52px !important;
 }
 
-.hero-grid-v2 {
-  grid-template-columns: minmax(0, 0.9fr) minmax(500px, 1.1fr);
-  gap: 34px;
+.hero .hero-grid-v2 {
+  grid-template-columns: minmax(0, .88fr) minmax(520px, 1.12fr) !important;
+  gap: 34px !important;
 }
 
-.hero-copy h1 {
-  max-width: 680px;
-  font-size: clamp(2.9rem, 4.4vw, 4.1rem);
-  line-height: 1.08;
+.hero .hero-copy h1 {
+  max-width: 620px !important;
+  font-size: clamp(2.65rem, 4vw, 3.75rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.035em !important;
 }
 
-.hero-copy .lead {
-  max-width: 650px;
-  font-size: 1rem;
-  line-height: 1.85;
+.hero .hero-copy h1 span {
+  font-size: .62em !important;
 }
 
-.footer-links a::after,
-.footer-links a::before {
+.hero .hero-copy .lead {
+  max-width: 610px !important;
+  font-size: .98rem !important;
+  line-height: 1.8 !important;
+}
+
+.footer .footer-links a::after,
+.footer .footer-links a::before {
   content: none !important;
   display: none !important;
 }
 
-.footer-links a {
+.footer .footer-links a {
   padding-right: 0 !important;
-  background-image: none !important;
+  background: none !important;
 }
 
 .public-contact-hidden {
@@ -61,18 +66,23 @@
 }
 
 @media (max-width: 980px) {
-  .hero-grid-v2 {
-    grid-template-columns: 1fr;
+  .hero .hero-grid-v2 {
+    grid-template-columns: 1fr !important;
   }
 }
 
 @media (max-width: 640px) {
-  .hero-copy h1 {
-    font-size: clamp(2.35rem, 10.5vw, 3.1rem);
+  .hero {
+    padding-top: 40px !important;
+    padding-bottom: 38px !important;
   }
 
-  .hero-copy .lead {
-    font-size: 0.96rem;
-    line-height: 1.75;
+  .hero .hero-copy h1 {
+    font-size: clamp(2.2rem, 10vw, 2.9rem) !important;
+  }
+
+  .hero .hero-copy .lead {
+    font-size: .94rem !important;
+    line-height: 1.72 !important;
   }
 }
