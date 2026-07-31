@@ -36,27 +36,9 @@
   window.addEventListener('scroll', updateTopButton, { passive: true });
   updateTopButton();
 
-  if (!document.querySelector('.aa8-mobile-quicknav')) {
-    const quickNav = document.createElement('nav');
-    quickNav.className = 'aa8-mobile-quicknav';
-    quickNav.setAttribute('aria-label', 'モバイル共通メニュー');
-    quickNav.innerHTML = [
-      ['製品を探す', 'products.html'],
-      ['用途から探す', 'use-cases.html'],
-      ['導入を相談', 'contact.html']
-    ].map(([label, path]) => `<a href="${makeUrl(path)}">${label}</a>`).join('');
-
-    const header = document.querySelector('.site-header, .header, header[role="banner"]');
-    const main = document.querySelector('main');
-
-    if (header?.parentNode) {
-      header.insertAdjacentElement('afterend', quickNav);
-    } else if (main?.parentNode) {
-      main.parentNode.insertBefore(quickNav, main);
-    } else {
-      document.body.prepend(quickNav);
-    }
-  }
+  // モバイル共通クイックメニューは廃止。
+  // ヘッダー右側の「メニュー」に導線を一本化し、ファーストビューを圧迫しない。
+  document.querySelectorAll('.aa8-mobile-quicknav').forEach((nav) => nav.remove());
 
   document.querySelectorAll('[id]').forEach((node) => {
     if (node instanceof HTMLElement) node.style.scrollMarginTop = '96px';
