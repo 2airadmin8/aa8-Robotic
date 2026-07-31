@@ -31,19 +31,41 @@ header[role="banner"] .brand,
 }
 
 @media (max-width: 760px) {
+  .site-header .header-inner,
+  .header .header-inner,
+  header[role="banner"] .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .site-header nav,
+  .header nav,
+  header[role="banner"] nav {
+    display: none !important;
+  }
+
+  .site-header .menu,
+  .header .menu,
+  header[role="banner"] .menu {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
   .aa8-main-logo {
-    width: clamp(170px, 52vw, 220px);
-    max-height: 40px;
+    width: min(200px, 58vw);
+    max-height: 38px;
   }
 
   .aa8-footer-brand .aa8-main-logo {
-    width: min(200px, 64vw);
-    max-height: 38px;
+    width: min(190px, 60vw);
+    max-height: 36px;
   }
 }
 
 @media (max-width: 390px) {
   .aa8-main-logo {
-    width: 165px;
+    width: min(178px, 56vw);
   }
 }

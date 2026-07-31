@@ -7,6 +7,7 @@
 .glossary-index{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .glossary-index a{display:inline-flex;align-items:center;justify-content:center;min-width:40px;min-height:40px;padding:0 13px;border:1px solid #d5e4ea;border-radius:999px;color:#006f9e;background:#fff;text-decoration:none;font-weight:700}
 .glossary-hero{padding:54px 0 46px;background:linear-gradient(135deg,#fff 0%,#f2fbfd 58%,#e9f7fb 100%)}
+.glossary-hero h1{max-width:900px;margin:0 0 20px;font-size:clamp(2.35rem,5vw,4.4rem)!important;line-height:1.18!important;letter-spacing:-.03em}
 .glossary-hero p{max-width:760px;color:#5f7682;line-height:1.9}
 .glossary-section{padding:56px 0}
 .glossary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
@@ -28,11 +29,14 @@
 @media(max-width:760px){
   .glossary-wrap{width:min(100% - 28px,1120px)}
   .glossary-tools{padding:14px 0 18px}
-  .glossary-tools .glossary-wrap{padding:14px;border-radius:14px}
-  .glossary-search{min-height:52px;font-size:16px}
+  .glossary-tools .glossary-wrap{padding:16px;border-radius:14px}
+  .glossary-tools label{margin-bottom:8px;font-size:1rem;line-height:1.45}
+  .glossary-search{min-height:52px;padding:13px 14px;font-size:16px}
   .glossary-index{gap:7px;margin-top:12px}
   .glossary-index a{min-height:38px;padding:0 11px;font-size:.88rem}
-  .glossary-hero{padding:38px 0 32px}
+  .glossary-hero{padding:34px 0 30px}
+  .glossary-hero h1{margin-bottom:16px;font-size:clamp(2rem,10vw,2.9rem)!important;line-height:1.22!important;letter-spacing:-.025em}
+  .glossary-hero p{font-size:1rem;line-height:1.8}
   .glossary-grid{grid-template-columns:1fr}
   .term-card{padding:20px}
   .glossary-detail-grid{grid-template-columns:1fr}
