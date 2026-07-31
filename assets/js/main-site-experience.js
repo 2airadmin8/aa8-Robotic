@@ -7,11 +7,20 @@
     : new URL('./', document.baseURI).href;
 
   const makeUrl = (path) => new URL(path, baseUrl).href;
+  const logoMarkup = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-official-logo.png?v=20260731-1')}" alt="AirAdmin8">`;
 
-  document.querySelectorAll('.site-header .brand, .header .brand, header[role="banner"] .brand').forEach((brand) => {
+  document.querySelectorAll(
+    '.site-header .brand, .header .brand, header[role="banner"] .brand, .mobile-menu .brand, .drawer .brand, .menu-drawer .brand, .nav-drawer .brand'
+  ).forEach((brand) => {
     if (!(brand instanceof HTMLElement)) return;
     brand.setAttribute('aria-label', 'AirAdmin8 ロボティクス ホーム');
-    brand.innerHTML = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-main-logo.svg?v=20260731-5')}" alt="AirAdmin8">`;
+    brand.innerHTML = logoMarkup;
+  });
+
+  document.querySelectorAll('.site-footer strong, .site-footer .footer-brand, footer .brand').forEach((brand) => {
+    if (!(brand instanceof HTMLElement)) return;
+    brand.classList.add('aa8-footer-brand');
+    brand.innerHTML = logoMarkup;
   });
 
   const topButton = document.createElement('button');
