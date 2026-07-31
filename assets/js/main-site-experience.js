@@ -45,7 +45,17 @@
       ['用途から探す', 'use-cases.html'],
       ['導入を相談', 'contact.html']
     ].map(([label, path]) => `<a href="${makeUrl(path)}">${label}</a>`).join('');
-    document.body.appendChild(quickNav);
+
+    const header = document.querySelector('.site-header, .header, header[role="banner"]');
+    const main = document.querySelector('main');
+
+    if (header?.parentNode) {
+      header.insertAdjacentElement('afterend', quickNav);
+    } else if (main?.parentNode) {
+      main.parentNode.insertBefore(quickNav, main);
+    } else {
+      document.body.prepend(quickNav);
+    }
   }
 
   document.querySelectorAll('[id]').forEach((node) => {
