@@ -58,10 +58,14 @@
       .priority-category-main strong { text-shadow: 0 1px 2px rgba(0,45,72,.18); }
       .category-priority-grid { margin-bottom: 0 !important; }
       #lineup { padding-top: 38px !important; }
+      main > section:nth-of-type(4) { padding-bottom: 34px !important; }
+      main > section:nth-of-type(5) { padding-top: 38px !important; }
       @media (max-width: 760px) {
         .product-page-hero { padding-bottom: 22px !important; }
         .product-page-hero + .section { padding-top: 26px !important; }
         #lineup { padding-top: 30px !important; }
+        main > section:nth-of-type(4) { padding-bottom: 26px !important; }
+        main > section:nth-of-type(5) { padding-top: 30px !important; }
       }
     `;
     document.head.appendChild(productFixes);
