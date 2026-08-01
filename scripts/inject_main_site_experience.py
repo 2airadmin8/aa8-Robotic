@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inject the shared AirAdmin8 main-site-inspired UI CSS, JS, menu, footer links, and logo."""
+"""Inject the shared AirAdmin8 main-site-inspired UI CSS, JS, footer links, and logo."""
 
 from __future__ import annotations
 
@@ -8,22 +8,21 @@ from pathlib import Path
 
 from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
 
-CSS_ASSET = "assets/css/main-site-experience.css?v=20260731-4"
+CSS_ASSET = "assets/css/main-site-experience.css?v=20260801-1"
 FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260731-1"
 LOGO_CSS_ASSET = "assets/css/main-logo.css?v=20260731-2"
-JS_ASSET = "assets/js/main-site-experience.js?v=20260731-6"
+JS_ASSET = "assets/js/main-site-experience.js?v=20260731-8"
 
 
-def add_glossary_navigation(markup: str, prefix: str) -> str:
+def add_learning_footer(markup: str, prefix: str) -> str:
+    """Keep learning links in the footer without adding glossary to the header."""
     glossary_href = f"{prefix}glossary.html"
 
-    header_match = re.search(r"(<header\b[^>]*>.*?<nav\b[^>]*>)(.*?)(</nav>)", markup, flags=re.IGNORECASE | re.DOTALL)
-    if header_match and "glossary.html" not in header_match.group(2):
-        link = f'<a href="{glossary_href}">用語集</a>'
-        replacement = header_match.group(1) + header_match.group(2) + link + header_match.group(3)
-        markup = markup[:header_match.start()] + replacement + markup[header_match.end():]
-
-    footer_match = re.search(r"(<footer\b[^>]*>)(.*?)(</footer>)", markup, flags=re.IGNORECASE | re.DOTALL)
+    footer_match = re.search(
+        r"(<footer\b[^>]*>)(.*?)(</footer>)",
+        markup,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
     if footer_match and "aa8-footer-learning" not in footer_match.group(2):
         learning = (
             '<section class="aa8-footer-learning" aria-labelledby="aa8-footer-learning-title">'
@@ -77,7 +76,7 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
         js_tag = f'<script src="{js_src}" defer></script>'
 
         html = html_path.read_text(encoding="utf-8")
-        new_html = add_glossary_navigation(html, prefix)
+        new_html = add_learning_footer(html, prefix)
 
         for pattern, link in ((css_pattern, css_link), (footer_css_pattern, footer_css_link), (logo_css_pattern, logo_css_link)):
             match = pattern.search(new_html)
@@ -104,8 +103,6 @@ def inject_main_site_experience(output: Path) -> tuple[int, list[str]]:
 
             if css_href not in new_html or footer_css_href not in new_html or logo_css_href not in new_html or js_src not in new_html:
                 errors.append(f"Shared UI injection failed: {relative.as_posix()}")
-            if relative.name != "404.html" and "glossary.html" not in new_html:
-                errors.append(f"Glossary navigation missing: {relative.as_posix()}")
             if relative.name != "404.html" and "aa8-footer-learning__links" not in new_html:
                 errors.append(f"Footer learning links missing: {relative.as_posix()}")
             if NOTICE_TEXT in new_html:
