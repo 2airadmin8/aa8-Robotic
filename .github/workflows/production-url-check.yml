@@ -1,9 +1,11 @@
 name: Production URL Check
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - Build and deploy static site to GitHub Pages
+    types:
+      - completed
   workflow_dispatch:
   schedule:
     - cron: '17 * * * *'
@@ -17,74 +19,90 @@ concurrency:
 
 jobs:
   check-production:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
     env:
-      CUSTOM_BASE: https://robotics.air-admin8.co.jp
-      GITHUB_PAGES_BASE: https://2airadmin8.github.io/aa8-Robotic
+      BASE_URL: https://robotics.air-admin8.co.jp
     steps:
-      - name: Check production URLs
+      - name: Check production pages
         shell: bash
         run: |
           set -euo pipefail
 
-          check_url() {
-            local url="$1"
+          check_page() {
+            local path="$1"
             local expected="$2"
-            local attempts=12
-            local wait_seconds=20
+            local url="${BASE_URL}${path}"
+            local attempts=8
+            local wait_seconds=15
             local body
+            local headers
             local status
+            local final_url
 
-            echo "Checking: ${url}"
+            echo "::group::${url}"
 
             for attempt in $(seq 1 "${attempts}"); do
               body="$(mktemp)"
-              status="$(curl -L -sS \
-                --connect-timeout 10 \
-                --max-time 30 \
-                -A 'AirAdmin8-Production-URL-Check/1.0' \
-                -o "${body}" \
-                -w '%{http_code}' \
-                "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" || true)"
+              headers="$(mktemp)"
 
-              echo "Attempt ${attempt}/${attempts}: HTTP ${status}"
+              read -r status final_url < <(
+                curl --location --silent --show-error \
+                  --connect-timeout 10 \
+                  --max-time 30 \
+                  --retry 2 \
+                  --retry-delay 2 \
+                  --header 'Cache-Control: no-cache' \
+                  --user-agent 'AirAdmin8-Production-Check/2.0' \
+                  --dump-header "${headers}" \
+                  --output "${body}" \
+                  --write-out '%{http_code} %{url_effective}' \
+                  "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
+              ) || true
 
-              if [[ "${status}" == "200" ]] && grep -Fqi "${expected}" "${body}"; then
+              status="${status:-000}"
+              final_url="${final_url:-unknown}"
+              echo "Attempt ${attempt}/${attempts}: HTTP ${status} / ${final_url}"
+
+              if [[ "${status}" == "200" ]] \
+                && grep -Fqi -- "${expected}" "${body}" \
+                && ! grep -Fqi -- "There isn't a GitHub Pages site here" "${body}" \
+                && ! grep -Fqi -- "404 File not found" "${body}"; then
                 echo "PASS: ${url}"
-                rm -f "${body}"
+                rm -f "${body}" "${headers}"
+                echo "::endgroup::"
                 return 0
               fi
 
               if [[ "${status}" == "200" ]]; then
-                echo "HTTP 200 but expected text was not found: ${expected}"
-              else
-                echo "Expected HTTP 200 but received: ${status}"
+                echo "Response was 200, but required page content was missing or a 404 signature was found."
               fi
 
               if [[ "${attempt}" -lt "${attempts}" ]]; then
                 sleep "${wait_seconds}"
               fi
-              rm -f "${body}"
+
+              rm -f "${body}" "${headers}"
             done
 
             echo "FAIL: ${url}"
+            echo "::endgroup::"
             return 1
           }
 
-          failed=0
+          failures=0
 
-          check_url "${GITHUB_PAGES_BASE}/" "AirAdmin8" || failed=1
-          check_url "${GITHUB_PAGES_BASE}/products.html" "研究用AIロボット製品一覧" || failed=1
-          check_url "${GITHUB_PAGES_BASE}/products/unitree-g1-d.html" "Unitree" || failed=1
-          check_url "${GITHUB_PAGES_BASE}/contact.html" "相談" || failed=1
+          check_page "/" "AirAdmin8" || failures=$((failures + 1))
+          check_page "/products.html" "研究用AIロボット製品一覧" || failures=$((failures + 1))
+          check_page "/products/unitree-g1-d.html" "Unitree G1-D" || failures=$((failures + 1))
+          check_page "/contact.html" "製品・導入" || failures=$((failures + 1))
 
-          check_url "${CUSTOM_BASE}/" "AirAdmin8" || failed=1
-          check_url "${CUSTOM_BASE}/products.html" "研究用AIロボット製品一覧" || failed=1
-          check_url "${CUSTOM_BASE}/products/unitree-g1-d.html" "Unitree" || failed=1
-          check_url "${CUSTOM_BASE}/contact.html" "相談" || failed=1
-
-          if [[ "${failed}" -ne 0 ]]; then
-            echo "One or more production URL checks failed."
+          if [[ "${failures}" -ne 0 ]]; then
+            echo "${failures} production page check(s) failed."
             exit 1
           fi
+
+          echo "All production page checks passed."
