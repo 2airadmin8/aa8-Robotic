@@ -167,12 +167,48 @@ jobs:
           python -m py_compile scripts/prepare_compare_print_assets.py
           python scripts/prepare_compare_print_assets.py
 
+      - name: Generate deployment metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          metadata = {
+              "commit_sha": os.environ["GITHUB_SHA"],
+              "branch": os.environ["GITHUB_REF_NAME"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "deployed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+          }
+          Path("_site/deploy-meta.json").write_text(
+              json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          test -f _site/deploy-meta.json
+          cat _site/deploy-meta.json
+
       - name: Smoke-test built Pages artifact
         shell: bash
         run: |
           set -euo pipefail
           python -m py_compile scripts/validate_built_site.py
           python scripts/validate_built_site.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("_site/deploy-meta.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          required = {"commit_sha", "branch", "run_id", "deployed_at"}
+          missing = required - data.keys()
+          if missing:
+              raise SystemExit(f"deploy-meta.json missing keys: {sorted(missing)}")
+          PY
 
       - name: Upload build diagnostics
         if: always()
@@ -182,6 +218,7 @@ jobs:
           path: |
             build.log
             _site/qa-report.json
+            _site/deploy-meta.json
           retention-days: 30
 
       - name: Upload Pages artifact
@@ -204,3 +241,32 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify production commit
+        shell: bash
+        env:
+          PROD_META_URL: https://robotics.air-admin8.co.jp/aa8-Robotic/deploy-meta.json
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          for attempt in $(seq 1 12); do
+            echo "Verification attempt ${attempt}/12"
+            response="$(curl -fsSL --retry 2 --retry-delay 2 "${PROD_META_URL}?cache_bust=${GITHUB_RUN_ID}-${attempt}" || true)"
+
+            actual_sha="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit_sha", ""))' <<<"${response}" 2>/dev/null || true)"
+
+            echo "Expected SHA: ${EXPECTED_SHA}"
+            echo "Actual SHA:   ${actual_sha:-<empty>}"
+
+            if [ "${actual_sha}" = "${EXPECTED_SHA}" ]; then
+              echo "Production deployment verified."
+              exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "Production commit verification failed."
+          echo "URL: ${PROD_META_URL}"
+          exit 1
