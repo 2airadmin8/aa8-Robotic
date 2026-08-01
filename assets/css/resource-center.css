@@ -89,6 +89,19 @@
   gap: 14px;
 }
 
+main > section:nth-of-type(3) {
+  padding-bottom: 34px;
+}
+
+#resource-search {
+  padding-top: 38px;
+  padding-bottom: 34px;
+}
+
+#resource-search + .section {
+  padding-top: 38px;
+}
+
 .resource-purpose-grid button {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -405,6 +418,19 @@
 
   .resource-hero + .section {
     padding-top: 26px;
+  }
+
+  main > section:nth-of-type(3) {
+    padding-bottom: 26px;
+  }
+
+  #resource-search {
+    padding-top: 30px;
+    padding-bottom: 26px;
+  }
+
+  #resource-search + .section {
+    padding-top: 30px;
   }
 
   .resource-hero h1 {
