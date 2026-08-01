@@ -39,6 +39,49 @@
   // モバイル共通クイックメニューは廃止。
   document.querySelectorAll('.aa8-mobile-quicknav').forEach((nav) => nav.remove());
 
+  // 製品比較ページ固有の視認性・余白を補正。
+  if (document.querySelector('.product-page-hero')) {
+    const productFixes = document.createElement('style');
+    productFixes.id = 'aa8-product-page-runtime-fixes';
+    productFixes.textContent = `
+      .priority-category-main,
+      .priority-category-main h3,
+      .priority-category-main p,
+      .priority-category-main strong,
+      .priority-category-main .card-index {
+        color: #fff !important;
+      }
+      .priority-category-main p {
+        color: rgba(255,255,255,.92) !important;
+        font-weight: 600;
+        line-height: 1.75;
+      }
+      .priority-category-main h3,
+      .priority-category-main strong {
+        text-shadow: 0 1px 2px rgba(0,45,72,.18);
+      }
+      .category-priority-grid {
+        margin-bottom: 0 !important;
+      }
+      .category-priority-grid.closest-section-fix {
+        padding-bottom: 0 !important;
+      }
+      #lineup {
+        padding-top: 38px !important;
+      }
+      @media (max-width: 760px) {
+        #lineup { padding-top: 30px !important; }
+      }
+    `;
+    document.head.appendChild(productFixes);
+
+    const categoryGrid = document.querySelector('.category-priority-grid');
+    const categorySection = categoryGrid?.closest('section');
+    if (categorySection instanceof HTMLElement) {
+      categorySection.style.paddingBottom = window.matchMedia('(max-width: 760px)').matches ? '26px' : '34px';
+    }
+  }
+
   // 製品比較ページ内の英語混在を解消。
   document.querySelectorAll('p').forEach((node) => {
     if (!(node instanceof HTMLElement)) return;
