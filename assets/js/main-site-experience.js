@@ -84,6 +84,33 @@
     });
   }
 
+  if (document.querySelector('.theme-grid')) {
+    const themeFixes = document.createElement('style');
+    themeFixes.id = 'aa8-theme-card-runtime-fixes';
+    themeFixes.textContent = `
+      .theme-grid { align-items: start !important; }
+      .theme-card { align-self: start !important; }
+      .theme-links {
+        margin-top: 20px !important;
+        padding-top: 0 !important;
+        min-height: 32px;
+        align-items: center;
+      }
+      .theme-card > p:not(.theme-label) {
+        min-height: 3.6em;
+      }
+      .theme-tags {
+        min-height: 36px;
+      }
+      @media (max-width: 980px) {
+        .theme-card > p:not(.theme-label),
+        .theme-tags,
+        .theme-links { min-height: 0; }
+      }
+    `;
+    document.head.appendChild(themeFixes);
+  }
+
   document.querySelectorAll('p').forEach((node) => {
     if (!(node instanceof HTMLElement)) return;
     if (node.textContent?.includes('公開Repository')) {
