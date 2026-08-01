@@ -1,0 +1,3 @@
+Backup marker before reducing spacing between HOW TO COMPARE and BUYING GUIDE on products.html.
+Target: products page only.
+Requested at 2026-08-01 16:17 JST.
