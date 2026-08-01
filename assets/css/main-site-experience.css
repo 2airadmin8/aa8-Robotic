@@ -65,3 +65,64 @@ body:has(.product-page-hero) main>section:nth-of-type(6){padding-top:42px!import
 }
 @media(max-width:390px){.site-header .menu,.header .menu,header[role="banner"] .menu{font-size:0!important}.site-header .nav,.header .nav,header[role="banner"] .nav,body>header .nav{padding-inline:20px!important}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.aa8-back-to-top{transition:none}.site-header .nav,.header .nav,header[role="banner"] .nav,body>header .nav{transition:none!important}}
+
+/* 本サイト準拠：スマートフォンの全画面ブルーメニュー */
+@media(max-width:980px){
+  .site-header:has(.nav.open),.header:has(.nav.open),header[role="banner"]:has(.nav.open),body>header:has(.nav.open){background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+  .site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner,body>header>.wrap{position:relative!important;z-index:1403!important}
+  .site-header .nav,.header .nav,header[role="banner"] .nav,body>header .nav{
+    inset:0!important;
+    min-height:100dvh!important;
+    padding:clamp(118px,17vh,160px) 34px calc(34px + env(safe-area-inset-bottom))!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:0!important;
+    background:
+      radial-gradient(circle at 50% 14%,rgba(255,255,255,.13),transparent 24%),
+      radial-gradient(circle at 20% 60%,rgba(255,255,255,.08),transparent 30%),
+      linear-gradient(180deg,rgba(0,118,200,.97) 0%,rgba(0,161,207,.96) 56%,rgba(14,190,193,.94) 100%)!important;
+  }
+  .site-header .nav::before,.header .nav::before,header[role="banner"] .nav::before,body>header .nav::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    background:url("../img/airadmin8-official-logo.png?v=20260731-1") center 76px/300px auto no-repeat;
+    opacity:.16;
+    pointer-events:none;
+  }
+  .site-header .nav>a,.header .nav>a,header[role="banner"] .nav>a,body>header .nav>a{
+    width:min(100%,520px)!important;
+    min-height:58px!important;
+    justify-content:center!important;
+    padding:13px 20px!important;
+    border:0!important;
+    border-radius:0!important;
+    color:#fff!important;
+    background:transparent!important;
+    font-size:clamp(1.06rem,4.7vw,1.34rem)!important;
+    font-weight:800!important;
+    letter-spacing:.035em!important;
+    text-align:center!important;
+  }
+  .site-header .nav>a::after,.header .nav>a::after,header[role="banner"] .nav>a::after,body>header .nav>a::after{content:none!important}
+  .site-header .nav>a:hover,.site-header .nav>a:focus-visible,.header .nav>a:hover,.header .nav>a:focus-visible,header[role="banner"] .nav>a:hover,header[role="banner"] .nav>a:focus-visible,body>header .nav>a:hover,body>header .nav>a:focus-visible{color:#fff!important;background:rgba(255,255,255,.11)!important;border-radius:999px!important}
+  .site-header .nav>a[aria-current="page"],.header .nav>a[aria-current="page"],header[role="banner"] .nav>a[aria-current="page"],body>header .nav>a[aria-current="page"]{color:#fff!important}
+  .site-header .nav>.nav-cta,.header .nav>.nav-cta,header[role="banner"] .nav>.nav-cta,body>header .nav>.nav-cta{
+    width:min(100%,480px)!important;
+    min-height:58px!important;
+    margin-top:24px!important;
+    border:2px solid rgba(255,255,255,.96)!important;
+    border-radius:999px!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:#fff!important;
+  }
+  .site-header:has(.nav.open) .brand,.header:has(.nav.open) .brand,header[role="banner"]:has(.nav.open) .brand,body>header:has(.nav.open) .brand{opacity:.22!important;filter:brightness(0) saturate(100%)!important}
+  .site-header .menu[aria-expanded="true"],.header .menu[aria-expanded="true"],header[role="banner"] .menu[aria-expanded="true"]{color:#fff!important}
+  .site-header .menu[aria-expanded="true"]::before,.site-header .menu[aria-expanded="true"]::after,.header .menu[aria-expanded="true"]::before,.header .menu[aria-expanded="true"]::after,header[role="banner"] .menu[aria-expanded="true"]::before,header[role="banner"] .menu[aria-expanded="true"]::after{background:#fff!important}
+}
+@media(max-width:640px){
+  .site-header .nav,.header .nav,header[role="banner"] .nav,body>header .nav{padding-inline:28px!important}
+  .site-header .nav>a,.header .nav>a,header[role="banner"] .nav>a,body>header .nav>a{min-height:54px!important;font-size:1.08rem!important}
+}
