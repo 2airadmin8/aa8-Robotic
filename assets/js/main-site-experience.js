@@ -103,26 +103,65 @@
         min-height: 32px;
         align-items: center;
       }
-      .theme-card > p:not(.theme-label) {
-        min-height: 3.6em;
-      }
-      .theme-tags {
-        min-height: 36px;
+      .theme-card > p:not(.theme-label) { min-height: 3.6em; }
+      .theme-tags { min-height: 36px; }
+      .hub-hero h1 {
+        max-width: 760px;
+        font-size: clamp(2.8rem, 5vw, 4.6rem) !important;
+        line-height: 1.12 !important;
       }
       @media (max-width: 980px) {
-        .theme-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        }
-        .theme-card > p:not(.theme-label),
-        .theme-tags,
-        .theme-links { min-height: 0; }
+        .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        .theme-card > p:not(.theme-label), .theme-tags, .theme-links { min-height: 0; }
       }
       @media (max-width: 640px) {
         .theme-grid { grid-template-columns: 1fr !important; }
         .theme-grid .theme-card { height: auto; }
+        .hub-hero h1 { font-size: clamp(2.35rem, 10vw, 3.25rem) !important; }
       }
     `;
     document.head.appendChild(themeFixes);
+
+    const hubTitle = document.querySelector('.hub-hero h1');
+    if (hubTitle instanceof HTMLElement) {
+      hubTitle.innerHTML = '研究目的から、<br>必要な構成を整理する。';
+    }
+  }
+
+  if (document.querySelector('.resource-hero')) {
+    const resourceFixes = document.createElement('style');
+    resourceFixes.id = 'aa8-resource-page-runtime-fixes';
+    resourceFixes.textContent = `
+      .resource-judgement-grid .button {
+        width: 100%;
+        min-height: 54px;
+        padding-inline: 18px;
+        white-space: nowrap;
+        font-size: .92rem;
+      }
+      .resource-judgement-grid:first-of-type { margin-bottom: 0 !important; }
+      @media (max-width: 980px) {
+        .resource-judgement-grid .button { white-space: normal; }
+      }
+    `;
+    document.head.appendChild(resourceFixes);
+
+    document.querySelectorAll('a[href*="technical-review"]').forEach((link) => {
+      if (link instanceof HTMLElement) link.textContent = '開発要件を相談する';
+    });
+
+    const checklistButton = document.querySelector('.resource-judgement-grid a[href="checklist.html"]');
+    if (checklistButton instanceof HTMLElement) checklistButton.textContent = '導入前チェックを開く';
+
+    const firstToolGrid = document.querySelector('.resource-judgement-grid');
+    const toolSection = firstToolGrid?.closest('section');
+    const purposeSection = toolSection?.nextElementSibling;
+    if (toolSection instanceof HTMLElement) {
+      toolSection.style.paddingBottom = window.matchMedia('(max-width: 640px)').matches ? '26px' : '34px';
+    }
+    if (purposeSection instanceof HTMLElement) {
+      purposeSection.style.paddingTop = window.matchMedia('(max-width: 640px)').matches ? '30px' : '38px';
+    }
   }
 
   document.querySelectorAll('p').forEach((node) => {
