@@ -11,7 +11,7 @@ from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
 CSS_ASSET = "assets/css/main-site-experience.css?v=20260801-2"
 FOOTER_CSS_ASSET = "assets/css/footer-mobile-cleanup.css?v=20260801-3"
 LOGO_CSS_ASSET = "assets/css/main-logo.css?v=20260731-2"
-JS_ASSET = "assets/js/main-site-experience.js?v=20260801-12"
+JS_ASSET = "assets/js/main-site-experience.js?v=20260801-13"
 
 
 def add_learning_footer(markup: str, prefix: str) -> str:
