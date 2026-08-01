@@ -1,0 +1,1 @@
+用途ページ「代表的な研究・導入テーマ」セクションの3列構成で、短いカードの下に大きな空白が発生していた状態の修正前バックアップ記録。対象: assets/css/content-hub.css, assets/js/main-site-experience.js, use-cases.html。
