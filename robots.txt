@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://robotics.air-admin8.co.jp/aa8-Robotic/sitemap.xml
+Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml
