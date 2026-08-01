@@ -89,7 +89,10 @@
     themeFixes.id = 'aa8-theme-card-runtime-fixes';
     themeFixes.textContent = `
       .theme-grid { align-items: start !important; }
-      .theme-card { align-self: start !important; }
+      .theme-grid .theme-card {
+        align-self: start !important;
+        border-top: 4px solid #009ad2 !important;
+      }
       .theme-links {
         margin-top: 20px !important;
         padding-top: 0 !important;
