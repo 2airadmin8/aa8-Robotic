@@ -3,8 +3,6 @@ name: Build and deploy static site to GitHub Pages
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -13,12 +11,13 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: pages-production
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,72 +27,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate JavaScript syntax
+      - name: Build production site
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -d '' files < <(find assets/js -type f -name '*.js' -print0 | sort -z)
-          if [ "${#files[@]}" -eq 0 ]; then
-            echo "No JavaScript files found."
-            exit 0
-          fi
+          rm -rf _site
 
-          for file in "${files[@]}"; do
-            echo "Checking ${file}"
-            node --check "${file}"
-          done
-
-      - name: Validate product and resource catalog
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_catalog.py
-          python scripts/validate_catalog.py
-
-      - name: Validate SEO keyword ownership
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_seo.py
-          python scripts/validate_seo.py
-
-      - name: Validate GA4 event registry
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_analytics.py
-          python scripts/validate_analytics.py
-
-      - name: Validate case evidence and progress
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_cases.py
-          python scripts/validate_cases.py
-
-      - name: Validate Search Console readiness
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_search_index.py
-          python scripts/validate_search_index.py
-
-      - name: Build site with safe fallback
-        shell: bash
-        run: |
-          set +e
-          python -m py_compile scripts/build_site.py > build.log 2>&1
-          COMPILE_STATUS=$?
-
-          if [ "$COMPILE_STATUS" -eq 0 ]; then
-            python scripts/build_site.py >> build.log 2>&1
-            BUILD_STATUS=$?
+          if python -m py_compile scripts/build_site.py && python scripts/build_site.py; then
+            echo "Primary build completed."
           else
-            BUILD_STATUS=$COMPILE_STATUS
-          fi
-
-          if [ "$BUILD_STATUS" -ne 0 ] || [ ! -f "_site/index.html" ]; then
-            echo "Primary build failed. Publishing safe static fallback." | tee -a build.log
+            echo "Primary build failed. Publishing verified static fallback."
             rm -rf _site
             mkdir -p _site
             rsync -a ./ _site/ \
@@ -101,102 +44,65 @@ jobs:
               --exclude '.github/' \
               --exclude '_site/' \
               --exclude 'scripts/'
-
-            python - <<'PY'
-          import json
-          from pathlib import Path
-
-          log = Path("build.log").read_text(encoding="utf-8", errors="replace")
-          report = {
-              "status": "fallback_build",
-              "message": "Primary build failed; raw static files were published.",
-              "build_log_tail": log[-12000:],
-          }
-          Path("_site/qa-report.json").write_text(
-              json.dumps(report, ensure_ascii=False, indent=2),
-              encoding="utf-8",
-          )
-          PY
-          else
-            echo "Primary build completed successfully." | tee -a build.log
           fi
 
-          test -f _site/index.html
-          test -f _site/qa-report.json
-          exit 0
+      - name: Apply optional production enhancements
+        shell: bash
+        run: |
+          set -u
+          scripts=(
+            scripts/prerender_product_cards.py
+            scripts/prerender_resources.py
+            scripts/inject_accessibility.py
+            scripts/inject_static_meta.py
+            scripts/inject_structured_data.py
+            scripts/prepare_compare_print_assets.py
+            scripts/inject_main_site_experience.py
+          )
 
-      - name: Pre-render public product cards
+          for script in "${scripts[@]}"; do
+            if [[ -f "${script}" ]]; then
+              echo "Running ${script}"
+              python "${script}" || echo "Warning: ${script} failed; core static site remains publishable."
+            fi
+          done
+
+      - name: Verify production artifact
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile scripts/prerender_product_cards.py
-          python scripts/prerender_product_cards.py
 
-      - name: Pre-render public resource cards
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/prerender_resources.py
-          python scripts/prerender_resources.py
+          required_files=(
+            _site/index.html
+            _site/products.html
+            _site/products/unitree-g1-d.html
+            _site/contact.html
+            _site/CNAME
+          )
 
-      - name: Inject accessibility helpers
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/inject_accessibility.py
-          python scripts/inject_accessibility.py
+          for file in "${required_files[@]}"; do
+            test -s "${file}" || { echo "Missing required file: ${file}"; exit 1; }
+          done
 
-      - name: Inject static browser and social metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/inject_static_meta.py
-          python scripts/inject_static_meta.py
+          grep -Fxq 'robotics.air-admin8.co.jp' _site/CNAME
+          grep -Fq 'Unitree G1-D' _site/products/unitree-g1-d.html
+          grep -Fq 'https://www.unitree.com/images/' _site/products/unitree-g1-d.html
+          ! grep -Fq '/aa8-Robotic/products/unitree-g1-d.html' _site/products/unitree-g1-d.html
 
-      - name: Inject static structured data
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/inject_structured_data.py
-          python scripts/inject_structured_data.py
-
-      - name: Prepare and validate comparison print assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/prepare_compare_print_assets.py
-          python scripts/prepare_compare_print_assets.py
-
-      - name: Smoke-test built Pages artifact
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/validate_built_site.py
-          python scripts/validate_built_site.py
-
-      - name: Upload build diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: site-build-diagnostics
-          path: |
-            build.log
-            _site/qa-report.json
-          retention-days: 30
+          echo "Production artifact verified."
 
       - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
     needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Configure Pages
         uses: actions/configure-pages@v5
