@@ -37,8 +37,15 @@
   updateTopButton();
 
   // モバイル共通クイックメニューは廃止。
-  // ヘッダー右側の「メニュー」に導線を一本化し、ファーストビューを圧迫しない。
   document.querySelectorAll('.aa8-mobile-quicknav').forEach((nav) => nav.remove());
+
+  // 製品比較ページ内の英語混在を解消。
+  document.querySelectorAll('p').forEach((node) => {
+    if (!(node instanceof HTMLElement)) return;
+    if (node.textContent?.includes('公開Repository')) {
+      node.textContent = node.textContent.replace('公開Repository', '公開リポジトリ');
+    }
+  });
 
   document.querySelectorAll('[id]').forEach((node) => {
     if (node instanceof HTMLElement) node.style.scrollMarginTop = '96px';
