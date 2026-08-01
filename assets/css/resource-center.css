@@ -4,10 +4,14 @@
    ============================================================ */
 
 .resource-hero {
-  padding: 64px 0 58px;
+  padding: 64px 0 30px;
   background:
     radial-gradient(circle at 88% 18%, rgba(0, 178, 188, 0.15), transparent 34%),
     linear-gradient(180deg, #f2fbfe 0%, #ffffff 100%);
+}
+
+.resource-hero + .section {
+  padding-top: 34px;
 }
 
 .resource-hero-grid {
@@ -396,7 +400,11 @@
 
 @media (max-width: 640px) {
   .resource-hero {
-    padding: 42px 0 44px;
+    padding: 42px 0 22px;
+  }
+
+  .resource-hero + .section {
+    padding-top: 26px;
   }
 
   .resource-hero h1 {
