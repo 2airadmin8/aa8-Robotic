@@ -89,6 +89,7 @@
 
 .audience-band {
   margin-top: -24px;
+  padding-bottom: 42px;
   position: relative;
   z-index: 2;
 }
@@ -266,6 +267,10 @@
     font-size: 0.74rem;
     line-height: 1.25;
     text-align: center;
+  }
+
+  .audience-band {
+    padding-bottom: 28px;
   }
 
   .audience-grid {
