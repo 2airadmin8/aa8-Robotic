@@ -88,9 +88,13 @@
     const themeFixes = document.createElement('style');
     themeFixes.id = 'aa8-theme-card-runtime-fixes';
     themeFixes.textContent = `
-      .theme-grid { align-items: start !important; }
+      .theme-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        align-items: stretch !important;
+      }
       .theme-grid .theme-card {
-        align-self: start !important;
+        align-self: stretch !important;
+        height: 100%;
         border-top: 4px solid #009ad2 !important;
       }
       .theme-links {
@@ -106,9 +110,16 @@
         min-height: 36px;
       }
       @media (max-width: 980px) {
+        .theme-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
         .theme-card > p:not(.theme-label),
         .theme-tags,
         .theme-links { min-height: 0; }
+      }
+      @media (max-width: 640px) {
+        .theme-grid { grid-template-columns: 1fr !important; }
+        .theme-grid .theme-card { height: auto; }
       }
     `;
     document.head.appendChild(themeFixes);
