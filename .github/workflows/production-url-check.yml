@@ -1,0 +1,106 @@
+name: Production URL Check
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-url-check
+  cancel-in-progress: true
+
+jobs:
+  check-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CUSTOM_BASE: https://robotics.air-admin8.co.jp
+      GITHUB_PAGES_BASE: https://2airadmin8.github.io/aa8-Robotic
+    steps:
+      - name: Check production URLs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          check_url() {
+            local url="$1"
+            local expected="$2"
+            local attempts=12
+            local wait_seconds=20
+            local body
+            local status
+
+            echo "Checking: ${url}"
+
+            for attempt in $(seq 1 "${attempts}"); do
+              body="$(mktemp)"
+              status="$(curl -L -sS \
+                --connect-timeout 10 \
+                --max-time 30 \
+                -A 'AirAdmin8-Production-URL-Check/1.0' \
+                -o "${body}" \
+                -w '%{http_code}' \
+                "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" || true)"
+
+              echo "Attempt ${attempt}/${attempts}: HTTP ${status}"
+
+              if [[ "${status}" == "200" ]] && grep -Fqi "${expected}" "${body}"; then
+                echo "PASS: ${url}"
+                rm -f "${body}"
+                return 0
+              fi
+
+              if [[ "${status}" == "200" ]]; then
+                echo "HTTP 200 but expected text was not found: ${expected}"
+              else
+                echo "Expected HTTP 200 but received: ${status}"
+              fi
+
+              if [[ "${attempt}" -lt "${attempts}" ]]; then
+                sleep "${wait_seconds}"
+              fi
+              rm -f "${body}"
+            done
+
+            echo "FAIL: ${url}"
+            return 1
+          }
+
+          failed=0
+
+          check_url "${GITHUB_PAGES_BASE}/" "AirAdmin8" || failed=1
+          check_url "${GITHUB_PAGES_BASE}/products.html" "研究用AIロボット製品一覧" || failed=1
+          check_url "${GITHUB_PAGES_BASE}/products/unitree-g1-d.html" "Unitree" || failed=1
+          check_url "${GITHUB_PAGES_BASE}/contact.html" "相談" || failed=1
+
+          check_url "${CUSTOM_BASE}/" "AirAdmin8" || failed=1
+          check_url "${CUSTOM_BASE}/products.html" "研究用AIロボット製品一覧" || failed=1
+          check_url "${CUSTOM_BASE}/products/unitree-g1-d.html" "Unitree" || failed=1
+          check_url "${CUSTOM_BASE}/contact.html" "相談" || failed=1
+
+          if [[ "${failed}" -ne 0 ]]; then
+            echo "One or more production URL checks failed."
+            exit 1
+          fi
+
+      - name: Notify Slack on failure
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        shell: bash
+        run: |
+          payload=$(printf '{"text":"🚨 AirAdmin8 Robotics production URL check failed\nRepository: %s\nRun: %s/actions/runs/%s\nCommit: %s"}' \
+            "${GITHUB_REPOSITORY}" \
+            "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
+            "${GITHUB_RUN_ID}" \
+            "${GITHUB_SHA}")
+          curl -sS -X POST \
+            -H 'Content-type: application/json' \
+            --data "${payload}" \
+            "${SLACK_WEBHOOK_URL}"
