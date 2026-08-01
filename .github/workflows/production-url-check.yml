@@ -88,19 +88,3 @@ jobs:
             echo "One or more production URL checks failed."
             exit 1
           fi
-
-      - name: Notify Slack on failure
-        if: failure() && env.SLACK_WEBHOOK_URL != ''
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        shell: bash
-        run: |
-          payload=$(printf '{"text":"🚨 AirAdmin8 Robotics production URL check failed\nRepository: %s\nRun: %s/actions/runs/%s\nCommit: %s"}' \
-            "${GITHUB_REPOSITORY}" \
-            "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" \
-            "${GITHUB_RUN_ID}" \
-            "${GITHUB_SHA}")
-          curl -sS -X POST \
-            -H 'Content-type: application/json' \
-            --data "${payload}" \
-            "${SLACK_WEBHOOK_URL}"
