@@ -1,0 +1,4 @@
+対象: assets/css/main-site-experience.css, assets/js/main-site-experience.js, scripts/inject_main_site_experience.py
+目的: スマホメニューをAirAdmin8本体サイトの白基調・青アクセントへ統一する前の復元記録。
+基準コミット: main current at 2026-08-01 17:20 JST
+復元用ブランチ: backup-20260801-footer-runtime-normalization
