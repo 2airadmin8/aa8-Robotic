@@ -5,9 +5,12 @@
   --aa8-blue:#079fcf;--aa8-blue-dark:#0077b6;--aa8-cyan:#10b8c7;--aa8-ink:#173342;--aa8-text:#526b78;--aa8-line:#dbe8ed;--aa8-pale:#f4fafc;--aa8-pale-blue:#eaf7fb;--aa8-white:#fff;--aa8-footer:#062633;
 }
 html{scroll-behavior:smooth}body{color:var(--aa8-text);background:var(--aa8-white);-webkit-font-smoothing:antialiased}h1,h2,h3,h4,h5,h6{color:var(--aa8-ink)}a{text-underline-offset:.18em}
-.site-header,.header,header[role="banner"]{background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--aa8-line)!important;box-shadow:0 3px 16px rgba(23,51,66,.04)!important;backdrop-filter:blur(10px)}
-.site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner{display:flex;align-items:center}.site-header .brand,.header .brand,header[role="banner"] .brand{display:inline-flex;align-items:center;gap:12px;min-width:0;line-height:1}.site-header .menu,.header .menu,header[role="banner"] .menu{display:none;align-items:center;justify-content:center;min-height:44px;margin:0;padding:0 4px;line-height:1}.menu,.menu-button,.nav-toggle{color:var(--aa8-blue-dark)!important}
+.site-header,.header,header[role="banner"],body>header{background:rgba(255,255,255,.97)!important;border-bottom:1px solid var(--aa8-line)!important;box-shadow:0 3px 16px rgba(23,51,66,.04)!important;backdrop-filter:blur(10px)}
+.site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner,body>header>.wrap{display:flex;align-items:center}.site-header .brand,.header .brand,header[role="banner"] .brand,body>header .brand{display:inline-flex;align-items:center;gap:12px;min-width:0;line-height:1}.site-header .menu,.header .menu,header[role="banner"] .menu{display:none;align-items:center;justify-content:center;min-height:44px;margin:0;padding:0 4px;line-height:1}.menu,.menu-button,.nav-toggle{color:var(--aa8-blue-dark)!important}
 .site-header .nav a[href*="glossary"],.header .nav a[href*="glossary"],header[role="banner"] nav a[href*="glossary"]{display:none!important}
+body>header nav,body>header .nav{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:22px!important;margin-left:auto!important}
+body>header nav a,body>header .nav a{display:inline-flex!important;align-items:center!important;min-height:72px!important;color:var(--aa8-ink)!important;font-size:.92rem!important;font-weight:800!important;text-decoration:none!important;white-space:nowrap!important}
+body>header nav a:hover,body>header .nav a:hover{color:var(--aa8-blue-dark)!important}
 main>section:nth-of-type(even):not(.dark):not(.cta):not(.cta-band),.section.alt,.section.soft,.section-light,.bg-soft{background:var(--aa8-pale)!important}main>section:nth-of-type(odd):not(.dark):not(.cta):not(.cta-band){background-color:var(--aa8-white)}
 .hero,.page-hero,.hub-hero,.product-hero,.product-detail-hero,.compare-hero,.guide-hero,.manufacturer-hero{background-color:var(--aa8-pale-blue)!important;background-image:radial-gradient(circle at 85% 15%,rgba(16,184,199,.10),transparent 34%),linear-gradient(135deg,#fff 0%,#f0fafc 55%,#e8f7fb 100%)!important}
 .card,.panel,.tile,.product-card,.case-card,.support-card,.guide-card,.compare-card{background:var(--aa8-white)!important;border-color:var(--aa8-line)!important;box-shadow:0 10px 28px rgba(23,51,66,.06)!important}
@@ -21,10 +24,10 @@ body:has(.product-page-hero) #lineup+.section{padding-top:38px!important}
 body:has(.product-page-hero) main>section:nth-of-type(5){padding-bottom:42px!important}
 body:has(.product-page-hero) main>section:nth-of-type(6){padding-top:42px!important}
 @media(min-width:981px){
-  .site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner{display:grid!important;grid-template-columns:minmax(260px,1fr) auto minmax(260px,1fr)!important;align-items:center!important;column-gap:28px!important}
-  .site-header .brand,.header .brand,header[role="banner"] .brand{justify-self:start!important}
-  .site-header .nav,.header .nav,header[role="banner"] .nav{grid-column:2/4!important;justify-self:end!important;display:flex!important;align-items:center!important;gap:22px!important}
-  .site-header .nav>a:not(.nav-cta),.header .nav>a:not(.nav-cta),header[role="banner"] .nav>a:not(.nav-cta){display:inline-flex;align-items:center;min-height:74px}
+  .site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner,body>header>.wrap{display:grid!important;grid-template-columns:minmax(260px,1fr) auto minmax(260px,1fr)!important;align-items:center!important;column-gap:28px!important}
+  .site-header .brand,.header .brand,header[role="banner"] .brand,body>header .brand{justify-self:start!important}
+  .site-header .nav,.header .nav,header[role="banner"] .nav,body>header nav,body>header .nav{grid-column:2/4!important;justify-self:end!important;display:flex!important;align-items:center!important;gap:22px!important}
+  .site-header .nav>a:not(.nav-cta),.header .nav>a:not(.nav-cta),header[role="banner"] .nav>a:not(.nav-cta),body>header nav>a:not(.nav-cta){display:inline-flex;align-items:center;min-height:74px}
   .hub-hero .hub-hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr)!important;gap:40px!important}
   .hub-hero .hub-hero-grid>div:first-child h1{max-width:820px;font-size:clamp(2.75rem,4.25vw,4.35rem)!important;line-height:1.12!important;letter-spacing:-.035em!important}
   .hub-hero .hub-hero-grid>div:first-child .lead{max-width:820px;font-size:1.02rem!important;line-height:1.8!important}
@@ -33,9 +36,10 @@ body:has(.product-page-hero) main>section:nth-of-type(6){padding-top:42px!import
 @media(max-width:760px){
   body{padding-top:0;padding-bottom:0}
   main>section{overflow:clip}
-  .site-header,.header,header[role="banner"]{position:sticky;top:0;z-index:1320}
-  .site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner{min-height:68px;gap:14px}
-  .site-header .brand,.header .brand,header[role="banner"] .brand{gap:10px}
+  .site-header,.header,header[role="banner"],body>header{position:sticky;top:0;z-index:1320}
+  .site-header .header-inner,.header .header-inner,header[role="banner"] .header-inner,body>header>.wrap{min-height:68px;gap:14px}
+  .site-header .brand,.header .brand,header[role="banner"] .brand,body>header .brand{gap:10px}
+  body>header nav,body>header .nav{display:none!important}
   .aa8-back-to-top{right:14px;bottom:18px;width:44px;height:44px}
   .hub-hero .hub-hero-grid>div:first-child h1{font-size:clamp(2.15rem,10vw,3rem)!important;line-height:1.14!important}
   .hub-hero .hub-hero-grid>div:first-child .lead{font-size:.96rem!important;line-height:1.75!important}
