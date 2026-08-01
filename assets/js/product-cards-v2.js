@@ -11,7 +11,7 @@
     'limx-oli': { order: 7, label: '全身制御研究向け' },
   };
 
-  const g1dDetailUrl = '/products/unitree-g1-d/';
+  const g1dDetailUrl = 'products/unitree-g1-d.html';
 
   document.querySelectorAll('[data-product-list]').forEach((root) => {
     const enhance = () => {
