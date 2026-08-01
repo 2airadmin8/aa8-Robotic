@@ -1,0 +1,3 @@
+対象: assets/css/main-site-experience.css, assets/js/main-site-experience.js, scripts/inject_main_site_experience.py
+目的: AirAdmin8本サイトのスマートフォンメニュー表現に合わせ、ロボティクスサイトの全画面メニューを統一する。
+バックアップブランチ: backup-20260801-footer-runtime-normalization
