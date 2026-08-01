@@ -11,6 +11,8 @@
     'limx-oli': { order: 7, label: '全身制御研究向け' },
   };
 
+  const g1dDetailUrl = '/products/unitree-g1-d/';
+
   document.querySelectorAll('[data-product-list]').forEach((root) => {
     const enhance = () => {
       const cards = [...root.querySelectorAll('.research-product-card')];
@@ -43,7 +45,7 @@
           card.classList.add('is-featured-detail-ready');
           card.querySelectorAll('a[href]').forEach((link) => {
             if (link.classList.contains('product-consult-link')) return;
-            link.setAttribute('href', 'products/unitree-g1-d.html');
+            link.setAttribute('href', g1dDetailUrl);
           });
           const detailLink = card.querySelector('.product-link');
           if (detailLink) detailLink.textContent = '詳細製品ページを見る →';
@@ -64,7 +66,7 @@
       if (!document.querySelector('.g1d-detail-entry')) {
         const entry = document.createElement('a');
         entry.className = 'g1d-detail-entry';
-        entry.href = 'products/unitree-g1-d.html';
+        entry.href = g1dDetailUrl;
         entry.innerHTML = '<span><small>NEW PRODUCT DETAIL</small><strong>Unitree G1-D 詳細製品ページ</strong><em>実機構成・データ収集・モデル学習・大学導入条件を確認</em></span><b>詳しく見る →</b>';
         const summary = root.previousElementSibling;
         if (summary?.classList.contains('product-list-summary')) {
