@@ -1,9 +1,13 @@
 /* AirAdmin8 ロボティクス：Footerの情報整理と余白最適化 */
-footer,.site-footer,.footer{overflow:hidden;padding-top:36px!important;padding-bottom:30px!important}
-footer .footer-grid,.site-footer .footer-grid,.footer .footer-grid{display:grid!important;grid-template-columns:minmax(280px,360px) minmax(0,1fr)!important;gap:56px!important;align-items:start!important}
-footer .footer-links,.site-footer .footer-links,.footer .footer-links{display:grid!important;grid-template-columns:repeat(3,minmax(130px,1fr))!important;column-gap:34px!important;row-gap:10px!important;align-content:start!important}
-footer .footer-links a,.site-footer .footer-links a,.footer .footer-links a{display:inline-flex!important;align-items:center!important;min-height:30px!important;padding:2px 0!important;line-height:1.35!important}
+footer,.site-footer,.footer{overflow:hidden;padding-top:36px!important;padding-bottom:30px!important;background:#062633!important;color:rgba(255,255,255,.78)!important}
+footer>.wrap,.site-footer>.wrap,.footer>.wrap{width:min(1120px,calc(100% - 48px))!important;margin-inline:auto!important}
+footer .footer-grid,.site-footer .footer-grid,.footer .footer-grid{display:grid!important;grid-template-columns:minmax(280px,360px) minmax(0,1fr)!important;gap:56px!important;align-items:start!important;width:100%!important;margin:0!important}
+footer .footer-grid>div,.site-footer .footer-grid>div,.footer .footer-grid>div{min-width:0!important}
+footer .footer-links,.site-footer .footer-links,.footer .footer-links{display:grid!important;grid-template-columns:repeat(3,minmax(130px,1fr))!important;column-gap:34px!important;row-gap:10px!important;align-content:start!important;width:100%!important;margin:0!important;padding:0!important}
+footer .footer-links a,.site-footer .footer-links a,.footer .footer-links a{display:inline-flex!important;align-items:center!important;min-height:30px!important;margin:0!important;padding:2px 0!important;line-height:1.35!important;text-decoration:none!important;white-space:normal!important}
 footer .footer-grid>div:first-child p,.site-footer .footer-grid>div:first-child p,.footer .footer-grid>div:first-child p{max-width:320px;margin:10px 0 0!important}
+footer strong,.site-footer strong,.footer strong{display:block!important;margin:0!important;color:#fff!important}
+footer a,.site-footer a,.footer a{color:rgba(255,255,255,.9)!important}
 .aa8-footer-contact,.aa8-footer-learning{width:min(1120px,calc(100% - 48px));margin:20px auto 0;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.16)}
 .aa8-footer-contact strong,.aa8-footer-contact a{display:block}
 .aa8-footer-contact strong{margin-bottom:6px;color:rgba(255,255,255,.72);font-size:.82rem;letter-spacing:.04em}
@@ -19,9 +23,10 @@ footer .footer-grid>div:first-child p,.site-footer .footer-grid>div:first-child 
 }
 @media(max-width:760px){
   footer,.site-footer,.footer{padding-top:28px!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
+  footer>.wrap,.site-footer>.wrap,.footer>.wrap{width:calc(100% - 40px)!important}
   footer .footer-grid,.site-footer .footer-grid,.footer .footer-grid{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;align-items:start!important}
-  footer .footer-links,.site-footer .footer-links,.footer .footer-links{display:flex!important;flex-wrap:wrap!important;gap:4px 18px!important;margin:0!important}
-  footer .footer-links a,.site-footer .footer-links a,.footer .footer-links a{display:inline-flex!important;min-height:36px!important;padding:6px 0!important}
+  footer .footer-links,.site-footer .footer-links,.footer .footer-links{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2px 18px!important;margin:0!important}
+  footer .footer-links a,.site-footer .footer-links a,.footer .footer-links a{display:inline-flex!important;min-height:38px!important;padding:7px 0!important}
   footer p,footer ul,footer ol,.site-footer p,.site-footer ul,.site-footer ol,.footer p,.footer ul,.footer ol{margin-top:0!important;margin-bottom:10px!important}
   footer li,.site-footer li,.footer li{margin:0!important}
   footer a:not(.button):not(.btn),.site-footer a:not(.button):not(.btn),.footer a:not(.button):not(.btn){margin:0!important;font-size:.94rem!important;line-height:1.45!important}
@@ -31,4 +36,7 @@ footer .footer-grid>div:first-child p,.site-footer .footer-grid>div:first-child 
   .aa8-footer-learning__links{display:grid;grid-template-columns:1fr;gap:0}
   .aa8-footer-learning__links a{justify-content:flex-start;min-height:44px;padding:8px 0!important;border-bottom:1px solid rgba(255,255,255,.10);white-space:normal}
   .aa8-footer-learning__links a:last-child{border-bottom:0}
+}
+@media(max-width:420px){
+  footer .footer-links,.site-footer .footer-links,.footer .footer-links{grid-template-columns:1fr!important}
 }
