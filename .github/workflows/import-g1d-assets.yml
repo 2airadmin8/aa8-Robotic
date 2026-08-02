@@ -1,9 +1,12 @@
 name: Import G1-D Assets
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/import-g1d-assets.yml
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -15,29 +18,14 @@ concurrency:
 jobs:
   import-assets:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Skip when assets already exist
-        id: existing
-        shell: bash
-        run: |
-          if test -f assets/img/products/unitree-g1-d/model-lifecycle-06-deployment.png; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Install downloader
-        if: steps.existing.outputs.ready != 'true'
-        run: python -m pip install --disable-pip-version-check gdown
-
       - name: Download original G1-D assets
-        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -48,9 +36,27 @@ jobs:
           download() {
             local id="$1"
             local filename="$2"
+            local target="$DEST/$filename"
+            local tmp="${target}.tmp"
+
             echo "Downloading ${filename}"
-            gdown --quiet --id "$id" -O "$DEST/$filename"
-            test -s "$DEST/$filename"
+            rm -f "$tmp" "$target"
+
+            curl --fail --location --retry 4 --retry-delay 3 \
+              --connect-timeout 20 --max-time 180 \
+              "https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t" \
+              --output "$tmp" || true
+
+            if ! test -s "$tmp" || file --brief --mime-type "$tmp" | grep -Eq '^text/html'; then
+              rm -f "$tmp"
+              curl --fail --location --retry 4 --retry-delay 3 \
+                --connect-timeout 20 --max-time 180 \
+                "https://drive.google.com/uc?export=download&id=${id}&confirm=t" \
+                --output "$tmp"
+            fi
+
+            test -s "$tmp"
+            mv "$tmp" "$target"
           }
 
           download "10seNM_Mt8SFZg2zZRHwsFsT1vLUKtZQG" "g1-d-hero-white.png"
@@ -74,12 +80,11 @@ jobs:
           download "18fEBRDs7Ew3rjgiRBSeSZDpWBry0KQZD" "model-lifecycle-06-deployment.png"
 
       - name: Validate downloaded assets
-        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
           DEST="assets/img/products/unitree-g1-d"
-          count="$(find "$DEST" -maxdepth 1 -type f | wc -l | tr -d ' ')"
+          count="$(find "$DEST" -maxdepth 1 -type f ! -name README.md | wc -l | tr -d ' ')"
           test "$count" -eq 19
 
           while IFS= read -r file; do
@@ -91,10 +96,9 @@ jobs:
               *) echo "Invalid file type: $file ($mime)"; exit 1 ;;
             esac
             echo "OK: $file ($mime, $size bytes)"
-          done < <(find "$DEST" -maxdepth 1 -type f | sort)
+          done < <(find "$DEST" -maxdepth 1 -type f ! -name README.md | sort)
 
       - name: Write asset manifest
-        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           cat > assets/img/products/unitree-g1-d/README.md <<'EOF'
@@ -111,12 +115,18 @@ jobs:
           EOF
 
       - name: Commit assets
-        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/img/products/unitree-g1-d
+
+          if git diff --cached --quiet; then
+            echo "Assets are already up to date."
+            exit 0
+          fi
+
           git commit -m "assets: add 19 original Unitree G1-D images"
+          git pull --rebase origin main
           git push origin main
