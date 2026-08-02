@@ -18,14 +18,13 @@ concurrency:
 
 jobs:
   sync-layout:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Inject shared layout into every public HTML page
+      - name: Synchronize shared layout
         shell: bash
         run: |
           python - <<'PY'
@@ -36,36 +35,29 @@ jobs:
           header_source = Path('includes/site-header.html').read_text(encoding='utf-8').strip()
           footer_source = Path('includes/site-footer.html').read_text(encoding='utf-8').strip()
 
-          excluded = {Path('includes/site-header.html'), Path('includes/site-footer.html')}
-          html_files = [
-              path for path in root.rglob('*.html')
-              if path not in excluded
-              and '.git' not in path.parts
-              and 'backups' not in path.parts
-              and not any(part.endswith('.bak260802') for part in path.parts)
-          ]
+          excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
 
-          header_pattern = re.compile(r'<header\b[^>]*class=["\'][^"\']*site-header[^"\']*["\'][^>]*>.*?</header>', re.S | re.I)
+          def is_public_html(path: Path) -> bool:
+              if path.suffix.lower() != '.html':
+                  return False
+              if any(part in excluded_parts for part in path.parts):
+                  return False
+              if '.bak' in path.name:
+                  return False
+              return True
+
+          def active_key(path: Path):
+              posix = path.as_posix()
+              for key in ('products', 'use-cases', 'support', 'cases', 'resources'):
+                  if posix == f'{key}.html' or posix.startswith(f'{key}/'):
+                      return key
+              return 'contact' if posix == 'contact.html' else None
+
+          header_pattern = re.compile(r'<header\b[^>]*>.*?</header>', re.S | re.I)
           footer_pattern = re.compile(r'<footer\b[^>]*>.*?</footer>', re.S | re.I)
 
-          def active_key(path: Path) -> str | None:
-              posix = path.as_posix()
-              if posix == 'products.html' or posix.startswith('products/'):
-                  return 'products'
-              if posix == 'use-cases.html' or posix.startswith('use-cases/'):
-                  return 'use-cases'
-              if posix == 'support.html' or posix.startswith('support/'):
-                  return 'support'
-              if posix == 'cases.html' or posix.startswith('cases/'):
-                  return 'cases'
-              if posix == 'resources.html' or posix.startswith('resources/'):
-                  return 'resources'
-              if posix == 'contact.html':
-                  return 'contact'
-              return None
-
           changed = []
-          for path in html_files:
+          for path in sorted(p for p in root.rglob('*.html') if is_public_html(p)):
               text = path.read_text(encoding='utf-8')
               header = header_source
               key = active_key(path)
@@ -76,26 +68,26 @@ jobs:
                       1,
                   )
 
-              new_text, header_count = header_pattern.subn(header, text, count=1)
-              if header_count != 1:
-                  print(f'SKIP header: {path}')
-                  continue
+              if header_pattern.search(text):
+                  new_text = header_pattern.sub(header, text, count=1)
+              else:
+                  new_text = re.sub(r'<body([^>]*)>', r'<body\1>\n' + header, text, count=1, flags=re.I)
 
-              new_text, footer_count = footer_pattern.subn(footer_source, new_text, count=1)
-              if footer_count != 1:
-                  print(f'SKIP footer: {path}')
-                  continue
+              if footer_pattern.search(new_text):
+                  new_text = footer_pattern.sub(footer_source, new_text, count=1)
+              else:
+                  new_text = re.sub(r'</body>', footer_source + '\n</body>', new_text, count=1, flags=re.I)
 
               if new_text != text:
                   path.write_text(new_text, encoding='utf-8')
                   changed.append(path.as_posix())
 
           print(f'Updated {len(changed)} files')
-          for path in changed:
-              print(path)
+          for item in changed:
+              print(item)
           PY
 
-      - name: Validate shared layout
+      - name: Validate synchronized pages
         shell: bash
         run: |
           python - <<'PY'
@@ -103,21 +95,21 @@ jobs:
           import re
           import sys
 
+          excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
           failures = []
-          excluded = {'includes/site-header.html', 'includes/site-footer.html'}
           for path in Path('.').rglob('*.html'):
-              posix = path.as_posix()
-              if posix in excluded or '.git' in path.parts or 'backups' in path.parts:
+              if any(part in excluded_parts for part in path.parts) or '.bak' in path.name:
                   continue
               text = path.read_text(encoding='utf-8')
-              if len(re.findall(r'data-shared-layout="header"', text)) != 1:
-                  failures.append(f'{posix}: shared header count')
-              if len(re.findall(r'data-shared-layout="footer"', text)) != 1:
-                  failures.append(f'{posix}: shared footer count')
-              if '/assets/img/logo-airadmin8-robotics-sp.svg' not in text:
-                  failures.append(f'{posix}: SP logo missing')
-              if '/assets/img/logo-airadmin8-robotics-pc.svg' not in text:
-                  failures.append(f'{posix}: PC logo missing')
+              checks = {
+                  'header': len(re.findall(r'data-shared-layout="header"', text)) == 1,
+                  'footer': len(re.findall(r'data-shared-layout="footer"', text)) == 1,
+                  'sp logo': '/assets/img/logo-airadmin8-robotics-sp.svg' in text,
+                  'pc logo': '/assets/img/logo-airadmin8-robotics-pc.svg' in text,
+              }
+              for label, ok in checks.items():
+                  if not ok:
+                      failures.append(f'{path.as_posix()}: {label}')
 
           if failures:
               print('\n'.join(failures))
@@ -129,11 +121,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- '*.html'
+          git add -A -- '*.html'
           if git diff --cached --quiet; then
             echo "No generated changes"
             exit 0
           fi
           git commit -m "build: synchronize shared header and footer"
-          git pull --rebase origin main
-          git push origin main
+          git push origin HEAD:main
