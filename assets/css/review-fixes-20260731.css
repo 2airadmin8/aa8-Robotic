@@ -85,4 +85,26 @@
     font-size: .94rem !important;
     line-height: 1.72 !important;
   }
+
+  /* 2026-08-02 SP正式Logo 135x35 */
+  .site-header .header-inner {
+    min-height: 60px !important;
+  }
+
+  .site-header .brand {
+    width: 135px !important;
+    height: 35px !important;
+    flex: 0 0 135px !important;
+    display: block !important;
+    background-image: url('../img/logo-airadmin8-robotics-sp.svg?v=20260802-final') !important;
+    background-position: left center !important;
+    background-size: 135px 35px !important;
+    background-repeat: no-repeat !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+  }
+
+  .site-header .brand > * {
+    display: none !important;
+  }
 }
