@@ -97,7 +97,7 @@
     height: 35px !important;
     flex: 0 0 135px !important;
     display: block !important;
-    background-image: url('../img/logo-airadmin8-robotics-sp.svg?v=20260802-final3') !important;
+    background-image: url('../img/logo-airadmin8-robotics-sp.svg?v=20260802-final4') !important;
     background-position: left center !important;
     background-size: 135px 35px !important;
     background-repeat: no-repeat !important;
@@ -106,11 +106,6 @@
   }
 
   .site-header .brand > * {
-    display: none !important;
-  }
-
-  .site-header .brand::after {
-    content: none !important;
     display: none !important;
   }
 }
