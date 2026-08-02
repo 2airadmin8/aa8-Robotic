@@ -384,3 +384,46 @@
     flex-direction: column;
   }
 }
+
+/* 2026-08-03 mobile header emergency fix
+   site.css の旧 .brand>*{display:none!important} をこのページ群で確実に解除する。 */
+.site-header .brand {
+  display: block !important;
+  width: 180px !important;
+  height: 42px !important;
+  flex: 0 0 180px !important;
+  background: none !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+.site-header .brand > .brand-picture {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.site-header .brand > .brand-picture source {
+  display: none !important;
+}
+
+.site-header .brand > .brand-picture img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
+
+@media (max-width: 980px) {
+  .site-header .header-inner {
+    min-height: 60px !important;
+    width: min(100% - 24px, 1180px) !important;
+  }
+
+  .site-header .brand {
+    width: 135px !important;
+    height: 35px !important;
+    flex: 0 0 135px !important;
+  }
+}
