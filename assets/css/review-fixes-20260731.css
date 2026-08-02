@@ -5,9 +5,9 @@
 @media (min-width: 981px) {
   .site-header .header-inner {
     display: grid !important;
-    grid-template-columns: minmax(240px, 1fr) auto !important;
+    grid-template-columns: 180px minmax(0, 1fr) !important;
     align-items: center !important;
-    gap: 28px !important;
+    gap: 24px !important;
   }
 
   .site-header .brand {
@@ -17,9 +17,23 @@
   .site-header .nav {
     position: static !important;
     display: flex !important;
-    justify-self: end !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-self: stretch !important;
+    justify-content: flex-end !important;
     align-items: center !important;
-    gap: 20px !important;
+    gap: clamp(10px, 1.15vw, 18px) !important;
+    font-size: clamp(.82rem, .82vw, .92rem) !important;
+  }
+
+  .site-header .nav > a {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+
+  .site-header .nav-cta {
+    min-height: 44px !important;
+    padding: 10px 16px !important;
   }
 }
 
@@ -87,6 +101,27 @@
 
 .public-contact-hidden {
   display: none !important;
+}
+
+@media (max-width: 1180px) and (min-width: 981px) {
+  .site-header .header-inner {
+    grid-template-columns: 170px minmax(0, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .site-header .brand {
+    width: 170px !important;
+    background-size: 170px auto !important;
+  }
+
+  .site-header .nav {
+    gap: 9px !important;
+    font-size: .8rem !important;
+  }
+
+  .site-header .nav-cta {
+    padding: 9px 13px !important;
+  }
 }
 
 @media (max-width: 980px) {
