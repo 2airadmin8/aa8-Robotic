@@ -10,6 +10,18 @@ header[role="banner"] .brand,
   text-decoration: none;
 }
 
+.site-header {
+  overflow-x: clip;
+}
+
+.site-header .header-inner,
+.header .header-inner,
+header[role="banner"] .header-inner {
+  width: min(1320px, calc(100% - 48px));
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
 .aa8-main-logo {
   display: block;
   width: clamp(190px, 20vw, 260px);
@@ -30,10 +42,57 @@ header[role="banner"] .brand,
   max-height: 42px;
 }
 
+@media (min-width: 981px) {
+  .site-header .header-inner {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+  }
+
+  .site-header .nav {
+    min-width: 0;
+    max-width: 100%;
+    justify-content: flex-end;
+    gap: clamp(8px, 1vw, 16px);
+    font-size: clamp(.78rem, .78vw, .9rem);
+  }
+
+  .site-header .nav > a {
+    flex: 0 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .site-header .nav-cta {
+    flex: 0 0 auto;
+    padding-inline: 14px;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 1240px) and (min-width: 981px) {
+  .site-header .header-inner {
+    width: min(100% - 32px, 1200px);
+    grid-template-columns: 158px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .site-header .nav {
+    gap: 7px;
+    font-size: .76rem;
+  }
+
+  .site-header .nav-cta {
+    padding-inline: 10px;
+  }
+}
+
 @media (max-width: 760px) {
   .site-header .header-inner,
   .header .header-inner,
   header[role="banner"] .header-inner {
+    width: min(100% - 24px, 1200px);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -68,4 +127,52 @@ header[role="banner"] .brand,
   .aa8-main-logo {
     width: min(178px, 56vw);
   }
+}
+
+/* Unitree G1-D：上传图片的正确映射与强制缓存更新 */
+#workflow .g1d-step:nth-child(1) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_01%E3%83%87%E3%83%BC%E3%82%BF%E5%8F%8E%E9%9B%86.png?v=20260802-dc-final');
+}
+#workflow .g1d-step:nth-child(2) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_02%E3%82%BF%E3%82%B9%E3%82%AF%E4%BF%AE%E6%AD%A3.png?v=20260802-dc-final');
+}
+#workflow .g1d-step:nth-child(3) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_03%E3%83%87%E3%83%BC%E3%82%BF%E5%8F%8E%E9%9B%86.png?v=20260802-dc-final');
+}
+#workflow .g1d-step:nth-child(4) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_04%E3%83%87%E3%83%BC%E3%82%BFUL.png?v=20260802-dc-final');
+}
+#workflow .g1d-step:nth-child(5) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_05%E3%83%87%E3%83%BC%E3%82%BF%E4%BF%9D%E5%AD%98.png?v=20260802-dc-final');
+}
+#workflow .g1d-step:nth-child(6) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_05%E3%83%87%E3%83%BC%E3%82%BF%E5%87%BA%E5%8A%9B.png?v=20260802-dc-final');
+}
+
+#training .g1d-training-card:nth-child(1) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-01.png?v=20260802-training-final');
+}
+#training .g1d-training-card:nth-child(2) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-02.png?v=20260802-training-final');
+}
+#training .g1d-training-card:nth-child(3) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-03.png?v=20260802-training-final');
+}
+#training .g1d-training-card:nth-child(4) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-04.png?v=20260802-training-final');
+}
+#training .g1d-training-card:nth-child(5) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-05.png?v=20260802-training-final');
+}
+#training .g1d-training-card:nth-child(6) img {
+  content: url('/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-06.png?v=20260802-training-final');
+}
+
+#workflow .g1d-step img,
+#training .g1d-training-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  object-position: center;
+  background: #f3f7f9;
 }
