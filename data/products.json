@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-07-16",
+  "updatedAt": "2026-08-02",
   "products": [
     {
       "id": "agibot-g2",
@@ -50,9 +50,10 @@
       "useCaseIds": ["vla-data-collection", "imitation-learning", "teleoperation"],
       "useLabels": ["データ収集", "模倣学習", "VLA", "遠隔操作"],
       "detailPage": "products/unitree-g1-d.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "Unitree G1-D 移動操作・データ収集プラットフォームの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/unitree/unitree-g1-d/unitree-g1-d-transport.svg",
+      "imageAlt": "Unitree G1-D 移動操作・データ収集プラットフォーム",
+      "imageStatus": "official",
+      "mediaSource": "data/product-media.json",
       "priceStatus": "inquiry",
       "priceLabel": "価格確認",
       "leadTimeStatus": "confirmation_required",
@@ -60,7 +61,7 @@
       "replacementIds": [],
       "relatedCaseIds": ["keio-selection"],
       "relatedResourceIds": ["sdk", "ros2"],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-08-02"
     },
     {
       "id": "unitree-g1",
