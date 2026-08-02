@@ -171,3 +171,22 @@
     display: none !important;
   }
 }
+
+
+/* uploaded-logo-direct */
+.site-header .brand {
+  background: none !important;
+  overflow: visible !important;
+}
+.site-header .brand > .brand-picture {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.site-header .brand > .brand-picture img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
