@@ -1,0 +1,139 @@
+name: Sync shared header and footer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - includes/site-header.html
+      - includes/site-footer.html
+      - .github/workflows/sync-shared-layout.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shared-layout-main
+  cancel-in-progress: false
+
+jobs:
+  sync-layout:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject shared layout into every public HTML page
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          header_source = Path('includes/site-header.html').read_text(encoding='utf-8').strip()
+          footer_source = Path('includes/site-footer.html').read_text(encoding='utf-8').strip()
+
+          excluded = {Path('includes/site-header.html'), Path('includes/site-footer.html')}
+          html_files = [
+              path for path in root.rglob('*.html')
+              if path not in excluded
+              and '.git' not in path.parts
+              and 'backups' not in path.parts
+              and not any(part.endswith('.bak260802') for part in path.parts)
+          ]
+
+          header_pattern = re.compile(r'<header\b[^>]*class=["\'][^"\']*site-header[^"\']*["\'][^>]*>.*?</header>', re.S | re.I)
+          footer_pattern = re.compile(r'<footer\b[^>]*>.*?</footer>', re.S | re.I)
+
+          def active_key(path: Path) -> str | None:
+              posix = path.as_posix()
+              if posix == 'products.html' or posix.startswith('products/'):
+                  return 'products'
+              if posix == 'use-cases.html' or posix.startswith('use-cases/'):
+                  return 'use-cases'
+              if posix == 'support.html' or posix.startswith('support/'):
+                  return 'support'
+              if posix == 'cases.html' or posix.startswith('cases/'):
+                  return 'cases'
+              if posix == 'resources.html' or posix.startswith('resources/'):
+                  return 'resources'
+              if posix == 'contact.html':
+                  return 'contact'
+              return None
+
+          changed = []
+          for path in html_files:
+              text = path.read_text(encoding='utf-8')
+              header = header_source
+              key = active_key(path)
+              if key:
+                  header = header.replace(
+                      f'data-nav-key="{key}"',
+                      f'data-nav-key="{key}" aria-current="page"',
+                      1,
+                  )
+
+              new_text, header_count = header_pattern.subn(header, text, count=1)
+              if header_count != 1:
+                  print(f'SKIP header: {path}')
+                  continue
+
+              new_text, footer_count = footer_pattern.subn(footer_source, new_text, count=1)
+              if footer_count != 1:
+                  print(f'SKIP footer: {path}')
+                  continue
+
+              if new_text != text:
+                  path.write_text(new_text, encoding='utf-8')
+                  changed.append(path.as_posix())
+
+          print(f'Updated {len(changed)} files')
+          for path in changed:
+              print(path)
+          PY
+
+      - name: Validate shared layout
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          failures = []
+          excluded = {'includes/site-header.html', 'includes/site-footer.html'}
+          for path in Path('.').rglob('*.html'):
+              posix = path.as_posix()
+              if posix in excluded or '.git' in path.parts or 'backups' in path.parts:
+                  continue
+              text = path.read_text(encoding='utf-8')
+              if len(re.findall(r'data-shared-layout="header"', text)) != 1:
+                  failures.append(f'{posix}: shared header count')
+              if len(re.findall(r'data-shared-layout="footer"', text)) != 1:
+                  failures.append(f'{posix}: shared footer count')
+              if '/assets/img/logo-airadmin8-robotics-sp.svg' not in text:
+                  failures.append(f'{posix}: SP logo missing')
+              if '/assets/img/logo-airadmin8-robotics-pc.svg' not in text:
+                  failures.append(f'{posix}: PC logo missing')
+
+          if failures:
+              print('\n'.join(failures))
+              sys.exit(1)
+          PY
+
+      - name: Commit generated pages
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- '*.html'
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+            exit 0
+          fi
+          git commit -m "build: synchronize shared header and footer"
+          git pull --rebase origin main
+          git push origin main
