@@ -1,0 +1,102 @@
+name: Fix G1-D hero image and layout
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/fix-g1d-hero.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch G1-D hero
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('products/unitree-g1-d.html')
+          text = path.read_text(encoding='utf-8')
+
+          # Hero主图固定为用户指定图片
+          text = re.sub(
+              r'(<figure class="g1d-hero-media"[^>]*>\s*<img\s+src=")[^"]+("[^>]*>)',
+              r'\1/assets/img/products/unitree/unitree-g1-d/本体搬運.png?v=20260802-hero-final\2',
+              text,
+              count=1,
+              flags=re.S,
+          )
+
+          marker = '/* g1d-hero-natural-layout-20260802 */'
+          css = '''
+    /* g1d-hero-natural-layout-20260802 */
+    .g1d-hero-grid{
+      grid-template-columns:minmax(0,.96fr) minmax(460px,1.04fr);
+      gap:0;
+      align-items:center;
+    }
+    .g1d-hero-grid>div:first-child{
+      position:relative;
+      z-index:2;
+      padding-right:28px;
+    }
+    .g1d-hero-media{
+      position:relative;
+      z-index:1;
+      margin-left:-34px;
+      overflow:visible;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      box-shadow:none;
+    }
+    .g1d-hero-media img{
+      width:100%;
+      height:620px;
+      object-fit:contain;
+      object-position:center bottom;
+      background:transparent;
+      border-radius:28px;
+      filter:drop-shadow(0 22px 34px rgba(16,47,73,.16));
+    }
+    .g1d-hero-media .g1d-caption{
+      padding:8px 0 0;
+      text-align:center;
+      background:transparent;
+    }
+    @media(max-width:980px){
+      .g1d-hero-grid{grid-template-columns:1fr;gap:22px}
+      .g1d-hero-grid>div:first-child{padding-right:0}
+      .g1d-hero-media{margin-left:0}
+      .g1d-hero-media img{height:520px}
+    }
+    @media(max-width:640px){
+      .g1d-hero-media img{height:auto;max-height:440px}
+    }
+'''
+          if marker not in text:
+              text = text.replace('</style>', css + '\n  </style>', 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add products/unitree-g1-d.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "fix: use transport image and soften G1-D hero split"
+          git pull --rebase origin main
+          git push origin main
