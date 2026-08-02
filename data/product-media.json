@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-02",
+  "products": {
+    "unitree-g1-d": {
+      "manufacturer": "unitree",
+      "main": "/assets/img/products/unitree/unitree-g1-d/unitree-g1-d-transport.svg",
+      "transport": "/assets/img/products/unitree/unitree-g1-d/unitree-g1-d-transport.svg",
+      "sourceOriginal": "/assets/img/products/unitree/unitree-g1-d/%E6%9C%AC%E4%BD%93%E6%90%AC%E9%81%8B.png",
+      "body": "/assets/img/products/unitree/unitree-g1-d/G1-D%E6%9C%AC%E4%BD%93.png",
+      "whiteBackground": "/assets/img/products/unitree/unitree-g1-d/G1-D%E6%9C%AC%E4%BD%93_%E8%83%8C%E6%99%AF%E7%99%BD.png",
+      "structure": "/assets/img/products/unitree/unitree-g1-d/P03.png",
+      "gallery": [
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-01.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-02.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-03.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-04.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-05.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D-06.png"
+      ],
+      "workflow": [
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_01%E3%83%87%E3%83%BC%E3%82%BF%E5%8F%8E%E9%9B%86.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_02%E3%82%BF%E3%82%B9%E3%82%AF%E4%BF%AE%E6%AD%A3.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_03%E3%83%87%E3%83%BC%E3%82%BF%E5%8F%8E%E9%9B%86.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_04%E3%83%87%E3%83%BC%E3%82%BFUL.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_05%E3%83%87%E3%83%BC%E3%82%BF%E4%BF%9D%E5%AD%98.png",
+        "/assets/img/products/unitree/unitree-g1-d/Unitree-G1-D_05%E3%83%87%E3%83%BC%E3%82%BF%E5%87%BA%E5%8A%9B.png"
+      ],
+      "useCases": {
+        "service": "/assets/img/products/unitree/unitree-g1-d/%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88_G1-D.jpg",
+        "lifeSupport": "/assets/img/products/unitree/unitree-g1-d/%E7%94%9F%E6%B4%BB%E6%94%AF%E6%8F%B4%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88_G1-D.jpg",
+        "retail": "/assets/img/products/unitree/unitree-g1-d/%E5%BA%97%E8%88%97%E6%94%AF%E6%8F%B4_2170x1360.jpg",
+        "factory": "/assets/img/products/unitree/unitree-g1-d/%E5%B7%A5%E5%A0%B4%E3%83%BB%E7%94%A3%E6%A5%AD_G1-D.jpg",
+        "vr": "/assets/img/products/unitree/unitree-g1-d/%E6%9C%AC%E4%BD%93VR.png"
+      }
+    }
+  }
+}
