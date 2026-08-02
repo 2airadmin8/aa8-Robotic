@@ -1,0 +1,74 @@
+name: One-shot branch cleanup
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/one-shot-branch-cleanup.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-shot-branch-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Delete all non-main branches
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="${GITHUB_REPOSITORY}"
+
+          gh api --paginate "repos/${repo}/branches?per_page=100" --jq '.[].name' > /tmp/branches.txt
+
+          while IFS= read -r branch; do
+            [ -n "$branch" ] || continue
+            if [ "$branch" = "main" ]; then
+              continue
+            fi
+
+            encoded="$(python - <<'PY' "$branch"
+import sys
+from urllib.parse import quote
+print(quote(sys.argv[1], safe=''))
+PY
+)"
+
+            echo "Deleting branch: $branch"
+            gh api -X DELETE "repos/${repo}/git/refs/heads/${encoded}" || {
+              echo "Could not delete $branch; it may be protected."
+            }
+          done < /tmp/branches.txt
+
+      - name: Remove one-shot and obsolete import workflows
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          rm -f .github/workflows/one-shot-branch-cleanup.yml
+          rm -f .github/workflows/import-g1d-assets.yml
+
+          git add -A
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git commit -m "chore: remove one-shot cleanup and obsolete import workflow"
+          git push origin main
