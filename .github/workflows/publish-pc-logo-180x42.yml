@@ -1,0 +1,102 @@
+name: Publish approved PC logo 180x42
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-pc-logo-180x42.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-pc-logo-180x42
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download approved SVG
+        shell: bash
+        run: |
+          set -euo pipefail
+          target="assets/img/logo-airadmin8-robotics-pc.svg"
+          tmp="${target}.tmp"
+          mkdir -p "$(dirname "$target")"
+          curl --fail --location --retry 5 --retry-delay 3 --connect-timeout 20 --max-time 180 \
+            "https://drive.usercontent.google.com/download?id=1eNGFTbYgspePnDLz3218LU2viiJToDfP&export=download&confirm=t" \
+            -o "$tmp"
+          grep -q '<svg width="180" height="42" viewBox="0 0 180 42"' "$tmp"
+          grep -q '#0069B5' "$tmp"
+          grep -q '#00B2BC' "$tmp"
+          if grep -Eqi '#ff|magenta|pink' "$tmp"; then
+            echo "Unexpected red/pink color found in SVG" >&2
+            exit 1
+          fi
+          mv "$tmp" "$target"
+
+      - name: Update PC header logo sizing
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path('assets/css/site.css')
+          css = path.read_text(encoding='utf-8')
+          css = re.sub(
+              r'/\* PC logo 194x50 - 20260802 \*/\s*@media \(min-width:641px\)\{.*?\}\s*$',
+              '',
+              css,
+              flags=re.S,
+          ).rstrip()
+          css += '''
+
+/* PC logo 180x42 - approved 20260802 */
+@media (min-width:641px){
+  .header-inner{min-height:72px}
+  .brand{
+    width:180px;
+    height:42px;
+    flex:0 0 180px;
+    display:block;
+    background-image:url('../img/logo-airadmin8-robotics-pc.svg?v=20260802-180x42');
+    background-position:left center;
+    background-size:180px 42px;
+    background-repeat:no-repeat;
+    font-size:0;
+    line-height:0;
+  }
+  .brand>*{display:none!important}
+}
+'''
+          path.write_text(css, encoding='utf-8')
+
+      - name: Validate repository result
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'width="180" height="42" viewBox="0 0 180 42"' assets/img/logo-airadmin8-robotics-pc.svg
+          grep -q 'PC logo 180x42' assets/css/site.css
+          grep -q "background-size:180px 42px" assets/css/site.css
+          ! grep -q 'PC logo 194x50' assets/css/site.css
+
+      - name: Commit production logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/img/logo-airadmin8-robotics-pc.svg assets/css/site.css
+          if git diff --cached --quiet; then
+            echo "Approved logo is already published."
+            exit 0
+          fi
+          git commit -m "style: publish approved PC logo 180x42"
+          git pull --rebase origin main
+          git push origin main
