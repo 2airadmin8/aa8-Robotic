@@ -1,109 +1,14 @@
-name: Import G1-D Assets and Page
+name: Import G1-D Assets (manual archive)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/import-g1d-assets.yml
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: import-g1d-assets
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  import-assets:
+  archived:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download user-provided G1-D assets and final page
-        shell: bash
-        run: |
-          set -euo pipefail
-          DEST="assets/img/products/unitree-g1-d"
-          mkdir -p "$DEST" products
-
-          dl() {
-            local id="$1" target="$2" tmp="${target}.tmp"
-            rm -f "$tmp"
-            curl --fail --location --retry 5 --retry-delay 3 --connect-timeout 20 --max-time 300 \
-              "https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t" -o "$tmp"
-            test -s "$tmp"
-            if file --brief --mime-type "$tmp" | grep -q '^text/html' && [[ "$target" != *.html ]]; then
-              echo "Unexpected HTML response for $target"; exit 1
-            fi
-            mv "$tmp" "$target"
-          }
-
-          # Product body / hero
-          dl "10seNM_Mt8SFZg2zZRHwsFsT1vLUKtZQG" "$DEST/g1-d-hero-white.png"
-          dl "1bosSUX76lov8VbBanq7b2oOEO3UEkdZP" "$DEST/g1-d-body.png"
-          dl "1l_fwsOBuRlof5nYjahVQYhY-iAdop3jQ" "$DEST/g1-d-thumbnail-450.png"
-          dl "13_Vek6JS1Z8sa9XCmoqGihabW0iLn5Fb" "$DEST/g1-d-product-overview.jpg"
-          dl "1amYu1ENoULRNwy7C0RbJqF59OIJh18SK" "$DEST/g1-d-body-02.png"
-          dl "1NLeiw8oMiz_tfK4PnWTP9XAvDaqxrMc3" "$DEST/g1-d-logistics.png"
-          dl "15lXKnmVcK3jchN2UBZEc8tWndTQ_iAqL" "$DEST/g1-d-teleoperation-vr.png"
-
-          # Data collection 1-6
-          dl "1lVD__wN26b1wsZq_s_DUORkgNP1v3XOs" "$DEST/data-collection-01-create-task.png"
-          dl "1vn9vDBWjJwb5lnfMOL34MM15JiBUKKVM" "$DEST/data-collection-02-edit-assignment.png"
-          dl "17qmcUBETZRTkBm4uPHOwbO-BMvBsvFzT" "$DEST/data-collection-03-acquisition-annotation.png"
-          dl "17PGlJJ8Hl0i-I0XrTDkMyIFzzIkCKbey" "$DEST/data-collection-04-upload-review.png"
-          dl "1k6A-CWFYLwDDaiyH_5P6WmxgiM-YPRUt" "$DEST/data-collection-05-storage.png"
-          dl "1RmDcKdPjj5VbnIEAAE6UHk5-bJA2JfD_" "$DEST/data-collection-06-export.png"
-
-          # Model lifecycle 1-6
-          dl "1er_GQ_oJOTIHxzs-0A9UC-esmHQlsomU" "$DEST/model-lifecycle-01-architecture.png"
-          dl "1h5xX5u6aNVQD_X3Lqz2A5bmRvMGvKuSF" "$DEST/model-lifecycle-02-training.png"
-          dl "1w1_JGT5TyGoi9sK0iii2zSTdPTLOjEo4" "$DEST/model-lifecycle-03-monitoring.png"
-          dl "1BgDRqiGktxunsplNN0-5SlTYrR9_jh9o" "$DEST/model-lifecycle-04-parameter-editing.png"
-          dl "1HHEsvx_dL0Rg7coWdccgKhPD-e_0ee_S" "$DEST/model-lifecycle-05-simulation.png"
-          dl "18fEBRDs7Ew3rjgiRBSeSZDpWBry0KQZD" "$DEST/model-lifecycle-06-deployment.png"
-
-          # Final sheets and four scenario images
-          dl "19Dm26D3aVk98FuIif2aX9TByTNxZiLwx" "$DEST/g1-d-specification-p03.png"
-          dl "1YWPbJsV9RI3jHTTY_fCnJZ4A1QxzWbpM" "$DEST/g1-d-workflow-support-p05.png"
-          dl "1C2tCsWmHpIHrH_s44Kh8k_wWD9jTY4oF" "$DEST/scenario-service.jpg"
-          dl "1WEXAmge5ujlRJwMAW2i2qcMm44uNIxCj" "$DEST/scenario-life.jpg"
-          dl "1zv3iGClHhJo_CNYuFakg6fvHIzWxwKtn" "$DEST/scenario-retail.jpg"
-          dl "1hVVh3WWZeuY5CQ4Q8xjHEEN8-ssZZC1w" "$DEST/scenario-industry.jpg"
-
-          # Final page HTML
-          dl "1QF3pmF422pQs-Af05rKbVmDqEpqdjl_N" "products/unitree-g1-d.html"
-
-      - name: Validate page and assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          DEST="assets/img/products/unitree-g1-d"
-          test "$(find "$DEST" -maxdepth 1 -type f | wc -l | tr -d ' ')" -ge 25
-          grep -q "Unitree G1-D" products/unitree-g1-d.html
-          grep -q "scenario-service.jpg" products/unitree-g1-d.html
-          grep -q "data-collection-06-export.png" products/unitree-g1-d.html
-          grep -q "model-lifecycle-06-deployment.png" products/unitree-g1-d.html
-          while IFS= read -r f; do
-            test "$(stat -c%s "$f")" -gt 10000
-            case "$(file --brief --mime-type "$f")" in image/png|image/jpeg) ;; *) echo "Invalid $f"; exit 1;; esac
-          done < <(find "$DEST" -maxdepth 1 -type f | sort)
-
-      - name: Commit page and assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add products/unitree-g1-d.html assets/img/products/unitree-g1-d
-          if git diff --cached --quiet; then
-            echo "Page and assets already current."
-            exit 0
-          fi
-          git commit -m "feat: publish final Unitree G1-D page and original assets"
-          git pull --rebase origin main
-          git push origin main
+      - name: Archived import workflow
+        run: echo "Automatic Drive import is disabled to prevent overwriting the production G1-D page."
