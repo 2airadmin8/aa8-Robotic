@@ -35,6 +35,16 @@
 }
 .public-contact-hidden { display: none !important; }
 
+.site-header {
+  overflow-x: clip !important;
+}
+
+.site-header .header-inner {
+  width: min(1320px, calc(100% - 48px)) !important;
+  margin-inline: auto !important;
+  box-sizing: border-box !important;
+}
+
 .site-header .brand {
   display: block !important;
   background: none !important;
@@ -62,7 +72,7 @@
     display: grid !important;
     grid-template-columns: 180px minmax(0, 1fr) !important;
     align-items: center !important;
-    gap: 24px !important;
+    gap: 20px !important;
   }
   .site-header .brand {
     width: 180px !important;
@@ -73,39 +83,52 @@
     display: flex !important;
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     justify-content: flex-end !important;
     align-items: center !important;
-    gap: clamp(10px, 1.15vw, 18px) !important;
-    font-size: clamp(.82rem, .82vw, .92rem) !important;
+    gap: clamp(8px, 1vw, 16px) !important;
+    font-size: clamp(.78rem, .78vw, .9rem) !important;
+    box-sizing: border-box !important;
   }
   .site-header .nav > a {
-    flex: 0 0 auto !important;
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
   }
   .site-header .nav-cta {
+    flex: 0 0 auto !important;
     min-height: 44px !important;
-    padding: 10px 16px !important;
+    padding: 10px 14px !important;
+    margin-right: 0 !important;
   }
 }
 
-@media (max-width: 1180px) and (min-width: 981px) {
+@media (max-width: 1240px) and (min-width: 981px) {
   .site-header .header-inner {
-    grid-template-columns: 165px minmax(0, 1fr) !important;
-    gap: 14px !important;
+    width: min(100% - 32px, 1200px) !important;
+    grid-template-columns: 158px minmax(0, 1fr) !important;
+    gap: 12px !important;
   }
   .site-header .brand {
-    width: 165px !important;
-    height: 39px !important;
+    width: 158px !important;
+    height: 38px !important;
   }
   .site-header .nav {
-    gap: 8px !important;
-    font-size: .79rem !important;
+    gap: 7px !important;
+    font-size: .76rem !important;
   }
-  .site-header .nav-cta { padding: 9px 12px !important; }
+  .site-header .nav-cta { padding: 9px 10px !important; }
+}
+
+@media (max-width: 1080px) and (min-width: 981px) {
+  .site-header .nav a:not(.nav-cta) {
+    font-size: .72rem !important;
+  }
 }
 
 @media (max-width: 980px) {
   .site-header .header-inner {
+    width: min(100% - 24px, 1200px) !important;
     min-height: 60px !important;
   }
   .site-header .brand {
