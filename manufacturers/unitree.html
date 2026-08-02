@@ -12,7 +12,26 @@
   <link rel="stylesheet" href="../assets/css/product-detail-v2.css?v=20260716-1">
 </head>
 <body>
-<header class="site-header"><div class="wrap header-inner"><a class="brand" href="../index.html"><picture class="brand-picture"><source media="(max-width: 640px)" srcset="../assets/img/logo-airadmin8-robotics-sp.svg?v=20260802-uploaded-logo-direct"><img src="../assets/img/logo-airadmin8-robotics-pc.svg?v=20260802-uploaded-logo-direct" alt="AirAdmin8 Robotics" width="180" height="42"></picture></a><button class="menu" aria-expanded="false" aria-controls="nav">メニュー</button><nav id="nav" class="nav"><a href="../products.html">製品を探す</a><a href="../use-cases.html">用途から探す</a><a href="../support.html">導入支援</a><a href="../cases.html">導入事例</a><a href="../resources.html">資料・SDK</a><a class="nav-cta" href="../contact.html?maker=Unitree">Unitreeを相談する</a></nav></div></header>
+<!-- 共通ヘッダー：このファイルを唯一の管理元とする -->
+<header class="site-header" data-shared-layout="header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/" aria-label="AirAdmin8 Robotics ホーム">
+      <picture class="brand-picture">
+        <source media="(max-width: 640px)" srcset="/assets/img/logo-airadmin8-robotics-sp.svg?v=20260803-shared">
+        <img src="/assets/img/logo-airadmin8-robotics-pc.svg?v=20260803-shared" alt="AirAdmin8 Robotics" width="180" height="42">
+      </picture>
+    </a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button>
+    <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
+      <a href="/products.html" data-nav-key="products">製品を探す</a>
+      <a href="/use-cases.html" data-nav-key="use-cases">用途から探す</a>
+      <a href="/support.html" data-nav-key="support">導入支援</a>
+      <a href="/cases.html" data-nav-key="cases">導入事例</a>
+      <a href="/resources.html" data-nav-key="resources">資料・SDK</a>
+      <a class="nav-cta" href="/contact.html" data-nav-key="contact">製品・導入を相談する</a>
+    </nav>
+  </div>
+</header>
 <main>
 <section class="page-hero manufacturer-hero"><div class="wrap manufacturer-hero-grid"><div><div class="breadcrumb"><a href="../index.html">ホーム</a> / <a href="../manufacturers.html">メーカー</a> / Unitree</div><p class="eyebrow">AIRADMIN8 ROBOTICS × UNITREE / 宇樹科技</p><span class="manufacturer-status status-active">比較・見積対応</span><h1>Unitree / 宇樹科技</h1><p class="lead">AirAdmin8 Roboticsでは、UnitreeのG1・G1-D・Go2 EDU、価格・購入、日本導入、SDK・ROS2、MuJoCo、強化学習、VLA、AgiBot比較までを一つの入口で整理します。研究・大学・企業R&amp;Dで、どの製品・構成を選ぶかを目的から絞ります。</p><div class="actions"><a class="button primary" href="../guides/unitree-g1-price.html">G1の価格・購入を見る</a><a class="button secondary" href="../contact.html?maker=Unitree">Unitreeを相談する</a></div></div><aside class="manufacturer-policy-panel"><p class="eyebrow">AIRADMIN8 CHECK</p><h2>検索後に知りたいことを整理。</h2><ul><li>日本で導入する条件</li><li>G1 / G1-Dの違い</li><li>G1の価格・購入</li><li>SDK・ROS2・DDS</li><li>強化学習・VLA</li><li>AgiBotとの比較</li></ul></aside></div></section>
 <section class="section"><div class="wrap"><div class="section-heading"><div><p class="eyebrow">START HERE</p><h2>Unitreeについて知りたいことから選ぶ。</h2></div></div><div class="grid four manufacturer-product-grid"><a class="link-card" href="../guides/unitree-japan.html"><h3>Unitree 日本</h3><p>日本導入、大学購買、保証、輸送、受入条件。</p></a><a class="link-card" href="../guides/unitree-g1-price.html"><h3>Unitree G1 価格・購入</h3><p>G1の見積、納期、研究用構成、購入前の確認項目。</p></a><a class="link-card" href="../guides/unitree-sdk.html"><h3>Unitree SDK</h3><p>ROS2、DDS、MuJoCo、制御範囲、外部機器。</p></a><a class="link-card" href="../compare/unitree-g1-vs-g1-d.html"><h3>G1 vs G1-D</h3><p>研究テーマ、制御、VLA、価格・納期で比較。</p></a></div></div></section>
@@ -22,5 +41,23 @@
 <section class="section"><div class="wrap detail-grid"><div><p class="eyebrow">IMPLEMENTATION CHECKLIST</p><h2>Unitreeを日本導入する前の確認項目。</h2><table class="specs"><tbody><tr><th>製品構成</th><td>本体、ハンド、センサー、バッテリー、充電器、付属品</td></tr><tr><th>開発環境</th><td>SDK、ROS2、DDS、OS、通信、シミュレーション</td></tr><tr><th>研究用途</th><td>歩行、全身制御、強化学習、VLA、模倣学習、四足移動</td></tr><tr><th>調達</th><td>型番、価格、納期、輸送、支払、大学購買、検収</td></tr><tr><th>保証・保守</th><td>メーカー保証、一次切り分け、修理、部品、更新</td></tr></tbody></table></div><aside class="sidebox"><h3>AirAdmin8で整理すること</h3><p>AirAdmin8 Roboticsでは、製品名だけで決めず、研究テーマ、必要な制御範囲、予算、納期、大学購買条件から候補を比較します。未確認の仕様・価格・提供条件は正式確認前に断定しません。</p><div class="actions"><a class="button primary" href="../contact.html?maker=Unitree&theme=selection">候補を絞ってもらう</a></div></aside></div></section>
 <section class="section dark compact-manufacturer-cta"><div class="wrap manufacturer-cta-grid"><div><p class="eyebrow">AIRADMIN8 × UNITREE JAPAN</p><h2>製品・価格・SDK・研究用途を一度に確認。</h2><p>G1、G1-D、Go2 EDU、日本導入、AgiBot比較まで、研究テーマから整理します。</p></div><a class="button manufacturer-light-button" href="../contact.html?maker=Unitree">Unitreeを相談する</a></div></section>
 </main>
-<footer class="footer"><div class="wrap footer-grid"><div><strong>AirAdmin8 Robotics</strong><p>株式会社AirAdmin8のロボティクス事業。Unitreeを含むAIロボットの比較・導入を支援します。</p></div><div class="footer-links"><a href="../products.html">製品</a><a href="../use-cases.html">用途</a><a href="../support.html">導入支援</a><a href="../cases.html">事例</a><a href="../resources.html">資料・SDK</a><a href="../about.html">AirAdmin8</a><a href="../contact.html">相談</a></div></div></footer><script src="../assets/js/site.js?v=20260716-11" defer></script>
+<!-- 共通フッター：このファイルを唯一の管理元とする -->
+<footer class="footer" data-shared-layout="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <a class="aa8-footer-brand" href="/" aria-label="AirAdmin8 Robotics ホーム">
+        <img class="aa8-main-logo" src="/assets/img/logo-airadmin8-robotics-pc.svg?v=20260803-shared" alt="AirAdmin8 Robotics" width="180" height="42">
+      </a>
+      <p>研究・教育・PoC向けAIロボット導入支援。</p>
+    </div>
+    <nav class="footer-links" aria-label="フッターナビゲーション">
+      <a href="/products.html">製品</a>
+      <a href="/use-cases.html">用途</a>
+      <a href="/support.html">導入支援</a>
+      <a href="/cases.html">導入事例</a>
+      <a href="/resources.html">資料・SDK</a>
+      <a href="/contact.html">相談</a>
+    </nav>
+  </div>
+</footer><script src="../assets/js/site.js?v=20260716-11" defer></script>
 </body></html>
