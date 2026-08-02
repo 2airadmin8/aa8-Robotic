@@ -1,0 +1,59 @@
+name: Publish SP Logo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-sp-logo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download supplied SP SVG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/img
+          curl --fail --location --retry 5 --retry-delay 2 \
+            "https://drive.usercontent.google.com/download?id=1CLusn3SedE9hnRHW7VePjCt74Ny9X-TH&export=download&confirm=t" \
+            -o assets/img/logo-airadmin8-robotics-sp.svg
+          grep -q '<svg width="136" height="40"' assets/img/logo-airadmin8-robotics-sp.svg
+          test "$(stat -c%s assets/img/logo-airadmin8-robotics-sp.svg)" -gt 20000
+
+      - name: Apply responsive header logo
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('assets/css/site.css')
+          s = p.read_text(encoding='utf-8')
+          old = "@media(max-width:640px){.header-inner{min-height:60px}.brand{width:136px;height:40px;flex-basis:136px;background-size:128px auto}}"
+          new = "@media(max-width:640px){.header-inner{min-height:60px}.brand{width:136px;height:40px;flex-basis:136px;background-image:url('../img/logo-airadmin8-robotics-sp.svg');background-size:136px 40px}}"
+          if old not in s:
+              raise SystemExit('Expected mobile logo CSS was not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+
+      - name: Commit production logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/img/logo-airadmin8-robotics-sp.svg assets/css/site.css
+          if git diff --cached --quiet; then
+            echo "SP logo already current."
+            exit 0
+          fi
+          git commit -m "feat: publish responsive SP header logo"
+          git pull --rebase origin main
+          git push origin main
