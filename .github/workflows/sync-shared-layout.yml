@@ -34,19 +34,19 @@ jobs:
           root = Path('.')
           header_source = Path('includes/site-header.html').read_text(encoding='utf-8').strip()
           footer_source = Path('includes/site-footer.html').read_text(encoding='utf-8').strip()
-
           excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
 
-          def is_public_html(path: Path) -> bool:
+          def is_public_html(path):
               if path.suffix.lower() != '.html':
                   return False
               if any(part in excluded_parts for part in path.parts):
                   return False
               if '.bak' in path.name:
                   return False
-              return True
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              return '<body' in text.lower() and '</body>' in text.lower()
 
-          def active_key(path: Path):
+          def active_key(path):
               posix = path.as_posix()
               for key in ('products', 'use-cases', 'support', 'cases', 'resources'):
                   if posix == f'{key}.html' or posix.startswith(f'{key}/'):
@@ -55,9 +55,10 @@ jobs:
 
           header_pattern = re.compile(r'<header\b[^>]*>.*?</header>', re.S | re.I)
           footer_pattern = re.compile(r'<footer\b[^>]*>.*?</footer>', re.S | re.I)
-
+          public_files = sorted(p for p in root.rglob('*.html') if is_public_html(p))
           changed = []
-          for path in sorted(p for p in root.rglob('*.html') if is_public_html(p)):
+
+          for path in public_files:
               text = path.read_text(encoding='utf-8')
               header = header_source
               key = active_key(path)
@@ -69,20 +70,33 @@ jobs:
                   )
 
               if header_pattern.search(text):
-                  new_text = header_pattern.sub(header, text, count=1)
+                  new_text = header_pattern.sub(lambda _m: header, text, count=1)
               else:
-                  new_text = re.sub(r'<body([^>]*)>', r'<body\1>\n' + header, text, count=1, flags=re.I)
+                  new_text = re.sub(
+                      r'<body([^>]*)>',
+                      lambda m: m.group(0) + '\n' + header,
+                      text,
+                      count=1,
+                      flags=re.I,
+                  )
 
               if footer_pattern.search(new_text):
-                  new_text = footer_pattern.sub(footer_source, new_text, count=1)
+                  new_text = footer_pattern.sub(lambda _m: footer_source, new_text, count=1)
               else:
-                  new_text = re.sub(r'</body>', footer_source + '\n</body>', new_text, count=1, flags=re.I)
+                  new_text = re.sub(
+                      r'</body>',
+                      lambda m: footer_source + '\n' + m.group(0),
+                      new_text,
+                      count=1,
+                      flags=re.I,
+                  )
 
               if new_text != text:
                   path.write_text(new_text, encoding='utf-8')
                   changed.append(path.as_posix())
 
-          print(f'Updated {len(changed)} files')
+          print(f'Public pages: {len(public_files)}')
+          print(f'Updated pages: {len(changed)}')
           for item in changed:
               print(item)
           PY
@@ -97,13 +111,18 @@ jobs:
 
           excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
           failures = []
+          checked = 0
+
           for path in Path('.').rglob('*.html'):
               if any(part in excluded_parts for part in path.parts) or '.bak' in path.name:
                   continue
-              text = path.read_text(encoding='utf-8')
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              if '<body' not in text.lower() or '</body>' not in text.lower():
+                  continue
+              checked += 1
               checks = {
-                  'header': len(re.findall(r'data-shared-layout="header"', text)) == 1,
-                  'footer': len(re.findall(r'data-shared-layout="footer"', text)) == 1,
+                  'header': text.count('data-shared-layout="header"') == 1,
+                  'footer': text.count('data-shared-layout="footer"') == 1,
                   'sp logo': '/assets/img/logo-airadmin8-robotics-sp.svg' in text,
                   'pc logo': '/assets/img/logo-airadmin8-robotics-pc.svg' in text,
               }
@@ -111,6 +130,7 @@ jobs:
                   if not ok:
                       failures.append(f'{path.as_posix()}: {label}')
 
+          print(f'Validated pages: {checked}')
           if failures:
               print('\n'.join(failures))
               sys.exit(1)
@@ -121,10 +141,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- '*.html'
+          git add -A
           if git diff --cached --quiet; then
             echo "No generated changes"
             exit 0
           fi
           git commit -m "build: synchronize shared header and footer"
-          git push origin HEAD:main
+          git pull --rebase origin main
+          git push origin main
