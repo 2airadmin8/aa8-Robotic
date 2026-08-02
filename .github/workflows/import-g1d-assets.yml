@@ -40,22 +40,15 @@ jobs:
             mv "$tmp" "$target"
           }
 
-          web_download() {
-            local url="$1" filename="$2" target="$DEST/$filename"
-            curl --fail --location --retry 4 --retry-delay 3 --connect-timeout 20 --max-time 240 \
-              "$url" -o "$target"
-            test -s "$target"
-          }
-
           # User-provided final specification/support sheets
           drive_download "19Dm26D3aVk98FuIif2aX9TByTNxZiLwx" "g1-d-specification-p03.png"
           drive_download "1YWPbJsV9RI3jHTTY_fCnJZ4A1QxzWbpM" "g1-d-workflow-support-p05.png"
 
-          # Official Unitree application scenario images
-          web_download "https://www.unitree.com/images/f4e04b3a81c84c12a276fba59ba9eb91_2170x1360.jpg" "scenario-service.jpg"
-          web_download "https://www.unitree.com/images/dc413bfc91834fff8fff2a8bd98f90b8_2170x1360.jpg" "scenario-life.jpg"
-          web_download "https://www.unitree.com/images/470c955d606f4ec784a46378e46591b8_2170x1360.jpg" "scenario-retail.jpg"
-          web_download "https://www.unitree.com/images/3f8f84fdef514c5e879985c9e96750e6_2170x1360.jpg" "scenario-industry.jpg"
+          # User-provided application scenario images
+          drive_download "1C2tCsWmHpIHrH_s44Kh8k_wWD9jTY4oF" "scenario-service.jpg"
+          drive_download "1WEXAmge5ujlRJwMAW2i2qcMm44uNIxCj" "scenario-life.jpg"
+          drive_download "1zv3iGClHhJo_CNYuFakg6fvHIzWxwKtn" "scenario-retail.jpg"
+          drive_download "1hVVh3WWZeuY5CQ4Q8xjHEEN8-ssZZC1w" "scenario-industry.jpg"
 
       - name: Validate new assets
         shell: bash
