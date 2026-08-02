@@ -6,6 +6,7 @@ on:
     paths:
       - includes/site-header.html
       - includes/site-footer.html
+      - assets/css/shared-layout.css
       - .github/workflows/sync-shared-layout.yml
   workflow_dispatch:
 
@@ -34,14 +35,13 @@ jobs:
           root = Path('.')
           header_source = Path('includes/site-header.html').read_text(encoding='utf-8').strip()
           footer_source = Path('includes/site-footer.html').read_text(encoding='utf-8').strip()
+          shared_css = '<link rel="stylesheet" href="/assets/css/shared-layout.css?v=20260803-1">'
           excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
 
           def is_public_html(path):
               if path.suffix.lower() != '.html':
                   return False
-              if any(part in excluded_parts for part in path.parts):
-                  return False
-              if '.bak' in path.name:
+              if any(part in excluded_parts for part in path.parts) or '.bak' in path.name:
                   return False
               text = path.read_text(encoding='utf-8', errors='ignore')
               return '<body' in text.lower() and '</body>' in text.lower()
@@ -53,8 +53,9 @@ jobs:
                       return key
               return 'contact' if posix == 'contact.html' else None
 
-          header_pattern = re.compile(r'<header\b[^>]*>.*?</header>', re.S | re.I)
-          footer_pattern = re.compile(r'<footer\b[^>]*>.*?</footer>', re.S | re.I)
+          header_pattern = re.compile(r'(?:\s*<!--\s*共通ヘッダー[^>]*-->\s*)*<header\b[^>]*>.*?</header>', re.S | re.I)
+          footer_pattern = re.compile(r'(?:\s*<!--\s*共通フッター[^>]*-->\s*)*<footer\b[^>]*>.*?</footer>', re.S | re.I)
+          shared_css_pattern = re.compile(r'\s*<link\s+rel=["\']stylesheet["\']\s+href=["\']/assets/css/shared-layout\.css[^"\']*["\']\s*/?>', re.I)
           public_files = sorted(p for p in root.rglob('*.html') if is_public_html(p))
           changed = []
 
@@ -63,33 +64,20 @@ jobs:
               header = header_source
               key = active_key(path)
               if key:
-                  header = header.replace(
-                      f'data-nav-key="{key}"',
-                      f'data-nav-key="{key}" aria-current="page"',
-                      1,
-                  )
+                  header = header.replace(f'data-nav-key="{key}"', f'data-nav-key="{key}" aria-current="page"', 1)
 
-              if header_pattern.search(text):
-                  new_text = header_pattern.sub(lambda _m: header, text, count=1)
+              new_text = shared_css_pattern.sub('', text)
+              new_text = re.sub(r'</head>', shared_css + '\n</head>', new_text, count=1, flags=re.I)
+
+              if header_pattern.search(new_text):
+                  new_text = header_pattern.sub(lambda _m: '\n' + header, new_text, count=1)
               else:
-                  new_text = re.sub(
-                      r'<body([^>]*)>',
-                      lambda m: m.group(0) + '\n' + header,
-                      text,
-                      count=1,
-                      flags=re.I,
-                  )
+                  new_text = re.sub(r'<body([^>]*)>', lambda m: m.group(0) + '\n' + header, new_text, count=1, flags=re.I)
 
               if footer_pattern.search(new_text):
-                  new_text = footer_pattern.sub(lambda _m: footer_source, new_text, count=1)
+                  new_text = footer_pattern.sub(lambda _m: '\n' + footer_source, new_text, count=1)
               else:
-                  new_text = re.sub(
-                      r'</body>',
-                      lambda m: footer_source + '\n' + m.group(0),
-                      new_text,
-                      count=1,
-                      flags=re.I,
-                  )
+                  new_text = re.sub(r'</body>', lambda m: footer_source + '\n' + m.group(0), new_text, count=1, flags=re.I)
 
               if new_text != text:
                   path.write_text(new_text, encoding='utf-8')
@@ -106,7 +94,6 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           import sys
 
           excluded_parts = {'.git', '.github', 'includes', 'backups', 'node_modules'}
@@ -123,6 +110,7 @@ jobs:
               checks = {
                   'header': text.count('data-shared-layout="header"') == 1,
                   'footer': text.count('data-shared-layout="footer"') == 1,
+                  'shared css': text.count('/assets/css/shared-layout.css') == 1,
                   'sp logo': '/assets/img/logo-airadmin8-robotics-sp.svg' in text,
                   'pc logo': '/assets/img/logo-airadmin8-robotics-pc.svg' in text,
               }
