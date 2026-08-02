@@ -1,12 +1,9 @@
 name: Import G1-D Assets
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/import-g1d-assets.yml
   workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -25,10 +22,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Skip when assets already exist
+        id: existing
+        shell: bash
+        run: |
+          if test -f assets/img/products/unitree-g1-d/model-lifecycle-06-deployment.png; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install downloader
+        if: steps.existing.outputs.ready != 'true'
         run: python -m pip install --disable-pip-version-check gdown
 
       - name: Download original G1-D assets
+        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -44,26 +53,19 @@ jobs:
             test -s "$DEST/$filename"
           }
 
-          # Product body / hero assets
           download "10seNM_Mt8SFZg2zZRHwsFsT1vLUKtZQG" "g1-d-hero-white.png"
           download "1bosSUX76lov8VbBanq7b2oOEO3UEkdZP" "g1-d-body.png"
           download "1l_fwsOBuRlof5nYjahVQYhY-iAdop3jQ" "g1-d-thumbnail-450.png"
           download "13_Vek6JS1Z8sa9XCmoqGihabW0iLn5Fb" "g1-d-product-overview.jpg"
           download "1amYu1ENoULRNwy7C0RbJqF59OIJh18SK" "g1-d-body-02.png"
-
-          # Real application scenes
           download "1NLeiw8oMiz_tfK4PnWTP9XAvDaqxrMc3" "g1-d-logistics.png"
           download "15lXKnmVcK3jchN2UBZEc8tWndTQ_iAqL" "g1-d-teleoperation-vr.png"
-
-          # Data collection workflow: 1-6
           download "1lVD__wN26b1wsZq_s_DUORkgNP1v3XOs" "data-collection-01-create-task.png"
           download "1vn9vDBWjJwb5lnfMOL34MM15JiBUKKVM" "data-collection-02-edit-assignment.png"
           download "17qmcUBETZRTkBm4uPHOwbO-BMvBsvFzT" "data-collection-03-acquisition-annotation.png"
           download "17PGlJJ8Hl0i-I0XrTDkMyIFzzIkCKbey" "data-collection-04-upload-review.png"
           download "1k6A-CWFYLwDDaiyH_5P6WmxgiM-YPRUt" "data-collection-05-storage.png"
           download "1RmDcKdPjj5VbnIEAAE6UHk5-bJA2JfD_" "data-collection-06-export.png"
-
-          # Model lifecycle workflow: 1-6
           download "1er_GQ_oJOTIHxzs-0A9UC-esmHQlsomU" "model-lifecycle-01-architecture.png"
           download "1h5xX5u6aNVQD_X3Lqz2A5bmRvMGvKuSF" "model-lifecycle-02-training.png"
           download "1w1_JGT5TyGoi9sK0iii2zSTdPTLOjEo4" "model-lifecycle-03-monitoring.png"
@@ -72,6 +74,7 @@ jobs:
           download "18fEBRDs7Ew3rjgiRBSeSZDpWBry0KQZD" "model-lifecycle-06-deployment.png"
 
       - name: Validate downloaded assets
+        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -91,6 +94,7 @@ jobs:
           done < <(find "$DEST" -maxdepth 1 -type f | sort)
 
       - name: Write asset manifest
+        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           cat > assets/img/products/unitree-g1-d/README.md <<'EOF'
@@ -107,17 +111,12 @@ jobs:
           EOF
 
       - name: Commit assets
+        if: steps.existing.outputs.ready != 'true'
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/img/products/unitree-g1-d
-
-          if git diff --cached --quiet; then
-            echo "Assets are already up to date."
-            exit 0
-          fi
-
           git commit -m "assets: add 19 original Unitree G1-D images"
           git push origin main
