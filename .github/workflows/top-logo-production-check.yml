@@ -1,0 +1,57 @@
+name: TOP Logo Production Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/css/shared-layout.css'
+      - 'assets/img/logo-airadmin8-robotics-pc.svg'
+      - 'assets/img/logo-airadmin8-robotics-sp.svg'
+      - '.github/workflows/top-logo-production-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://robotics.air-admin8.co.jp
+    steps:
+      - name: Verify TOP logo markup, CSS and assets in production
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for attempt in $(seq 1 24); do
+            home="$(mktemp)"
+            css="$(mktemp)"
+            pc="$(mktemp)"
+            sp="$(mktemp)"
+
+            home_code="$(curl -sS -L -o "$home" -w '%{http_code}' "${BASE_URL}/?top_logo_check=${GITHUB_RUN_ID}-${attempt}" || true)"
+            css_code="$(curl -sS -L -o "$css" -w '%{http_code}' "${BASE_URL}/assets/css/shared-layout.css?top_logo_check=${GITHUB_RUN_ID}-${attempt}" || true)"
+            pc_code="$(curl -sS -L -o "$pc" -w '%{http_code}' "${BASE_URL}/assets/img/logo-airadmin8-robotics-pc.svg?top_logo_check=${GITHUB_RUN_ID}-${attempt}" || true)"
+            sp_code="$(curl -sS -L -o "$sp" -w '%{http_code}' "${BASE_URL}/assets/img/logo-airadmin8-robotics-sp.svg?top_logo_check=${GITHUB_RUN_ID}-${attempt}" || true)"
+
+            if [[ "$home_code" == 200 && "$css_code" == 200 && "$pc_code" == 200 && "$sp_code" == 200 ]] \
+              && grep -Eq 'brand-logo-pc|brand-picture' "$home" \
+              && grep -Eq 'logo-airadmin8-robotics-pc\.svg' "$home" \
+              && grep -Fq '.brand-picture img' "$css" \
+              && grep -Fq 'opacity: 1 !important;' "$css" \
+              && grep -Fq '<svg' "$pc" \
+              && grep -Fq '<svg' "$sp"; then
+              echo 'PASS: TOP page logo is verifiably live.'
+              rm -f "$home" "$css" "$pc" "$sp"
+              exit 0
+            fi
+
+            echo "Not ready: home=${home_code} css=${css_code} pc=${pc_code} sp=${sp_code}"
+            rm -f "$home" "$css" "$pc" "$sp"
+            sleep 20
+          done
+
+          echo 'FAIL: TOP logo could not be verified within 8 minutes.'
+          exit 1
