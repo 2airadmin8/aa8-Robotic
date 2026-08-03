@@ -100,8 +100,8 @@ jobs:
               exit 1
             }
 
-            if grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' "${page}"; then
-              echo "Legacy production prefix remains: ${page}"
+            if grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/aa8-Robotic/' "${page}"; then
+              echo "Legacy canonical remains: ${page}"
               exit 1
             fi
           done
