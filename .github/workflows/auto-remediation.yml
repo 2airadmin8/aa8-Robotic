@@ -1,13 +1,6 @@
 name: Auto Remediation V2
 
 on:
-  workflow_run:
-    workflows:
-      - PR CI
-      - Build and deploy static site to GitHub Pages
-      - Production URL Check
-      - TOP Logo Production Check
-    types: [completed]
   workflow_dispatch:
     inputs:
       category:
@@ -24,7 +17,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: auto-remediation-v2-${{ github.event.workflow_run.name || 'manual' }}-${{ github.event.workflow_run.head_sha || github.sha }}
+  group: auto-remediation-v2-manual-${{ github.sha }}
   cancel-in-progress: false
 
 env:
@@ -33,30 +26,7 @@ env:
   MAX_LINES: '300'
 
 jobs:
-  resolve:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close resolved remediation incidents
-        env:
-          GH_TOKEN: ${{ github.token }}
-          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
-          RUN_URL: ${{ github.event.workflow_run.html_url }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh issue list --state open --limit 100 --json number,title \
-            --jq '.[] | select(.title | startswith("AUTO-REMEDIATION V2:")) | select(.title | contains(env.WORKFLOW_NAME)) | .number' \
-            | while read -r issue; do
-                [[ -n "$issue" ]] || continue
-                gh issue comment "$issue" --body "RESOLVED: production/CI check succeeded. ${RUN_URL}"
-                gh issue close "$issue" --reason completed
-              done
-
   remediate:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -67,26 +37,17 @@ jobs:
           fetch-depth: 0
 
       - name: Prepare evidence
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p .remediation
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_run" ]]; then
-            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > .remediation/logs.zip
-            unzip -oq .remediation/logs.zip -d .remediation/logs
-            find .remediation/logs -type f -print0 | xargs -0 cat > .remediation/combined.log
-          else
-            : > .remediation/combined.log
-          fi
+          : > .remediation/combined.log
 
       - name: Diagnose and fingerprint
         id: diagnose
         env:
           MANUAL_CATEGORY: ${{ inputs.category || 'AUTO' }}
-          WORKFLOW_NAME: ${{ github.event.workflow_run.name || 'manual' }}
+          WORKFLOW_NAME: manual
         shell: bash
         run: |
           set -euo pipefail
@@ -109,8 +70,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CATEGORY: ${{ steps.diagnose.outputs.category }}
           FINGERPRINT: ${{ steps.diagnose.outputs.fingerprint }}
-          WORKFLOW_NAME: ${{ github.event.workflow_run.name || 'manual' }}
-          SOURCE_RUN: ${{ github.event.workflow_run.html_url || github.server_url }}
+          WORKFLOW_NAME: manual
+          SOURCE_RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         shell: bash
         run: |
           set -euo pipefail
@@ -133,20 +94,6 @@ jobs:
         run: |
           gh issue comment "$ISSUE" --body "ESCALATED: automatic remediation limit reached. No further code changes will be attempted."
           exit 1
-
-      - name: Retry transient or deploy-only failure
-        if: >-
-          fromJSON(steps.incident.outputs.attempt) <= fromJSON(env.MAX_ATTEMPTS) &&
-          (steps.diagnose.outputs.category == 'TRANSIENT' || steps.diagnose.outputs.category == 'DEPLOY_SHA')
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
-          ISSUE: ${{ steps.incident.outputs.issue }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/rerun-failed-jobs"
-          gh issue comment "$ISSUE" --body "ACTION: failed jobs re-run without code change."
 
       - name: Apply deterministic fix
         if: >-
@@ -191,7 +138,7 @@ jobs:
           FINGERPRINT: ${{ steps.diagnose.outputs.fingerprint }}
           ATTEMPT: ${{ steps.incident.outputs.attempt }}
           ISSUE: ${{ steps.incident.outputs.issue }}
-          SOURCE_RUN: ${{ github.event.workflow_run.html_url }}
+          SOURCE_RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         shell: bash
         run: |
           set -euo pipefail
