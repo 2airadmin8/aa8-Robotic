@@ -1,0 +1,39 @@
+name: Artifact Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'includes/site-header.html'
+      - 'includes/site-footer.html'
+      - 'scripts/build_site.py'
+      - 'scripts/inject_main_site_experience.py'
+      - 'scripts/verify_shared_layout_artifact.py'
+      - '**/*.html'
+      - 'assets/css/shared-layout.css'
+      - 'assets/img/logo-airadmin8-robotics-*.svg'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-final-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build exact production artifact
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          python -m py_compile scripts/build_site.py scripts/inject_main_site_experience.py scripts/verify_shared_layout_artifact.py
+          python scripts/build_site.py
+          python scripts/inject_main_site_experience.py
+      - name: Validate final artifact
+        run: |
+          set -euo pipefail
+          python scripts/verify_shared_layout_artifact.py
