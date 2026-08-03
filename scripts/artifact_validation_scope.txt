@@ -1,0 +1,4 @@
+_site/**/*.html
+_site/assets/css/shared-layout.css
+_site/assets/img/logo-airadmin8-robotics-pc.svg
+_site/assets/img/logo-airadmin8-robotics-sp.svg

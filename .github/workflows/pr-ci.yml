@@ -70,6 +70,13 @@ jobs:
           python -m py_compile scripts/inject_main_site_experience.py
           python scripts/inject_main_site_experience.py
 
+      - name: Verify shared layout artifact from single source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/verify_shared_layout_artifact.py
+          python scripts/verify_shared_layout_artifact.py
+
       - name: Verify core production artifact
         shell: bash
         run: |

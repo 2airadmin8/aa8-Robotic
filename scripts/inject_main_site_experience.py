@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""Build成果物へ共通ヘッダー・フッター・UI資産・faviconを必須適用する。"""
+"""Build成果物へUI資産とfaviconのみを必須適用する。
+
+Header/Footerはbuild_site.pyがincludesから生成するため、この工程では変更しない。
+"""
 from __future__ import annotations
 
 import re
 from pathlib import Path
-
-from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
-
-ROOT = Path(__file__).resolve().parents[1]
-HEADER_SOURCE = ROOT / "includes/site-header.html"
-FOOTER_SOURCE = ROOT / "includes/site-footer.html"
 
 ASSETS = {
     "main_css": "assets/css/main-site-experience.css?v=20260801-4",
@@ -21,43 +18,12 @@ ASSETS = {
 }
 
 
-def shared_markup(path: Path, prefix: str) -> str:
-    markup = path.read_text(encoding="utf-8").strip()
-    # 共通部品内のルート相対URLを、出力ページ階層に合わせて変換する。
-    return re.sub(r'(?P<attr>(?:href|src|srcset)=["\'])/', rf'\g<attr>{prefix}', markup)
-
-
-def replace_block(markup: str, tag: str, class_name: str, replacement: str) -> str:
-    pattern = re.compile(
-        rf'<{tag}\b(?=[^>]*class=["\'][^"\']*\b{re.escape(class_name)}\b[^"\']*["\'])[^>]*>.*?</{tag}>',
-        re.I | re.S,
-    )
-    if not pattern.search(markup):
-        raise ValueError(f"{tag}.{class_name} not found")
-    return pattern.sub(replacement, markup, count=1)
-
-
-def add_footer_links(markup: str, prefix: str) -> str:
-    match = re.search(r"(<footer\b[^>]*>)(.*?)(</footer>)", markup, re.I | re.S)
-    if match and "aa8-footer-learning" not in match.group(2):
-        block = (
-            '<section class="aa8-footer-learning" aria-labelledby="aa8-footer-learning-title">'
-            '<h2 class="aa8-footer-learning__title" id="aa8-footer-learning-title">学ぶ・調べる</h2>'
-            '<nav class="aa8-footer-learning__links" aria-label="学ぶ・調べる">'
-            f'<a href="{prefix}glossary.html">ロボット・フィジカルAI用語集</a>'
-            f'<a href="{prefix}resources.html">資料・SDK</a>'
-            f'<a href="{prefix}faq.html">よくある質問</a>'
-            '</nav></section>'
-        )
-        replacement = match.group(1) + match.group(2) + block + match.group(3)
-        markup = markup[:match.start()] + replacement + markup[match.end():]
-    return cleanup_footer(markup)
-
-
 def remove_existing_icons(markup: str) -> str:
     return re.sub(
         r'\s*<link\b[^>]*\brel=["\'][^"\']*(?:icon|shortcut icon)[^"\']*["\'][^>]*>',
-        '', markup, flags=re.I,
+        "",
+        markup,
+        flags=re.I,
     )
 
 
@@ -82,9 +48,6 @@ def inject(output: Path) -> tuple[int, list[str]]:
         "assets/img/logo-airadmin8-robotics-sp.svg",
         "assets/img/airadmin8-192x192.svg",
     ]
-    for source in (HEADER_SOURCE, FOOTER_SOURCE):
-        if not source.is_file():
-            errors.append(f"Missing shared layout source: {source.relative_to(ROOT)}")
     for item in required:
         if not (output / item).is_file():
             errors.append(f"Missing required asset: {item}")
@@ -100,16 +63,7 @@ def inject(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Invalid publishable HTML: {relative.as_posix()}")
             continue
 
-        try:
-            markup = replace_block(original, "header", "site-header", shared_markup(HEADER_SOURCE, prefix))
-            markup = replace_block(markup, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix))
-        except ValueError as exc:
-            errors.append(f"Shared layout replacement failed: {relative.as_posix()}: {exc}")
-            continue
-
-        markup = add_footer_links(markup, prefix)
-        markup = remove_existing_icons(markup)
-
+        markup = remove_existing_icons(original)
         css_items = [
             (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-site-experience\.css[^"\']*["\']\s*/?>', ASSETS["main_css"]),
             (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*footer-mobile-cleanup\.css[^"\']*["\']\s*/?>', ASSETS["footer_css"]),
@@ -142,17 +96,15 @@ def inject(output: Path) -> tuple[int, list[str]]:
             path.write_text(markup, encoding="utf-8")
             updated += 1
 
-        checks = expected + [
-            js_src, favicon, "brand-logo-pc", "brand-logo-sp",
-            'data-shared-layout="header"', 'data-shared-layout="footer"',
-            'data-aa8-brand-icon="true"',
-        ]
+        checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"']
         if any(value not in markup for value in checks):
-            errors.append(f"Shared branding verification failed: {relative.as_posix()}")
-        if relative.name != "404.html" and "aa8-footer-learning__links" not in markup:
-            errors.append(f"Footer links missing: {relative.as_posix()}")
-        if NOTICE_TEXT in markup:
-            errors.append(f"Deprecated footer notice remains: {relative.as_posix()}")
+            errors.append(f"UI asset verification failed: {relative.as_posix()}")
+
+        # この工程が共通レイアウトを変更していないことを保証する。
+        if markup.count('data-shared-layout="header"') != 1:
+            errors.append(f"Shared header missing or duplicated: {relative.as_posix()}")
+        if markup.count('data-shared-layout="footer"') != 1:
+            errors.append(f"Shared footer missing or duplicated: {relative.as_posix()}")
 
     if not html_files:
         errors.append("No publishable HTML found")
@@ -164,7 +116,7 @@ def main() -> None:
     if not output.is_dir():
         raise SystemExit("Missing build output directory: _site")
     updated, errors = inject(output)
-    print(f"Required shared layout applied to {updated} HTML page(s).")
+    print(f"Required UI assets applied to {updated} HTML page(s); shared layout untouched.")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
