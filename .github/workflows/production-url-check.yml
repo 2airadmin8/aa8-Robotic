@@ -27,7 +27,7 @@ jobs:
     env:
       BASE_URL: https://robotics.air-admin8.co.jp
     steps:
-      - name: Check production pages and SEO assets
+      - name: Check production pages, SP logo and SEO assets
         shell: bash
         run: |
           set -euo pipefail
@@ -44,7 +44,7 @@ jobs:
                 --retry 2 \
                 --retry-delay 2 \
                 --header 'Cache-Control: no-cache' \
-                --user-agent 'AirAdmin8-Production-Check/3.0' \
+                --user-agent 'AirAdmin8-Production-Check/4.0' \
                 --output "${output}" \
                 --write-out '%{http_code}' \
                 "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" || true)"
@@ -108,13 +108,31 @@ jobs:
           check_page "/about.html" "AirAdmin8" "${BASE_URL}/about.html" || failures=$((failures + 1))
           check_page "/contact.html" "製品・導入" "${BASE_URL}/contact.html" || failures=$((failures + 1))
 
+          home="$(mktemp)"
+          css="$(mktemp)"
+          sp_logo="$(mktemp)"
+          pc_logo="$(mktemp)"
           sitemap="$(mktemp)"
           robots="$(mktemp)"
           metadata="$(mktemp)"
 
+          fetch_with_retry "${BASE_URL}/" "${home}" || failures=$((failures + 1))
+          fetch_with_retry "${BASE_URL}/assets/css/shared-layout.css" "${css}" || failures=$((failures + 1))
+          fetch_with_retry "${BASE_URL}/assets/img/logo-airadmin8-robotics-sp.svg" "${sp_logo}" || failures=$((failures + 1))
+          fetch_with_retry "${BASE_URL}/assets/img/logo-airadmin8-robotics-pc.svg" "${pc_logo}" || failures=$((failures + 1))
           fetch_with_retry "${BASE_URL}/sitemap.xml" "${sitemap}" || failures=$((failures + 1))
           fetch_with_retry "${BASE_URL}/robots.txt" "${robots}" || failures=$((failures + 1))
           fetch_with_retry "${BASE_URL}/deploy-meta.json" "${metadata}" || failures=$((failures + 1))
+
+          grep -Fq 'class="brand-logo brand-logo-sp"' "${home}" || { echo "FAIL: SP logo img missing from production HTML"; failures=$((failures + 1)); }
+          grep -Fq '/assets/img/logo-airadmin8-robotics-sp.svg?v=20260803-spfix' "${home}" || { echo "FAIL: SP logo cache-busted URL missing"; failures=$((failures + 1)); }
+          grep -Fq 'class="brand-logo brand-logo-pc"' "${home}" || { echo "FAIL: PC logo img missing from production HTML"; failures=$((failures + 1)); }
+          grep -Fq '.brand-logo-sp' "${css}" || { echo "FAIL: SP logo CSS selector missing"; failures=$((failures + 1)); }
+          grep -Fq 'display: block !important;' "${css}" || { echo "FAIL: SP logo visible CSS rule missing"; failures=$((failures + 1)); }
+          grep -Fq '@media (max-width:980px)' "${css}" || { echo "FAIL: SP breakpoint missing"; failures=$((failures + 1)); }
+          grep -Fq '<svg' "${sp_logo}" || { echo "FAIL: SP logo asset is not valid SVG content"; failures=$((failures + 1)); }
+          grep -Fq 'viewBox="0 0 135 35"' "${sp_logo}" || { echo "FAIL: SP logo SVG viewBox mismatch"; failures=$((failures + 1)); }
+          grep -Fq '<svg' "${pc_logo}" || { echo "FAIL: PC logo asset is not valid SVG content"; failures=$((failures + 1)); }
 
           grep -Fq "${BASE_URL}/" "${sitemap}" || { echo "FAIL: sitemap base URL missing"; failures=$((failures + 1)); }
           grep -Fq "${BASE_URL}/compare/unitree-g1-vs-g1-d.html" "${sitemap}" || { echo "FAIL: comparison page missing from sitemap"; failures=$((failures + 1)); }
@@ -132,11 +150,11 @@ jobs:
           print(f'Production SHA: {sha}')
           PY
 
-          rm -f "${sitemap}" "${robots}" "${metadata}"
+          rm -f "${home}" "${css}" "${sp_logo}" "${pc_logo}" "${sitemap}" "${robots}" "${metadata}"
 
           if [[ "${failures}" -ne 0 ]]; then
             echo "${failures} production check(s) failed."
             exit 1
           fi
 
-          echo "All Level 2 production checks passed."
+          echo "All Level 2 production checks, including SP logo evidence, passed."
