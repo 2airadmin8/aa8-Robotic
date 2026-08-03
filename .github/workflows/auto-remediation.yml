@@ -1,0 +1,152 @@
+name: Auto Remediation
+
+on:
+  workflow_run:
+    workflows:
+      - PR CI
+      - Build and deploy static site to GitHub Pages
+      - Production URL Check
+      - TOP Logo Production Check
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      category:
+        description: Known remediation category
+        required: false
+        type: choice
+        options: [AUTO, HEADER_SYNC, CANONICAL, SITEMAP, DEPLOY_SHA, TRANSIENT]
+        default: AUTO
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: auto-remediation-${{ github.event.workflow_run.head_sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download failed workflow logs
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .remediation
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > .remediation/logs.zip
+          unzip -oq .remediation/logs.zip -d .remediation/logs
+          find .remediation/logs -type f -print0 | xargs -0 cat > .remediation/combined.log
+
+      - name: Diagnose
+        id: diagnose
+        shell: bash
+        env:
+          MANUAL_CATEGORY: ${{ inputs.category || 'AUTO' }}
+        run: |
+          set -euo pipefail
+          if [[ "${MANUAL_CATEGORY}" != "AUTO" ]]; then
+            category="${MANUAL_CATEGORY}"
+            confidence="1.0"
+          else
+            result="$(python scripts/remediation/diagnose_failure.py .remediation/combined.log)"
+            category="$(python -c 'import json,sys; print(json.load(sys.stdin)["category"])' <<<"${result}")"
+            confidence="$(python -c 'import json,sys; print(json.load(sys.stdin)["confidence"])' <<<"${result}")"
+          fi
+          echo "category=${category}" >> "$GITHUB_OUTPUT"
+          echo "confidence=${confidence}" >> "$GITHUB_OUTPUT"
+          echo "category=${category}, confidence=${confidence}"
+
+      - name: Retry transient or deploy-only failure
+        if: steps.diagnose.outputs.category == 'TRANSIENT' || steps.diagnose.outputs.category == 'DEPLOY_SHA'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/rerun-failed-jobs"
+          echo "Retried failed jobs without changing code."
+
+      - name: Apply deterministic fix
+        if: contains(fromJSON('["HEADER_SYNC","CANONICAL","SITEMAP","ROBOTS"]'), steps.diagnose.outputs.category)
+        id: fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          category='${{ steps.diagnose.outputs.category }}'
+          python scripts/remediation/apply_known_fix.py "${category}" | tee .remediation/fix-result.txt
+          changed="$(git status --porcelain | wc -l | tr -d ' ')"
+          lines="$(git diff --numstat | awk '{a+=$1; d+=$2} END {print a+d+0}')"
+          echo "changed=${changed}" >> "$GITHUB_OUTPUT"
+          echo "lines=${lines}" >> "$GITHUB_OUTPUT"
+          test "${changed}" -le 5
+          test "${lines}" -le 300
+          test "${changed}" -gt 0
+
+      - name: Validate repaired artifact
+        if: steps.fix.outputs.changed != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          python -m py_compile scripts/build_site.py scripts/remediation/*.py
+          python scripts/build_site.py
+          python scripts/inject_main_site_experience.py
+          test -s _site/index.html
+          grep -Fq 'brand-logo-pc' _site/index.html
+          grep -Fq 'brand-logo-sp' _site/index.html
+          grep -Fq 'data-shared-layout="header"' _site/index.html
+          ! grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' _site/index.html
+
+      - name: Create remediation PR
+        if: steps.fix.outputs.changed != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ steps.diagnose.outputs.category }}
+          SOURCE_RUN: ${{ github.event.workflow_run.html_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="fix/auto-${CATEGORY,,}-${GITHUB_RUN_ID}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -b "${branch}"
+          git add -- '*.html' sitemap.xml robots.txt includes assets scripts .github || true
+          git commit -m "AUTO-FIX: ${CATEGORY} [run ${GITHUB_RUN_ID}]"
+          git push origin "${branch}"
+          gh pr create \
+            --base main \
+            --head "${branch}" \
+            --title "AUTO-FIX: ${CATEGORY}" \
+            --body "Known issue was diagnosed and repaired deterministically. Source workflow: ${SOURCE_RUN}. Limits: <=5 files, <=300 changed lines. PR CI must pass before Auto Forward merges."
+
+      - name: Open issue for unknown or unsafe failure
+        if: steps.diagnose.outputs.category == 'UNKNOWN'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ github.event.workflow_run.html_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          title="AUTO-REMEDIATION: unknown failure in ${{ github.event.workflow_run.name }}"
+          existing="$(gh issue list --state open --search "${title} in:title" --json number --jq 'length')"
+          if [[ "${existing}" == "0" ]]; then
+            gh issue create --title "${title}" --body "Automatic repair was not attempted because the failure was not a registered deterministic category. Workflow: ${SOURCE_RUN}. Logs remain in the workflow run."
+          fi
