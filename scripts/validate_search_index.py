@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_URL = "https://robotics.air-admin8.co.jp/aa8-Robotic/"
+BASE_URL = "https://robotics.air-admin8.co.jp/"
 SITEMAP_PATH = ROOT / "sitemap.xml"
 ROBOTS_PATH = ROOT / "robots.txt"
 SEO_PATH = ROOT / "data" / "seo-keywords.json"
@@ -49,12 +49,6 @@ def read_canonical(path: Path) -> str:
 
 
 def canonical_path_matches(canonical: str, public_url: str) -> bool:
-    """Source HTML may still contain the historical GitHub host.
-
-    The build pipeline rewrites canonical URLs to the production host before deploy,
-    so this pre-build check validates the page path while the built-artifact smoke
-    test validates that a canonical is present in the deployed HTML.
-    """
     canonical_parsed = urlparse(canonical)
     public_parsed = urlparse(public_url)
     canonical_path = canonical_parsed.path.rstrip("/") or "/"
