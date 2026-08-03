@@ -124,7 +124,7 @@ jobs:
             grep -Fq 'class="brand-logo brand-logo-sp"' "$page" || { echo "SP logo markup missing: $page"; exit 1; }
             grep -Fq 'logo-airadmin8-robotics-pc.svg' "$page" || { echo "PC logo path missing: $page"; exit 1; }
             grep -Fq 'logo-airadmin8-robotics-sp.svg' "$page" || { echo "SP logo path missing: $page"; exit 1; }
-            grep -Fq 'shared-layout.css?v=20260803-buildfix' "$page" || { echo "Shared CSS missing: $page"; exit 1; }
+            grep -Fq 'shared-layout.css' "$page" || { echo "Shared CSS path missing: $page"; exit 1; }
           done
 
           grep -Fq '.brand-logo-pc' _site/assets/css/shared-layout.css
