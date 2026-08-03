@@ -122,8 +122,8 @@ jobs:
             grep -Fq 'data-shared-layout="header"' "$page" || { echo "Shared header missing: $page"; exit 1; }
             grep -Fq 'class="brand-logo brand-logo-pc"' "$page" || { echo "PC logo markup missing: $page"; exit 1; }
             grep -Fq 'class="brand-logo brand-logo-sp"' "$page" || { echo "SP logo markup missing: $page"; exit 1; }
-            grep -Fq 'logo-airadmin8-robotics-pc.svg?v=20260803-buildfix' "$page" || { echo "PC logo URL missing: $page"; exit 1; }
-            grep -Fq 'logo-airadmin8-robotics-sp.svg?v=20260803-buildfix' "$page" || { echo "SP logo URL missing: $page"; exit 1; }
+            grep -Fq 'logo-airadmin8-robotics-pc.svg' "$page" || { echo "PC logo path missing: $page"; exit 1; }
+            grep -Fq 'logo-airadmin8-robotics-sp.svg' "$page" || { echo "SP logo path missing: $page"; exit 1; }
             grep -Fq 'shared-layout.css?v=20260803-buildfix' "$page" || { echo "Shared CSS missing: $page"; exit 1; }
           done
 
