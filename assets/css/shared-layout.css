@@ -34,11 +34,23 @@
   overflow: visible !important;
 }
 
-.site-header[data-shared-layout="header"] .brand-logo {
+.site-header[data-shared-layout="header"] .brand-logo,
+.site-header[data-shared-layout="header"] .brand-picture,
+.site-header[data-shared-layout="header"] .brand-picture img {
+  display: block !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
   object-fit: contain !important;
   object-position: left center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.site-header[data-shared-layout="header"] .brand-picture {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .site-header[data-shared-layout="header"] .brand-logo-pc {
