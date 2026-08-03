@@ -23,86 +23,120 @@ jobs:
       github.event_name != 'workflow_run' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     env:
       BASE_URL: https://robotics.air-admin8.co.jp
     steps:
-      - name: Check production pages
+      - name: Check production pages and SEO assets
         shell: bash
         run: |
           set -euo pipefail
 
+          fetch_with_retry() {
+            local url="$1"
+            local output="$2"
+            local attempts=10
+
+            for attempt in $(seq 1 "${attempts}"); do
+              status="$(curl --location --silent --show-error \
+                --connect-timeout 10 \
+                --max-time 30 \
+                --retry 2 \
+                --retry-delay 2 \
+                --header 'Cache-Control: no-cache' \
+                --user-agent 'AirAdmin8-Production-Check/3.0' \
+                --output "${output}" \
+                --write-out '%{http_code}' \
+                "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" || true)"
+
+              echo "Attempt ${attempt}/${attempts}: ${url} -> HTTP ${status:-000}"
+              if [[ "${status}" == "200" ]] && [[ -s "${output}" ]]; then
+                return 0
+              fi
+              sleep 12
+            done
+            return 1
+          }
+
           check_page() {
             local path="$1"
             local expected="$2"
-            local url="${BASE_URL}${path}"
-            local attempts=8
-            local wait_seconds=15
+            local canonical="$3"
             local body
-            local headers
-            local status
-            local final_url
+            body="$(mktemp)"
 
-            echo "::group::${url}"
+            echo "::group::${BASE_URL}${path}"
+            fetch_with_retry "${BASE_URL}${path}" "${body}" || {
+              echo "FAIL: HTTP 200 not confirmed: ${path}"
+              rm -f "${body}"
+              echo "::endgroup::"
+              return 1
+            }
 
-            for attempt in $(seq 1 "${attempts}"); do
-              body="$(mktemp)"
-              headers="$(mktemp)"
+            grep -Fqi -- "${expected}" "${body}" || {
+              echo "FAIL: required text missing: ${expected}"
+              rm -f "${body}"
+              echo "::endgroup::"
+              return 1
+            }
 
-              read -r status final_url < <(
-                curl --location --silent --show-error \
-                  --connect-timeout 10 \
-                  --max-time 30 \
-                  --retry 2 \
-                  --retry-delay 2 \
-                  --header 'Cache-Control: no-cache' \
-                  --user-agent 'AirAdmin8-Production-Check/2.0' \
-                  --dump-header "${headers}" \
-                  --output "${body}" \
-                  --write-out '%{http_code} %{url_effective}' \
-                  "${url}?healthcheck=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
-              ) || true
+            grep -Fq -- "<link rel=\"canonical\" href=\"${canonical}\"" "${body}" || {
+              echo "FAIL: canonical mismatch: ${canonical}"
+              rm -f "${body}"
+              echo "::endgroup::"
+              return 1
+            }
 
-              status="${status:-000}"
-              final_url="${final_url:-unknown}"
-              echo "Attempt ${attempt}/${attempts}: HTTP ${status} / ${final_url}"
+            ! grep -Fqi -- "There isn't a GitHub Pages site here" "${body}"
+            ! grep -Fqi -- "404 File not found" "${body}"
 
-              if [[ "${status}" == "200" ]] \
-                && grep -Fqi -- "${expected}" "${body}" \
-                && ! grep -Fqi -- "There isn't a GitHub Pages site here" "${body}" \
-                && ! grep -Fqi -- "404 File not found" "${body}"; then
-                echo "PASS: ${url}"
-                rm -f "${body}" "${headers}"
-                echo "::endgroup::"
-                return 0
-              fi
-
-              if [[ "${status}" == "200" ]]; then
-                echo "Response was 200, but required page content was missing or a 404 signature was found."
-              fi
-
-              if [[ "${attempt}" -lt "${attempts}" ]]; then
-                sleep "${wait_seconds}"
-              fi
-
-              rm -f "${body}" "${headers}"
-            done
-
-            echo "FAIL: ${url}"
+            echo "PASS: ${path}"
+            rm -f "${body}"
             echo "::endgroup::"
-            return 1
           }
 
           failures=0
 
-          check_page "/" "AirAdmin8" || failures=$((failures + 1))
-          check_page "/products.html" "研究用AIロボット製品一覧" || failures=$((failures + 1))
-          check_page "/products/unitree-g1-d.html" "Unitree G1-D" || failures=$((failures + 1))
-          check_page "/contact.html" "製品・導入" || failures=$((failures + 1))
+          check_page "/" "AirAdmin8" "${BASE_URL}/" || failures=$((failures + 1))
+          check_page "/products.html" "研究用AIロボット製品一覧" "${BASE_URL}/products.html" || failures=$((failures + 1))
+          check_page "/products/unitree-g1.html" "Unitree G1" "${BASE_URL}/products/unitree-g1.html" || failures=$((failures + 1))
+          check_page "/products/unitree-g1-d.html" "Unitree G1-D" "${BASE_URL}/products/unitree-g1-d.html" || failures=$((failures + 1))
+          check_page "/compare/unitree-g1-vs-g1-d.html" "歩行研究ならG1" "${BASE_URL}/compare/unitree-g1-vs-g1-d.html" || failures=$((failures + 1))
+          check_page "/products/agibot-x2-edu.html" "AgiBot X2 EDU" "${BASE_URL}/products/agibot-x2-edu.html" || failures=$((failures + 1))
+          check_page "/guides/agibot-price.html" "AgiBot" "${BASE_URL}/guides/agibot-price.html" || failures=$((failures + 1))
+          check_page "/resources.html" "SDK" "${BASE_URL}/resources.html" || failures=$((failures + 1))
+          check_page "/about.html" "AirAdmin8" "${BASE_URL}/about.html" || failures=$((failures + 1))
+          check_page "/contact.html" "製品・導入" "${BASE_URL}/contact.html" || failures=$((failures + 1))
+
+          sitemap="$(mktemp)"
+          robots="$(mktemp)"
+          metadata="$(mktemp)"
+
+          fetch_with_retry "${BASE_URL}/sitemap.xml" "${sitemap}" || failures=$((failures + 1))
+          fetch_with_retry "${BASE_URL}/robots.txt" "${robots}" || failures=$((failures + 1))
+          fetch_with_retry "${BASE_URL}/deploy-meta.json" "${metadata}" || failures=$((failures + 1))
+
+          grep -Fq "${BASE_URL}/" "${sitemap}" || { echo "FAIL: sitemap base URL missing"; failures=$((failures + 1)); }
+          grep -Fq "${BASE_URL}/compare/unitree-g1-vs-g1-d.html" "${sitemap}" || { echo "FAIL: comparison page missing from sitemap"; failures=$((failures + 1)); }
+          grep -Fq "Sitemap: ${BASE_URL}/sitemap.xml" "${robots}" || { echo "FAIL: robots sitemap declaration missing"; failures=$((failures + 1)); }
+
+          python - "${metadata}" <<'PY' || failures=$((failures + 1))
+          import json
+          import sys
+          from pathlib import Path
+
+          data = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
+          sha = data.get('commit_sha', '')
+          if len(sha) != 40:
+              raise SystemExit('FAIL: deploy-meta.json commit_sha is invalid')
+          print(f'Production SHA: {sha}')
+          PY
+
+          rm -f "${sitemap}" "${robots}" "${metadata}"
 
           if [[ "${failures}" -ne 0 ]]; then
-            echo "${failures} production page check(s) failed."
+            echo "${failures} production check(s) failed."
             exit 1
           fi
 
-          echo "All production page checks passed."
+          echo "All Level 2 production checks passed."
