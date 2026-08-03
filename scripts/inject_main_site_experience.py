@@ -17,6 +17,30 @@ ASSETS = {
     "favicon": "assets/img/airadmin8-192x192.svg",
 }
 
+LEGACY_SITE_CSS_PATTERNS = [
+    re.compile(
+        r"\.header-inner\{min-height:72px\}\.brand\{width:176px;height:48px;flex:0 0 176px;display:block;background:url\('\.\./img/logo-airadmin8-robotics-pc\.png'\) center/contain no-repeat;font-size:0;line-height:0\}\.brand>\*\{display:none!important\}@media\(max-width:640px\)\{\.header-inner\{min-height:60px\}\.brand\{width:136px;height:40px;flex-basis:136px;background-size:128px auto\}\}",
+        re.I,
+    ),
+    re.compile(
+        r"/\* PC logo 194x50 - 20260802 \*/\s*@media\s*\(min-width:641px\)\s*\{.*?\.brand>\*\{display:none!important\}\s*\}",
+        re.I | re.S,
+    ),
+]
+
+
+def clean_legacy_site_css(output: Path) -> None:
+    path = output / "assets/css/site.css"
+    if not path.is_file():
+        return
+    original = path.read_text(encoding="utf-8")
+    cleaned = original
+    for pattern in LEGACY_SITE_CSS_PATTERNS:
+        cleaned = pattern.sub("", cleaned)
+    if cleaned != original:
+        path.write_text(cleaned, encoding="utf-8")
+        print("Removed obsolete logo CSS from production site.css")
+
 
 def remove_existing_icons(markup: str) -> str:
     return re.sub(
@@ -64,6 +88,8 @@ def inject(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Missing required asset: {item}")
     if errors:
         return 0, errors
+
+    clean_legacy_site_css(output)
 
     html_files = [p for p in output.rglob("*.html") if "includes" not in p.relative_to(output).parts]
     for path in html_files:
