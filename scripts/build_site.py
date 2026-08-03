@@ -14,13 +14,12 @@ import sys
 from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes"}
-SITE_PREFIX = "/aa8-Robotic/"
 BUILD_VERSION = "20260803-single-source"
+PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
 FOOTER_SOURCE = ROOT / "includes" / "site-footer.html"
 
@@ -142,6 +141,12 @@ def page_prefix(relative: Path) -> str:
     return "../" * len(relative.parent.parts)
 
 
+def canonical_url(relative: Path) -> str:
+    if relative.as_posix() == "index.html":
+        return f"{PRODUCTION_ORIGIN}/"
+    return f"{PRODUCTION_ORIGIN}/{relative.as_posix()}"
+
+
 def shared_markup(source: Path, prefix: str) -> str:
     markup = source.read_text(encoding="utf-8").strip()
     return re.sub(r'(?P<attr>(?:href|src|srcset)=["\'])/', rf'\g<attr>{prefix}', markup)
@@ -157,10 +162,25 @@ def replace_required_block(html: str, tag: str, class_name: str, replacement: st
     return pattern.sub(replacement, html, count=1)
 
 
+def rewrite_canonical(html: str, relative: Path) -> str:
+    expected = canonical_url(relative)
+    pattern = re.compile(
+        r'<link\b(?=[^>]*\brel=["\'][^"\']*\bcanonical\b[^"\']*["\'])[^>]*>',
+        re.I,
+    )
+    replacement = f'<link rel="canonical" href="{expected}">'
+    if pattern.search(html):
+        return pattern.sub(replacement, html, count=1)
+    if "</head>" in html:
+        return html.replace("</head>", f"  {replacement}\n</head>", 1)
+    raise ValueError(f"{relative}: </head> not found for canonical injection")
+
+
 def build_html(html: str, relative: Path) -> str:
     prefix = page_prefix(relative)
     html = replace_required_block(html, "header", "site-header", shared_markup(HEADER_SOURCE, prefix), relative)
     html = replace_required_block(html, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix), relative)
+    html = rewrite_canonical(html, relative)
 
     html = re.sub(r'assets/css/site\.css(?:\?v=[^"\']+)?', f'assets/css/site.css?v={BUILD_VERSION}', html)
     html = re.sub(r'assets/js/site\.js(?:\?v=[^"\']+)?', f'assets/js/site.js?v={BUILD_VERSION}', html)
