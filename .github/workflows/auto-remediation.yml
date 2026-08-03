@@ -1,4 +1,4 @@
-name: Auto Remediation
+name: Auto Remediation V2
 
 on:
   workflow_run:
@@ -14,26 +14,51 @@ on:
         description: Known remediation category
         required: false
         type: choice
-        options: [AUTO, HEADER_SYNC, CANONICAL, SITEMAP, DEPLOY_SHA, TRANSIENT]
+        options: [AUTO, HEADER_SYNC, CANONICAL, SITEMAP, ROBOTS, ASSET_404, DEPLOY_SHA, TRANSIENT]
         default: AUTO
 
 permissions:
-  actions: read
+  actions: write
   contents: write
   pull-requests: write
   issues: write
 
 concurrency:
-  group: auto-remediation-${{ github.event.workflow_run.head_sha || github.sha }}
+  group: auto-remediation-v2-${{ github.event.workflow_run.name || 'manual' }}-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: false
 
+env:
+  MAX_ATTEMPTS: '2'
+  MAX_FILES: '5'
+  MAX_LINES: '300'
+
 jobs:
+  resolve:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close resolved remediation incidents
+        env:
+          GH_TOKEN: ${{ github.token }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh issue list --state open --limit 100 --json number,title \
+            --jq '.[] | select(.title | startswith("AUTO-REMEDIATION V2:")) | select(.title | contains(env.WORKFLOW_NAME)) | .number' \
+            | while read -r issue; do
+                [[ -n "$issue" ]] || continue
+                gh issue comment "$issue" --body "RESOLVED: production/CI check succeeded. ${RUN_URL}"
+                gh issue close "$issue" --reason completed
+              done
+
   remediate:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
@@ -41,8 +66,7 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Download failed workflow logs
-        if: github.event_name == 'workflow_run'
+      - name: Prepare evidence
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -50,15 +74,20 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .remediation
-          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > .remediation/logs.zip
-          unzip -oq .remediation/logs.zip -d .remediation/logs
-          find .remediation/logs -type f -print0 | xargs -0 cat > .remediation/combined.log
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_run" ]]; then
+            gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > .remediation/logs.zip
+            unzip -oq .remediation/logs.zip -d .remediation/logs
+            find .remediation/logs -type f -print0 | xargs -0 cat > .remediation/combined.log
+          else
+            : > .remediation/combined.log
+          fi
 
-      - name: Diagnose
+      - name: Diagnose and fingerprint
         id: diagnose
-        shell: bash
         env:
           MANUAL_CATEGORY: ${{ inputs.category || 'AUTO' }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name || 'manual' }}
+        shell: bash
         run: |
           set -euo pipefail
           if [[ "${MANUAL_CATEGORY}" != "AUTO" ]]; then
@@ -69,36 +98,72 @@ jobs:
             category="$(python -c 'import json,sys; print(json.load(sys.stdin)["category"])' <<<"${result}")"
             confidence="$(python -c 'import json,sys; print(json.load(sys.stdin)["confidence"])' <<<"${result}")"
           fi
+          fingerprint="$(printf '%s|%s' "${WORKFLOW_NAME}" "${category}" | sha256sum | cut -c1-12)"
           echo "category=${category}" >> "$GITHUB_OUTPUT"
           echo "confidence=${confidence}" >> "$GITHUB_OUTPUT"
-          echo "category=${category}, confidence=${confidence}"
+          echo "fingerprint=${fingerprint}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update lifecycle incident
+        id: incident
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CATEGORY: ${{ steps.diagnose.outputs.category }}
+          FINGERPRINT: ${{ steps.diagnose.outputs.fingerprint }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name || 'manual' }}
+          SOURCE_RUN: ${{ github.event.workflow_run.html_url || github.server_url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          title="AUTO-REMEDIATION V2: ${WORKFLOW_NAME} [${CATEGORY}] [${FINGERPRINT}]"
+          issue="$(gh issue list --state open --search "${FINGERPRINT} in:title" --json number --jq '.[0].number // empty')"
+          if [[ -z "$issue" ]]; then
+            issue="$(gh issue create --title "$title" --body "Lifecycle incident for deterministic remediation. Source: ${SOURCE_RUN}" --json number --jq '.number')"
+          fi
+          attempts="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${issue}/comments" --paginate --jq '[.[] | select(.body | startswith("ATTEMPT "))] | length' | tail -1)"
+          attempt=$((attempts + 1))
+          gh issue comment "$issue" --body "ATTEMPT ${attempt}/${MAX_ATTEMPTS}: category=${CATEGORY}, source=${SOURCE_RUN}"
+          echo "issue=${issue}" >> "$GITHUB_OUTPUT"
+          echo "attempt=${attempt}" >> "$GITHUB_OUTPUT"
+
+      - name: Stop after maximum attempts
+        if: fromJSON(steps.incident.outputs.attempt) > fromJSON(env.MAX_ATTEMPTS)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ steps.incident.outputs.issue }}
+        run: |
+          gh issue comment "$ISSUE" --body "ESCALATED: automatic remediation limit reached. No further code changes will be attempted."
+          exit 1
 
       - name: Retry transient or deploy-only failure
-        if: steps.diagnose.outputs.category == 'TRANSIENT' || steps.diagnose.outputs.category == 'DEPLOY_SHA'
+        if: >-
+          fromJSON(steps.incident.outputs.attempt) <= fromJSON(env.MAX_ATTEMPTS) &&
+          (steps.diagnose.outputs.category == 'TRANSIENT' || steps.diagnose.outputs.category == 'DEPLOY_SHA')
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id }}
+          ISSUE: ${{ steps.incident.outputs.issue }}
         shell: bash
         run: |
           set -euo pipefail
           gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/rerun-failed-jobs"
-          echo "Retried failed jobs without changing code."
+          gh issue comment "$ISSUE" --body "ACTION: failed jobs re-run without code change."
 
       - name: Apply deterministic fix
-        if: contains(fromJSON('["HEADER_SYNC","CANONICAL","SITEMAP","ROBOTS"]'), steps.diagnose.outputs.category)
+        if: >-
+          fromJSON(steps.incident.outputs.attempt) <= fromJSON(env.MAX_ATTEMPTS) &&
+          contains(fromJSON('["HEADER_SYNC","CANONICAL","SITEMAP","ROBOTS","ASSET_404"]'), steps.diagnose.outputs.category)
         id: fix
         shell: bash
         run: |
           set -euo pipefail
-          category='${{ steps.diagnose.outputs.category }}'
-          python scripts/remediation/apply_known_fix.py "${category}" | tee .remediation/fix-result.txt
+          python scripts/remediation/apply_known_fix.py '${{ steps.diagnose.outputs.category }}' | tee .remediation/fix-result.txt
           changed="$(git status --porcelain | wc -l | tr -d ' ')"
           lines="$(git diff --numstat | awk '{a+=$1; d+=$2} END {print a+d+0}')"
           echo "changed=${changed}" >> "$GITHUB_OUTPUT"
           echo "lines=${lines}" >> "$GITHUB_OUTPUT"
-          test "${changed}" -le 5
-          test "${lines}" -le 300
-          test "${changed}" -gt 0
+          test "$changed" -gt 0
+          test "$changed" -le "$MAX_FILES"
+          test "$lines" -le "$MAX_LINES"
 
       - name: Validate repaired artifact
         if: steps.fix.outputs.changed != ''
@@ -110,43 +175,41 @@ jobs:
           python scripts/build_site.py
           python scripts/inject_main_site_experience.py
           test -s _site/index.html
+          test -s _site/robots.txt
+          test -s _site/sitemap.xml
           grep -Fq 'brand-logo-pc' _site/index.html
           grep -Fq 'brand-logo-sp' _site/index.html
           grep -Fq 'data-shared-layout="header"' _site/index.html
-          ! grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' _site/index.html
+          grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' _site/robots.txt
+          ! grep -R -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' _site --include='*.html' --include='sitemap.xml'
 
       - name: Create remediation PR
         if: steps.fix.outputs.changed != ''
         env:
           GH_TOKEN: ${{ github.token }}
           CATEGORY: ${{ steps.diagnose.outputs.category }}
+          FINGERPRINT: ${{ steps.diagnose.outputs.fingerprint }}
+          ATTEMPT: ${{ steps.incident.outputs.attempt }}
+          ISSUE: ${{ steps.incident.outputs.issue }}
           SOURCE_RUN: ${{ github.event.workflow_run.html_url }}
         shell: bash
         run: |
           set -euo pipefail
-          branch="fix/auto-${CATEGORY,,}-${GITHUB_RUN_ID}"
+          branch="fix/auto-${CATEGORY,,}-${FINGERPRINT}-a${ATTEMPT}"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git checkout -b "${branch}"
+          git checkout -b "$branch"
           git add -- '*.html' sitemap.xml robots.txt includes assets scripts .github || true
-          git commit -m "AUTO-FIX: ${CATEGORY} [run ${GITHUB_RUN_ID}]"
-          git push origin "${branch}"
-          gh pr create \
-            --base main \
-            --head "${branch}" \
-            --title "AUTO-FIX: ${CATEGORY}" \
-            --body "Known issue was diagnosed and repaired deterministically. Source workflow: ${SOURCE_RUN}. Limits: <=5 files, <=300 changed lines. PR CI must pass before Auto Forward merges."
+          git commit -m "AUTO-FIX V2: ${CATEGORY} [${FINGERPRINT}] attempt ${ATTEMPT}"
+          git push origin "$branch"
+          pr_url="$(gh pr create --base main --head "$branch" --title "AUTO-FIX V2: ${CATEGORY} [${FINGERPRINT}]" --body "Incident #${ISSUE}. Attempt ${ATTEMPT}/${MAX_ATTEMPTS}. Source: ${SOURCE_RUN}. Deterministic fix only; PR CI must pass before Auto Forward merges.")"
+          gh issue comment "$ISSUE" --body "ACTION: remediation PR created: ${pr_url}"
 
-      - name: Open issue for unknown or unsafe failure
+      - name: Escalate unknown or unsafe failure
         if: steps.diagnose.outputs.category == 'UNKNOWN'
         env:
           GH_TOKEN: ${{ github.token }}
-          SOURCE_RUN: ${{ github.event.workflow_run.html_url }}
-        shell: bash
+          ISSUE: ${{ steps.incident.outputs.issue }}
         run: |
-          set -euo pipefail
-          title="AUTO-REMEDIATION: unknown failure in ${{ github.event.workflow_run.name }}"
-          existing="$(gh issue list --state open --search "${title} in:title" --json number --jq 'length')"
-          if [[ "${existing}" == "0" ]]; then
-            gh issue create --title "${title}" --body "Automatic repair was not attempted because the failure was not a registered deterministic category. Workflow: ${SOURCE_RUN}. Logs remain in the workflow run."
-          fi
+          gh issue comment "$ISSUE" --body "ESCALATED: unknown category. Automatic code modification was not attempted."
+          exit 1
