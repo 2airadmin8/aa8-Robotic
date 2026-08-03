@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-PUBLIC_BASE = "https://robotics.air-admin8.co.jp/aa8-Robotic/"
+PUBLIC_BASE = "https://robotics.air-admin8.co.jp/"
 SOCIAL_IMAGE = f"{PUBLIC_BASE}assets/img/robot-category-lineup.svg"
 PRODUCT_SEO_PATH = ROOT / "data" / "product-seo-v1.json"
 
