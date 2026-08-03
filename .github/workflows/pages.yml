@@ -67,6 +67,29 @@ jobs:
             fi
           done
 
+      - name: Generate deployment metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          metadata = {
+              "commit_sha": os.environ["GITHUB_SHA"],
+              "branch": os.environ["GITHUB_REF_NAME"],
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "deployed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+          }
+          Path("_site/deploy-meta.json").write_text(
+              json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          PY
+
       - name: Verify production artifact
         shell: bash
         run: |
@@ -78,6 +101,7 @@ jobs:
             _site/products/unitree-g1-d.html
             _site/contact.html
             _site/CNAME
+            _site/deploy-meta.json
           )
 
           for file in "${required_files[@]}"; do
@@ -88,6 +112,16 @@ jobs:
           grep -Fq 'Unitree G1-D' _site/products/unitree-g1-d.html
           grep -Fq 'https://www.unitree.com/images/' _site/products/unitree-g1-d.html
           ! grep -Fq '/aa8-Robotic/products/unitree-g1-d.html' _site/products/unitree-g1-d.html
+
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          data = json.loads(Path('_site/deploy-meta.json').read_text(encoding='utf-8'))
+          if data.get('commit_sha') != os.environ['GITHUB_SHA']:
+              raise SystemExit('deploy-meta.json commit_sha does not match GITHUB_SHA')
+          PY
 
           echo "Production artifact verified."
 
@@ -110,3 +144,32 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify production commit SHA
+        shell: bash
+        env:
+          PROD_META_URL: https://robotics.air-admin8.co.jp/deploy-meta.json
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          for attempt in $(seq 1 12); do
+            echo "Verification attempt ${attempt}/12"
+            response="$(curl -fsSL --retry 2 --retry-delay 2 \
+              -H 'Cache-Control: no-cache' \
+              "${PROD_META_URL}?cache_bust=${GITHUB_RUN_ID}-${attempt}" || true)"
+            actual_sha="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit_sha", ""))' <<<"${response}" 2>/dev/null || true)"
+
+            echo "Expected SHA: ${EXPECTED_SHA}"
+            echo "Actual SHA:   ${actual_sha:-<empty>}"
+
+            if [[ "${actual_sha}" == "${EXPECTED_SHA}" ]]; then
+              echo "Production commit verified."
+              exit 0
+            fi
+
+            sleep 15
+          done
+
+          echo "Production SHA mismatch or deploy-meta.json unavailable."
+          exit 1
