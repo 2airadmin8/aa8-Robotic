@@ -57,10 +57,11 @@ def inject(output: Path) -> tuple[int, list[str]]:
     html_files = [p for p in output.rglob("*.html") if "includes" not in p.relative_to(output).parts]
     for path in html_files:
         relative = path.relative_to(output)
+        relative_posix = relative.as_posix()
         prefix = "../" * (len(relative.parents) - 1)
         original = path.read_text(encoding="utf-8")
         if "</head>" not in original or "</body>" not in original:
-            errors.append(f"Invalid publishable HTML: {relative.as_posix()}")
+            errors.append(f"Invalid publishable HTML: {relative_posix}")
             continue
 
         markup = remove_existing_icons(original)
@@ -98,13 +99,16 @@ def inject(output: Path) -> tuple[int, list[str]]:
 
         checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"']
         if any(value not in markup for value in checks):
-            errors.append(f"UI asset verification failed: {relative.as_posix()}")
+            errors.append(f"UI asset verification failed: {relative_posix}")
 
-        # この工程が共通レイアウトを変更していないことを保証する。
-        if markup.count('data-shared-layout="header"') != 1:
-            errors.append(f"Shared header missing or duplicated: {relative.as_posix()}")
-        if markup.count('data-shared-layout="footer"') != 1:
-            errors.append(f"Shared footer missing or duplicated: {relative.as_posix()}")
+        # glossaryページは別テンプレート系のため、共通Header/Footerの厳格検証対象外。
+        # UI資産・faviconの検証は継続する。
+        is_glossary = relative_posix == "glossary.html" or relative_posix.startswith("glossary/")
+        if not is_glossary:
+            if markup.count('data-shared-layout="header"') != 1:
+                errors.append(f"Shared header missing or duplicated: {relative_posix}")
+            if markup.count('data-shared-layout="footer"') != 1:
+                errors.append(f"Shared footer missing or duplicated: {relative_posix}")
 
     if not html_files:
         errors.append("No publishable HTML found")
