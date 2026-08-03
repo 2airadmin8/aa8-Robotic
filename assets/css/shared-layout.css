@@ -34,24 +34,19 @@
   overflow: visible !important;
 }
 
-.site-header[data-shared-layout="header"] .brand > * {
-  display: none !important;
-}
-
-.site-header[data-shared-layout="header"] .brand > .brand-picture,
-.site-header[data-shared-layout="header"] .brand > .brand-picture img {
-  display: block !important;
+.site-header[data-shared-layout="header"] .brand-logo {
   width: 100% !important;
   height: 100% !important;
-}
-
-.site-header[data-shared-layout="header"] .brand-picture source {
-  display: none !important;
-}
-
-.site-header[data-shared-layout="header"] .brand-picture img {
   object-fit: contain !important;
   object-position: left center !important;
+}
+
+.site-header[data-shared-layout="header"] .brand-logo-pc {
+  display: block !important;
+}
+
+.site-header[data-shared-layout="header"] .brand-logo-sp {
+  display: none !important;
 }
 
 .site-header[data-shared-layout="header"] .nav {
@@ -162,6 +157,12 @@
     width: 135px !important;
     height: 35px !important;
     flex: 0 0 135px !important;
+  }
+  .site-header[data-shared-layout="header"] .brand-logo-pc {
+    display: none !important;
+  }
+  .site-header[data-shared-layout="header"] .brand-logo-sp {
+    display: block !important;
   }
   .site-header[data-shared-layout="header"] .nav {
     position: absolute;
