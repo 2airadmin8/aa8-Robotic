@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build成果物へUI資産とfaviconのみを必須適用する。
 
-Header/Footerとcanonicalはbuild_site.pyが生成し、専用Artifact検証で保証する。
-この工程ではHeader/Footer・canonicalを変更・判定しない。
+Header/Footerとcanonicalはbuild_site.pyが生成する。
+この工程ではUI資産の適用と、旧Logo overrideの除去だけを行う。
 """
 from __future__ import annotations
 
@@ -17,6 +17,30 @@ ASSETS = {
     "js": "assets/js/main-site-experience.js",
     "favicon": "assets/img/airadmin8-192x192.svg",
 }
+
+LEGACY_LOGO_PATTERNS = [
+    re.compile(
+        r"\.header-inner\{min-height:72px\}\.brand\{width:176px;height:48px;flex:0 0 176px;display:block;background:url\('\.\./img/logo-airadmin8-robotics-pc\.png'\) center/contain no-repeat;font-size:0;line-height:0\}\.brand>\*\{display:none!important\}@media\(max-width:640px\)\{\.header-inner\{min-height:60px\}\.brand\{width:136px;height:40px;flex-basis:136px;background-size:128px auto\}\}",
+        re.I,
+    ),
+    re.compile(
+        r"/\* PC logo 194x50 - 20260802 \*/\s*@media\s*\(min-width:641px\)\s*\{.*?\.brand>\*\{display:none!important\}\s*\}",
+        re.I | re.S,
+    ),
+]
+
+
+def remove_legacy_logo_css(output: Path) -> None:
+    site_css = output / "assets/css/site.css"
+    if not site_css.is_file():
+        return
+    original = site_css.read_text(encoding="utf-8")
+    cleaned = original
+    for pattern in LEGACY_LOGO_PATTERNS:
+        cleaned = pattern.sub("", cleaned)
+    if cleaned != original:
+        site_css.write_text(cleaned, encoding="utf-8")
+        print("Removed obsolete logo override CSS from _site/assets/css/site.css")
 
 
 def remove_existing_icons(markup: str) -> str:
@@ -57,6 +81,8 @@ def inject(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Missing required asset: {item}")
     if errors:
         return 0, errors
+
+    remove_legacy_logo_css(output)
 
     html_files = [p for p in output.rglob("*.html") if "includes" not in p.relative_to(output).parts]
     for path in html_files:
