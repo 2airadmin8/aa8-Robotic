@@ -23,7 +23,7 @@ FOOTER_RE = re.compile(
     r'<footer\b(?=[^>]*class=["\'][^"\']*\bfooter\b[^"\']*["\'])[^>]*>.*?</footer>',
     re.I | re.S,
 )
-URL_ATTR_RE = re.compile(r'(?P<attr>(?:href|src|srcset)=["\'])(?P<url>[^"\']+)', re.I)
+URL_ATTR_RE = re.compile(r'(?P<attr>(?:href|src|srcset)=["\'])(?P<url>[^"\']*)', re.I)
 SPACE_RE = re.compile(r"\s+")
 
 
@@ -31,12 +31,15 @@ def canonicalize(markup: str) -> str:
     """Normalize relative/root URLs and insignificant whitespace for comparison."""
     def replace_url(match: re.Match[str]) -> str:
         url = match.group("url")
-        clean = re.sub(r"^(?:\.\./)+", "/", url)
-        if clean.startswith("index.html"):
+        if url == "":
             clean = "/"
-        elif not clean.startswith(("/", "http://", "https://", "#", "mailto:", "tel:")):
-            clean = "/" + clean
-        clean = clean.replace("/index.html", "/")
+        else:
+            clean = re.sub(r"^(?:\.\./)+", "/", url)
+            if clean.startswith("index.html"):
+                clean = "/"
+            elif not clean.startswith(("/", "http://", "https://", "#", "mailto:", "tel:")):
+                clean = "/" + clean
+            clean = clean.replace("/index.html", "/")
         return match.group("attr") + clean
 
     normalized = URL_ATTR_RE.sub(replace_url, markup.strip())
@@ -47,6 +50,13 @@ def canonicalize(markup: str) -> str:
 
 def digest(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def extract_single(pattern: re.Pattern[str], text: str, label: str) -> str:
+    matches = pattern.findall(text)
+    if len(matches) != 1:
+        raise ValueError(f"Expected exactly one {label} in single source, found {len(matches)}")
+    return matches[0]
 
 
 def main() -> int:
@@ -63,8 +73,23 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
 
-    expected_header = canonicalize(HEADER_SOURCE.read_text(encoding="utf-8"))
-    expected_footer = canonicalize(FOOTER_SOURCE.read_text(encoding="utf-8"))
+    try:
+        expected_header_markup = extract_single(
+            HEADER_RE,
+            HEADER_SOURCE.read_text(encoding="utf-8"),
+            "header",
+        )
+        expected_footer_markup = extract_single(
+            FOOTER_RE,
+            FOOTER_SOURCE.read_text(encoding="utf-8"),
+            "footer",
+        )
+    except ValueError as exc:
+        print(f"ERROR: {exc}")
+        return 1
+
+    expected_header = canonicalize(expected_header_markup)
+    expected_footer = canonicalize(expected_footer_markup)
     expected_header_hash = digest(expected_header)
     expected_footer_hash = digest(expected_footer)
 
