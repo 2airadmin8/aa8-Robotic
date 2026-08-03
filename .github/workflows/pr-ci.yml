@@ -67,43 +67,17 @@ jobs:
           rm -rf _site
           python -m py_compile scripts/build_site.py
           python scripts/build_site.py
-          test -s _site/index.html
 
-      - name: Apply optional production enhancements
-        shell: bash
-        run: |
-          set -u
-          scripts=(
-            scripts/prerender_product_cards.py
-            scripts/prerender_resources.py
-            scripts/inject_accessibility.py
-            scripts/inject_static_meta.py
-            scripts/inject_structured_data.py
-            scripts/prepare_compare_print_assets.py
-            scripts/inject_main_site_experience.py
-          )
-
-          for script in "${scripts[@]}"; do
-            if [[ -f "${script}" ]]; then
-              echo "Running ${script}"
-              python -m py_compile "${script}" || { echo "Compile failed: ${script}"; exit 1; }
-              python "${script}" || echo "Warning: ${script} failed; core production artifact remains testable."
-            fi
-          done
-
-      - name: Smoke-test built site
+      - name: Verify core production artifact
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -f scripts/validate_built_site.py ]]; then
-            python -m py_compile scripts/validate_built_site.py
-            python scripts/validate_built_site.py
-          fi
 
           required_files=(
             _site/index.html
             _site/products.html
             _site/contact.html
+            _site/compare/unitree-g1-vs-g1-d.html
             _site/CNAME
           )
 
@@ -112,3 +86,27 @@ jobs:
           done
 
           grep -Fxq 'robotics.air-admin8.co.jp' _site/CNAME
+
+          key_pages=(
+            _site/index.html
+            _site/products.html
+            _site/contact.html
+            _site/compare/unitree-g1-vs-g1-d.html
+          )
+
+          for page in "${key_pages[@]}"; do
+            grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/' "${page}" || {
+              echo "Production canonical missing: ${page}"
+              exit 1
+            }
+
+            if grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' "${page}"; then
+              echo "Legacy production prefix remains: ${page}"
+              exit 1
+            fi
+          done
+
+          grep -Fq 'Unitree G1' _site/compare/unitree-g1-vs-g1-d.html
+          grep -Fq 'Unitree G1-D' _site/compare/unitree-g1-vs-g1-d.html
+
+          echo "Core production artifact verified."
