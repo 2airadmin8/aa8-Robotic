@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28",
+  "updatedAt": "2026-08-03",
   "property": {
-    "currentPublicBase": "https://robotics.air-admin8.co.jp/aa8-Robotic/",
+    "currentPublicBase": "https://robotics.air-admin8.co.jp/",
     "preferredFutureDomain": "https://robotics.air-admin8.co.jp/",
     "verificationStatus": "verified",
     "sitemapPath": "sitemap.xml",
@@ -19,13 +19,13 @@
     {"id":"index_request_priority_pages","label":"S優先ページのURL検査・登録リクエスト","status":"in_progress"}
   ],
   "priorityInspectionPages": [
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/products.html",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/support.html",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/support/university-procurement.html",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/use-cases/vla-data-collection.html",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/products/unitree-g1-d.html",
-    "https://robotics.air-admin8.co.jp/aa8-Robotic/cases.html"
+    "https://robotics.air-admin8.co.jp/",
+    "https://robotics.air-admin8.co.jp/products.html",
+    "https://robotics.air-admin8.co.jp/support.html",
+    "https://robotics.air-admin8.co.jp/support/university-procurement.html",
+    "https://robotics.air-admin8.co.jp/use-cases/vla-data-collection.html",
+    "https://robotics.air-admin8.co.jp/products/unitree-g1-d.html",
+    "https://robotics.air-admin8.co.jp/cases.html"
   ],
   "weeklyMetrics": [
     "表示回数",

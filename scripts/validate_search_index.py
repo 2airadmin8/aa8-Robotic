@@ -11,7 +11,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE_URL = "https://robotics.air-admin8.co.jp/aa8-Robotic/"
+BASE_URL = "https://robotics.air-admin8.co.jp/"
+LEGACY_PATH_PREFIX = "/aa8-Robotic"
 SITEMAP_PATH = ROOT / "sitemap.xml"
 ROBOTS_PATH = ROOT / "robots.txt"
 SEO_PATH = ROOT / "data" / "seo-keywords.json"
@@ -48,17 +49,23 @@ def read_canonical(path: Path) -> str:
     return parser.canonical
 
 
-def canonical_path_matches(canonical: str, public_url: str) -> bool:
-    """Source HTML may still contain the historical GitHub host.
+def normalize_public_path(path: str) -> str:
+    normalized = path.rstrip("/") or "/"
+    if normalized == LEGACY_PATH_PREFIX:
+        return "/"
+    if normalized.startswith(f"{LEGACY_PATH_PREFIX}/"):
+        return normalized[len(LEGACY_PATH_PREFIX):] or "/"
+    return normalized
 
-    The build pipeline rewrites canonical URLs to the production host before deploy,
-    so this pre-build check validates the page path while the built-artifact smoke
-    test validates that a canonical is present in the deployed HTML.
+
+def canonical_path_matches(canonical: str, public_url: str) -> bool:
+    """Allow the historical source prefix because the build rewrites it to root.
+
+    The final built artifact is validated separately. This source-level check still
+    requires the post-prefix page path to match the sitemap URL exactly.
     """
-    canonical_parsed = urlparse(canonical)
-    public_parsed = urlparse(public_url)
-    canonical_path = canonical_parsed.path.rstrip("/") or "/"
-    public_path = public_parsed.path.rstrip("/") or "/"
+    canonical_path = normalize_public_path(urlparse(canonical).path)
+    public_path = normalize_public_path(urlparse(public_url).path)
     return canonical_path == public_path
 
 

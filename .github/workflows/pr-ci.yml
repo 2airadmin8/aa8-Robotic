@@ -1,0 +1,111 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            echo "Checking ${file}"
+            node --check "${file}"
+          done < <(find assets/js -type f -name '*.js' -print0 | sort -z)
+
+      - name: Run repository validators
+        shell: bash
+        run: |
+          set -euo pipefail
+          validators=(
+            scripts/validate_catalog.py
+            scripts/validate_seo.py
+            scripts/validate_analytics.py
+            scripts/validate_cases.py
+            scripts/validate_search_index.py
+          )
+
+          for validator in "${validators[@]}"; do
+            if [[ -f "${validator}" ]]; then
+              echo "Running ${validator}"
+              python -m py_compile "${validator}"
+              python "${validator}"
+            fi
+          done
+
+      - name: Build site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          python -m py_compile scripts/build_site.py
+          python scripts/build_site.py
+
+      - name: Verify core production artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            _site/index.html
+            _site/products.html
+            _site/contact.html
+            _site/compare/unitree-g1-vs-g1-d.html
+            _site/CNAME
+          )
+
+          for file in "${required_files[@]}"; do
+            test -s "${file}" || { echo "Missing required file: ${file}"; exit 1; }
+          done
+
+          grep -Fxq 'robotics.air-admin8.co.jp' _site/CNAME
+
+          canonical_pages=(
+            _site/index.html
+            _site/products.html
+            _site/contact.html
+          )
+
+          for page in "${canonical_pages[@]}"; do
+            grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/' "${page}" || {
+              echo "Production canonical missing: ${page}"
+              exit 1
+            }
+
+            if grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/aa8-Robotic/' "${page}"; then
+              echo "Legacy canonical remains: ${page}"
+              exit 1
+            fi
+          done
+
+          grep -Fq 'Unitree G1' _site/compare/unitree-g1-vs-g1-d.html
+          grep -Fq 'Unitree G1-D' _site/compare/unitree-g1-vs-g1-d.html
+
+          echo "Core production artifact verified."
