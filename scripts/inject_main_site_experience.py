@@ -9,6 +9,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+SITE_ORIGIN = "https://robotics.air-admin8.co.jp"
+
 ASSETS = {
     "main_css": "assets/css/main-site-experience.css?v=20260801-4",
     "footer_css": "assets/css/footer-mobile-cleanup.css?v=20260801-4",
@@ -26,6 +28,16 @@ def remove_existing_icons(markup: str) -> str:
         markup,
         flags=re.I,
     )
+
+
+def normalize_canonical(markup: str, relative_posix: str) -> str:
+    canonical_path = "/" if relative_posix == "index.html" else f"/{relative_posix}"
+    canonical = f'{SITE_ORIGIN}{canonical_path}'
+    tag = f'<link rel="canonical" href="{canonical}">'
+    pattern = re.compile(r'<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>', re.I)
+    if pattern.search(markup):
+        return pattern.sub(tag, markup, count=1)
+    return markup.replace("</head>", f"  {tag}\n</head>", 1)
 
 
 def upsert_head_link(markup: str, pattern: str, link: str) -> str:
@@ -66,6 +78,7 @@ def inject(output: Path) -> tuple[int, list[str]]:
             continue
 
         markup = remove_existing_icons(original)
+        markup = normalize_canonical(markup, relative_posix)
         css_items = [
             (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-site-experience\.css[^"\']*["\']\s*/?>', ASSETS["main_css"]),
             (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*footer-mobile-cleanup\.css[^"\']*["\']\s*/?>', ASSETS["footer_css"]),
@@ -98,7 +111,7 @@ def inject(output: Path) -> tuple[int, list[str]]:
             path.write_text(markup, encoding="utf-8")
             updated += 1
 
-        checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"']
+        checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"', f'href="{SITE_ORIGIN}{"/" if relative_posix == "index.html" else "/" + relative_posix}"']
         if any(value not in markup for value in checks):
             errors.append(f"UI asset verification failed: {relative_posix}")
 
