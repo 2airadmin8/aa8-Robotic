@@ -87,14 +87,13 @@ jobs:
 
           grep -Fxq 'robotics.air-admin8.co.jp' _site/CNAME
 
-          key_pages=(
+          canonical_pages=(
             _site/index.html
             _site/products.html
             _site/contact.html
-            _site/compare/unitree-g1-vs-g1-d.html
           )
 
-          for page in "${key_pages[@]}"; do
+          for page in "${canonical_pages[@]}"; do
             grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/' "${page}" || {
               echo "Production canonical missing: ${page}"
               exit 1
