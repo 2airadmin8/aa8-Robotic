@@ -1,0 +1,67 @@
+name: Favicon Production Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'assets/img/airadmin8-192x192.svg'
+      - '.github/workflows/favicon-production-check.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: favicon-production-check
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: https://robotics.air-admin8.co.jp
+      ICON_PATH: /assets/img/airadmin8-192x192.svg?v=20260803-brand-v1
+    steps:
+      - name: Wait for CD and verify production favicon
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for attempt in $(seq 1 24); do
+            echo "Attempt ${attempt}/24"
+            home="$(mktemp)"
+            icon="$(mktemp)"
+
+            home_code="$(curl -sS -L --connect-timeout 10 --max-time 30 \
+              -H 'Cache-Control: no-cache' \
+              -A 'AirAdmin8-Favicon-Check/1.0' \
+              -o "$home" -w '%{http_code}' \
+              "${BASE_URL}/?favicon_check=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}" || true)"
+
+            icon_code="$(curl -sS -L --connect-timeout 10 --max-time 30 \
+              -H 'Cache-Control: no-cache' \
+              -A 'AirAdmin8-Favicon-Check/1.0' \
+              -o "$icon" -w '%{http_code}' \
+              "${BASE_URL}${ICON_PATH}&check=${GITHUB_RUN_ID}-${attempt}" || true)"
+
+            if [[ "$home_code" == '200' ]] \
+              && [[ "$icon_code" == '200' ]] \
+              && grep -Fq 'data-aa8-brand-icon="true"' "$home" \
+              && grep -Fq '/assets/img/airadmin8-192x192.svg?v=20260803-brand-v1' "$home" \
+              && grep -Fq '<svg' "$icon" \
+              && grep -Fq 'viewBox="0 0 192 192"' "$icon"; then
+              echo 'PASS: AirAdmin8 favicon is live in production.'
+              rm -f "$home" "$icon"
+              exit 0
+            fi
+
+            echo "Not ready: home=${home_code}, icon=${icon_code}"
+            rm -f "$home" "$icon"
+            sleep 20
+          done
+
+          echo 'FAIL: Production favicon did not become verifiable within 8 minutes.'
+          exit 1
