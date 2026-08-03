@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Build成果物へ共通ヘッダー・UI資産・faviconを必須適用する。"""
-
+"""Build成果物へ共通ヘッダー・フッター・UI資産・faviconを必須適用する。"""
 from __future__ import annotations
 
 import re
@@ -8,45 +7,34 @@ from pathlib import Path
 
 from footer_cleanup_rules import NOTICE_TEXT, cleanup_footer
 
+ROOT = Path(__file__).resolve().parents[1]
+HEADER_SOURCE = ROOT / "includes/site-header.html"
+FOOTER_SOURCE = ROOT / "includes/site-footer.html"
+
 ASSETS = {
     "main_css": "assets/css/main-site-experience.css?v=20260801-4",
     "footer_css": "assets/css/footer-mobile-cleanup.css?v=20260801-4",
     "logo_css": "assets/css/main-logo.css?v=20260731-2",
     "shared_css": "assets/css/shared-layout.css?v=20260803-buildfix",
     "js": "assets/js/main-site-experience.js?v=20260801-15",
-    "pc_logo": "assets/img/logo-airadmin8-robotics-pc.svg?v=20260803-buildfix",
-    "sp_logo": "assets/img/logo-airadmin8-robotics-sp.svg?v=20260803-buildfix",
     "favicon": "assets/img/airadmin8-192x192.svg?v=20260803-brand-v2",
 }
 
 
-def header(prefix: str) -> str:
-    return f'''<!-- 共通ヘッダー：build後もこの構造を維持 -->
-<header class="site-header" data-shared-layout="header">
-  <div class="wrap header-inner">
-    <a class="brand" href="{prefix}index.html" aria-label="AirAdmin8 Robotics ホーム">
-      <img class="brand-logo brand-logo-pc" src="{prefix}{ASSETS['pc_logo']}" alt="AirAdmin8 Robotics" width="180" height="42">
-      <img class="brand-logo brand-logo-sp" src="{prefix}{ASSETS['sp_logo']}" alt="AirAdmin8 Robotics" width="135" height="35">
-    </a>
-    <button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button>
-    <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
-      <a href="{prefix}products.html">製品を探す</a>
-      <a href="{prefix}use-cases.html">用途から探す</a>
-      <a href="{prefix}support.html">導入支援</a>
-      <a href="{prefix}cases.html">導入事例</a>
-      <a href="{prefix}resources.html">資料・SDK</a>
-      <a class="nav-cta" href="{prefix}contact.html">製品・導入を相談する</a>
-    </nav>
-  </div>
-</header>'''
+def shared_markup(path: Path, prefix: str) -> str:
+    markup = path.read_text(encoding="utf-8").strip()
+    # 共通部品内のルート相対URLを、出力ページ階層に合わせて変換する。
+    return re.sub(r'(?P<attr>(?:href|src|srcset)=["\'])/', rf'\g<attr>{prefix}', markup)
 
 
-def replace_header(markup: str, prefix: str) -> str:
+def replace_block(markup: str, tag: str, class_name: str, replacement: str) -> str:
     pattern = re.compile(
-        r'<header\b(?=[^>]*class=["\'][^"\']*\bsite-header\b[^"\']*["\'])[^>]*>.*?</header>',
+        rf'<{tag}\b(?=[^>]*class=["\'][^"\']*\b{re.escape(class_name)}\b[^"\']*["\'])[^>]*>.*?</{tag}>',
         re.I | re.S,
     )
-    return pattern.sub(header(prefix), markup, count=1)
+    if not pattern.search(markup):
+        raise ValueError(f"{tag}.{class_name} not found")
+    return pattern.sub(replacement, markup, count=1)
 
 
 def add_footer_links(markup: str, prefix: str) -> str:
@@ -69,9 +57,7 @@ def add_footer_links(markup: str, prefix: str) -> str:
 def remove_existing_icons(markup: str) -> str:
     return re.sub(
         r'\s*<link\b[^>]*\brel=["\'][^"\']*(?:icon|shortcut icon)[^"\']*["\'][^>]*>',
-        '',
-        markup,
-        flags=re.I,
+        '', markup, flags=re.I,
     )
 
 
@@ -96,6 +82,9 @@ def inject(output: Path) -> tuple[int, list[str]]:
         "assets/img/logo-airadmin8-robotics-sp.svg",
         "assets/img/airadmin8-192x192.svg",
     ]
+    for source in (HEADER_SOURCE, FOOTER_SOURCE):
+        if not source.is_file():
+            errors.append(f"Missing shared layout source: {source.relative_to(ROOT)}")
     for item in required:
         if not (output / item).is_file():
             errors.append(f"Missing required asset: {item}")
@@ -111,7 +100,13 @@ def inject(output: Path) -> tuple[int, list[str]]:
             errors.append(f"Invalid publishable HTML: {relative.as_posix()}")
             continue
 
-        markup = replace_header(original, prefix)
+        try:
+            markup = replace_block(original, "header", "site-header", shared_markup(HEADER_SOURCE, prefix))
+            markup = replace_block(markup, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix))
+        except ValueError as exc:
+            errors.append(f"Shared layout replacement failed: {relative.as_posix()}: {exc}")
+            continue
+
         markup = add_footer_links(markup, prefix)
         markup = remove_existing_icons(markup)
 
@@ -147,9 +142,13 @@ def inject(output: Path) -> tuple[int, list[str]]:
             path.write_text(markup, encoding="utf-8")
             updated += 1
 
-        checks = expected + [js_src, favicon, "brand-logo-pc", "brand-logo-sp", 'data-shared-layout="header"', 'data-aa8-brand-icon="true"']
+        checks = expected + [
+            js_src, favicon, "brand-logo-pc", "brand-logo-sp",
+            'data-shared-layout="header"', 'data-shared-layout="footer"',
+            'data-aa8-brand-icon="true"',
+        ]
         if any(value not in markup for value in checks):
-            errors.append(f"Branding verification failed: {relative.as_posix()}")
+            errors.append(f"Shared branding verification failed: {relative.as_posix()}")
         if relative.name != "404.html" and "aa8-footer-learning__links" not in markup:
             errors.append(f"Footer links missing: {relative.as_posix()}")
         if NOTICE_TEXT in markup:
@@ -165,7 +164,7 @@ def main() -> None:
     if not output.is_dir():
         raise SystemExit("Missing build output directory: _site")
     updated, errors = inject(output)
-    print(f"Required branding applied to {updated} HTML page(s).")
+    print(f"Required shared layout applied to {updated} HTML page(s).")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
