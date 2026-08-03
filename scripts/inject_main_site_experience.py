@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build成果物へUI資産とfaviconのみを必須適用する。
 
-Header/Footerはbuild_site.pyがincludesから生成するため、この工程では変更しない。
+Header/Footerはbuild_site.pyがincludesから生成し、専用Artifact検証で保証する。
+この工程ではHeader/Footerを変更・判定しない。
 """
 from __future__ import annotations
 
@@ -101,15 +102,6 @@ def inject(output: Path) -> tuple[int, list[str]]:
         if any(value not in markup for value in checks):
             errors.append(f"UI asset verification failed: {relative_posix}")
 
-        # glossaryページは別テンプレート系のため、共通Header/Footerの厳格検証対象外。
-        # UI資産・faviconの検証は継続する。
-        is_glossary = relative_posix == "glossary.html" or relative_posix.startswith("glossary/")
-        if not is_glossary:
-            if markup.count('data-shared-layout="header"') != 1:
-                errors.append(f"Shared header missing or duplicated: {relative_posix}")
-            if markup.count('data-shared-layout="footer"') != 1:
-                errors.append(f"Shared footer missing or duplicated: {relative_posix}")
-
     if not html_files:
         errors.append("No publishable HTML found")
     return updated, errors
@@ -120,7 +112,7 @@ def main() -> None:
     if not output.is_dir():
         raise SystemExit("Missing build output directory: _site")
     updated, errors = inject(output)
-    print(f"Required UI assets applied to {updated} HTML page(s); shared layout untouched.")
+    print(f"Required UI assets applied to {updated} HTML page(s).")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
