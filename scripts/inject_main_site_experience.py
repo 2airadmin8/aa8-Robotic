@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
 """Build成果物へUI資産とfaviconのみを必須適用する。
 
-Header/Footerはbuild_site.pyがincludesから生成し、専用Artifact検証で保証する。
-この工程ではHeader/Footerを変更・判定しない。
+Header/Footerとcanonicalはbuild_site.pyが生成し、専用Artifact検証で保証する。
+この工程ではHeader/Footer・canonicalを変更・判定しない。
 """
 from __future__ import annotations
 
 import re
 from pathlib import Path
 
-SITE_ORIGIN = "https://robotics.air-admin8.co.jp"
-
 ASSETS = {
-    "main_css": "assets/css/main-site-experience.css?v=20260801-4",
-    "footer_css": "assets/css/footer-mobile-cleanup.css?v=20260801-4",
-    "logo_css": "assets/css/main-logo.css?v=20260731-2",
-    "shared_css": "assets/css/shared-layout.css?v=20260803-buildfix",
-    "js": "assets/js/main-site-experience.js?v=20260801-15",
-    "favicon": "assets/img/airadmin8-192x192.svg?v=20260803-brand-v2",
+    "main_css": "assets/css/main-site-experience.css",
+    "footer_css": "assets/css/footer-mobile-cleanup.css",
+    "logo_css": "assets/css/main-logo.css",
+    "shared_css": "assets/css/shared-layout.css",
+    "js": "assets/js/main-site-experience.js",
+    "favicon": "assets/img/airadmin8-192x192.svg",
 }
 
 
@@ -30,19 +28,12 @@ def remove_existing_icons(markup: str) -> str:
     )
 
 
-def normalize_canonical(markup: str, relative_posix: str) -> str:
-    canonical_path = "/" if relative_posix == "index.html" else f"/{relative_posix}"
-    canonical = f'{SITE_ORIGIN}{canonical_path}'
-    tag = f'<link rel="canonical" href="{canonical}">'
-    pattern = re.compile(r'<link\b(?=[^>]*\brel=["\']canonical["\'])[^>]*>', re.I)
-    if pattern.search(markup):
-        return pattern.sub(tag, markup, count=1)
-    return markup.replace("</head>", f"  {tag}\n</head>", 1)
-
-
-def upsert_head_link(markup: str, pattern: str, link: str) -> str:
-    compiled = re.compile(pattern, re.I)
-    match = compiled.search(markup)
+def upsert_head_link(markup: str, asset_name: str, link: str) -> str:
+    pattern = re.compile(
+        rf'<link\b(?=[^>]*\brel=["\'][^"\']*\bstylesheet\b[^"\']*["\'])(?=[^>]*\bhref=["\'][^"\']*{re.escape(asset_name)}(?:\?[^"\']*)?["\'])[^>]*>',
+        re.I,
+    )
+    match = pattern.search(markup)
     if match:
         return markup[:match.start()] + link + markup[match.end():]
     return markup.replace("</head>", f"  {link}\n</head>", 1)
@@ -78,18 +69,17 @@ def inject(output: Path) -> tuple[int, list[str]]:
             continue
 
         markup = remove_existing_icons(original)
-        markup = normalize_canonical(markup, relative_posix)
         css_items = [
-            (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-site-experience\.css[^"\']*["\']\s*/?>', ASSETS["main_css"]),
-            (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*footer-mobile-cleanup\.css[^"\']*["\']\s*/?>', ASSETS["footer_css"]),
-            (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*main-logo\.css[^"\']*["\']\s*/?>', ASSETS["logo_css"]),
-            (r'<link\s+rel=["\']stylesheet["\']\s+href=["\'][^"\']*shared-layout\.css[^"\']*["\']\s*/?>', ASSETS["shared_css"]),
+            ("main-site-experience.css", ASSETS["main_css"]),
+            ("footer-mobile-cleanup.css", ASSETS["footer_css"]),
+            ("main-logo.css", ASSETS["logo_css"]),
+            ("shared-layout.css", ASSETS["shared_css"]),
         ]
         expected: list[str] = []
-        for pattern, asset in css_items:
+        for asset_name, asset in css_items:
             href = prefix + asset
             expected.append(href)
-            markup = upsert_head_link(markup, pattern, f'<link rel="stylesheet" href="{href}">')
+            markup = upsert_head_link(markup, asset_name, f'<link rel="stylesheet" href="{href}">')
 
         favicon = prefix + ASSETS["favicon"]
         icon_block = (
@@ -100,7 +90,10 @@ def inject(output: Path) -> tuple[int, list[str]]:
 
         js_src = prefix + ASSETS["js"]
         js_tag = f'<script src="{js_src}" defer></script>'
-        js_pattern = re.compile(r'<script\s+src=["\'][^"\']*main-site-experience\.js[^"\']*["\']\s*(?:defer)?\s*></script>', re.I)
+        js_pattern = re.compile(
+            r'<script\b(?=[^>]*\bsrc=["\'][^"\']*main-site-experience\.js(?:\?[^"\']*)?["\'])[^>]*></script>',
+            re.I,
+        )
         match = js_pattern.search(markup)
         if match:
             markup = markup[:match.start()] + js_tag + markup[match.end():]
@@ -111,7 +104,7 @@ def inject(output: Path) -> tuple[int, list[str]]:
             path.write_text(markup, encoding="utf-8")
             updated += 1
 
-        checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"', f'href="{SITE_ORIGIN}{"/" if relative_posix == "index.html" else "/" + relative_posix}"']
+        checks = expected + [js_src, favicon, 'data-aa8-brand-icon="true"']
         if any(value not in markup for value in checks):
             errors.append(f"UI asset verification failed: {relative_posix}")
 
