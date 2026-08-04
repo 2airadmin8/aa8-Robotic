@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ロボット・フィジカルAI用語集｜AirAdmin8 Robotics</title>
+  <meta name="description" content="AIロボット、ヒューマノイド、VLA、ROS 2、SLAM、遠隔操作など、導入検討でよく使う用語を分かりやすく解説します。">
+  <link rel="canonical" href="https://robotics.air-admin8.co.jp/glossary.html">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/shared-layout.css">
+  <style>
+    .glossary-hero,.glossary-wrap{width:min(1080px,calc(100% - 40px));margin:auto}.glossary-hero{padding:72px 0 36px}.glossary-hero h1{font-size:clamp(2rem,5vw,3.6rem);margin:0 0 18px}.glossary-hero p{max-width:760px;line-height:1.9;color:#58707d}.term-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;padding:20px 0 80px}.term{padding:26px;border:1px solid #d8e7ed;border-radius:18px;background:#fff}.term h2{margin:0 0 12px;font-size:1.25rem;color:#073e5a}.term p{margin:0;line-height:1.8;color:#526c79}.term .en{display:block;margin-top:4px;font-size:.78rem;letter-spacing:.06em;color:#0084c5;font-weight:700}.glossary-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.glossary-nav a{padding:10px 14px;border:1px solid #b8dce9;border-radius:999px;color:#087cae;text-decoration:none;font-weight:700;background:#f5fbfd}@media(max-width:760px){.term-grid{grid-template-columns:1fr}.glossary-hero{padding-top:44px}}
+  </style>
+</head>
+<body>
+<header class="site-header" data-shared-layout="header"><div class="wrap header-inner"><a class="brand" href="/"><img class="brand-logo brand-logo-pc" src="/assets/img/logo-airadmin8-robotics-pc.svg" alt="AirAdmin8 Robotics"><img class="brand-logo brand-logo-sp" src="/assets/img/logo-airadmin8-robotics-sp.svg" alt="AirAdmin8 Robotics"></a><nav class="nav"><a href="/products.html">製品を探す</a></nav></div></header>
+<main>
+  <section class="glossary-hero"><p>GLOSSARY</p><h1>ロボット・フィジカルAI用語集</h1><p>研究・教育・PoCでAIロボットを比較・導入するときに頻出する用語を、機種選定や運用の観点から簡潔に整理しています。</p><div class="glossary-nav"><a href="#physical-ai">フィジカルAI</a><a href="#humanoid">ヒューマノイド</a><a href="#vla">VLA</a><a href="#ros2">ROS 2</a><a href="#slam">SLAM</a><a href="#teleop">遠隔操作</a></div></section>
+  <section class="glossary-wrap term-grid">
+    <article class="term" id="physical-ai"><h2>フィジカルAI<span class="en">PHYSICAL AI</span></h2><p>カメラやセンサーで周囲を認識し、現実空間で判断・移動・把持などを行うAIシステムの総称です。</p></article>
+    <article class="term" id="humanoid"><h2>ヒューマノイドロボット<span class="en">HUMANOID ROBOT</span></h2><p>人に近い胴体、腕、脚などを持つロボットです。人向けに作られた環境や道具を利用しやすい点が特徴です。</p></article>
+    <article class="term" id="vla"><h2>VLA<span class="en">VISION-LANGUAGE-ACTION</span></h2><p>画像、言語指示、ロボット動作を統合して扱うモデルです。自然言語によるタスク指示と動作生成をつなぎます。</p></article>
+    <article class="term"><h2>VLM<span class="en">VISION-LANGUAGE MODEL</span></h2><p>画像と文章を同時に理解するモデルです。物体認識、状況説明、作業計画などに使われます。</p></article>
+    <article class="term" id="ros2"><h2>ROS 2<span class="en">ROBOT OPERATING SYSTEM 2</span></h2><p>ロボット向けソフトウェアを部品化して連携させるための基盤です。センサー、制御、可視化などを統合します。</p></article>
+    <article class="term" id="slam"><h2>SLAM<span class="en">SIMULTANEOUS LOCALIZATION AND MAPPING</span></h2><p>ロボットが自己位置を推定しながら周囲の地図を作る技術です。自律移動ロボットで重要です。</p></article>
+    <article class="term" id="teleop"><h2>遠隔操作<span class="en">TELEOPERATION</span></h2><p>操作者の入力を使って離れた場所のロボットを動かす方式です。データ収集、実証、危険環境で利用されます。</p></article>
+    <article class="term"><h2>模倣学習<span class="en">IMITATION LEARNING</span></h2><p>人や既存ポリシーの実演データを学習し、同様の動作を再現する手法です。</p></article>
+    <article class="term"><h2>強化学習<span class="en">REINFORCEMENT LEARNING</span></h2><p>行動結果に対する報酬を使って、望ましい動作方策を学ぶ手法です。</p></article>
+    <article class="term"><h2>自由度<span class="en">DEGREES OF FREEDOM</span></h2><p>ロボットの関節や機構が独立して動ける方向の数です。操作性や制御難度に影響します。</p></article>
+    <article class="term"><h2>エンドエフェクタ<span class="en">END EFFECTOR</span></h2><p>ロボットアームの先端に取り付ける機器です。グリッパー、吸着ハンド、工具などがあります。</p></article>
+    <article class="term"><h2>PoC<span class="en">PROOF OF CONCEPT</span></h2><p>本格導入前に、対象業務で技術的・運用的に成立するかを小規模に検証する取り組みです。</p></article>
+  </section>
+</main>
+<footer class="footer" data-shared-layout="footer"><div class="wrap footer-grid"><div><a class="aa8-footer-brand" href="/"><img class="aa8-main-logo" src="/assets/img/logo-airadmin8-robotics-pc.svg" alt="AirAdmin8 Robotics"></a></div><nav class="footer-links"><a href="/products.html">製品</a></nav></div></footer>
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>
