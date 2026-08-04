@@ -2,7 +2,7 @@
 """Attach required shared assets to the generated site.
 
 This script never edits CSS rules, header/footer markup, canonical URLs, or content.
-It only normalizes references to approved CSS, JavaScript, and favicon assets.
+It only normalizes references to approved CSS, JavaScript, favicon, and shared-header runtime assets.
 """
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ ASSETS = {
     "footer_css": "assets/css/footer-mobile-cleanup.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
+    "shared_header_js": "assets/js/shared-header-runtime.js",
     "favicon": "assets/img/favicon-airadmin8.svg",
 }
 
@@ -90,6 +91,27 @@ def main() -> int:
             re.I,
         )
         markup = replace_or_insert(markup, js_pattern, f'<script src="{prefix}{ASSETS["js"]}" defer></script>', "</body>")
+
+        shared_header_pattern = re.compile(
+            r'<script\b(?=[^>]*src=["\'][^"\']*shared-header-runtime\.js(?:\?[^"\']*)?["\'])[^>]*></script>',
+            re.I,
+        )
+        shared_header_script = f'<script src="{prefix}{ASSETS["shared_header_js"]}" defer></script>'
+        match = shared_header_pattern.search(markup)
+        if match:
+            markup = markup[: match.start()] + shared_header_script + markup[match.end() :]
+        else:
+            main_script = re.search(
+                r'<script\b(?=[^>]*src=["\'][^"\']*main-site-experience\.js["\'])[^>]*></script>',
+                markup,
+                re.I,
+            )
+            if main_script:
+                markup = markup[: main_script.end()] + "\n  " + shared_header_script + markup[main_script.end() :]
+            elif "</body>" in markup:
+                markup = markup.replace("</body>", f"  {shared_header_script}\n</body>", 1)
+            else:
+                raise ValueError("Missing </body>")
 
         if markup != original:
             path.write_text(markup, encoding="utf-8")
