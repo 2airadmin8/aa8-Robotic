@@ -52,7 +52,6 @@
   line-height: 0 !important;
   overflow: visible !important;
 }
-.site-header .brand > * { display: none !important; }
 .site-header .brand > .brand-picture {
   display: block !important;
   width: 100% !important;
