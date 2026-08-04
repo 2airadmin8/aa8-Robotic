@@ -25,16 +25,20 @@ def main() -> None:
     detail_pages = sorted((SITE / "glossary").glob("*.html"))
     require(detail_pages, "No glossary detail pages were generated")
 
-    expected_pc_logo = "brand-airadmin8-robotics-pc-v4.svg"
-    expected_sp_logo = "brand-airadmin8-robotics-sp-v4.svg"
-    forbidden_public_text = [
-        "重点解説",
-        "【80語】",
-        "8分類×10語",
+    expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
+    expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
+    expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
+    forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
+    forbidden_brand_tokens = [
+        "airadmin8-192x192.svg",
+        "airadmin8-official-logo.png",
+        "brand-airadmin8-robotics-pc-v4.svg",
+        "brand-airadmin8-robotics-sp-v4.svg",
+        "logo-airadmin8-robotics-pc.svg",
+        "logo-airadmin8-robotics-sp.svg",
+        "assets/img/brand/",
     ]
-    legacy_link_pattern = re.compile(
-        r'(?:href|src|srcset)=["\'][^"\']*/aa8-Robotic/', re.IGNORECASE
-    )
+    legacy_link_pattern = re.compile(r'(?:href|src|srcset)=["\'][^"\']*/aa8-Robotic/', re.IGNORECASE)
 
     for relative in [*pages, detail_pages[0].relative_to(SITE).as_posix()]:
         html = read(relative)
@@ -42,13 +46,12 @@ def main() -> None:
         require('data-shared-layout="footer"' in html, f"Shared footer missing: {relative}")
         require(expected_pc_logo in html, f"PC brand logo missing: {relative}")
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
+        require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
         require("data.menuReady" in html or "assets/js/site.js" in html, f"SP menu wiring missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
-        require("logo-airadmin8-robotics-pc.svg" not in html, f"Old PC logo path: {relative}")
-        require("logo-airadmin8-robotics-sp.svg" not in html, f"Old SP logo path: {relative}")
-        for token in forbidden_public_text:
-            require(token not in html, f"Forbidden public token {token!r}: {relative}")
+        for token in [*forbidden_public_text, *forbidden_brand_tokens]:
+            require(token not in html, f"Forbidden token {token!r}: {relative}")
 
     glossary = read("glossary.html")
     require("ロボット・フィジカルAI用語集" in glossary, "Glossary title missing")
@@ -56,15 +59,28 @@ def main() -> None:
     require('data-category-filter=""' in glossary, "Glossary all-category filter missing")
     require("詳しく見る →" in glossary, "Glossary detail links missing")
 
-    require((SITE / "assets/img" / expected_pc_logo).is_file(), "PC logo asset missing")
-    require((SITE / "assets/img" / expected_sp_logo).is_file(), "SP logo asset missing")
+    required_assets = [
+        expected_pc_logo,
+        expected_sp_logo,
+        expected_footer_logo,
+        "airadmin8-symbol.svg",
+        "airadmin8-wordmark.svg",
+        "airadmin8-robotics-badge.svg",
+        "favicon-airadmin8.svg",
+        "airadmin8-icon-192.png",
+        "airadmin8-icon-512.png",
+        "apple-touch-icon.png",
+    ]
+    for asset in required_assets:
+        require((SITE / "assets/img" / asset).is_file(), f"Brand asset missing: {asset}")
 
     print("Display verification passed:")
     print("- shared header/footer")
-    print("- PC/SP brand assets")
+    print("- official PC/SP/Footer brand assets")
+    print("- favicon and app icons")
     print("- SP menu wiring")
     print("- glossary search/filter/detail links")
-    print("- legacy link attributes and public labels absent")
+    print("- legacy logo paths absent")
 
 
 if __name__ == "__main__":

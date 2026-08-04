@@ -9,7 +9,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-BASE_URL = "https://robotics.air-admin8.co.jp/"
 
 REQUIRED_FILES = [
     "index.html",
@@ -17,9 +16,16 @@ REQUIRED_FILES = [
     "products/unitree-g1-d.html",
     "contact.html",
     "assets/css/shared-layout.css",
-    "assets/img/logo-airadmin8-robotics-pc.svg",
-    "assets/img/logo-airadmin8-robotics-sp.svg",
-    "assets/img/airadmin8-192x192.svg",
+    "assets/img/airadmin8-robotics-logo-pc.svg",
+    "assets/img/airadmin8-robotics-logo-sp.svg",
+    "assets/img/airadmin8-robotics-logo-footer.svg",
+    "assets/img/airadmin8-symbol.svg",
+    "assets/img/airadmin8-wordmark.svg",
+    "assets/img/airadmin8-robotics-badge.svg",
+    "assets/img/favicon-airadmin8.svg",
+    "assets/img/airadmin8-icon-192.png",
+    "assets/img/airadmin8-icon-512.png",
+    "assets/img/apple-touch-icon.png",
     "sitemap.xml",
     "robots.txt",
     "CNAME",
@@ -40,6 +46,13 @@ FORBIDDEN_SOURCE_PATHS = {
     "scripts/sync_top_header.py",
     "assets/css/main-logo.css",
     "assets/img/logo-airadmin8-robotics-pc.png",
+    "assets/img/airadmin8-192x192.svg",
+    "assets/img/airadmin8-official-logo.png",
+    "assets/img/brand-airadmin8-robotics-pc-v4.svg",
+    "assets/img/brand-airadmin8-robotics-sp-v4.svg",
+    "assets/img/logo-airadmin8-robotics-pc.svg",
+    "assets/img/logo-airadmin8-robotics-sp.svg",
+    "assets/img/brand",
     "STEP5_ARTIFACT_VALIDATION.md",
 }
 
@@ -47,6 +60,10 @@ LEGACY_PATTERNS = {
     "legacy GitHub Pages URL prefix": re.compile(r"https://robotics\.air-admin8\.co\.jp/aa8-Robotic/", re.I),
     "legacy logo stylesheet": re.compile(r"main-logo\.css", re.I),
     "legacy PNG logo": re.compile(r"logo-airadmin8-robotics-pc\.png", re.I),
+    "legacy PC logo": re.compile(r"(?:brand-)?logo-airadmin8-robotics-pc(?:-v4)?\.svg", re.I),
+    "legacy SP logo": re.compile(r"(?:brand-)?logo-airadmin8-robotics-sp(?:-v4)?\.svg", re.I),
+    "legacy favicon": re.compile(r"airadmin8-192x192\.svg", re.I),
+    "legacy brand directory": re.compile(r"assets/img/brand/", re.I),
     "legacy brand-picture markup": re.compile(r'class=["\']brand-picture["\']', re.I),
     "legacy logo hiding CSS": re.compile(r"\.brand\s*>\s*\*\s*\{[^{}]*display\s*:\s*none\s*!important", re.I | re.S),
 }
@@ -66,10 +83,7 @@ def verify_source_hygiene(errors: list[str]) -> None:
     workflow_dir = ROOT / ".github" / "workflows"
     actual_workflows = {path.name for path in workflow_dir.glob("*.yml")}
     if actual_workflows != ALLOWED_WORKFLOWS:
-        errors.append(
-            "workflow set mismatch: "
-            f"expected={sorted(ALLOWED_WORKFLOWS)} actual={sorted(actual_workflows)}"
-        )
+        errors.append(f"workflow set mismatch: expected={sorted(ALLOWED_WORKFLOWS)} actual={sorted(actual_workflows)}")
 
     for relative in sorted(FORBIDDEN_SOURCE_PATHS):
         if (ROOT / relative).exists():
@@ -122,6 +136,9 @@ def main() -> int:
             'data-shared-layout="footer"',
             'class="brand-logo brand-logo-pc"',
             'class="brand-logo brand-logo-sp"',
+            'airadmin8-robotics-logo-pc.svg',
+            'airadmin8-robotics-logo-sp.svg',
+            'airadmin8-robotics-logo-footer.svg',
             'shared-layout.css',
             'data-aa8-brand-icon="true"',
             'property="og:url"',
@@ -135,10 +152,7 @@ def main() -> int:
         if text.count('data-shared-layout="footer"') != 1:
             errors.append(f"shared footer count is not 1: {relative}")
 
-    inspect_files = [
-        path for path in OUTPUT.rglob("*")
-        if path.is_file() and path.suffix.lower() in {".html", ".css", ".xml", ".js"}
-    ]
+    inspect_files = [path for path in OUTPUT.rglob("*") if path.is_file() and path.suffix.lower() in {".html", ".css", ".xml", ".js"}]
     for path in inspect_files:
         text = path.read_text(encoding="utf-8", errors="replace")
         relative = path.relative_to(OUTPUT)
@@ -152,9 +166,13 @@ def main() -> int:
             errors.append(f"shared-layout.css missing: {marker}")
 
     for asset in (
-        "assets/img/logo-airadmin8-robotics-pc.svg",
-        "assets/img/logo-airadmin8-robotics-sp.svg",
-        "assets/img/airadmin8-192x192.svg",
+        "assets/img/airadmin8-robotics-logo-pc.svg",
+        "assets/img/airadmin8-robotics-logo-sp.svg",
+        "assets/img/airadmin8-robotics-logo-footer.svg",
+        "assets/img/airadmin8-symbol.svg",
+        "assets/img/airadmin8-wordmark.svg",
+        "assets/img/airadmin8-robotics-badge.svg",
+        "assets/img/favicon-airadmin8.svg",
     ):
         if "<svg" not in (OUTPUT / asset).read_text(encoding="utf-8", errors="replace"):
             errors.append(f"invalid SVG: {asset}")
@@ -171,10 +189,7 @@ def main() -> int:
     if errors:
         return fail(errors)
 
-    print(
-        f"Release verification PASSED: {len(html_files)} HTML page(s), "
-        f"{len(ALLOWED_WORKFLOWS)} workflow(s), clean publishable source tree."
-    )
+    print(f"Release verification PASSED: {len(html_files)} HTML page(s), {len(ALLOWED_WORKFLOWS)} workflow(s), clean publishable source tree.")
     return 0
 
 
