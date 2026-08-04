@@ -49,7 +49,9 @@ def main() -> None:
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
-        require(expected_header_runtime in html, f"SP menu runtime missing: {relative}")
+        require('data-aa8-menu-runtime="true"' in html, f"Shared SP menu runtime missing: {relative}")
+        require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
+        require(expected_header_runtime in html, f"Header logo runtime missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
@@ -80,14 +82,13 @@ def main() -> None:
     runtime = (SITE / expected_header_runtime).read_text(encoding="utf-8")
     require("airadmin8-robotics-logo-pc.svg" in runtime, "PC logo runtime restoration missing")
     require("airadmin8-robotics-logo-sp.svg" in runtime, "SP logo runtime restoration missing")
-    require("menuReady" in runtime and "classList.toggle('open')" in runtime, "Mobile menu runtime binding missing")
 
     print("Display verification passed:")
     print("- shared header/footer")
     print("- official PC/SP/Footer brand assets")
     print("- favicon and app icons")
-    print("- shared header runtime")
-    print("- SP menu wiring")
+    print("- official logo runtime")
+    print("- shared inline SP menu runtime")
     print("- glossary search/filter/detail links")
     print("- legacy logo paths absent")
 
