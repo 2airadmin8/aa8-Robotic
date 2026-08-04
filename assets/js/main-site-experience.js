@@ -1,52 +1,6 @@
 (() => {
   'use strict';
 
-  const stylesheet = document.querySelector('link[href*="main-site-experience.css"]');
-  const baseUrl = stylesheet
-    ? new URL(stylesheet.getAttribute('href'), document.baseURI).href.replace(/assets\/css\/main-site-experience\.css(?:\?[^#]*)?$/, '')
-    : new URL('./', document.baseURI).href;
-
-  const makeUrl = (path) => new URL(path, baseUrl).href;
-  const logoMarkup = `<img class="aa8-main-logo" src="${makeUrl('assets/img/airadmin8-official-logo.png?v=20260731-1')}" alt="AirAdmin8">`;
-
-  document.querySelectorAll(
-    '.site-header .brand, .header .brand, header[role="banner"] .brand, .mobile-menu .brand, .drawer .brand, .menu-drawer .brand, .nav-drawer .brand'
-  ).forEach((brand) => {
-    if (!(brand instanceof HTMLElement)) return;
-    brand.setAttribute('aria-label', 'AirAdmin8 ロボティクス ホーム');
-    brand.innerHTML = logoMarkup;
-  });
-
-  document.querySelectorAll('footer, .site-footer').forEach((footer) => {
-    if (!(footer instanceof HTMLElement)) return;
-    footer.classList.add('footer', 'aa8-normalized-footer');
-    footer.innerHTML = `
-      <div class="wrap footer-grid">
-        <div class="aa8-footer-company">
-          <strong>AirAdmin8 ロボティクス</strong>
-          <p>株式会社AirAdmin8のロボティクス事業。AIロボットを、選ぶ・つなぐ・実装する。</p>
-        </div>
-        <nav class="footer-links" aria-label="フッターナビゲーション">
-          <a href="${makeUrl('products.html')}">製品</a>
-          <a href="${makeUrl('use-cases.html')}">用途</a>
-          <a href="${makeUrl('support.html')}">導入支援</a>
-          <a href="${makeUrl('cases.html')}">事例</a>
-          <a href="${makeUrl('resources.html')}">資料・SDK</a>
-          <a href="${makeUrl('about.html')}">会社情報</a>
-          <a href="${makeUrl('contact.html')}">相談</a>
-          <a href="https://www.air-admin8.co.jp/">コーポレートサイト</a>
-        </nav>
-      </div>
-      <section class="aa8-footer-learning" aria-labelledby="aa8-footer-learning-title">
-        <h2 class="aa8-footer-learning__title" id="aa8-footer-learning-title">学ぶ・調べる</h2>
-        <nav class="aa8-footer-learning__links" aria-label="学ぶ・調べる">
-          <a href="${makeUrl('glossary.html')}">ロボット・フィジカルAI用語集</a>
-          <a href="${makeUrl('resources.html')}">資料・SDK</a>
-          <a href="${makeUrl('faq.html')}">よくある質問</a>
-        </nav>
-      </section>`;
-  });
-
   const topButton = document.createElement('button');
   topButton.className = 'aa8-back-to-top';
   topButton.type = 'button';
