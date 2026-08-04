@@ -17,28 +17,41 @@
     </nav>
   </div>
 </footer>
-<script>
+<script data-aa8-menu-runtime="true">
 (() => {
-  window.addEventListener('load', () => {
-    const currentButton = document.querySelector('.menu');
-    const navigation = document.querySelector('.nav');
-    if (!currentButton || !navigation) return;
+  if (window.__AA8_SHARED_MENU_READY__) return;
+  window.__AA8_SHARED_MENU_READY__ = true;
 
-    const menuButton = currentButton.cloneNode(true);
-    currentButton.replaceWith(menuButton);
-    menuButton.dataset.menuReady = 'true';
+  const closeMenu = () => {
+    const header = document.querySelector('.site-header[data-shared-layout="header"]');
+    const button = header?.querySelector('.menu');
+    const navigation = header?.querySelector('.nav');
+    navigation?.classList.remove('open');
+    button?.setAttribute('aria-expanded', 'false');
+  };
 
-    menuButton.addEventListener('click', () => {
+  document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const button = target.closest('.site-header[data-shared-layout="header"] .menu');
+    if (button instanceof HTMLButtonElement) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const navigation = button.closest('.site-header')?.querySelector('.nav');
+      if (!(navigation instanceof HTMLElement)) return;
       const isOpen = navigation.classList.toggle('open');
-      menuButton.setAttribute('aria-expanded', String(isOpen));
-    });
+      button.setAttribute('aria-expanded', String(isOpen));
+      return;
+    }
 
-    navigation.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        navigation.classList.remove('open');
-        menuButton.setAttribute('aria-expanded', 'false');
-      });
-    });
-  }, { once: true });
+    if (target.closest('.site-header[data-shared-layout="header"] .nav a')) {
+      closeMenu();
+    }
+  }, true);
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeMenu();
+  });
 })();
 </script>
