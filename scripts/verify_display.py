@@ -28,6 +28,7 @@ def main() -> None:
     expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
     expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
     expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
+    expected_header_runtime = "assets/js/shared-header-runtime.js"
     forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
     forbidden_brand_tokens = [
         "airadmin8-192x192.svg",
@@ -48,7 +49,7 @@ def main() -> None:
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
-        require("data.menuReady" in html or "assets/js/site.js" in html, f"SP menu wiring missing: {relative}")
+        require(expected_header_runtime in html, f"SP menu runtime missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
@@ -70,14 +71,22 @@ def main() -> None:
         "airadmin8-icon-192.png",
         "airadmin8-icon-512.png",
         "apple-touch-icon.png",
+        "shared-header-runtime.js",
     ]
     for asset in required_assets:
-        require((SITE / "assets/img" / asset).is_file(), f"Brand asset missing: {asset}")
+        asset_path = SITE / ("assets/js" if asset.endswith(".js") else "assets/img") / asset
+        require(asset_path.is_file(), f"Brand asset missing: {asset}")
+
+    runtime = (SITE / expected_header_runtime).read_text(encoding="utf-8")
+    require("airadmin8-robotics-logo-pc.svg" in runtime, "PC logo runtime restoration missing")
+    require("airadmin8-robotics-logo-sp.svg" in runtime, "SP logo runtime restoration missing")
+    require("menuReady" in runtime and "classList.toggle('open')" in runtime, "Mobile menu runtime binding missing")
 
     print("Display verification passed:")
     print("- shared header/footer")
     print("- official PC/SP/Footer brand assets")
     print("- favicon and app icons")
+    print("- shared header runtime")
     print("- SP menu wiring")
     print("- glossary search/filter/detail links")
     print("- legacy logo paths absent")
