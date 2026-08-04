@@ -41,11 +41,14 @@ jobs:
           rm -rf _site
           python -m py_compile \
             scripts/build_site.py \
+            scripts/generate_glossary.py \
+            scripts/verify_glossary.py \
             scripts/apply_site_assets.py \
             scripts/verify_release.py \
             scripts/inject_static_meta.py \
             scripts/inject_structured_data.py
           python scripts/build_site.py
+          python scripts/generate_glossary.py
           python scripts/inject_static_meta.py
           python scripts/inject_structured_data.py
           python scripts/apply_site_assets.py
@@ -77,7 +80,11 @@ jobs:
           PY
 
       - name: Verify release artifact
-        run: python scripts/verify_release.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_glossary.py
+          python scripts/verify_release.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
