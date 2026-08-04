@@ -1,0 +1,65 @@
+name: Production Release Check
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 0,3,6,9 * * 1-5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-release-check
+  cancel-in-progress: true
+
+jobs:
+  verify-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BASE_URL: https://robotics.air-admin8.co.jp
+    steps:
+      - name: Verify production release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf "${temp_dir}"' EXIT
+
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/?check=${GITHUB_RUN_ID}" -o "${temp_dir}/index.html"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/products.html?check=${GITHUB_RUN_ID}" -o "${temp_dir}/products.html"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/css/shared-layout.css?check=${GITHUB_RUN_ID}" -o "${temp_dir}/shared-layout.css"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/logo-airadmin8-robotics-pc.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/pc.svg"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/logo-airadmin8-robotics-sp.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sp.svg"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/robots.txt?check=${GITHUB_RUN_ID}" -o "${temp_dir}/robots.txt"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/sitemap.xml?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sitemap.xml"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_dir}/deploy-meta.json"
+
+          for page in index.html products.html; do
+            grep -Fq 'data-shared-layout="header"' "${temp_dir}/${page}"
+            grep -Fq 'data-shared-layout="footer"' "${temp_dir}/${page}"
+            grep -Fq 'brand-logo-pc' "${temp_dir}/${page}"
+            grep -Fq 'brand-logo-sp' "${temp_dir}/${page}"
+            grep -Fq 'https://robotics.air-admin8.co.jp/' "${temp_dir}/${page}"
+            ! grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' "${temp_dir}/${page}"
+          done
+
+          grep -Fq '.brand-logo-pc' "${temp_dir}/shared-layout.css"
+          grep -Fq '.brand-logo-sp' "${temp_dir}/shared-layout.css"
+          ! grep -Eq '\.brand\s*>\s*\*\s*\{[^}]*display\s*:\s*none\s*!important' "${temp_dir}/shared-layout.css"
+          grep -Fq '<svg' "${temp_dir}/pc.svg"
+          grep -Fq '<svg' "${temp_dir}/sp.svg"
+          grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' "${temp_dir}/robots.txt"
+          grep -Fq 'https://robotics.air-admin8.co.jp/' "${temp_dir}/sitemap.xml"
+
+          python - <<'PY' "${temp_dir}/deploy-meta.json"
+          import json
+          import sys
+          from pathlib import Path
+          data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          if not data.get("commit_sha"):
+              raise SystemExit("deploy-meta.json has no commit_sha")
+          print(f"Production commit: {data['commit_sha']}")
+          PY
+
+          echo "Production release check passed."

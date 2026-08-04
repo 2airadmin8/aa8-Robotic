@@ -1,0 +1,51 @@
+name: PR CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          python -m py_compile \
+            scripts/build_site.py \
+            scripts/apply_site_assets.py \
+            scripts/verify_release.py \
+            scripts/inject_static_meta.py \
+            scripts/inject_structured_data.py
+          python scripts/build_site.py
+          python scripts/inject_static_meta.py
+          python scripts/inject_structured_data.py
+          python scripts/apply_site_assets.py
+
+      - name: Verify release candidate
+        run: python scripts/verify_release.py
+
+      - name: Ensure build does not modify tracked source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code

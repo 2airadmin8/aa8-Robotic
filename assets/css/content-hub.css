@@ -385,8 +385,7 @@
   }
 }
 
-/* 2026-08-03 mobile header emergency fix
-   site.css の旧 .brand>*{display:none!important} をこのページ群で確実に解除する。 */
+/* 共通ヘッダーのレスポンシブ補助 */
 .site-header .brand {
   display: block !important;
   width: 180px !important;
