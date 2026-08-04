@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the glossary index and priority detail pages from data/glossary.json."""
+"""Generate the glossary index and selected detail pages from data/glossary.json."""
 from __future__ import annotations
 
 import html
@@ -57,7 +57,35 @@ def head(title: str, description: str, canonical: str, depth: int = 0, schema: d
 <title>{esc(title)}</title><meta name="description" content="{esc(description)}">
 <link rel="canonical" href="{canonical}"><meta property="og:url" content="{canonical}">
 <link rel="stylesheet" href="{prefix}assets/css/site.css"><link rel="stylesheet" href="{prefix}assets/css/shared-layout.css">
-<style>.glossary-shell{{width:min(1120px,calc(100% - 40px));margin:auto}}.glossary-hero{{padding:64px 0 32px;background:linear-gradient(135deg,#fff,#eef9fc)}}.glossary-hero h1{{font-size:clamp(2rem,5vw,3.4rem);margin:.3em 0}}.glossary-hero p{{max-width:820px;line-height:1.9;color:#536c78}}.glossary-tools{{position:sticky;top:72px;z-index:10;padding:16px 0;background:rgba(255,255,255,.96);border-bottom:1px solid #d8e7ed;backdrop-filter:blur(10px)}}.glossary-search{{box-sizing:border-box;width:100%;min-height:52px;padding:13px 15px;border:1px solid #bdd9e5;border-radius:12px;font:inherit}}.glossary-index{{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}}.glossary-index button,.glossary-index a{{padding:9px 12px;border:1px solid #cde1e9;border-radius:999px;color:#087cae;background:#fff;font-weight:700;text-decoration:none;cursor:pointer}}.glossary-index button[aria-pressed="true"]{{color:#fff;border-color:#087cae;background:#087cae}}.glossary-category{{padding:48px 0 4px;scroll-margin-top:180px}}.glossary-category>h2{{font-size:1.8rem;margin:0 0 20px;color:#073e5a}}.term-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}}.term-card,.glossary-detail{{padding:24px;border:1px solid #d8e7ed;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(13,61,84,.05)}}.term-card{{display:flex;min-height:210px;flex-direction:column}}.term-card h3{{margin:0 0 4px;font-size:1.2rem;color:#073e5a}}.term-card p,.glossary-detail p,.glossary-detail li{{line-height:1.75;color:#526c79}}.term-en{{margin:0!important;color:#0084c5!important;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase}}.term-link{{display:inline-block;margin-top:auto;padding-top:14px;color:#087cae;font-weight:700;text-decoration:none}}.glossary-main{{padding-bottom:80px}}.no-results{{display:none;padding:36px 0;font-weight:700;color:#7a4a00}}@media(max-width:760px){{.glossary-shell{{width:min(100% - 28px,1120px)}}.glossary-tools{{top:60px}}.term-grid{{grid-template-columns:1fr}}.term-card{{min-height:0}}.glossary-category{{padding-top:36px}}}}</style>
+<style>
+.glossary-shell{{width:min(var(--max),calc(100% - 40px));margin-inline:auto}}
+.glossary-main{{padding-bottom:72px;font-family:inherit}}
+.glossary-hero{{padding:48px 0 34px;background:linear-gradient(180deg,#f3faff 0%,#fff 100%)}}
+.glossary-kicker{{margin:0 0 12px;color:var(--blue);font-size:.8rem;font-weight:900;letter-spacing:.14em}}
+.glossary-hero h1{{max-width:980px;margin:0;line-height:1.12;font-size:clamp(2.25rem,4.2vw,3.6rem);letter-spacing:-.035em;color:var(--ink)}}
+.glossary-intro{{max-width:900px;margin:20px 0 0;color:var(--muted);font-size:1.06rem;line-height:1.85}}
+.glossary-tools{{position:sticky;top:72px;z-index:10;padding:18px 0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}}
+.glossary-tools label{{display:block;margin-bottom:7px;color:var(--ink);font-size:.92rem;font-weight:800}}
+.glossary-search{{box-sizing:border-box;width:100%;min-height:52px;padding:13px 16px;border:1px solid #bdd9e5;border-radius:14px;color:var(--ink);background:#fff;font:inherit}}
+.glossary-search::placeholder{{color:#7d8f98}}
+.glossary-search:focus{{outline:3px solid rgba(0,154,210,.16);border-color:var(--blue)}}
+.glossary-index{{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}}
+.glossary-index button{{min-height:42px;padding:8px 14px;border:1px solid #cde1e9;border-radius:999px;color:var(--blue-dark);background:#fff;font:inherit;font-size:.9rem;font-weight:800;cursor:pointer}}
+.glossary-index button[aria-pressed="true"]{{color:#fff;border-color:var(--blue-dark);background:var(--blue-dark)}}
+.glossary-category{{padding:48px 0 4px;scroll-margin-top:180px}}
+.glossary-category>h2{{margin:0 0 20px;color:var(--navy);font-size:clamp(1.75rem,3vw,2.4rem);line-height:1.2;letter-spacing:-.025em}}
+.term-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}}
+.term-card,.glossary-detail{{padding:24px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:var(--shadow)}}
+.term-card{{display:flex;min-height:210px;flex-direction:column}}
+.term-card h3{{margin:0 0 4px;color:var(--navy);font-size:1.18rem;line-height:1.45}}
+.term-card p,.glossary-detail p,.glossary-detail li{{color:var(--muted);line-height:1.75}}
+.term-en{{margin:0!important;color:var(--blue)!important;font-size:.76rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase}}
+.term-link{{display:inline-block;margin-top:auto;padding-top:14px;color:var(--blue-dark);font-weight:900;text-decoration:none}}
+.glossary-detail{{margin-top:40px}}
+.no-results{{display:none;padding:36px 0;color:#7a4a00;font-weight:800}}
+@media(max-width:980px){{.glossary-tools{{top:60px}}}}
+@media(max-width:760px){{.glossary-shell{{width:min(100% - 28px,var(--max))}}.glossary-main{{padding-bottom:56px}}.glossary-hero{{padding:36px 0 28px}}.glossary-hero h1{{font-size:clamp(2rem,10vw,2.75rem)}}.glossary-intro{{margin-top:16px;font-size:1rem}}.glossary-tools{{padding:14px 0}}.glossary-index{{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}}.glossary-index button{{flex:0 0 auto}}.term-grid{{grid-template-columns:1fr}}.term-card{{min-height:0}}.glossary-category{{padding-top:36px}}}}
+</style>
 {structured}</head><body>'''
 
 
@@ -74,14 +102,18 @@ def make_index(categories: list[str], terms: list[list[str | None]]) -> str:
     buttons = '<button type="button" data-category-filter="" aria-pressed="true">すべて</button>' + "".join(f'<button type="button" data-category-filter="{esc(category)}" aria-pressed="false">{esc(category)}</button>' for category in categories)
     schema = {"@context": "https://schema.org", "@type": "DefinedTermSet", "name": "ロボット・フィジカルAI用語集", "url": BASE + "glossary.html", "hasDefinedTerm": [{"@type": "DefinedTerm", "name": term[1], "alternateName": term[2], "description": term[3]} for term in terms]}
     script = '''<script>const input=document.querySelector('#glossary-search');const sections=[...document.querySelectorAll('.glossary-category')];const filterButtons=[...document.querySelectorAll('[data-category-filter]')];function filter(value=''){const q=value.trim().toLowerCase();let visible=0;sections.forEach(section=>{let count=0;section.querySelectorAll('.term-card').forEach(card=>{const show=!q||card.dataset.term.toLowerCase().includes(q)||card.textContent.toLowerCase().includes(q);card.hidden=!show;if(show)count++});section.hidden=count===0;visible+=count});document.querySelector('#no-results').style.display=visible?'none':'block';filterButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.categoryFilter.toLowerCase()===q)))}input.addEventListener('input',event=>filter(event.target.value));filterButtons.forEach(button=>button.addEventListener('click',()=>{input.value=button.dataset.categoryFilter;filter(input.value)}));</script>'''
-    return head("ロボット・フィジカルAI用語集｜AirAdmin8 Robotics", "AIロボット、具身AI、VLA、ロボット学習、ROS 2、シミュレーション、安全・法規など、研究・選定・導入に役立つ専門用語を解説します。", BASE + "glossary.html", schema=schema) + layout(HEADER) + f'''<main class="glossary-main"><section class="glossary-hero"><div class="glossary-shell"><p>ROBOT &amp; PHYSICAL AI GLOSSARY</p><h1>ロボット・フィジカルAI用語集</h1><p>製品選定、研究開発、データ収集、ROS 2、シミュレーション、安全・法規まで、AIロボットの研究と導入に必要な概念を体系的に整理しました。</p></div></section><section class="glossary-tools"><div class="glossary-shell"><label for="glossary-search">用語を検索</label><input id="glossary-search" class="glossary-search" type="search" placeholder="例：具身AI、VLA、ROS 2、RGB-D、技適"><div class="glossary-index">{buttons}</div></div></section><div class="glossary-shell"><p id="no-results" class="no-results">一致する用語がありません。</p>{''.join(cards)}</div></main>''' + layout(FOOTER) + script + "</body></html>"
+    hero = '''<main class="glossary-main"><section class="glossary-hero"><div class="glossary-shell"><p class="glossary-kicker">ROBOT &amp; PHYSICAL AI GLOSSARY</p><h1>ロボット・フィジカルAI用語集</h1><p class="glossary-intro">製品選定、研究開発、データ収集、ROS 2、シミュレーション、安全・法規まで、AIロボットの研究と導入に必要な概念を体系的に整理しました。</p></div></section>'''
+    tools = f'''<section class="glossary-tools"><div class="glossary-shell"><label for="glossary-search">用語を検索</label><input id="glossary-search" class="glossary-search" type="search" placeholder="例：VLA、ROS 2、RGB-D、技適"><div class="glossary-index">{buttons}</div></div></section><div class="glossary-shell"><p id="no-results" class="no-results">一致する用語がありません。</p>{''.join(cards)}</div></main>'''
+    return head("ロボット・フィジカルAI用語集｜AirAdmin8 Robotics", "AIロボット、具身AI、VLA、ロボット学習、ROS 2、シミュレーション、安全・法規など、研究・選定・導入に役立つ専門用語を解説します。", BASE + "glossary.html", schema=schema) + layout(HEADER) + hero + tools + layout(FOOTER) + script + "</body></html>"
 
 
 def make_detail(term: list[str | None], related: list[list[str | None]]) -> str:
     category, jp, en, description, slug = term
     links = "".join(f'<a href="{item[4]}.html">{esc(str(item[1]))}</a> ' for item in related)
     schema = {"@context": "https://schema.org", "@type": "DefinedTerm", "name": jp, "alternateName": en, "description": description, "url": BASE + f"glossary/{slug}.html", "inDefinedTermSet": BASE + "glossary.html"}
-    return head(f"{jp}とは？｜AirAdmin8 Robotics", f"{jp}（{en}）の意味と、AIロボットの研究・選定・導入で確認すべきポイントを解説します。", BASE + f"glossary/{slug}.html", depth=1, schema=schema) + layout(HEADER, 1) + f'''<main class="glossary-main"><section class="glossary-hero"><div class="glossary-shell"><p><a href="../glossary.html">用語集</a> / {esc(str(category))}</p><h1>{esc(str(jp))}とは？</h1><p>{esc(str(en))}</p></div></section><section class="glossary-shell glossary-detail"><p><strong>{esc(str(description))}</strong></p><h2>導入・研究で確認するポイント</h2><ul><li>対象タスクと必要な性能を先に定義する</li><li>対応する機体、センサー、SDK、計算環境を確認する</li><li>評価指標、データ取得条件、安全条件を決める</li><li>PoC後の保守、更新、法規対応まで含めて判断する</li></ul><h2>関連用語</h2><p>{links}<a href="../glossary.html">用語集へ戻る</a></p></section></main>''' + layout(FOOTER, 1) + "</body></html>"
+    hero = f'''<main class="glossary-main"><section class="glossary-hero"><div class="glossary-shell"><p class="glossary-kicker"><a href="../glossary.html">用語集</a> / {esc(str(category))}</p><h1>{esc(str(jp))}とは？</h1><p class="glossary-intro">{esc(str(en))}</p></div></section>'''
+    body = f'''<section class="glossary-shell glossary-detail"><p><strong>{esc(str(description))}</strong></p><h2>導入・研究で確認するポイント</h2><ul><li>対象タスクと必要な性能を先に定義する</li><li>対応する機体、センサー、SDK、計算環境を確認する</li><li>評価指標、データ取得条件、安全条件を決める</li><li>PoC後の保守、更新、法規対応まで含めて判断する</li></ul><h2>関連用語</h2><p>{links}<a href="../glossary.html">用語集へ戻る</a></p></section></main>'''
+    return head(f"{jp}とは？｜AirAdmin8 Robotics", f"{jp}（{en}）の意味と、AIロボットの研究・選定・導入で確認すべきポイントを解説します。", BASE + f"glossary/{slug}.html", depth=1, schema=schema) + layout(HEADER, 1) + hero + body + layout(FOOTER, 1) + "</body></html>"
 
 
 def update_sitemap(urls: list[str]) -> None:
