@@ -28,7 +28,6 @@ def main() -> None:
     expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
     expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
     expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
-    expected_header_runtime = "assets/js/shared-header-runtime.js"
     forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
     forbidden_brand_tokens = [
         "airadmin8-192x192.svg",
@@ -38,20 +37,20 @@ def main() -> None:
         "logo-airadmin8-robotics-pc.svg",
         "logo-airadmin8-robotics-sp.svg",
         "assets/img/brand/",
+        "shared-header-runtime.js",
     ]
     legacy_link_pattern = re.compile(r'(?:href|src|srcset)=["\'][^"\']*/aa8-Robotic/', re.IGNORECASE)
 
     for relative in [*pages, detail_pages[0].relative_to(SITE).as_posix()]:
         html = read(relative)
-        require('data-shared-layout="header"' in html, f"Shared header missing: {relative}")
-        require('data-shared-layout="footer"' in html, f"Shared footer missing: {relative}")
+        require(html.count('data-shared-layout="header"') == 1, f"Shared header count is not 1: {relative}")
+        require(html.count('data-shared-layout="footer"') == 1, f"Shared footer count is not 1: {relative}")
         require(expected_pc_logo in html, f"PC brand logo missing: {relative}")
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
-        require('data-aa8-menu-runtime="true"' in html, f"Shared SP menu runtime missing: {relative}")
+        require(html.count('data-aa8-menu-runtime="true"') == 1, f"Shared SP menu runtime count is not 1: {relative}")
         require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
-        require(expected_header_runtime in html, f"Header logo runtime missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
@@ -73,22 +72,18 @@ def main() -> None:
         "airadmin8-icon-192.png",
         "airadmin8-icon-512.png",
         "apple-touch-icon.png",
-        "shared-header-runtime.js",
     ]
     for asset in required_assets:
-        asset_path = SITE / ("assets/js" if asset.endswith(".js") else "assets/img") / asset
-        require(asset_path.is_file(), f"Brand asset missing: {asset}")
+        require((SITE / "assets/img" / asset).is_file(), f"Brand asset missing: {asset}")
 
-    runtime = (SITE / expected_header_runtime).read_text(encoding="utf-8")
-    require("airadmin8-robotics-logo-pc.svg" in runtime, "PC logo runtime restoration missing")
-    require("airadmin8-robotics-logo-sp.svg" in runtime, "SP logo runtime restoration missing")
+    require(not (SITE / "assets/js/shared-header-runtime.js").exists(), "Obsolete shared header runtime still published")
 
     print("Display verification passed:")
-    print("- shared header/footer")
+    print("- one shared header and footer")
     print("- official PC/SP/Footer brand assets")
     print("- favicon and app icons")
-    print("- official logo runtime")
-    print("- shared inline SP menu runtime")
+    print("- one inline SP menu runtime")
+    print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
     print("- legacy logo paths absent")
 
