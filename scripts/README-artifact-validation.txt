@@ -1,3 +1,0 @@
-python scripts/build_site.py
-python scripts/inject_main_site_experience.py
-python scripts/verify_shared_layout_artifact.py
