@@ -15,7 +15,7 @@ ASSETS = {
     "footer_css": "assets/css/footer-mobile-cleanup.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
-    "favicon": "assets/img/airadmin8-192x192.svg",
+    "favicon": "assets/img/favicon-airadmin8.svg",
 }
 
 
@@ -33,7 +33,18 @@ def main() -> int:
         print("ERROR: _site does not exist")
         return 1
 
-    required = [*ASSETS.values(), "assets/img/logo-airadmin8-robotics-pc.svg", "assets/img/logo-airadmin8-robotics-sp.svg"]
+    required = [
+        *ASSETS.values(),
+        "assets/img/airadmin8-robotics-logo-pc.svg",
+        "assets/img/airadmin8-robotics-logo-sp.svg",
+        "assets/img/airadmin8-robotics-logo-footer.svg",
+        "assets/img/airadmin8-symbol.svg",
+        "assets/img/airadmin8-wordmark.svg",
+        "assets/img/airadmin8-robotics-badge.svg",
+        "assets/img/airadmin8-icon-192.png",
+        "assets/img/airadmin8-icon-512.png",
+        "assets/img/apple-touch-icon.png",
+    ]
     missing = [item for item in required if not (OUTPUT / item).is_file()]
     if missing:
         for item in missing:
@@ -61,14 +72,16 @@ def main() -> int:
             markup = replace_or_insert(markup, pattern, f'<link rel="stylesheet" href="{prefix}{asset}">', "</head>")
 
         icon_pattern = re.compile(
-            r'\s*<link\b(?=[^>]*rel=["\'][^"\']*(?:icon|shortcut icon)[^"\']*["\'])[^>]*>',
+            r'\s*<link\b(?=[^>]*rel=["\'][^"\']*(?:icon|shortcut icon|apple-touch-icon)[^"\']*["\'])[^>]*>',
             re.I,
         )
         markup = icon_pattern.sub("", markup)
         icon = prefix + ASSETS["favicon"]
+        apple = prefix + "assets/img/apple-touch-icon.png"
         icon_block = (
             f'<link rel="icon" type="image/svg+xml" sizes="any" href="{icon}" data-aa8-brand-icon="true">\n'
-            f'  <link rel="shortcut icon" href="{icon}" data-aa8-brand-icon="true">'
+            f'  <link rel="shortcut icon" href="{icon}" data-aa8-brand-icon="true">\n'
+            f'  <link rel="apple-touch-icon" sizes="180x180" href="{apple}" data-aa8-brand-icon="true">'
         )
         markup = replace_or_insert(markup, re.compile(r'(?!x)x'), icon_block, "</head>")
 
