@@ -26,6 +26,11 @@ LEGACY_SITE_CSS_PATTERNS = [
         r"/\* PC logo 194x50 - 20260802 \*/\s*@media\s*\(min-width:641px\)\s*\{.*?\.brand>\*\{display:none!important\}\s*\}",
         re.I | re.S,
     ),
+    # 旧ロゴ実装が残した子要素非表示ルールを、空白・改行・セミコロン差異も含めて除去する。
+    re.compile(
+        r"\.brand\s*>\s*\*\s*\{[^{}]*?display\s*:\s*none\s*!important\s*;?[^{}]*?\}",
+        re.I | re.S,
+    ),
 ]
 
 
