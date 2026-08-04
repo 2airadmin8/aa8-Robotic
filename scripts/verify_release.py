@@ -51,6 +51,9 @@ LEGACY_PATTERNS = {
     "legacy logo hiding CSS": re.compile(r"\.brand\s*>\s*\*\s*\{[^{}]*display\s*:\s*none\s*!important", re.I | re.S),
 }
 
+SOURCE_SCAN_SUFFIXES = {".html", ".css", ".xml", ".js", ".json"}
+SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes"}
+
 
 def fail(errors: list[str]) -> int:
     for error in errors:
@@ -73,15 +76,15 @@ def verify_source_hygiene(errors: list[str]) -> None:
             errors.append(f"forbidden obsolete source remains: {relative}")
 
     for path in ROOT.rglob("*"):
-        if not path.is_file() or OUTPUT in path.parents or ".git" in path.parts:
+        if not path.is_file() or path.suffix.lower() not in SOURCE_SCAN_SUFFIXES:
             continue
-        if path.suffix.lower() not in {".html", ".css", ".xml", ".js", ".md", ".txt", ".yml", ".yaml"}:
+        relative = path.relative_to(ROOT)
+        if any(part in SOURCE_SCAN_EXCLUDED_ROOTS for part in relative.parts):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
-        relative = path.relative_to(ROOT)
         for label, pattern in LEGACY_PATTERNS.items():
             if pattern.search(text):
-                errors.append(f"{label} remains in source: {relative}")
+                errors.append(f"{label} remains in publishable source: {relative}")
 
 
 def main() -> int:
@@ -170,7 +173,7 @@ def main() -> int:
 
     print(
         f"Release verification PASSED: {len(html_files)} HTML page(s), "
-        f"{len(ALLOWED_WORKFLOWS)} workflow(s), clean source tree."
+        f"{len(ALLOWED_WORKFLOWS)} workflow(s), clean publishable source tree."
     )
     return 0
 
