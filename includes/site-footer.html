@@ -5,7 +5,7 @@
       <a class="aa8-footer-brand" href="/index.html" aria-label="AirAdmin8 Robotics ホームへ戻る">
         <img class="aa8-main-logo" src="/assets/img/airadmin8-robotics-logo-footer.svg?v=20260805-1" alt="AirAdmin8 Robotics" width="193" height="40">
       </a>
-      <p>研究・教育・PoC向けAIロボットの選定、導入、開発環境構築を支援します。</p>
+      <p>研究・教育・PoC向けAIロボットの選定、導入、开发环境构築を支援します。</p>
     </div>
     <nav class="footer-links" aria-label="フッターナビゲーション">
       <a href="/products.html">製品</a>
@@ -23,7 +23,7 @@
   window.__AA8_SHARED_MENU_READY__ = true;
 
   const closeMenu = () => {
-    const header = document.querySelector('.site-header[data-shared-layout="header"]');
+    const header = document.querySelector('.site-header');
     const button = header?.querySelector('.menu');
     const navigation = header?.querySelector('.nav');
     navigation?.classList.remove('open');
@@ -34,7 +34,7 @@
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    const button = target.closest('.site-header[data-shared-layout="header"] .menu');
+    const button = target.closest('.site-header .menu');
     if (button instanceof HTMLButtonElement) {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -45,7 +45,7 @@
       return;
     }
 
-    if (target.closest('.site-header[data-shared-layout="header"] .nav a')) {
+    if (target.closest('.site-header .nav a')) {
       closeMenu();
     }
   }, true);
