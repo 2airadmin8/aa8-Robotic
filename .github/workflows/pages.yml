@@ -1,8 +1,6 @@
-name: Build and deploy static site to GitHub Pages
+name: Deploy verified site to GitHub Pages
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -12,54 +10,38 @@ permissions:
 
 concurrency:
   group: pages-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout
+      - name: Checkout selected main revision
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build production site
+      - name: Build exact release artifact
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
-          python -m py_compile scripts/build_site.py
-          python scripts/build_site.py
-
-      - name: Apply content and SEO enhancements
-        shell: bash
-        run: |
-          set -u
-          scripts=(
-            scripts/inject_static_meta.py
+          python -m py_compile \
+            scripts/build_site.py \
+            scripts/apply_site_assets.py \
+            scripts/verify_release.py \
+            scripts/inject_static_meta.py \
             scripts/inject_structured_data.py
-            scripts/prerender_product_cards.py
-            scripts/prerender_resources.py
-            scripts/inject_accessibility.py
-            scripts/prepare_compare_print_assets.py
-          )
-          for script in "${scripts[@]}"; do
-            if [[ -f "${script}" ]]; then
-              echo "Running ${script}"
-              python "${script}" || echo "Warning: ${script} failed; final artifact verification will decide release eligibility."
-            fi
-          done
-
-      - name: Apply required UI assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/inject_main_site_experience.py
-          python scripts/inject_main_site_experience.py
+          python scripts/build_site.py
+          python scripts/inject_static_meta.py
+          python scripts/inject_structured_data.py
+          python scripts/apply_site_assets.py
 
       - name: Generate deployment metadata
         shell: bash
@@ -70,83 +52,24 @@ jobs:
           import os
           from datetime import datetime, timezone
           from pathlib import Path
-          metadata = {
-              "commit_sha": os.environ["GITHUB_SHA"],
-              "branch": os.environ["GITHUB_REF_NAME"],
-              "run_id": os.environ["GITHUB_RUN_ID"],
-              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
-              "deployed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-          }
           Path("_site/deploy-meta.json").write_text(
-              json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+              json.dumps(
+                  {
+                      "commit_sha": os.environ["GITHUB_SHA"],
+                      "branch": "main",
+                      "run_id": os.environ["GITHUB_RUN_ID"],
+                      "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+                      "deployed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  },
+                  ensure_ascii=False,
+                  indent=2,
+              ) + "\n",
               encoding="utf-8",
           )
           PY
 
-      - name: Verify production artifact
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          required_files=(
-            _site/index.html
-            _site/products.html
-            _site/products/unitree-g1-d.html
-            _site/contact.html
-            _site/assets/css/shared-layout.css
-            _site/assets/img/logo-airadmin8-robotics-pc.svg
-            _site/assets/img/logo-airadmin8-robotics-sp.svg
-            _site/assets/img/airadmin8-192x192.svg
-            _site/sitemap.xml
-            _site/robots.txt
-            _site/CNAME
-            _site/deploy-meta.json
-          )
-          for file in "${required_files[@]}"; do
-            test -s "${file}" || { echo "Missing required file: ${file}"; exit 1; }
-          done
-
-          grep -Fxq 'robotics.air-admin8.co.jp' _site/CNAME || { echo 'CNAME mismatch'; exit 1; }
-
-          pages=(
-            _site/index.html
-            _site/products.html
-            _site/contact.html
-            _site/products/unitree-g1-d.html
-          )
-          for page in "${pages[@]}"; do
-            grep -Fq 'data-shared-layout="header"' "$page" || { echo "Shared header missing: $page"; exit 1; }
-            grep -Fq 'class="brand-logo brand-logo-pc"' "$page" || { echo "PC logo markup missing: $page"; exit 1; }
-            grep -Fq 'class="brand-logo brand-logo-sp"' "$page" || { echo "SP logo markup missing: $page"; exit 1; }
-            grep -Fq 'logo-airadmin8-robotics-pc.svg' "$page" || { echo "PC logo path missing: $page"; exit 1; }
-            grep -Fq 'logo-airadmin8-robotics-sp.svg' "$page" || { echo "SP logo path missing: $page"; exit 1; }
-            grep -Fq 'shared-layout.css' "$page" || { echo "Shared CSS path missing: $page"; exit 1; }
-            grep -Fq '<link rel="canonical" href="https://robotics.air-admin8.co.jp/' "$page" || { echo "Canonical missing: $page"; exit 1; }
-            grep -Fq 'property="og:url"' "$page" || { echo "og:url missing: $page"; exit 1; }
-          done
-
-          ! grep -R -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' _site --include='*.html' --include='*.xml' || { echo 'Legacy Pages prefix remains'; exit 1; }
-          ! grep -R -Fq 'main-logo.css' _site --include='*.html' || { echo 'Legacy logo stylesheet reference remains'; exit 1; }
-          ! grep -R -Fq 'logo-airadmin8-robotics-pc.png' _site --include='*.html' --include='*.css' || { echo 'Legacy PNG logo reference remains'; exit 1; }
-          ! grep -R -Fq '.brand>*{display:none!important}' _site --include='*.css' || { echo 'Legacy logo hiding rule remains'; exit 1; }
-
-          grep -Fq '.brand-logo-pc' _site/assets/css/shared-layout.css || { echo 'PC logo CSS missing'; exit 1; }
-          grep -Fq '.brand-logo-sp' _site/assets/css/shared-layout.css || { echo 'SP logo CSS missing'; exit 1; }
-          grep -Fq '@media (max-width:980px)' _site/assets/css/shared-layout.css || { echo 'Responsive logo media query missing'; exit 1; }
-          grep -Fq '<svg' _site/assets/img/logo-airadmin8-robotics-pc.svg || { echo 'PC logo SVG invalid'; exit 1; }
-          grep -Fq '<svg' _site/assets/img/logo-airadmin8-robotics-sp.svg || { echo 'SP logo SVG invalid'; exit 1; }
-          grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' _site/robots.txt || { echo 'robots sitemap mismatch'; exit 1; }
-
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          data = json.loads(Path('_site/deploy-meta.json').read_text(encoding='utf-8'))
-          if data.get('commit_sha') != os.environ['GITHUB_SHA']:
-              raise SystemExit('deploy-meta.json commit_sha does not match GITHUB_SHA')
-          PY
-
-          echo "Production artifact, shared layout and SEO pipeline verified."
+      - name: Verify release artifact
+        run: python scripts/verify_release.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -154,7 +77,7 @@ jobs:
           path: _site
 
   deploy:
-    needs: build
+    needs: build-and-verify
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -167,24 +90,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Verify production commit SHA
-        shell: bash
-        env:
-          PROD_META_URL: https://robotics.air-admin8.co.jp/deploy-meta.json
-          EXPECTED_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 12); do
-            response="$(curl -fsSL --retry 2 --retry-delay 2 -H 'Cache-Control: no-cache' "${PROD_META_URL}?cache_bust=${GITHUB_RUN_ID}-${attempt}" || true)"
-            actual_sha="$(python -c 'import json,sys; print(json.loads(sys.stdin.read()).get("commit_sha", ""))' <<<"${response}" 2>/dev/null || true)"
-            echo "Expected SHA: ${EXPECTED_SHA}"
-            echo "Actual SHA:   ${actual_sha:-<empty>}"
-            if [[ "${actual_sha}" == "${EXPECTED_SHA}" ]]; then
-              echo "Production commit verified."
-              exit 0
-            fi
-            sleep 15
-          done
-          echo "Production SHA mismatch or deploy-meta.json unavailable."
-          exit 1
