@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only release gate for the generated _site artifact."""
+"""Read-only release gate for source hygiene and the generated _site artifact."""
 from __future__ import annotations
 
 import json
@@ -7,7 +7,8 @@ import re
 import sys
 from pathlib import Path
 
-OUTPUT = Path("_site")
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / "_site"
 BASE_URL = "https://robotics.air-admin8.co.jp/"
 
 REQUIRED_FILES = [
@@ -23,6 +24,24 @@ REQUIRED_FILES = [
     "robots.txt",
     "CNAME",
 ]
+
+ALLOWED_WORKFLOWS = {"ci.yml", "pages.yml", "production-check.yml"}
+FORBIDDEN_SOURCE_PATHS = {
+    ".github/workflows/auto-merge.yml",
+    ".github/workflows/artifact-validation.yml",
+    ".github/workflows/production-url-check.yml",
+    ".github/workflows/publish-sp-logo.yml",
+    ".github/workflows/refresh-header-css-cache.yml",
+    ".github/workflows/sync-shared-header.yml",
+    ".github/workflows/sync-shared-layout.yml",
+    ".github/workflows/use-uploaded-logo-directly.yml",
+    "scripts/inject_main_site_experience.py",
+    "scripts/verify_shared_layout_artifact.py",
+    "scripts/sync_top_header.py",
+    "assets/css/main-logo.css",
+    "assets/img/logo-airadmin8-robotics-pc.png",
+    "STEP5_ARTIFACT_VALIDATION.md",
+}
 
 LEGACY_PATTERNS = {
     "legacy GitHub Pages URL prefix": re.compile(r"https://robotics\.air-admin8\.co\.jp/aa8-Robotic/", re.I),
@@ -40,10 +59,38 @@ def fail(errors: list[str]) -> int:
     return 1
 
 
+def verify_source_hygiene(errors: list[str]) -> None:
+    workflow_dir = ROOT / ".github" / "workflows"
+    actual_workflows = {path.name for path in workflow_dir.glob("*.yml")}
+    if actual_workflows != ALLOWED_WORKFLOWS:
+        errors.append(
+            "workflow set mismatch: "
+            f"expected={sorted(ALLOWED_WORKFLOWS)} actual={sorted(actual_workflows)}"
+        )
+
+    for relative in sorted(FORBIDDEN_SOURCE_PATHS):
+        if (ROOT / relative).exists():
+            errors.append(f"forbidden obsolete source remains: {relative}")
+
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or OUTPUT in path.parents or ".git" in path.parts:
+            continue
+        if path.suffix.lower() not in {".html", ".css", ".xml", ".js", ".py", ".md", ".txt", ".yml", ".yaml"}:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        relative = path.relative_to(ROOT)
+        for label, pattern in LEGACY_PATTERNS.items():
+            if pattern.search(text):
+                errors.append(f"{label} remains in source: {relative}")
+
+
 def main() -> int:
     errors: list[str] = []
+    verify_source_hygiene(errors)
+
     if not OUTPUT.is_dir():
-        return fail(["_site does not exist"])
+        errors.append("_site does not exist")
+        return fail(errors)
 
     for item in REQUIRED_FILES:
         path = OUTPUT / item
@@ -121,7 +168,10 @@ def main() -> int:
     if errors:
         return fail(errors)
 
-    print(f"Release verification PASSED: {len(html_files)} HTML page(s).")
+    print(
+        f"Release verification PASSED: {len(html_files)} HTML page(s), "
+        f"{len(ALLOWED_WORKFLOWS)} workflow(s), clean source tree."
+    )
     return 0
 
 
