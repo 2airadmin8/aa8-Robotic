@@ -19,21 +19,26 @@
 </footer>
 <script>
 (() => {
-  const menuButton = document.querySelector('.menu');
-  const navigation = document.querySelector('.nav');
-  if (!menuButton || !navigation || menuButton.dataset.menuReady === 'true') return;
+  window.addEventListener('load', () => {
+    const currentButton = document.querySelector('.menu');
+    const navigation = document.querySelector('.nav');
+    if (!currentButton || !navigation) return;
 
-  menuButton.dataset.menuReady = 'true';
-  menuButton.addEventListener('click', () => {
-    const isOpen = navigation.classList.toggle('open');
-    menuButton.setAttribute('aria-expanded', String(isOpen));
-  });
+    const menuButton = currentButton.cloneNode(true);
+    currentButton.replaceWith(menuButton);
+    menuButton.dataset.menuReady = 'true';
 
-  navigation.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      navigation.classList.remove('open');
-      menuButton.setAttribute('aria-expanded', 'false');
+    menuButton.addEventListener('click', () => {
+      const isOpen = navigation.classList.toggle('open');
+      menuButton.setAttribute('aria-expanded', String(isOpen));
     });
-  });
+
+    navigation.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        navigation.classList.remove('open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }, { once: true });
 })();
 </script>
