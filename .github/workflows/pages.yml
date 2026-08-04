@@ -35,19 +35,13 @@ jobs:
           python -m py_compile scripts/build_site.py
           python scripts/build_site.py
 
-      - name: Apply required SEO metadata
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/inject_static_meta.py scripts/inject_structured_data.py
-          python scripts/inject_static_meta.py
-          python scripts/inject_structured_data.py
-
-      - name: Apply non-critical content enhancements
+      - name: Apply content and SEO enhancements
         shell: bash
         run: |
           set -u
           scripts=(
+            scripts/inject_static_meta.py
+            scripts/inject_structured_data.py
             scripts/prerender_product_cards.py
             scripts/prerender_resources.py
             scripts/inject_accessibility.py
@@ -56,7 +50,7 @@ jobs:
           for script in "${scripts[@]}"; do
             if [[ -f "${script}" ]]; then
               echo "Running ${script}"
-              python "${script}" || echo "Warning: ${script} failed; continuing because it is non-critical."
+              python "${script}" || echo "Warning: ${script} failed; final artifact verification will decide release eligibility."
             fi
           done
 
