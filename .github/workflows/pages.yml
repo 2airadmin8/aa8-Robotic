@@ -8,6 +8,9 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 concurrency:
   group: pages-production
   cancel-in-progress: false
@@ -18,6 +21,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Require main release source
+        id: source
         shell: bash
         run: |
           set -euo pipefail
@@ -27,14 +31,15 @@ jobs:
           fi
 
       - name: Checkout exact release revision
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Build exact release artifact
+        id: build
         shell: bash
         run: |
           set -euo pipefail
@@ -43,6 +48,7 @@ jobs:
             scripts/build_site.py \
             scripts/generate_glossary.py \
             scripts/verify_glossary.py \
+            scripts/verify_display.py \
             scripts/apply_site_assets.py \
             scripts/verify_release.py \
             scripts/inject_static_meta.py \
@@ -54,6 +60,7 @@ jobs:
           python scripts/apply_site_assets.py
 
       - name: Generate deployment metadata
+        id: metadata
         shell: bash
         run: |
           set -euo pipefail
@@ -79,17 +86,55 @@ jobs:
           )
           PY
 
-      - name: Verify release artifact
+      - name: Verify glossary data and pages
+        id: glossary
         shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/verify_glossary.py
-          python scripts/verify_release.py
+        run: python scripts/verify_glossary.py
+
+      - name: Verify shared display
+        id: display
+        shell: bash
+        run: python scripts/verify_display.py
+
+      - name: Verify links, assets and release structure
+        id: release
+        shell: bash
+        run: python scripts/verify_release.py
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        id: upload
+        uses: actions/upload-pages-artifact@v4
         with:
           path: _site
+
+      - name: Build表示チェックリスト
+        if: always()
+        shell: bash
+        run: |
+          status_icon() {
+            case "$1" in
+              success) echo "✅ PASS" ;;
+              skipped) echo "⚪ SKIP" ;;
+              *) echo "❌ FAIL" ;;
+            esac
+          }
+          {
+            echo "## Build表示チェックリスト"
+            echo "| チェック項目 | 結果 |"
+            echo "|---|---|"
+            echo "| mainからのRelease | $(status_icon '${{ steps.source.outcome }}') |"
+            echo "| Build・構文 | $(status_icon '${{ steps.build.outcome }}') |"
+            echo "| 用語集データ・詳細ページ | $(status_icon '${{ steps.glossary.outcome }}') |"
+            echo "| Header / Footer共通化 | $(status_icon '${{ steps.display.outcome }}') |"
+            echo "| PC / SP Logo | $(status_icon '${{ steps.display.outcome }}') |"
+            echo "| SPメニュー表示・動作配線 | $(status_icon '${{ steps.display.outcome }}') |"
+            echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
+            echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
+            echo "| Deploy metadata | $(status_icon '${{ steps.metadata.outcome }}') |"
+            echo "| Pages artifact | $(status_icon '${{ steps.upload.outcome }}') |"
+            echo ""
+            echo "Release SHA: \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     needs: build-and-verify
@@ -100,6 +145,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Configure Pages
+        id: configure
         uses: actions/configure-pages@v5
 
       - name: Deploy to GitHub Pages
@@ -107,6 +153,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Verify exact production SHA
+        id: production_sha
         shell: bash
         env:
           EXPECTED_SHA: ${{ github.sha }}
@@ -150,3 +197,26 @@ jobs:
 
           echo "Production SHA did not converge to ${EXPECTED_SHA}."
           exit 1
+
+      - name: 本番表示チェックリスト
+        if: always()
+        shell: bash
+        run: |
+          status_icon() {
+            case "$1" in
+              success) echo "✅ PASS" ;;
+              skipped) echo "⚪ SKIP" ;;
+              *) echo "❌ FAIL" ;;
+            esac
+          }
+          {
+            echo "## 本番表示チェックリスト"
+            echo "| チェック項目 | 結果 |"
+            echo "|---|---|"
+            echo "| Pages設定 | $(status_icon '${{ steps.configure.outcome }}') |"
+            echo "| 本番Deploy | $(status_icon '${{ steps.deployment.outcome }}') |"
+            echo "| 本番SHA一致 | $(status_icon '${{ steps.production_sha.outcome }}') |"
+            echo ""
+            echo "Expected SHA: \`${GITHUB_SHA}\`"
+            echo "Production: https://robotics.air-admin8.co.jp/"
+          } >> "$GITHUB_STEP_SUMMARY"
