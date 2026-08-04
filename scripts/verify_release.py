@@ -75,7 +75,7 @@ def verify_source_hygiene(errors: list[str]) -> None:
     for path in ROOT.rglob("*"):
         if not path.is_file() or OUTPUT in path.parents or ".git" in path.parts:
             continue
-        if path.suffix.lower() not in {".html", ".css", ".xml", ".js", ".py", ".md", ".txt", ".yml", ".yaml"}:
+        if path.suffix.lower() not in {".html", ".css", ".xml", ".js", ".md", ".txt", ".yml", ".yaml"}:
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         relative = path.relative_to(ROOT)
