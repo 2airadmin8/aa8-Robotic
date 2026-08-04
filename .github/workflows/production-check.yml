@@ -2,6 +2,11 @@ name: Production Release Check
 
 on:
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: "Expected 40-character production commit SHA (leave blank for scheduled-style health check)"
+        required: false
+        type: string
   schedule:
     - cron: "17 0,3,6,9 * * 1-5"
 
@@ -18,6 +23,7 @@ jobs:
     timeout-minutes: 10
     env:
       BASE_URL: https://robotics.air-admin8.co.jp
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
     steps:
       - name: Verify production release evidence
         shell: bash
@@ -52,14 +58,29 @@ jobs:
           grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' "${temp_dir}/robots.txt"
           grep -Fq 'https://robotics.air-admin8.co.jp/' "${temp_dir}/sitemap.xml"
 
-          python - <<'PY' "${temp_dir}/deploy-meta.json"
+          python - "${temp_dir}/deploy-meta.json" "${EXPECTED_SHA}" <<'PY'
           import json
+          import re
           import sys
           from pathlib import Path
+
           data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-          if not data.get("commit_sha"):
-              raise SystemExit("deploy-meta.json has no commit_sha")
-          print(f"Production commit: {data['commit_sha']}")
+          expected = sys.argv[2].strip().lower()
+          actual = str(data.get("commit_sha", "")).strip().lower()
+          branch = data.get("branch")
+
+          if not re.fullmatch(r"[0-9a-f]{40}", actual):
+              raise SystemExit(f"Invalid production commit SHA: {actual!r}")
+          if branch != "main":
+              raise SystemExit(f"Production branch mismatch: expected=main actual={branch!r}")
+          if expected:
+              if not re.fullmatch(r"[0-9a-f]{40}", expected):
+                  raise SystemExit(f"Invalid expected SHA: {expected!r}")
+              if actual != expected:
+                  raise SystemExit(f"Production SHA mismatch: expected={expected} actual={actual}")
+              print(f"Production SHA matches expected release: {actual}")
+          else:
+              print(f"Production SHA is structurally valid: {actual}")
           PY
 
           echo "Production release check passed."
