@@ -1,0 +1,77 @@
+name: Restore glossary once
+
+on:
+  push:
+    branches: [fix/glossary-and-brand-logo]
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore 79-term source and extend to 80
+        shell: bash
+        run: |
+          set -euo pipefail
+          git show 92f95a461d555f397e16d0ffcd4e50f557ef5e48:scripts/generate_robot_ai_glossary.py > scripts/generate_robot_ai_glossary.py
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('scripts/generate_robot_ai_glossary.py')
+          text = path.read_text(encoding='utf-8')
+          anchor = '    ("フィジカルAI", "Physical AI", "現実世界の身体、センサー、環境との相互作用を前提に学習・推論するAIの考え方。", "基礎", "physical-ai"),\n'
+          addition = '    ("具身AI", "Embodied AI", "身体を持つエージェントが現実環境との相互作用を通じて知覚・推論・行動を統合するAI。", "基礎", "embodied-ai"),\n'
+          if addition not in text:
+              if anchor not in text:
+                  raise SystemExit('Physical AI anchor not found')
+              text = text.replace(anchor, anchor + addition, 1)
+          text = text.replace('if len(TERMS) != 79:', 'if len(TERMS) != 80:')
+          text = text.replace('Glossary must contain 79 terms', 'Glossary must contain 80 terms')
+          path.write_text(text, encoding='utf-8')
+
+          runtime = text.replace('OUTPUT = ROOT / "_site"', 'OUTPUT = ROOT')
+          Path('/tmp/generate_glossary.py').write_text(runtime, encoding='utf-8')
+          PY
+
+      - name: Generate source pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          python /tmp/generate_glossary.py
+          python - <<'PY'
+          from pathlib import Path
+
+          targets = [Path('glossary.html'), *Path('glossary').glob('*.html')]
+          for path in targets:
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('class="site-footer"', 'class="footer"')
+              path.write_text(text, encoding='utf-8')
+
+          index = Path('glossary.html').read_text(encoding='utf-8')
+          count = index.count('class="term-card"')
+          if count != 80:
+              raise SystemExit(f'Expected 80 glossary terms, found {count}')
+          PY
+
+      - name: Remove one-time workflow and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/restore-glossary-once.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add glossary.html glossary scripts/generate_robot_ai_glossary.py .github/workflows/restore-glossary-once.yml
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'content: restore complete 80-term robotics glossary'
+          git push origin HEAD:fix/glossary-and-brand-logo
