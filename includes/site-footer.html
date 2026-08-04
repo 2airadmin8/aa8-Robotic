@@ -17,3 +17,22 @@
     </nav>
   </div>
 </footer>
+<script>
+(() => {
+  if (document.querySelector('script[src*="assets/js/site.js"]')) return;
+  const menuButton = document.querySelector('.menu');
+  const navigation = document.querySelector('.nav');
+  if (!menuButton || !navigation || menuButton.dataset.menuReady === 'true') return;
+  menuButton.dataset.menuReady = 'true';
+  menuButton.addEventListener('click', () => {
+    const isOpen = navigation.classList.toggle('open');
+    menuButton.setAttribute('aria-expanded', String(isOpen));
+  });
+  navigation.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navigation.classList.remove('open');
+      menuButton.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+</script>
