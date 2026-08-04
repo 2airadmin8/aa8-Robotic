@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: read
 
 concurrency:
   group: pr-ci-${{ github.event.pull_request.number || github.ref }}
@@ -17,13 +18,71 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout
+      - name: Checkout PR branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Migrate legacy source once
+        if: github.event_name == 'pull_request' && github.head_ref == 'cleanup/repository-v1'
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          header = (root / 'includes/site-header.html').read_text(encoding='utf-8').strip()
+          footer = (root / 'includes/site-footer.html').read_text(encoding='utf-8').strip()
+          header_re = re.compile(r'<header\b(?=[^>]*class=["\'][^"\']*\bsite-header\b[^"\']*["\'])[^>]*>.*?</header>', re.I | re.S)
+          footer_re = re.compile(r'<footer\b(?=[^>]*class=["\'][^"\']*\bfooter\b[^"\']*["\'])[^>]*>.*?</footer>', re.I | re.S)
+
+          failures = []
+          for path in sorted(root.rglob('*.html')):
+              if any(part in {'.git', '.github', '_site', 'includes'} for part in path.parts):
+                  continue
+              text = path.read_text(encoding='utf-8')
+              updated, hc = header_re.subn(header, text, count=1)
+              updated, fc = footer_re.subn(footer, updated, count=1)
+              updated = updated.replace('https://robotics.air-admin8.co.jp/aa8-Robotic/', 'https://robotics.air-admin8.co.jp/')
+              if hc != 1 or fc != 1:
+                  failures.append(f'{path}: header={hc}, footer={fc}')
+                  continue
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8', newline='\n')
+
+          for path in sorted(root.rglob('*')):
+              if not path.is_file() or any(part in {'.git', '.github', '_site'} for part in path.parts):
+                  continue
+              if path.suffix.lower() not in {'.xml', '.json', '.js', '.css', '.md', '.txt'}:
+                  continue
+              text = path.read_text(encoding='utf-8', errors='ignore')
+              updated = text.replace('https://robotics.air-admin8.co.jp/aa8-Robotic/', 'https://robotics.air-admin8.co.jp/')
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8', newline='\n')
+
+          if failures:
+              raise SystemExit('\n'.join(failures))
+
+      - name: Commit migrated source
+        if: github.event_name == 'pull_request' && github.head_ref == 'cleanup/repository-v1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'Source already migrated.'
+          else
+            git commit -m 'refactor: migrate all source pages to v1 shared layout'
+            git push origin HEAD:${{ github.head_ref }}
+          fi
 
       - name: Build release candidate
         shell: bash
