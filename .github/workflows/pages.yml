@@ -17,6 +17,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Require main release source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
+            echo "Production deployment is allowed only from main; got ${GITHUB_REF_NAME}."
+            exit 1
+          fi
+
       - name: Checkout exact release revision
         uses: actions/checkout@v4
 
@@ -81,7 +90,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -89,3 +98,48 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify exact production SHA
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+          BASE_URL: https://robotics.air-admin8.co.jp
+        run: |
+          set -euo pipefail
+          temp_file="$(mktemp)"
+          trap 'rm -f "${temp_file}"' EXIT
+
+          for attempt in $(seq 1 24); do
+            if curl -fsSL -H 'Cache-Control: no-cache' \
+              "${BASE_URL}/deploy-meta.json?release=${GITHUB_RUN_ID}-${attempt}" \
+              -o "${temp_file}"; then
+              if python - "${temp_file}" "${EXPECTED_SHA}" <<'PY'
+          import json
+          import re
+          import sys
+          from pathlib import Path
+
+          path = Path(sys.argv[1])
+          expected = sys.argv[2].lower()
+          data = json.loads(path.read_text(encoding="utf-8"))
+          actual = str(data.get("commit_sha", "")).lower()
+          branch = data.get("branch")
+
+          if not re.fullmatch(r"[0-9a-f]{40}", actual):
+              raise SystemExit(f"Invalid production commit SHA: {actual!r}")
+          if actual != expected:
+              raise SystemExit(f"Production SHA mismatch: expected={expected} actual={actual}")
+          if branch != "main":
+              raise SystemExit(f"Production branch mismatch: expected=main actual={branch!r}")
+          print(f"Verified production SHA: {actual}")
+          PY
+              then
+                exit 0
+              fi
+            fi
+            echo "Production has not reached ${EXPECTED_SHA} yet (attempt ${attempt}/24)."
+            sleep 5
+          done
+
+          echo "Production SHA did not converge to ${EXPECTED_SHA}."
+          exit 1
