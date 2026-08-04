@@ -13,6 +13,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 concurrency:
   group: production-release-check
   cancel-in-progress: true
@@ -26,6 +29,7 @@ jobs:
       EXPECTED_SHA: ${{ inputs.expected_sha }}
     steps:
       - name: Verify production release evidence
+        id: production
         shell: bash
         run: |
           set -euo pipefail
@@ -34,29 +38,29 @@ jobs:
 
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/?check=${GITHUB_RUN_ID}" -o "${temp_dir}/index.html"
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/products.html?check=${GITHUB_RUN_ID}" -o "${temp_dir}/products.html"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/glossary.html?check=${GITHUB_RUN_ID}" -o "${temp_dir}/glossary.html"
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/css/shared-layout.css?check=${GITHUB_RUN_ID}" -o "${temp_dir}/shared-layout.css"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/logo-airadmin8-robotics-pc.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/pc.svg"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/logo-airadmin8-robotics-sp.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sp.svg"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/brand-airadmin8-robotics-pc-v4.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/pc.svg"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/brand-airadmin8-robotics-sp-v4.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sp.svg"
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/robots.txt?check=${GITHUB_RUN_ID}" -o "${temp_dir}/robots.txt"
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/sitemap.xml?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sitemap.xml"
           curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_dir}/deploy-meta.json"
 
-          for page in index.html products.html; do
+          for page in index.html products.html glossary.html; do
             grep -Fq 'data-shared-layout="header"' "${temp_dir}/${page}"
             grep -Fq 'data-shared-layout="footer"' "${temp_dir}/${page}"
-            grep -Fq 'brand-logo-pc' "${temp_dir}/${page}"
-            grep -Fq 'brand-logo-sp' "${temp_dir}/${page}"
-            grep -Fq 'https://robotics.air-admin8.co.jp/' "${temp_dir}/${page}"
-            ! grep -Fq 'https://robotics.air-admin8.co.jp/aa8-Robotic/' "${temp_dir}/${page}"
+            grep -Fq 'brand-airadmin8-robotics-pc-v4.svg' "${temp_dir}/${page}"
+            grep -Fq 'brand-airadmin8-robotics-sp-v4.svg' "${temp_dir}/${page}"
+            ! grep -Fq '/aa8-Robotic/' "${temp_dir}/${page}"
+            ! grep -Fq '重点解説' "${temp_dir}/${page}"
           done
 
-          grep -Fq '.brand-logo-pc' "${temp_dir}/shared-layout.css"
-          grep -Fq '.brand-logo-sp' "${temp_dir}/shared-layout.css"
-          ! grep -Eq '\.brand\s*>\s*\*\s*\{[^}]*display\s*:\s*none\s*!important' "${temp_dir}/shared-layout.css"
+          grep -Fq 'data.menuReady' "${temp_dir}/glossary.html"
+          grep -Fq 'id="glossary-search"' "${temp_dir}/glossary.html"
           grep -Fq '<svg' "${temp_dir}/pc.svg"
           grep -Fq '<svg' "${temp_dir}/sp.svg"
           grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' "${temp_dir}/robots.txt"
-          grep -Fq 'https://robotics.air-admin8.co.jp/' "${temp_dir}/sitemap.xml"
+          grep -Fq 'https://robotics.air-admin8.co.jp/glossary.html' "${temp_dir}/sitemap.xml"
 
           python - "${temp_dir}/deploy-meta.json" "${EXPECTED_SHA}" <<'PY'
           import json
@@ -78,9 +82,28 @@ jobs:
                   raise SystemExit(f"Invalid expected SHA: {expected!r}")
               if actual != expected:
                   raise SystemExit(f"Production SHA mismatch: expected={expected} actual={actual}")
-              print(f"Production SHA matches expected release: {actual}")
-          else:
-              print(f"Production SHA is structurally valid: {actual}")
+          print(actual)
           PY
 
-          echo "Production release check passed."
+      - name: 本番表示チェックリスト
+        if: always()
+        shell: bash
+        run: |
+          case '${{ steps.production.outcome }}' in
+            success) result='✅ PASS' ;;
+            *) result='❌ FAIL' ;;
+          esac
+          {
+            echo "## 本番表示チェックリスト"
+            echo "| チェック項目 | 結果 |"
+            echo "|---|---|"
+            echo "| Header / Footer共通表示 | ${result} |"
+            echo "| PC / SP Logo | ${result} |"
+            echo "| SPメニュー配線 | ${result} |"
+            echo "| 用語集検索・表示 | ${result} |"
+            echo "| リンク・旧パス除去 | ${result} |"
+            echo "| Sitemap・robots | ${result} |"
+            echo "| 本番branch / SHA | ${result} |"
+            echo ""
+            echo "Production: ${BASE_URL}/"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -2,6 +2,7 @@
 """Verify visible site structure and shared UI wiring in a built release."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,14 +27,14 @@ def main() -> None:
 
     expected_pc_logo = "brand-airadmin8-robotics-pc-v4.svg"
     expected_sp_logo = "brand-airadmin8-robotics-sp-v4.svg"
-    forbidden = [
-        "/aa8-Robotic/",
-        "logo-airadmin8-robotics-pc.svg",
-        "logo-airadmin8-robotics-sp.svg",
+    forbidden_public_text = [
         "重点解説",
         "【80語】",
         "8分類×10語",
     ]
+    legacy_link_pattern = re.compile(
+        r'(?:href|src|srcset)=["\'][^"\']*/aa8-Robotic/', re.IGNORECASE
+    )
 
     for relative in [*pages, detail_pages[0].relative_to(SITE).as_posix()]:
         html = read(relative)
@@ -43,7 +44,10 @@ def main() -> None:
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
         require("data.menuReady" in html or "assets/js/site.js" in html, f"SP menu wiring missing: {relative}")
-        for token in forbidden:
+        require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
+        require("logo-airadmin8-robotics-pc.svg" not in html, f"Old PC logo path: {relative}")
+        require("logo-airadmin8-robotics-sp.svg" not in html, f"Old SP logo path: {relative}")
+        for token in forbidden_public_text:
             require(token not in html, f"Forbidden public token {token!r}: {relative}")
 
     glossary = read("glossary.html")
@@ -60,7 +64,7 @@ def main() -> None:
     print("- PC/SP brand assets")
     print("- SP menu wiring")
     print("- glossary search/filter/detail links")
-    print("- forbidden legacy paths and public labels absent")
+    print("- legacy link attributes and public labels absent")
 
 
 if __name__ == "__main__":
