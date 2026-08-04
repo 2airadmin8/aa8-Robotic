@@ -44,8 +44,8 @@ jobs:
       - name: Verify release candidate
         run: python scripts/verify_release.py
 
-      - name: Ensure build does not modify source
+      - name: Ensure build does not modify tracked source
         shell: bash
         run: |
           set -euo pipefail
-          git diff --exit-code -- . ':!_site'
+          git diff --exit-code
