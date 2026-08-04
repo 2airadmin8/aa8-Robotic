@@ -1,0 +1,29 @@
+name: Auto merge verified PR
+
+on:
+  workflow_run:
+    workflows: ["PR CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve and merge verified PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --base main --json number,headRefOid,isDraft --jq '.[] | select(.headRefOid == env.HEAD_SHA and .isDraft == false) | .number' | head -n1)"
+          if [[ -z "$pr" ]]; then
+            echo "No eligible PR found for ${HEAD_SHA}."
+            exit 0
+          fi
+          gh pr merge "$pr" --repo "$GITHUB_REPOSITORY" --squash --delete-branch
