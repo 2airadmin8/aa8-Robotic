@@ -1,6 +1,8 @@
 name: Deploy verified site to GitHub Pages
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -17,10 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - name: Checkout selected main revision
+      - name: Checkout exact release revision
         uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,11 +52,12 @@ jobs:
           import os
           from datetime import datetime, timezone
           from pathlib import Path
+
           Path("_site/deploy-meta.json").write_text(
               json.dumps(
                   {
                       "commit_sha": os.environ["GITHUB_SHA"],
-                      "branch": "main",
+                      "branch": os.environ["GITHUB_REF_NAME"],
                       "run_id": os.environ["GITHUB_RUN_ID"],
                       "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
                       "deployed_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
