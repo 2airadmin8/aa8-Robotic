@@ -87,10 +87,22 @@
 
 .site-header[data-shared-layout="header"] .menu {
   display: none;
-  border: 0;
+  min-width: 48px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 10px;
   background: transparent;
-  color: #009ad2;
+  color: #007fae;
+  font: inherit;
   font-weight: 900;
+  cursor: pointer;
+}
+
+.site-header[data-shared-layout="header"] .menu:focus-visible,
+.site-header[data-shared-layout="header"] .nav > a:focus-visible {
+  outline: 3px solid rgba(0,132,197,.28);
+  outline-offset: 3px;
 }
 
 .footer[data-shared-layout="footer"] {
@@ -169,25 +181,52 @@
   .site-header[data-shared-layout="header"] .brand-logo-sp {
     display: block !important;
   }
+  .site-header[data-shared-layout="header"] .menu {
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+  .site-header[data-shared-layout="header"] .menu[aria-expanded="true"] {
+    color: #fff;
+    background: #007fae;
+  }
   .site-header[data-shared-layout="header"] .nav {
     position: absolute;
     top: 60px;
     left: 0;
     right: 0;
     display: none;
+    max-height: calc(100dvh - 60px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     flex-direction: column;
     align-items: stretch;
-    padding: 20px;
+    gap: 4px;
+    padding: 12px 16px 20px;
     border-bottom: 1px solid #d9e5ea;
     background: #fff;
+    box-shadow: 0 18px 32px rgba(6,25,35,.14);
   }
   .site-header[data-shared-layout="header"] .nav.open {
     display: flex !important;
   }
-  .site-header[data-shared-layout="header"] .menu {
-    display: block !important;
-    flex: 0 0 auto;
-    white-space: nowrap;
+  .site-header[data-shared-layout="header"] .nav > a {
+    display: flex;
+    min-height: 48px;
+    padding: 10px 12px;
+    align-items: center;
+    border-radius: 10px;
+    white-space: normal;
+  }
+  .site-header[data-shared-layout="header"] .nav > a:not(.nav-cta):hover,
+  .site-header[data-shared-layout="header"] .nav > a:not(.nav-cta):focus-visible {
+    background: #eef9fc;
+  }
+  .site-header[data-shared-layout="header"] .nav-cta {
+    margin-top: 8px;
+    border-radius: 12px;
   }
 }
 
