@@ -2,15 +2,15 @@
   "name": "AirAdmin8 Robotics",
   "short_name": "A8 Robotics",
   "description": "AIロボットの比較・選定・大学購買・PoC・導入支援",
-  "start_url": "/aa8-Robotic/",
-  "scope": "/aa8-Robotic/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0b3143",
   "icons": [
     {
-      "src": "/aa8-Robotic/assets/img/favicon.svg",
-      "sizes": "any",
+      "src": "/assets/img/airadmin8-symbol-192.svg?v=20260805-1",
+      "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
