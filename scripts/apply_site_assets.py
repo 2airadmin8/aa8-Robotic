@@ -15,7 +15,7 @@ ASSETS = {
     "footer_css": "assets/css/footer-mobile-cleanup.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
-    "favicon": "assets/img/airadmin8-icon-192.png?v=20260805-2",
+    "favicon": "assets/img/favicon-airadmin8.svg?v=20260805-3",
 }
 
 
@@ -78,7 +78,7 @@ def main() -> int:
         icon = prefix + ASSETS["favicon"]
         apple = prefix + "assets/img/apple-touch-icon.png"
         icon_block = (
-            f'<link rel="icon" type="image/png" sizes="192x192" href="{icon}" data-aa8-brand-icon="true">\n'
+            f'<link rel="icon" type="image/svg+xml" sizes="any" href="{icon}" data-aa8-brand-icon="true">\n'
             f'  <link rel="shortcut icon" href="{icon}" data-aa8-brand-icon="true">\n'
             f'  <link rel="apple-touch-icon" sizes="180x180" href="{apple}" data-aa8-brand-icon="true">'
         )
