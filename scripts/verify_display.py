@@ -20,6 +20,14 @@ def read(relative: str) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def count_shared_element(html: str, tag: str, layout: str) -> int:
+    pattern = re.compile(
+        rf'<{tag}\b(?=[^>]*\bdata-shared-layout=["\']{re.escape(layout)}["\'])[^>]*>',
+        re.IGNORECASE,
+    )
+    return len(pattern.findall(html))
+
+
 def main() -> None:
     pages = ["index.html", "products.html", "glossary.html"]
     detail_pages = sorted((SITE / "glossary").glob("*.html"))
@@ -47,8 +55,8 @@ def main() -> None:
     checked_pages = [*pages, detail_pages[0].relative_to(SITE).as_posix()]
     for relative in checked_pages:
         html = read(relative)
-        require(html.count('data-shared-layout="header"') == 1, f"Shared header count is not 1: {relative}")
-        require(html.count('data-shared-layout="footer"') == 1, f"Shared footer count is not 1: {relative}")
+        require(count_shared_element(html, "header", "header") == 1, f"Shared header count is not 1: {relative}")
+        require(count_shared_element(html, "footer", "footer") == 1, f"Shared footer count is not 1: {relative}")
         require(expected_pc_logo in html, f"PC brand logo missing: {relative}")
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
@@ -58,7 +66,6 @@ def main() -> None:
         require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
 
-        # Footer regression checks: one source, stable layout and required navigation.
         require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
         require(html.count('href="/glossary.html"') >= 2, f"Glossary links missing from footer navigation: {relative}")
         require('class="footer-brand-block"' in html, f"Footer brand block missing: {relative}")
@@ -95,7 +102,7 @@ def main() -> None:
     require(not (SITE / "assets/js/shared-header-runtime.js").exists(), "Obsolete shared header runtime still published")
 
     print("Display verification passed:")
-    print("- one shared header and footer")
+    print("- one shared header and footer element")
     print("- uploaded PC/SP/Footer brand assets")
     print("- uploaded SVG favicon")
     print("- uploaded 192px and 512px PNG app icons")
