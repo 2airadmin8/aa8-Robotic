@@ -1,6 +1,6 @@
 /* ============================================================
    Mobile QA layer
-   共通CSSを壊さず、iPhone・小画面・キーボード操作の安定性を補う。
+   共通Header / Footerには触れず、小画面と操作性だけを補う。
    ============================================================ */
 
 html {
@@ -67,9 +67,7 @@ textarea {
 }
 
 button,
-.button,
-.nav a,
-.footer-links a {
+.button {
   min-height: 44px;
 }
 
@@ -80,17 +78,6 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 3px solid rgba(0, 154, 210, 0.34);
   outline-offset: 3px;
-}
-
-.site-header {
-  top: env(safe-area-inset-top, 0px);
-}
-
-.menu {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 8px;
-  border-radius: 10px;
 }
 
 .specs {
@@ -114,26 +101,6 @@ a[href^="mailto:"] {
   body.nav-is-open {
     overflow: hidden;
   }
-
-  .nav {
-    top: calc(74px + env(safe-area-inset-top, 0px));
-    max-height: calc(100dvh - 74px - env(safe-area-inset-top, 0px));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 18px 38px rgba(11, 49, 67, 0.12);
-  }
-
-  .nav a {
-    display: flex;
-    align-items: center;
-    padding: 10px 4px;
-  }
-
-  .nav .nav-cta {
-    justify-content: center;
-    padding-inline: 18px;
-  }
 }
 
 @media (max-width: 640px) {
@@ -145,25 +112,6 @@ a[href^="mailto:"] {
     width: calc(100% - 28px);
     max-width: calc(100vw - 28px);
     margin-inline: auto;
-  }
-
-  .header-inner {
-    min-height: 68px;
-  }
-
-  .brand {
-    min-width: 0;
-  }
-
-  .brand > span:last-child {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .nav {
-    top: calc(68px + env(safe-area-inset-top, 0px));
-    max-height: calc(100dvh - 68px - env(safe-area-inset-top, 0px));
   }
 
   /* 日本語見出しに keep-all を使うと、iPhoneで一行が画面外へ伸びる。
@@ -214,10 +162,6 @@ a[href^="mailto:"] {
   .specs th,
   .specs td {
     min-width: 120px;
-  }
-
-  .footer {
-    padding-bottom: calc(44px + env(safe-area-inset-bottom, 0px));
   }
 }
 
