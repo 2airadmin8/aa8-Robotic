@@ -28,6 +28,7 @@ def main() -> None:
     expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
     expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
     expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
+    expected_shortcut_icon = "airadmin8-symbol-192.svg"
     forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
     forbidden_brand_tokens = [
         "airadmin8-192x192.svg",
@@ -48,6 +49,7 @@ def main() -> None:
         require(expected_pc_logo in html, f"PC brand logo missing: {relative}")
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
+        require(expected_shortcut_icon in html, f"192px shortcut icon missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
         require(html.count('data-aa8-menu-runtime="true"') == 1, f"Shared SP menu runtime count is not 1: {relative}")
         require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
@@ -65,10 +67,9 @@ def main() -> None:
         expected_pc_logo,
         expected_sp_logo,
         expected_footer_logo,
-        "airadmin8-symbol.svg",
+        expected_shortcut_icon,
         "airadmin8-wordmark.svg",
         "airadmin8-robotics-badge.svg",
-        "favicon-airadmin8.svg",
         "airadmin8-icon-192.png",
         "airadmin8-icon-512.png",
         "apple-touch-icon.png",
@@ -81,7 +82,7 @@ def main() -> None:
     print("Display verification passed:")
     print("- one shared header and footer")
     print("- official PC/SP/Footer brand assets")
-    print("- favicon and app icons")
+    print("- 192px browser shortcut icon")
     print("- one inline SP menu runtime")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
