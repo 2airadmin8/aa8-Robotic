@@ -9,9 +9,15 @@
   "theme_color": "#0b3143",
   "icons": [
     {
-      "src": "/assets/img/airadmin8-symbol-192.svg?v=20260805-1",
+      "src": "/assets/img/airadmin8-icon-192.png?v=20260805-2",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/img/airadmin8-icon-512.png?v=20260805-2",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
