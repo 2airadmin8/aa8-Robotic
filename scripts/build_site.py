@@ -8,6 +8,7 @@ Header and footer have exactly one source of truth:
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import sys
@@ -18,7 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes"}
-BUILD_VERSION = "20260803-single-source"
+BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
 FOOTER_SOURCE = ROOT / "includes" / "site-footer.html"
