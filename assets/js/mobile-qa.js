@@ -18,8 +18,17 @@
       syncNavigationState();
     };
 
-    menuButton.addEventListener('click', () => {
-      window.requestAnimationFrame(syncNavigationState);
+    // SPメニューはこのファイルを唯一の制御元とする。
+    // captureで旧site.jsの重複ハンドラより先に処理し、二重toggleを防止する。
+    menuButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      navigation.classList.toggle('open');
+      syncNavigationState();
+    }, true);
+
+    navigation.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeNavigation);
     });
 
     document.addEventListener('keydown', (event) => {
@@ -38,6 +47,8 @@
     window.addEventListener('resize', () => {
       if (window.matchMedia('(min-width: 981px)').matches) closeNavigation();
     });
+
+    syncNavigationState();
   }
 
   // 製品一覧はJSON描画後にIDが生成されるため、描画完了後にアンカー移動する。
