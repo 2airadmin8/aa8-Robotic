@@ -28,7 +28,7 @@ def main() -> None:
     expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
     expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
     expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
-    expected_shortcut_icon = "airadmin8-symbol-192.svg"
+    expected_shortcut_icon = "airadmin8-icon-192.png"
     forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
     forbidden_brand_tokens = [
         "airadmin8-192x192.svg",
@@ -37,6 +37,7 @@ def main() -> None:
         "brand-airadmin8-robotics-sp-v4.svg",
         "logo-airadmin8-robotics-pc.svg",
         "logo-airadmin8-robotics-sp.svg",
+        "airadmin8-symbol-192.svg",
         "assets/img/brand/",
         "shared-header-runtime.js",
     ]
@@ -67,22 +68,23 @@ def main() -> None:
         expected_pc_logo,
         expected_sp_logo,
         expected_footer_logo,
-        expected_shortcut_icon,
         "airadmin8-wordmark.svg",
         "airadmin8-robotics-badge.svg",
-        "airadmin8-icon-192.png",
+        expected_shortcut_icon,
         "airadmin8-icon-512.png",
         "apple-touch-icon.png",
     ]
     for asset in required_assets:
         require((SITE / "assets/img" / asset).is_file(), f"Brand asset missing: {asset}")
 
+    require(not (SITE / "assets/img/airadmin8-symbol-192.svg").exists(), "Incorrect SVG shortcut icon still published")
     require(not (SITE / "assets/js/shared-header-runtime.js").exists(), "Obsolete shared header runtime still published")
 
     print("Display verification passed:")
     print("- one shared header and footer")
     print("- official PC/SP/Footer brand assets")
-    print("- 192px browser shortcut icon")
+    print("- approved 192px PNG shortcut icon")
+    print("- incorrect SVG shortcut icon absent")
     print("- one inline SP menu runtime")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
