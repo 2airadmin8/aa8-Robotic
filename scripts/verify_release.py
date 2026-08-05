@@ -71,6 +71,14 @@ SOURCE_SCAN_SUFFIXES = {".html", ".css", ".xml", ".js", ".json"}
 SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes"}
 
 
+def count_shared_element(html: str, tag: str, layout: str) -> int:
+    pattern = re.compile(
+        rf'<{tag}\b(?=[^>]*\bdata-shared-layout=["\']{re.escape(layout)}["\'])[^>]*>',
+        re.IGNORECASE,
+    )
+    return len(pattern.findall(html))
+
+
 def fail(errors: list[str]) -> int:
     for error in errors:
         print(f"ERROR: {error}")
@@ -146,9 +154,9 @@ def main() -> int:
         for marker in required_markers:
             if marker not in text:
                 errors.append(f"missing marker {marker}: {relative}")
-        if text.count('data-shared-layout="header"') != 1:
+        if count_shared_element(text, "header", "header") != 1:
             errors.append(f"shared header count is not 1: {relative}")
-        if text.count('data-shared-layout="footer"') != 1:
+        if count_shared_element(text, "footer", "footer") != 1:
             errors.append(f"shared footer count is not 1: {relative}")
 
     inspect_files = [path for path in OUTPUT.rglob("*") if path.is_file() and path.suffix.lower() in {".html", ".css", ".xml", ".js"}]
