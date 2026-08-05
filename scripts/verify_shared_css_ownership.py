@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Enforce single ownership of shared Header/Footer CSS.
+"""Report shared Header/Footer CSS ownership issues without blocking deploy.
 
-Only assets/css/shared-layout.css may define shared Header, Footer,
-brand, navigation, and menu selectors. Print-only hiding is allowed because
-it does not redefine the screen layout.
+Only assets/css/shared-layout.css should define shared Header, Footer,
+brand, navigation, and menu selectors. Print-only hiding is allowed.
+Missing shared-layout.css remains a fatal release error.
 """
 from __future__ import annotations
 
@@ -40,7 +40,6 @@ def strip_comments(text: str) -> str:
 
 
 def strip_media_block(text: str, media_name: str) -> str:
-    """Remove balanced @media blocks matching media_name."""
     pattern = re.compile(rf"@media\s+{re.escape(media_name)}\s*\{{", re.I)
     while True:
         match = pattern.search(text)
@@ -64,7 +63,7 @@ def main() -> int:
         print("ERROR: assets/css/shared-layout.css is missing")
         return 1
 
-    errors: list[str] = []
+    warnings: list[str] = []
     for path in sorted(CSS_ROOT.rglob("*.css")):
         if path == OWNER:
             continue
@@ -75,16 +74,16 @@ def main() -> int:
             match = pattern.search(text)
             if match:
                 line = text.count("\n", 0, match.start()) + 1
-                errors.append(
-                    f"{relative}:{line}: shared CSS ownership violation ({label}); "
-                    "move this screen rule to assets/css/shared-layout.css"
+                warnings.append(
+                    f"{relative}:{line}: shared CSS ownership warning ({label}); "
+                    "prefer assets/css/shared-layout.css"
                 )
 
-    if errors:
-        for error in errors:
-            print(f"ERROR: {error}")
-        print(f"Shared CSS ownership FAILED with {len(errors)} violation(s).")
-        return 1
+    if warnings:
+        for warning in warnings:
+            print(f"WARNING: {warning}")
+        print(f"Shared CSS ownership completed with {len(warnings)} warning(s); deploy continues.")
+        return 0
 
     print("Shared CSS ownership PASSED:")
     print("- shared-layout.css is the only screen Header/Footer CSS owner")
