@@ -1,18 +1,54 @@
-<!-- 共通ヘッダー：独立した正式PC/SPブランド素材を使用するTOP・下層・build成果物の唯一の管理元（CI最終確認対象） -->
+<!-- 共通ヘッダー：PC/SP共通の唯一の管理元 -->
+<style>
+  .site-header .native-nav { display: contents; }
+  .site-header .native-nav > summary { display: none; }
+  @media (max-width:980px) {
+    .site-header .native-nav {
+      display: block;
+      flex: 0 0 auto;
+    }
+    .site-header .native-nav > summary {
+      display: inline-flex;
+      min-width: 48px;
+      min-height: 44px;
+      padding: 8px 10px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      color: #007fae;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .site-header .native-nav > summary::-webkit-details-marker { display: none; }
+    .site-header .native-nav[open] > summary {
+      color: #fff;
+      background: #007fae;
+    }
+    .site-header .native-nav .nav { display: none !important; }
+    .site-header .native-nav[open] .nav { display: flex !important; }
+  }
+</style>
 <header class="site-header" data-shared-layout="header">
   <div class="wrap header-inner">
     <a class="brand" href="/index.html" aria-label="AirAdmin8 Robotics ホームへ戻る">
       <img class="brand-logo brand-logo-pc" src="/assets/img/airadmin8-robotics-logo-pc.svg?v=20260805-1" alt="AirAdmin8 Robotics" width="193" height="40">
       <img class="brand-logo brand-logo-sp" src="/assets/img/airadmin8-robotics-logo-sp.svg?v=20260805-1" alt="AirAdmin8 Robotics" width="154" height="32">
     </a>
-    <button class="menu" type="button" aria-expanded="false" aria-controls="nav" aria-label="メニューを開閉する" onclick="event.preventDefault();event.stopImmediatePropagation();const n=document.getElementById('nav');const o=n.classList.toggle('open');this.setAttribute('aria-expanded',String(o));document.body.classList.toggle('nav-is-open',o);">メニュー</button>
-    <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
-      <a href="/products.html" data-nav-key="products">製品を探す</a>
-      <a href="/use-cases.html" data-nav-key="use-cases">用途から探す</a>
-      <a href="/support.html" data-nav-key="support">ソリューション</a>
-      <a href="/cases.html" data-nav-key="cases">導入事例</a>
-      <a href="/resources.html" data-nav-key="resources">資料・SDK</a>
-      <a class="nav-cta" href="/contact.html" data-nav-key="contact">導入を相談する</a>
-    </nav>
+    <details class="native-nav">
+      <summary aria-label="メニューを開閉する">メニュー</summary>
+      <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
+        <a href="/products.html" data-nav-key="products">製品を探す</a>
+        <a href="/use-cases.html" data-nav-key="use-cases">用途から探す</a>
+        <a href="/support.html" data-nav-key="support">ソリューション</a>
+        <a href="/cases.html" data-nav-key="cases">導入事例</a>
+        <a href="/resources.html" data-nav-key="resources">資料・SDK</a>
+        <a class="nav-cta" href="/contact.html" data-nav-key="contact">導入を相談する</a>
+      </nav>
+    </details>
   </div>
 </header>
