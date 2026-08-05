@@ -18,7 +18,7 @@ from urllib.parse import urljoin
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-PUBLIC_BASE = "https://2airadmin8.github.io/aa8-Robotic/"
+PUBLIC_BASE = "https://robotics.air-admin8.co.jp/"
 SOCIAL_IMAGE = f"{PUBLIC_BASE}assets/img/robot-category-lineup.svg"
 
 PAGE_MAP = {
@@ -150,6 +150,7 @@ def organization_schema() -> dict[str, object]:
         "name": "株式会社AirAdmin8",
         "alternateName": "AirAdmin8 Robotics",
         "url": PUBLIC_BASE,
+        "sameAs": ["https://www.air-admin8.co.jp/"],
         "email": "airobot@robotics.air-admin8.co.jp",
         "address": {
             "@type": "PostalAddress",
