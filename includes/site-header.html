@@ -31,15 +31,36 @@
 
     .site-header .native-nav > summary::-webkit-details-marker { display: none; }
 
+    .site-header[data-shared-layout="header"]:has(.native-nav[open]) {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 3000 !important;
+      width: 100% !important;
+      height: 100dvh !important;
+      overflow-y: auto !important;
+      border: 0 !important;
+      background: linear-gradient(180deg, rgba(0,119,182,.96) 0%, rgba(0,174,200,.96) 100%) !important;
+      backdrop-filter: none !important;
+    }
+
+    .site-header[data-shared-layout="header"]:has(.native-nav[open]) .header-inner {
+      width: 100% !important;
+      min-height: 100dvh !important;
+      display: block !important;
+    }
+
+    .site-header[data-shared-layout="header"]:has(.native-nav[open]) .brand {
+      display: none !important;
+    }
+
     .site-header .native-nav[open] {
-      position: fixed;
-      inset: 0;
+      position: static;
       z-index: 3000;
       display: block;
+      min-height: 100dvh;
       overflow-y: auto;
       overscroll-behavior: contain;
-      background:
-        linear-gradient(180deg, rgba(0,119,182,.94) 0%, rgba(0,174,200,.94) 100%);
+      background: transparent;
     }
 
     .site-header .native-nav[open]::before {
