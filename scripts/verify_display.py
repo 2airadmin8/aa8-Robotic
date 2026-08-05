@@ -28,7 +28,7 @@ def main() -> None:
     expected_pc_logo = "airadmin8-robotics-logo-pc.svg"
     expected_sp_logo = "airadmin8-robotics-logo-sp.svg"
     expected_footer_logo = "airadmin8-robotics-logo-footer.svg"
-    expected_shortcut_icon = "airadmin8-icon-192.png"
+    expected_favicon = "favicon-airadmin8.svg"
     forbidden_public_text = ["重点解説", "【80語】", "8分類×10語"]
     forbidden_brand_tokens = [
         "airadmin8-192x192.svg",
@@ -38,6 +38,7 @@ def main() -> None:
         "logo-airadmin8-robotics-pc.svg",
         "logo-airadmin8-robotics-sp.svg",
         "airadmin8-symbol-192.svg",
+        "airadmin8-symbol.svg",
         "assets/img/brand/",
         "shared-header-runtime.js",
     ]
@@ -50,7 +51,7 @@ def main() -> None:
         require(expected_pc_logo in html, f"PC brand logo missing: {relative}")
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
-        require(expected_shortcut_icon in html, f"192px shortcut icon missing: {relative}")
+        require(expected_favicon in html, f"SVG favicon missing: {relative}")
         require('class="menu"' in html, f"SP menu button missing: {relative}")
         require(html.count('data-aa8-menu-runtime="true"') == 1, f"Shared SP menu runtime count is not 1: {relative}")
         require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
@@ -68,9 +69,10 @@ def main() -> None:
         expected_pc_logo,
         expected_sp_logo,
         expected_footer_logo,
+        expected_favicon,
         "airadmin8-wordmark.svg",
         "airadmin8-robotics-badge.svg",
-        expected_shortcut_icon,
+        "airadmin8-icon-192.png",
         "airadmin8-icon-512.png",
         "apple-touch-icon.png",
     ]
@@ -78,13 +80,15 @@ def main() -> None:
         require((SITE / "assets/img" / asset).is_file(), f"Brand asset missing: {asset}")
 
     require(not (SITE / "assets/img/airadmin8-symbol-192.svg").exists(), "Incorrect SVG shortcut icon still published")
+    require(not (SITE / "assets/img/airadmin8-symbol.svg").exists(), "Legacy symbol SVG still published")
     require(not (SITE / "assets/js/shared-header-runtime.js").exists(), "Obsolete shared header runtime still published")
 
     print("Display verification passed:")
     print("- one shared header and footer")
-    print("- official PC/SP/Footer brand assets")
-    print("- approved 192px PNG shortcut icon")
-    print("- incorrect SVG shortcut icon absent")
+    print("- uploaded PC/SP/Footer brand assets")
+    print("- uploaded SVG favicon")
+    print("- uploaded 192px and 512px PNG app icons")
+    print("- incorrect legacy symbol SVGs absent")
     print("- one inline SP menu runtime")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
