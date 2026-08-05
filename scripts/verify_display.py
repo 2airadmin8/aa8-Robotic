@@ -44,7 +44,8 @@ def main() -> None:
     ]
     legacy_link_pattern = re.compile(r'(?:href|src|srcset)=["\'][^"\']*/aa8-Robotic/', re.IGNORECASE)
 
-    for relative in [*pages, detail_pages[0].relative_to(SITE).as_posix()]:
+    checked_pages = [*pages, detail_pages[0].relative_to(SITE).as_posix()]
+    for relative in checked_pages:
         html = read(relative)
         require(html.count('data-shared-layout="header"') == 1, f"Shared header count is not 1: {relative}")
         require(html.count('data-shared-layout="footer"') == 1, f"Shared footer count is not 1: {relative}")
@@ -56,6 +57,16 @@ def main() -> None:
         require(html.count('data-aa8-menu-runtime="true"') == 1, f"Shared SP menu runtime count is not 1: {relative}")
         require("classList.toggle('open')" in html, f"SP menu toggle missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
+
+        # Footer regression checks: one source, stable layout and required navigation.
+        require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
+        require(html.count('href="/glossary.html"') >= 2, f"Glossary links missing from footer navigation: {relative}")
+        require('class="footer-brand-block"' in html, f"Footer brand block missing: {relative}")
+        require('class="footer-links"' in html, f"Footer primary navigation missing: {relative}")
+        require('class="footer-utility-links"' in html, f"Footer utility navigation missing: {relative}")
+        for label in ["製品", "用途", "ソリューション", "導入事例", "資料・SDK", "用語集", "相談"]:
+            require(label in html, f"Required footer label {label!r} missing: {relative}")
+
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
 
@@ -92,6 +103,7 @@ def main() -> None:
     print("- one inline SP menu runtime")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
+    print("- footer layout guard and required navigation")
     print("- legacy logo paths absent")
 
 
