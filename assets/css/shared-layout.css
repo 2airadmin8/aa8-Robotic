@@ -101,7 +101,7 @@
 }
 
 .footer[data-shared-layout="footer"] {
-  padding: 52px 0;
+  padding: 52px 0 24px;
   color: #d8e8ee;
   background: #061923;
 }
@@ -147,10 +147,39 @@
 
 .footer[data-shared-layout="footer"] .aa8-main-logo {
   display: block;
-  width: min(220px,62vw);
-  max-height: 42px;
+  width: min(270px,72vw);
+  max-height: 56px;
   object-fit: contain;
   object-position: left center;
+}
+
+.footer[data-shared-layout="footer"] .footer-bottom {
+  width: min(1180px, calc(100% - 64px));
+  margin: 38px auto 0;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid rgba(216,232,238,.18);
+}
+
+.footer[data-shared-layout="footer"] .footer-utility-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+.footer[data-shared-layout="footer"] .footer-utility-links a,
+.footer[data-shared-layout="footer"] .footer-bottom small {
+  color: #9fb5bf;
+  font-size: .84rem;
+  line-height: 1.5;
+}
+
+.footer[data-shared-layout="footer"] .footer-utility-links a:hover,
+.footer[data-shared-layout="footer"] .footer-utility-links a:focus-visible {
+  color: #fff;
 }
 
 @media (max-width:1240px) and (min-width:981px) {
@@ -237,16 +266,29 @@
   .footer[data-shared-layout="footer"] .footer-links {
     grid-template-columns: repeat(2,minmax(0,1fr));
   }
+  .footer[data-shared-layout="footer"] .footer-bottom {
+    width: min(100% - 40px,760px);
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
 }
 
 @media (max-width:640px) {
-  .footer[data-shared-layout="footer"] { padding: 40px 0; }
+  .footer[data-shared-layout="footer"] { padding: 40px 0 22px; }
   .footer[data-shared-layout="footer"] .footer-grid {
     width: min(100% - 28px,560px);
   }
   .footer[data-shared-layout="footer"] .footer-links {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+  .footer[data-shared-layout="footer"] .footer-bottom {
+    width: min(100% - 28px,560px);
+    margin-top: 30px;
+  }
+  .footer[data-shared-layout="footer"] .footer-utility-links {
+    gap: 10px 18px;
   }
 }
 
