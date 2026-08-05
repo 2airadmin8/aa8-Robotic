@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Enforce single ownership of shared Header/Footer CSS.
 
-Only assets/css/shared-layout.css may define selectors for the shared
-Header, Footer, brand logos, or shared navigation containers.
+Only assets/css/shared-layout.css may define shared Header, Footer,
+brand, navigation, and menu selectors. Print-only hiding is allowed because
+it does not redefine the screen layout.
 """
 from __future__ import annotations
 
@@ -38,6 +39,26 @@ def strip_comments(text: str) -> str:
     return re.sub(r"/\*.*?\*/", "", text, flags=re.S)
 
 
+def strip_media_block(text: str, media_name: str) -> str:
+    """Remove balanced @media blocks matching media_name."""
+    pattern = re.compile(rf"@media\s+{re.escape(media_name)}\s*\{{", re.I)
+    while True:
+        match = pattern.search(text)
+        if not match:
+            return text
+        depth = 1
+        index = match.end()
+        while index < len(text) and depth:
+            if text[index] == "{":
+                depth += 1
+            elif text[index] == "}":
+                depth -= 1
+            index += 1
+        if depth:
+            return text
+        text = text[: match.start()] + "\n" + text[index:]
+
+
 def main() -> int:
     if not OWNER.is_file():
         print("ERROR: assets/css/shared-layout.css is missing")
@@ -48,6 +69,7 @@ def main() -> int:
         if path == OWNER:
             continue
         text = strip_comments(path.read_text(encoding="utf-8", errors="replace"))
+        text = strip_media_block(text, "print")
         relative = path.relative_to(ROOT)
         for label, pattern in FORBIDDEN_SELECTOR_PATTERNS.items():
             match = pattern.search(text)
@@ -55,7 +77,7 @@ def main() -> int:
                 line = text.count("\n", 0, match.start()) + 1
                 errors.append(
                     f"{relative}:{line}: shared CSS ownership violation ({label}); "
-                    "move this rule to assets/css/shared-layout.css"
+                    "move this screen rule to assets/css/shared-layout.css"
                 )
 
     if errors:
@@ -65,8 +87,8 @@ def main() -> int:
         return 1
 
     print("Shared CSS ownership PASSED:")
-    print("- shared-layout.css is the only Header/Footer CSS owner")
-    print("- page-specific CSS cannot override shared brand/navigation/layout selectors")
+    print("- shared-layout.css is the only screen Header/Footer CSS owner")
+    print("- print-only hiding is allowed")
     return 0
 
 
