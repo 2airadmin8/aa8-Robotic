@@ -1,154 +1,51 @@
-/* 2026-08-02 header / logo final */
+/* Homepage hero layout only.
+   Shared header and footer are owned exclusively by assets/css/shared-layout.css. */
 
 .hero {
-  padding-top: 56px !important;
-  padding-bottom: 52px !important;
+  padding-top: 56px;
+  padding-bottom: 52px;
 }
 
 .hero .hero-grid-v2 {
-  grid-template-columns: minmax(0, .88fr) minmax(520px, 1.12fr) !important;
-  gap: 34px !important;
+  grid-template-columns: minmax(0, .88fr) minmax(520px, 1.12fr);
+  gap: 34px;
 }
 
 .hero .hero-copy h1 {
-  max-width: 620px !important;
-  font-size: clamp(2.65rem, 4vw, 3.75rem) !important;
-  line-height: 1.08 !important;
-  letter-spacing: -.035em !important;
+  max-width: 620px;
+  font-size: clamp(2.65rem, 4vw, 3.75rem);
+  line-height: 1.08;
+  letter-spacing: -.035em;
 }
 
-.hero .hero-copy h1 span { font-size: .62em !important; }
+.hero .hero-copy h1 span {
+  font-size: .62em;
+}
+
 .hero .hero-copy .lead {
-  max-width: 610px !important;
-  font-size: .98rem !important;
-  line-height: 1.8 !important;
-}
-
-.footer .footer-links a::after,
-.footer .footer-links a::before {
-  content: none !important;
-  display: none !important;
-}
-.footer .footer-links a {
-  padding-right: 0 !important;
-  background: none !important;
-}
-.public-contact-hidden { display: none !important; }
-
-.site-header {
-  overflow-x: clip !important;
-}
-
-.site-header .header-inner {
-  width: min(1320px, calc(100% - 48px)) !important;
-  margin-inline: auto !important;
-  box-sizing: border-box !important;
-}
-
-.site-header .brand {
-  display: block !important;
-  background: none !important;
-  font-size: 0 !important;
-  line-height: 0 !important;
-  overflow: visible !important;
-}
-.site-header .brand > .brand-picture {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-.site-header .brand > .brand-picture img {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  object-position: left center !important;
-}
-
-@media (min-width: 981px) {
-  .site-header .header-inner {
-    min-height: 72px !important;
-    display: grid !important;
-    grid-template-columns: 180px minmax(0, 1fr) !important;
-    align-items: center !important;
-    gap: 20px !important;
-  }
-  .site-header .brand {
-    width: 180px !important;
-    height: 42px !important;
-  }
-  .site-header .nav {
-    position: static !important;
-    display: flex !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    justify-content: flex-end !important;
-    align-items: center !important;
-    gap: clamp(8px, 1vw, 16px) !important;
-    font-size: clamp(.78rem, .78vw, .9rem) !important;
-    box-sizing: border-box !important;
-  }
-  .site-header .nav > a {
-    flex: 0 1 auto !important;
-    min-width: 0 !important;
-    white-space: nowrap !important;
-  }
-  .site-header .nav-cta {
-    flex: 0 0 auto !important;
-    min-height: 44px !important;
-    padding: 10px 14px !important;
-    margin-right: 0 !important;
-  }
-}
-
-@media (max-width: 1240px) and (min-width: 981px) {
-  .site-header .header-inner {
-    width: min(100% - 32px, 1200px) !important;
-    grid-template-columns: 158px minmax(0, 1fr) !important;
-    gap: 12px !important;
-  }
-  .site-header .brand {
-    width: 158px !important;
-    height: 38px !important;
-  }
-  .site-header .nav {
-    gap: 7px !important;
-    font-size: .76rem !important;
-  }
-  .site-header .nav-cta { padding: 9px 10px !important; }
-}
-
-@media (max-width: 1080px) and (min-width: 981px) {
-  .site-header .nav a:not(.nav-cta) {
-    font-size: .72rem !important;
-  }
+  max-width: 610px;
+  font-size: .98rem;
+  line-height: 1.8;
 }
 
 @media (max-width: 980px) {
-  .site-header .header-inner {
-    width: min(100% - 24px, 1200px) !important;
-    min-height: 60px !important;
+  .hero .hero-grid-v2 {
+    grid-template-columns: 1fr;
   }
-  .site-header .brand {
-    width: 135px !important;
-    height: 35px !important;
-    flex: 0 0 135px !important;
-  }
-  .site-header .nav { top: 60px !important; }
-  .hero .hero-grid-v2 { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 640px) {
   .hero {
-    padding-top: 40px !important;
-    padding-bottom: 38px !important;
+    padding-top: 40px;
+    padding-bottom: 38px;
   }
+
   .hero .hero-copy h1 {
-    font-size: clamp(2.2rem, 10vw, 2.9rem) !important;
+    font-size: clamp(2.2rem, 10vw, 2.9rem);
   }
+
   .hero .hero-copy .lead {
-    font-size: .94rem !important;
-    line-height: 1.72 !important;
+    font-size: .94rem;
+    line-height: 1.72;
   }
 }
