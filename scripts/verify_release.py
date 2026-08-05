@@ -12,6 +12,9 @@ OUTPUT = ROOT / "_site"
 
 REQUIRED_FILES = [
     "index.html",
+    "about.html",
+    "glossary.html",
+    "privacy.html",
     "products.html",
     "products/unitree-g1-d.html",
     "contact.html",
@@ -31,6 +34,7 @@ REQUIRED_FILES = [
 ]
 
 ALLOWED_WORKFLOWS = {"ci.yml", "pages.yml", "production-check.yml"}
+LEGACY_REDIRECT_ROOTS = {"aa8-Robotic"}
 FORBIDDEN_SOURCE_PATHS = {
     ".github/workflows/auto-merge.yml",
     ".github/workflows/artifact-validation.yml",
@@ -69,6 +73,11 @@ LEGACY_PATTERNS = {
 
 SOURCE_SCAN_SUFFIXES = {".html", ".css", ".xml", ".js", ".json"}
 SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes"}
+
+
+def is_legacy_redirect(path: Path) -> bool:
+    relative = path.relative_to(OUTPUT)
+    return bool(relative.parts and relative.parts[0] in LEGACY_REDIRECT_ROOTS)
 
 
 def count_shared_element(html: str, tag: str, layout: str) -> int:
@@ -131,7 +140,10 @@ def main() -> int:
     if "Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml" not in robots:
         errors.append("robots.txt sitemap mismatch")
 
-    html_files = sorted(path for path in OUTPUT.rglob("*.html") if "includes" not in path.relative_to(OUTPUT).parts)
+    html_files = sorted(
+        path for path in OUTPUT.rglob("*.html")
+        if "includes" not in path.relative_to(OUTPUT).parts and not is_legacy_redirect(path)
+    )
     if not html_files:
         errors.append("no publishable HTML files")
 
@@ -159,7 +171,12 @@ def main() -> int:
         if count_shared_element(text, "footer", "footer") != 1:
             errors.append(f"shared footer count is not 1: {relative}")
 
-    inspect_files = [path for path in OUTPUT.rglob("*") if path.is_file() and path.suffix.lower() in {".html", ".css", ".xml", ".js"}]
+    inspect_files = [
+        path for path in OUTPUT.rglob("*")
+        if path.is_file()
+        and path.suffix.lower() in {".html", ".css", ".xml", ".js"}
+        and not is_legacy_redirect(path)
+    ]
     for path in inspect_files:
         text = path.read_text(encoding="utf-8", errors="replace")
         relative = path.relative_to(OUTPUT)
