@@ -15,7 +15,7 @@ ASSETS = {
     "footer_css": "assets/css/footer-mobile-cleanup.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
-    "favicon": "assets/img/airadmin8-symbol-192.svg?v=20260805-1",
+    "favicon": "assets/img/airadmin8-icon-192.png?v=20260805-2",
 }
 
 
@@ -38,7 +38,6 @@ def main() -> int:
         "assets/img/airadmin8-robotics-logo-pc.svg",
         "assets/img/airadmin8-robotics-logo-sp.svg",
         "assets/img/airadmin8-robotics-logo-footer.svg",
-        "assets/img/airadmin8-symbol-192.svg",
         "assets/img/airadmin8-wordmark.svg",
         "assets/img/airadmin8-robotics-badge.svg",
         "assets/img/airadmin8-icon-192.png",
@@ -79,7 +78,7 @@ def main() -> int:
         icon = prefix + ASSETS["favicon"]
         apple = prefix + "assets/img/apple-touch-icon.png"
         icon_block = (
-            f'<link rel="icon" type="image/svg+xml" sizes="192x192" href="{icon}" data-aa8-brand-icon="true">\n'
+            f'<link rel="icon" type="image/png" sizes="192x192" href="{icon}" data-aa8-brand-icon="true">\n'
             f'  <link rel="shortcut icon" href="{icon}" data-aa8-brand-icon="true">\n'
             f'  <link rel="apple-touch-icon" sizes="180x180" href="{apple}" data-aa8-brand-icon="true">'
         )
