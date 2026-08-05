@@ -28,6 +28,14 @@ def count_shared_element(html: str, tag: str, layout: str) -> int:
     return len(pattern.findall(html))
 
 
+def count_glossary_footer_links(html: str) -> int:
+    pattern = re.compile(
+        r'<a\b[^>]*\bhref=["\'](?:\.\./)*/?glossary\.html["\'][^>]*>\s*用語集\s*</a>',
+        re.IGNORECASE,
+    )
+    return len(pattern.findall(html))
+
+
 def main() -> None:
     pages = ["index.html", "products.html", "glossary.html"]
     detail_pages = sorted((SITE / "glossary").glob("*.html"))
@@ -67,7 +75,7 @@ def main() -> None:
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
 
         require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
-        require(html.count('href="/glossary.html"') >= 2, f"Glossary links missing from footer navigation: {relative}")
+        require(count_glossary_footer_links(html) >= 2, f"Glossary links missing from footer navigation: {relative}")
         require('class="footer-brand-block"' in html, f"Footer brand block missing: {relative}")
         require('class="footer-links"' in html, f"Footer primary navigation missing: {relative}")
         require('class="footer-utility-links"' in html, f"Footer utility navigation missing: {relative}")
