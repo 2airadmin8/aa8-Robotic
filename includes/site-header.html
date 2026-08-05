@@ -3,6 +3,7 @@
   .site-header .native-nav { display: contents; }
   .site-header .native-nav > summary { display: none; }
   @media (max-width:980px) {
+    .site-header[data-shared-layout="header"] { overflow: visible !important; }
     .site-header .native-nav {
       display: block;
       flex: 0 0 auto;
@@ -29,7 +30,10 @@
       color: #fff;
       background: #007fae;
     }
-    .site-header .native-nav .nav { display: none !important; }
+    .site-header .native-nav .nav {
+      display: none !important;
+      z-index: 1002;
+    }
     .site-header .native-nav[open] .nav { display: flex !important; }
   }
 </style>
