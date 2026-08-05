@@ -49,6 +49,7 @@ jobs:
           python -m py_compile \
             scripts/build_site.py \
             scripts/generate_glossary.py \
+            scripts/generate_legacy_redirects.py \
             scripts/verify_glossary.py \
             scripts/verify_display.py \
             scripts/apply_site_assets.py \
@@ -57,6 +58,7 @@ jobs:
             scripts/inject_structured_data.py
           python scripts/build_site.py
           python scripts/generate_glossary.py
+          python scripts/generate_legacy_redirects.py
           python scripts/inject_static_meta.py
           python scripts/inject_structured_data.py
           python scripts/apply_site_assets.py
@@ -132,6 +134,7 @@ jobs:
             echo "| SPメニュー表示・動作配線 | $(status_icon '${{ steps.display.outcome }}') |"
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
+            echo "| 旧URL移行ページ | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Deploy metadata | $(status_icon '${{ steps.metadata.outcome }}') |"
             echo "| Pages artifact | $(status_icon '${{ steps.upload.outcome }}') |"
             echo ""
