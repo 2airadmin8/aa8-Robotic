@@ -12,7 +12,6 @@ from pathlib import Path
 OUTPUT = Path("_site")
 ASSETS = {
     "main_css": "assets/css/main-site-experience.css",
-    "footer_css": "assets/css/footer-mobile-cleanup.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
     "favicon": "assets/img/favicon-airadmin8.svg?v=20260805-3",
@@ -62,13 +61,19 @@ def main() -> int:
         original = path.read_text(encoding="utf-8")
         markup = original
 
-        for asset in (ASSETS["main_css"], ASSETS["footer_css"], ASSETS["shared_css"]):
+        for asset in (ASSETS["main_css"], ASSETS["shared_css"]):
             name = Path(asset).name
             pattern = re.compile(
                 rf'<link\b(?=[^>]*rel=["\'][^"\']*stylesheet[^"\']*["\'])(?=[^>]*href=["\'][^"\']*{re.escape(name)}(?:\?[^"\']*)?["\'])[^>]*>',
                 re.I,
             )
             markup = replace_or_insert(markup, pattern, f'<link rel="stylesheet" href="{prefix}{asset}">', "</head>")
+
+        obsolete_footer_css = re.compile(
+            r'\s*<link\b(?=[^>]*rel=["\'][^"\']*stylesheet[^"\']*["\'])(?=[^>]*href=["\'][^"\']*footer-mobile-cleanup\.css(?:\?[^"\']*)?["\'])[^>]*>',
+            re.I,
+        )
+        markup = obsolete_footer_css.sub("", markup)
 
         icon_pattern = re.compile(
             r'\s*<link\b(?=[^>]*rel=["\'][^"\']*(?:icon|shortcut icon|apple-touch-icon)[^"\']*["\'])[^>]*>',
