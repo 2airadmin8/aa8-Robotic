@@ -144,21 +144,27 @@ def normalize_url(url: str) -> str:
     return urllib.parse.urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "/", parsed.query, ""))
 
 
-def html_redirect_target(body: bytes, source_url: str) -> str:
+def html_redirect_targets(body: bytes, source_url: str) -> list[tuple[str, str]]:
     text = body.decode("utf-8", errors="replace")
     parser = PageParser()
     parser.feed(text)
-    candidates: list[str] = []
+    candidates: list[tuple[str, str]] = []
     if parser.canonical:
-        candidates.append(parser.canonical)
+        candidates.append(("canonical", urllib.parse.urljoin(source_url, parser.canonical)))
     if parser.meta_refresh:
         match = re.search(r"(?:^|;)\s*url\s*=\s*['\"]?([^'\";]+)", parser.meta_refresh, re.I)
         if match:
-            candidates.append(match.group(1).strip())
-    js_match = re.search(r"(?:window\.)?location\.replace\(\s*['\"]([^'\"]+)['\"]\s*\)", text, re.I)
-    if js_match:
-        candidates.append(js_match.group(1).strip())
-    return urllib.parse.urljoin(source_url, candidates[0]) if candidates else ""
+            candidates.append(("meta-refresh", urllib.parse.urljoin(source_url, match.group(1).strip())))
+    for js_match in re.finditer(r"(?:window\.)?location\.replace\(\s*['\"]([^'\"]+)['\"]\s*\)", text, re.I):
+        candidates.append(("js-replace", urllib.parse.urljoin(source_url, js_match.group(1).strip())))
+    unique: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for method, target in candidates:
+        item = (method, normalize_url(target))
+        if item not in seen:
+            seen.add(item)
+            unique.append((method, target))
+    return unique
 
 
 def audit_legacy_redirects(base_url: str, timeout: int) -> list[dict[str, object]]:
@@ -170,12 +176,16 @@ def audit_legacy_redirects(base_url: str, timeout: int) -> list[dict[str, object
             status, final_url, body, content_type = fetch(source_url, timeout)
             effective_url = final_url
             method = "http"
-            if normalize_url(final_url) == normalize_url(source_url) and status == 200 and "html" in content_type.lower():
-                html_target = html_redirect_target(body, source_url)
-                if html_target:
-                    effective_url = html_target
-                    method = "html"
-            ok = status == 200 and normalize_url(effective_url) == normalize_url(expected_url)
+            ok = status == 200 and normalize_url(final_url) == normalize_url(expected_url)
+            if not ok and normalize_url(final_url) == normalize_url(source_url) and status == 200 and "html" in content_type.lower():
+                for candidate_method, candidate_url in html_redirect_targets(body, source_url):
+                    if normalize_url(candidate_url) == normalize_url(expected_url):
+                        effective_url = candidate_url
+                        method = candidate_method
+                        ok = True
+                        break
+                else:
+                    method = "html-no-match"
             results.append({"source": source_url, "expected": expected_url, "status": status, "final_url": effective_url, "method": method, "ok": ok})
         except Exception as exc:  # noqa: BLE001
             results.append({"source": source_url, "expected": expected_url, "status": 0, "final_url": "", "method": "error", "ok": False, "error": str(exc)})
