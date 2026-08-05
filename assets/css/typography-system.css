@@ -69,11 +69,6 @@
   line-height: 1.55;
 }
 
-.menu {
-  font-size: 0.9rem !important;
-  letter-spacing: 0.02em;
-}
-
 @media (max-width: 980px) {
   .hero h1,
   .page-hero h1,
@@ -128,9 +123,5 @@
 
   .breadcrumb {
     font-size: 0.78rem !important;
-  }
-
-  .menu {
-    font-size: 0.82rem !important;
   }
 }
