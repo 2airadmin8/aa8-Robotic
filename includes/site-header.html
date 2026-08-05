@@ -6,27 +6,55 @@
   @media (max-width:980px) {
     .site-header[data-shared-layout="header"] { overflow: visible !important; }
 
+    .site-header[data-shared-layout="header"] .header-inner {
+      position: relative !important;
+      min-height: 96px !important;
+      justify-content: center !important;
+    }
+
+    .site-header[data-shared-layout="header"] .brand {
+      width: 190px !important;
+      height: 46px !important;
+      flex: 0 0 190px !important;
+    }
+
     .site-header .native-nav {
+      position: absolute;
+      top: 50%;
+      right: 18px;
       display: block;
       flex: 0 0 auto;
+      transform: translateY(-50%);
     }
 
     .site-header .native-nav > summary {
+      position: relative;
       display: inline-flex;
+      width: 48px;
+      height: 48px;
       min-width: 48px;
-      min-height: 44px;
-      padding: 8px 10px;
+      min-height: 48px;
+      padding: 0;
       align-items: center;
       justify-content: center;
-      border: 1px solid transparent;
-      border-radius: 10px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 0;
       background: transparent;
-      color: #007fae;
-      font: inherit;
-      font-weight: 900;
+      color: transparent;
+      font-size: 0;
       cursor: pointer;
       list-style: none;
       user-select: none;
+    }
+
+    .site-header .native-nav > summary::before {
+      content: "";
+      width: 34px;
+      height: 3px;
+      border-radius: 999px;
+      background: #079fcf;
+      box-shadow: 0 -10px 0 #079fcf, 0 10px 0 #079fcf;
     }
 
     .site-header .native-nav > summary::-webkit-details-marker { display: none; }
@@ -61,6 +89,7 @@
       overflow-y: auto;
       overscroll-behavior: contain;
       background: transparent;
+      transform: none;
     }
 
     .site-header .native-nav[open]::before {
@@ -103,6 +132,7 @@
       height: 3px;
       border-radius: 999px;
       background: #fff;
+      box-shadow: none;
     }
 
     .site-header .native-nav[open] > summary::before { transform: rotate(45deg); }
