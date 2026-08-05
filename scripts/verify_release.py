@@ -12,6 +12,9 @@ OUTPUT = ROOT / "_site"
 
 REQUIRED_FILES = [
     "index.html",
+    "about.html",
+    "glossary.html",
+    "privacy.html",
     "products.html",
     "products/unitree-g1-d.html",
     "contact.html",
