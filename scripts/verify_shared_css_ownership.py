@@ -16,8 +16,13 @@ OWNER = CSS_ROOT / "shared-layout.css"
 FORBIDDEN_SELECTOR_PATTERNS = {
     "site header": re.compile(r"(^|[,{\s])\.site-header(?=[\s\[:.#>{,+~]|$)", re.M),
     "header inner": re.compile(r"(^|[,{\s])\.header-inner(?=[\s\[:.#>{,+~]|$)", re.M),
-    "header brand": re.compile(r"(^|[,{\s])\.brand-logo(?:-pc|-sp)?(?=[\s\[:.#>{,+~]|$)", re.M),
+    "header brand link": re.compile(r"(^|[,{\s])\.brand(?=[\s\[:.#>{,+~]|$)", re.M),
+    "header brand mark": re.compile(r"(^|[,{\s])\.brand-mark(?=[\s\[:.#>{,+~]|$)", re.M),
+    "header brand logo": re.compile(r"(^|[,{\s])\.brand-logo(?:-pc|-sp)?(?=[\s\[:.#>{,+~]|$)", re.M),
     "legacy brand picture": re.compile(r"(^|[,{\s])\.brand-picture(?=[\s\[:.#>{,+~]|$)", re.M),
+    "shared navigation": re.compile(r"(^|[,{\s])\.nav(?=[\s\[:.#>{,+~]|$)", re.M),
+    "shared navigation CTA": re.compile(r"(^|[,{\s])\.nav-cta(?=[\s\[:.#>{,+~]|$)", re.M),
+    "shared menu button": re.compile(r"(^|[,{\s])\.menu(?=[\s\[:.#>{,+~]|$)", re.M),
     "footer root": re.compile(r"(^|[,{\s])\.footer(?=[\s\[:.#>{,+~]|$)", re.M),
     "footer grid": re.compile(r"(^|[,{\s])\.footer-grid(?=[\s\[:.#>{,+~]|$)", re.M),
     "footer links": re.compile(r"(^|[,{\s])\.footer-links(?=[\s\[:.#>{,+~]|$)", re.M),
@@ -61,7 +66,7 @@ def main() -> int:
 
     print("Shared CSS ownership PASSED:")
     print("- shared-layout.css is the only Header/Footer CSS owner")
-    print("- page-specific CSS cannot override shared brand/layout selectors")
+    print("- page-specific CSS cannot override shared brand/navigation/layout selectors")
     return 0
 
 
