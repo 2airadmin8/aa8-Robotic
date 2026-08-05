@@ -1,10 +1,13 @@
 name: Production Release Check
 
 on:
+  workflow_run:
+    workflows: ["Deploy verified site to GitHub Pages"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       expected_sha:
-        description: "Expected 40-character production commit SHA (leave blank for scheduled-style health check)"
+        description: "Expected 40-character production commit SHA (optional)"
         required: false
         type: string
   schedule:
@@ -15,55 +18,47 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  BASE_URL: https://robotics.air-admin8.co.jp
 
 concurrency:
   group: production-release-check
   cancel-in-progress: true
 
 jobs:
-  verify-production:
+  audit-production:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      BASE_URL: https://robotics.air-admin8.co.jp
-      EXPECTED_SHA: ${{ inputs.expected_sha }}
+    timeout-minutes: 20
     steps:
-      - name: Verify production release evidence
-        id: production
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Verify expected production SHA
+        id: production_sha
         shell: bash
+        env:
+          INPUT_SHA: ${{ inputs.expected_sha }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          temp_dir="$(mktemp -d)"
-          trap 'rm -rf "${temp_dir}"' EXIT
+          expected="${INPUT_SHA:-}"
+          if [[ -z "${expected}" && "${GITHUB_EVENT_NAME}" == "workflow_run" ]]; then
+            expected="${WORKFLOW_SHA:-}"
+          fi
 
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/?check=${GITHUB_RUN_ID}" -o "${temp_dir}/index.html"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/products.html?check=${GITHUB_RUN_ID}" -o "${temp_dir}/products.html"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/glossary.html?check=${GITHUB_RUN_ID}" -o "${temp_dir}/glossary.html"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/css/shared-layout.css?check=${GITHUB_RUN_ID}" -o "${temp_dir}/shared-layout.css"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/airadmin8-robotics-logo-pc.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/pc.svg"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/assets/img/airadmin8-robotics-logo-sp.svg?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sp.svg"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/robots.txt?check=${GITHUB_RUN_ID}" -o "${temp_dir}/robots.txt"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/sitemap.xml?check=${GITHUB_RUN_ID}" -o "${temp_dir}/sitemap.xml"
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_dir}/deploy-meta.json"
+          temp_file="$(mktemp)"
+          trap 'rm -f "${temp_file}"' EXIT
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' \
+            "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_file}"
 
-          for page in index.html products.html glossary.html; do
-            grep -Fq 'data-shared-layout="header"' "${temp_dir}/${page}"
-            grep -Fq 'data-shared-layout="footer"' "${temp_dir}/${page}"
-            grep -Fq 'airadmin8-robotics-logo-pc.svg' "${temp_dir}/${page}"
-            grep -Fq 'airadmin8-robotics-logo-sp.svg' "${temp_dir}/${page}"
-            grep -Fq 'data-aa8-menu-runtime="true"' "${temp_dir}/${page}"
-            grep -Fq "classList.toggle('open')" "${temp_dir}/${page}"
-            ! grep -Fq '/aa8-Robotic/' "${temp_dir}/${page}"
-            ! grep -Fq '重点解説' "${temp_dir}/${page}"
-          done
-
-          grep -Fq 'id="glossary-search"' "${temp_dir}/glossary.html"
-          grep -Fq '<svg' "${temp_dir}/pc.svg"
-          grep -Fq '<svg' "${temp_dir}/sp.svg"
-          grep -Fq 'Sitemap: https://robotics.air-admin8.co.jp/sitemap.xml' "${temp_dir}/robots.txt"
-          grep -Fq 'https://robotics.air-admin8.co.jp/glossary.html' "${temp_dir}/sitemap.xml"
-
-          python - "${temp_dir}/deploy-meta.json" "${EXPECTED_SHA}" <<'PY'
+          python - "${temp_file}" "${expected}" <<'PY'
           import json
           import re
           import sys
@@ -83,28 +78,48 @@ jobs:
                   raise SystemExit(f"Invalid expected SHA: {expected!r}")
               if actual != expected:
                   raise SystemExit(f"Production SHA mismatch: expected={expected} actual={actual}")
-          print(actual)
+          print(f"Verified production SHA: {actual}")
           PY
 
-      - name: 本番表示チェックリスト
+      - name: Audit every production URL from sitemap
+        id: site_audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/audit_production_site.py
+          python scripts/audit_production_site.py \
+            --base-url "${BASE_URL}" \
+            --json production-audit.json \
+            --markdown production-audit.md
+
+      - name: Publish audit summary
         if: always()
         shell: bash
         run: |
-          case '${{ steps.production.outcome }}' in
-            success) result='✅ PASS' ;;
-            *) result='❌ FAIL' ;;
-          esac
           {
-            echo "## 本番表示チェックリスト"
-            echo "| チェック項目 | 結果 |"
-            echo "|---|---|"
-            echo "| Header / Footer共通表示 | ${result} |"
-            echo "| PC / SP Logo | ${result} |"
-            echo "| SPメニュー配線 | ${result} |"
-            echo "| 用語集検索・表示 | ${result} |"
-            echo "| リンク・旧パス除去 | ${result} |"
-            echo "| Sitemap・robots | ${result} |"
-            echo "| 本番branch / SHA | ${result} |"
+            echo "## Production Release Check"
             echo ""
-            echo "Production: ${BASE_URL}/"
+            case '${{ steps.production_sha.outcome }}' in
+              success) echo "- 本番SHA: ✅ PASS" ;;
+              *) echo "- 本番SHA: ❌ FAIL" ;;
+            esac
+            case '${{ steps.site_audit.outcome }}' in
+              success) echo "- 全URL監査: ✅ PASS" ;;
+              *) echo "- 全URL監査: ❌ FAIL" ;;
+            esac
+            echo ""
+            if [[ -f production-audit.md ]]; then
+              cat production-audit.md
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload production audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-site-audit-${{ github.run_id }}
+          path: |
+            production-audit.json
+            production-audit.md
+          if-no-files-found: warn
+          retention-days: 30
