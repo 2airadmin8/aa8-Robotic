@@ -69,9 +69,11 @@ def main() -> None:
         require(expected_sp_logo in html, f"SP brand logo missing: {relative}")
         require(expected_footer_logo in html, f"Footer brand logo missing: {relative}")
         require(expected_favicon in html, f"SVG favicon missing: {relative}")
-        require('class="native-nav"' in html, f"Native SP navigation missing: {relative}")
-        require('<summary aria-label="メニューを開閉する">メニュー</summary>' in html, f"Native SP menu summary missing: {relative}")
-        require('.native-nav[open] .nav' in html, f"Native SP menu open-state CSS missing: {relative}")
+        require('class="menu"' in html, f"SP menu button missing: {relative}")
+        require('aria-controls="nav"' in html, f"SP menu aria-controls missing: {relative}")
+        require('aria-expanded="false"' in html, f"SP menu initial state missing: {relative}")
+        require('id="nav" class="nav"' in html, f"Global navigation missing: {relative}")
+        require('.nav.open' in html, f"SP menu open-state CSS missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
 
         require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
@@ -84,6 +86,10 @@ def main() -> None:
 
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
+
+    site_js = read("assets/js/site.js")
+    require("navigation.classList.toggle('open')" in site_js, "SP menu toggle wiring missing")
+    require("menuButton.setAttribute('aria-expanded'" in site_js, "SP menu aria-expanded wiring missing")
 
     glossary = read("glossary.html")
     require("ロボット・フィジカルAI用語集" in glossary, "Glossary title missing")
@@ -115,7 +121,7 @@ def main() -> None:
     print("- uploaded SVG favicon")
     print("- uploaded 192px and 512px PNG app icons")
     print("- incorrect legacy symbol SVGs absent")
-    print("- native SP menu structure and open-state CSS")
+    print("- responsive menu button, navigation and JS wiring")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
     print("- footer layout guard and required navigation")
