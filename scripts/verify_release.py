@@ -18,6 +18,7 @@ REQUIRED_FILES = [
     "products.html",
     "products/unitree-g1-d.html",
     "contact.html",
+    "resources/document.html",
     "assets/css/shared-layout.css",
     "assets/img/airadmin8-robotics-logo-pc.svg",
     "assets/img/airadmin8-robotics-logo-sp.svg",
@@ -133,6 +134,11 @@ def main() -> int:
 
     if errors:
         return fail(errors)
+
+    tracking_page = (OUTPUT / "resources/document.html").read_text(encoding="utf-8", errors="replace")
+    for marker in ("G-3DCV21L2RT", "pdf_open", "delivery_id", "noindex,nofollow"):
+        if marker not in tracking_page:
+            errors.append(f"tracking page missing required marker: {marker}")
 
     if (OUTPUT / "CNAME").read_text(encoding="utf-8").strip() != "robotics.air-admin8.co.jp":
         errors.append("CNAME mismatch")
