@@ -73,7 +73,6 @@ def main() -> None:
         require('aria-controls="nav"' in html, f"SP menu aria-controls missing: {relative}")
         require('aria-expanded="false"' in html, f"SP menu initial state missing: {relative}")
         require('id="nav" class="nav"' in html, f"Global navigation missing: {relative}")
-        require('.nav.open' in html, f"SP menu open-state CSS missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
 
         require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
@@ -86,6 +85,11 @@ def main() -> None:
 
         for token in [*forbidden_public_text, *forbidden_brand_tokens]:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
+
+    shared_css = read("assets/css/shared-layout.css")
+    require(".nav.open" in shared_css, "SP menu open-state CSS missing")
+    require("@media (min-width:981px)" in shared_css, "PC navigation breakpoint missing")
+    require("display: flex !important" in shared_css, "PC navigation visible-state CSS missing")
 
     site_js = read("assets/js/site.js")
     require("navigation.classList.toggle('open')" in site_js, "SP menu toggle wiring missing")
@@ -121,7 +125,7 @@ def main() -> None:
     print("- uploaded SVG favicon")
     print("- uploaded 192px and 512px PNG app icons")
     print("- incorrect legacy symbol SVGs absent")
-    print("- responsive menu button, navigation and JS wiring")
+    print("- responsive menu HTML, CSS and JS wiring")
     print("- obsolete header runtime absent")
     print("- glossary search/filter/detail links")
     print("- footer layout guard and required navigation")
