@@ -4,13 +4,14 @@ const pages = ['/index.html', '/support.html', '/glossary.html'];
 
 for (const path of pages) {
   test.describe(`header navigation ${path}`, () => {
-    test('SP: menu opens, is usable, and closes', async ({ page }) => {
+    test('SP: menu opens with compact translucent overlay and closes', async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`http://127.0.0.1:4173${path}`, { waitUntil: 'networkidle' });
 
       const menu = page.locator('.site-header .menu');
       const nav = page.locator('.site-header .nav');
-      const lastLink = nav.locator('a').last();
+      const links = nav.locator('a');
+      const lastLink = links.last();
 
       await expect(menu).toBeVisible();
       await expect(menu).toHaveAttribute('aria-expanded', 'false');
@@ -19,7 +20,27 @@ for (const path of pages) {
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded', 'true');
       await expect(nav).toBeVisible();
+      await expect(links).toHaveCount(6);
       await expect(lastLink).toBeVisible();
+
+      const state = await nav.evaluate((element) => {
+        const style = getComputedStyle(element);
+        const link = element.querySelector('a');
+        const linkStyle = link ? getComputedStyle(link) : null;
+        return {
+          position: style.position,
+          height: style.height,
+          backgroundImage: style.backgroundImage,
+          justifyContent: style.justifyContent,
+          linkFontSize: linkStyle?.fontSize || '',
+        };
+      });
+
+      expect(state.position).toBe('fixed');
+      expect(parseFloat(state.height)).toBeGreaterThanOrEqual(800);
+      expect(state.backgroundImage).toContain('linear-gradient');
+      expect(state.justifyContent).toBe('center');
+      expect(parseFloat(state.linkFontSize)).toBeLessThanOrEqual(20);
 
       const navBox = await nav.boundingBox();
       expect(navBox).not.toBeNull();
