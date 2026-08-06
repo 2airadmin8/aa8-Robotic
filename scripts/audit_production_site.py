@@ -18,6 +18,9 @@ DEFAULT_TIMEOUT = 20
 LEGACY_REDIRECTS = {
     "/aa8-Robotic/glossary/physical-ai.html": "/glossary/physical-ai.html",
 }
+PUBLIC_ASSETS = {
+    "/assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf": "application/pdf",
+}
 CORE_PATHS = {"/", "/about.html", "/glossary.html", "/contact.html", "/privacy.html"}
 
 
@@ -192,7 +195,28 @@ def audit_legacy_redirects(base_url: str, timeout: int) -> list[dict[str, object
     return results
 
 
-def markdown_report(audits: list[PageAudit], redirects: list[dict[str, object]]) -> str:
+def audit_public_assets(base_url: str, timeout: int) -> list[dict[str, object]]:
+    results: list[dict[str, object]] = []
+    for path, expected_type in PUBLIC_ASSETS.items():
+        encoded_path = urllib.parse.quote(path, safe="/%")
+        url = base_url + encoded_path
+        try:
+            status, final_url, body, content_type = fetch(url, timeout)
+            ok = status == 200 and expected_type in content_type.lower() and len(body) > 0
+            results.append({
+                "url": url,
+                "status": status,
+                "final_url": final_url,
+                "content_type": content_type,
+                "bytes": len(body),
+                "ok": ok,
+            })
+        except Exception as exc:  # noqa: BLE001
+            results.append({"url": url, "status": 0, "final_url": "", "content_type": "", "bytes": 0, "ok": False, "error": str(exc)})
+    return results
+
+
+def markdown_report(audits: list[PageAudit], redirects: list[dict[str, object]], assets: list[dict[str, object]]) -> str:
     failed = [item for item in audits if item.errors]
     warned = [item for item in audits if item.warnings]
     lines = ["## 本番サイト全URL監査", "", f"- Sitemap URL数: **{len(audits)}**", f"- 正常: **{len(audits) - len(failed)}**", f"- 失敗: **{len(failed)}**", f"- Warningあり: **{len(warned)}**", ""]
@@ -206,6 +230,11 @@ def markdown_report(audits: list[PageAudit], redirects: list[dict[str, object]])
         if len(warned) > 30:
             lines.append(f"| ... | 他 {len(warned) - 30}件 |")
         lines.append("")
+    lines.extend(["### 公開資料", "", "| URL | HTTP | Content-Type | Bytes | 結果 |", "|---|---:|---|---:|---|"])
+    for item in assets:
+        result = "✅ PASS" if item.get("ok") else "❌ FAIL"
+        lines.append(f"| {item['url']} | {item.get('status', 0)} | {item.get('content_type', '')} | {item.get('bytes', 0)} | {result} |")
+    lines.append("")
     lines.extend(["### 旧URL移行", "", "| 旧URL | 最終URL | 方式 | 結果 |", "|---|---|---|---|"])
     for item in redirects:
         result = "✅ PASS" if item.get("ok") else "❌ FAIL"
@@ -228,14 +257,15 @@ def main() -> int:
         return 1
     audits = [audit_page(url, args.timeout) for url in urls]
     redirects = audit_legacy_redirects(base_url, args.timeout)
+    assets = audit_public_assets(base_url, args.timeout)
     with open(args.json, "w", encoding="utf-8") as handle:
-        json.dump({"base_url": base_url, "pages": [asdict(item) for item in audits], "legacy_redirects": redirects}, handle, ensure_ascii=False, indent=2)
+        json.dump({"base_url": base_url, "pages": [asdict(item) for item in audits], "public_assets": assets, "legacy_redirects": redirects}, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
-    markdown = markdown_report(audits, redirects)
+    markdown = markdown_report(audits, redirects, assets)
     with open(args.markdown, "w", encoding="utf-8") as handle:
         handle.write(markdown)
     print(markdown)
-    return 1 if any(item.errors for item in audits) or any(not item.get("ok") for item in redirects) else 0
+    return 1 if any(item.errors for item in audits) or any(not item.get("ok") for item in assets) or any(not item.get("ok") for item in redirects) else 0
 
 
 if __name__ == "__main__":
