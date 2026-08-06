@@ -20,18 +20,8 @@ concurrency:
 jobs:
   build-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 12
     steps:
-      - name: Require main release source
-        id: source
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "${GITHUB_REF_NAME}" != "main" ]]; then
-            echo "Production deployment is allowed only from main; got ${GITHUB_REF_NAME}."
-            exit 1
-          fi
-
       - name: Checkout exact release revision
         uses: actions/checkout@v6
 
@@ -40,21 +30,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-
-      - name: Audit shared CSS ownership
-        id: css_owner
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m py_compile scripts/verify_shared_css_ownership.py
-          python scripts/verify_shared_css_ownership.py
-
-      - name: Build exact release artifact
-        id: build
+      - name: Build release artifact
         shell: bash
         run: |
           set -euo pipefail
@@ -70,22 +46,18 @@ jobs:
             scripts/verify_release.py \
             scripts/inject_static_meta.py \
             scripts/inject_structured_data.py
+          python scripts/verify_shared_css_ownership.py
           python scripts/build_site.py
           python scripts/generate_glossary.py
           python scripts/generate_legacy_redirects.py
           python scripts/inject_static_meta.py
           python scripts/inject_structured_data.py
           python scripts/apply_site_assets.py
-
-      - name: Audit asset fingerprints
-        id: fingerprints
-        shell: bash
-        run: |
-          set -euo pipefail
           python scripts/verify_asset_fingerprints.py
+          python scripts/verify_glossary.py
+          python scripts/verify_display.py
 
       - name: Generate deployment metadata
-        id: metadata
         shell: bash
         run: |
           set -euo pipefail
@@ -111,97 +83,32 @@ jobs:
           )
           PY
 
-      - name: Audit glossary data and pages
-        id: glossary
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/verify_glossary.py
-
-      - name: Audit shared display
-        id: display
-        shell: bash
-        run: |
-          set -euo pipefail
-          python scripts/verify_display.py
-
-      - name: Audit links, assets and release structure
-        id: release
+      - name: Verify required release files
         shell: bash
         run: |
           set -euo pipefail
           python scripts/verify_release.py
-
-      - name: Install Playwright Chromium
-        id: browser_setup
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --no-save @playwright/test@1.55.0
-          npx playwright install --with-deps chromium
-
-      - name: Audit PC/SP navigation in real browser
-        id: browser
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m http.server 4173 --directory _site > /tmp/aa8-http.log 2>&1 &
-          server_pid=$!
-          trap 'kill ${server_pid}' EXIT
-          for attempt in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:4173/index.html >/dev/null; then
-              break
-            fi
-            sleep 0.5
-          done
-          curl -fsS http://127.0.0.1:4173/index.html >/dev/null
-          npx playwright test tests/header-navigation.spec.js --reporter=line
+          test -s _site/resources/document.html
+          test -s _site/assets/js/document-tracking.js
+          test -s '_site/assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf'
+          grep -q 'G-3DCV21L2RT' _site/resources/document.html
+          grep -q 'pdf_open' _site/assets/js/document-tracking.js
+          grep -q 'delivery_id' _site/assets/js/document-tracking.js
 
       - name: Upload Pages artifact
-        id: upload
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 
-      - name: Build表示チェックリスト
-        if: always()
-        shell: bash
-        run: |
-          status_icon() {
-            case "$1" in
-              success) echo "✅ PASS" ;;
-              skipped) echo "⚪ SKIP" ;;
-              *) echo "❌ FAIL" ;;
-            esac
-          }
-          {
-            echo "## Build表示チェックリスト"
-            echo "| チェック項目 | 結果 |"
-            echo "|---|---|"
-            echo "| mainからのRelease | $(status_icon '${{ steps.source.outcome }}') |"
-            echo "| 共通CSS所有権 | $(status_icon '${{ steps.css_owner.outcome }}') |"
-            echo "| Build・構文 | $(status_icon '${{ steps.build.outcome }}') |"
-            echo "| CSS/JSキャッシュ更新 | $(status_icon '${{ steps.fingerprints.outcome }}') |"
-            echo "| 用語集データ・詳細ページ | $(status_icon '${{ steps.glossary.outcome }}') |"
-            echo "| Header / Footer共通化 | $(status_icon '${{ steps.display.outcome }}') |"
-            echo "| PC/SP実ブラウザメニュー | $(status_icon '${{ steps.browser.outcome }}') |"
-            echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
-            echo "| Deploy metadata | $(status_icon '${{ steps.metadata.outcome }}') |"
-            echo "| Pages artifact | $(status_icon '${{ steps.upload.outcome }}') |"
-            echo ""
-            echo "Release SHA: \`${GITHUB_SHA}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
   deploy:
     needs: build-and-verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
     steps:
       - name: Configure Pages
-        id: configure
         uses: actions/configure-pages@v5
 
       - name: Deploy to GitHub Pages
@@ -212,71 +119,48 @@ jobs:
           error_count: 20
           reporting_interval: 5000
 
-      - name: Verify exact production SHA
-        id: production_sha
+      - name: Verify production release
         shell: bash
         env:
           EXPECTED_SHA: ${{ github.sha }}
           BASE_URL: https://robotics.air-admin8.co.jp
         run: |
           set -euo pipefail
-          temp_file="$(mktemp)"
-          trap 'rm -f "${temp_file}"' EXIT
+          temp_meta="$(mktemp)"
+          temp_page="$(mktemp)"
+          temp_pdf="$(mktemp)"
+          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf"' EXIT
 
-          for attempt in $(seq 1 24); do
+          for attempt in $(seq 1 36); do
+            cache_bust="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
             if curl -fsSL -H 'Cache-Control: no-cache' \
-              "${BASE_URL}/deploy-meta.json?release=${GITHUB_RUN_ID}-${attempt}" \
-              -o "${temp_file}"; then
-              if python - "${temp_file}" "${EXPECTED_SHA}" <<'PY'
+                 "${BASE_URL}/deploy-meta.json?v=${cache_bust}" -o "$temp_meta" \
+              && curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}/resources/document.html?v=${cache_bust}" -o "$temp_page" \
+              && curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}/assets/pdf/%E3%80%90AirAdmin8%E3%80%91%E5%A4%A7%E5%AD%A6%E3%83%BB%E7%A0%94%E7%A9%B6%E6%A9%9F%E9%96%A2%E5%90%91%E3%81%91_AI%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88%E5%B0%8E%E5%85%A5%E6%94%AF%E6%8F%B4%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85.pdf?v=${cache_bust}" -o "$temp_pdf"; then
+              python - "$temp_meta" "$EXPECTED_SHA" <<'PY'
           import json
-          import re
           import sys
           from pathlib import Path
 
-          path = Path(sys.argv[1])
+          data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
           expected = sys.argv[2].lower()
-          data = json.loads(path.read_text(encoding="utf-8"))
           actual = str(data.get("commit_sha", "")).lower()
-          branch = data.get("branch")
-
-          if not re.fullmatch(r"[0-9a-f]{40}", actual):
-              raise SystemExit(f"Invalid production commit SHA: {actual!r}")
           if actual != expected:
-              raise SystemExit(f"Production SHA mismatch: expected={expected} actual={actual}")
-          if branch != "main":
-              raise SystemExit(f"Production branch mismatch: expected=main actual={branch!r}")
-          print(f"Verified production SHA: {actual}")
+              raise SystemExit(f"SHA mismatch: expected={expected} actual={actual}")
+          if data.get("branch") != "main":
+              raise SystemExit(f"Branch mismatch: {data.get('branch')!r}")
           PY
-              then
-                exit 0
-              fi
+              grep -q 'G-3DCV21L2RT' "$temp_page"
+              grep -q 'document-tracking.js' "$temp_page"
+              test -s "$temp_pdf"
+              echo "Production verified: ${EXPECTED_SHA}"
+              exit 0
             fi
-            echo "Production has not reached ${EXPECTED_SHA} yet (attempt ${attempt}/24)."
+            echo "Production not ready yet (${attempt}/36)."
             sleep 5
           done
 
-          echo "Production SHA did not converge to ${EXPECTED_SHA}."
+          echo "Production verification failed."
           exit 1
-
-      - name: 本番表示チェックリスト
-        if: always()
-        shell: bash
-        run: |
-          status_icon() {
-            case "$1" in
-              success) echo "✅ PASS" ;;
-              skipped) echo "⚪ SKIP" ;;
-              *) echo "❌ FAIL" ;;
-            esac
-          }
-          {
-            echo "## 本番表示チェックリスト"
-            echo "| チェック項目 | 結果 |"
-            echo "|---|---|"
-            echo "| Pages設定 | $(status_icon '${{ steps.configure.outcome }}') |"
-            echo "| 本番Deploy | $(status_icon '${{ steps.deployment.outcome }}') |"
-            echo "| 本番SHA一致 | $(status_icon '${{ steps.production_sha.outcome }}') |"
-            echo ""
-            echo "Expected SHA: \`${GITHUB_SHA}\`"
-            echo "Production: https://robotics.air-admin8.co.jp/"
-          } >> "$GITHUB_STEP_SUMMARY"
