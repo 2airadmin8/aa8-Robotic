@@ -2,6 +2,7 @@
 """Read-only release gate for source hygiene and the generated _site artifact."""
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -9,6 +10,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
+
+SOURCE_GUIDE_PDF = "assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf"
+PUBLIC_GUIDE_PDF = "assets/pdf/airadmin8-university-ai-robot-guide.pdf"
 
 REQUIRED_FILES = [
     "index.html",
@@ -20,6 +24,7 @@ REQUIRED_FILES = [
     "contact.html",
     "resources/document.html",
     "assets/css/shared-layout.css",
+    "assets/js/document-tracking.js",
     "assets/img/airadmin8-robotics-logo-pc.svg",
     "assets/img/airadmin8-robotics-logo-sp.svg",
     "assets/img/airadmin8-robotics-logo-footer.svg",
@@ -29,7 +34,8 @@ REQUIRED_FILES = [
     "assets/img/airadmin8-icon-192.png",
     "assets/img/airadmin8-icon-512.png",
     "assets/img/apple-touch-icon.png",
-    "assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf",
+    SOURCE_GUIDE_PDF,
+    PUBLIC_GUIDE_PDF,
     "sitemap.xml",
     "robots.txt",
     "CNAME",
@@ -90,6 +96,14 @@ def count_shared_element(html: str, tag: str, layout: str) -> int:
     return len(pattern.findall(html))
 
 
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def fail(errors: list[str]) -> int:
     for error in errors:
         print(f"ERROR: {error}")
@@ -135,10 +149,22 @@ def main() -> int:
     if errors:
         return fail(errors)
 
+    source_pdf = OUTPUT / SOURCE_GUIDE_PDF
+    public_pdf = OUTPUT / PUBLIC_GUIDE_PDF
+    if source_pdf.stat().st_size != public_pdf.stat().st_size:
+        errors.append("published PDF alias size does not match source PDF")
+    elif sha256(source_pdf) != sha256(public_pdf):
+        errors.append("published PDF alias hash does not match source PDF")
+
     tracking_page = (OUTPUT / "resources/document.html").read_text(encoding="utf-8", errors="replace")
-    for marker in ("G-3DCV21L2RT", "pdf_open", "delivery_id", "noindex,nofollow"):
+    for marker in ("G-3DCV21L2RT", "noindex,nofollow", "document-tracking.js"):
         if marker not in tracking_page:
             errors.append(f"tracking page missing required marker: {marker}")
+
+    tracking_script = (OUTPUT / "assets/js/document-tracking.js").read_text(encoding="utf-8", errors="replace")
+    for marker in ("pdf_open", "delivery_id", "/assets/pdf/airadmin8-university-ai-robot-guide.pdf"):
+        if marker not in tracking_script:
+            errors.append(f"tracking script missing required marker: {marker}")
 
     if (OUTPUT / "CNAME").read_text(encoding="utf-8").strip() != "robotics.air-admin8.co.jp":
         errors.append("CNAME mismatch")
