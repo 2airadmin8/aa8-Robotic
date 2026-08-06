@@ -18,7 +18,7 @@ concurrency:
 jobs:
   build-and-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -27,6 +27,11 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
 
       - name: Verify shared CSS ownership
         id: css_owner
@@ -74,6 +79,31 @@ jobs:
         shell: bash
         run: python scripts/verify_release.py
 
+      - name: Install Playwright Chromium
+        id: browser_setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify PC/SP navigation in real browser
+        id: browser
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m http.server 4173 --directory _site > /tmp/aa8-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill ${server_pid}' EXIT
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/index.html >/dev/null; then
+              break
+            fi
+            sleep 0.5
+          done
+          curl -fsS http://127.0.0.1:4173/index.html >/dev/null
+          npx playwright test tests/header-navigation.spec.js --reporter=line
+
       - name: Ensure build does not modify tracked source
         id: source_clean
         shell: bash
@@ -99,7 +129,7 @@ jobs:
             echo "| 用語集データ・詳細ページ | $(status_icon '${{ steps.glossary.outcome }}') |"
             echo "| Header / Footer共通化 | $(status_icon '${{ steps.display.outcome }}') |"
             echo "| PC / SP Logo | $(status_icon '${{ steps.display.outcome }}') |"
-            echo "| SPメニュー表示・動作配線 | $(status_icon '${{ steps.display.outcome }}') |"
+            echo "| PC/SP実ブラウザメニュー | $(status_icon '${{ steps.browser.outcome }}') |"
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| BuildによるSource汚染なし | $(status_icon '${{ steps.source_clean.outcome }}') |"
