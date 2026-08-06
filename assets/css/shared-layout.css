@@ -200,7 +200,12 @@
 }
 
 @media (max-width:980px) {
+  .site-header[data-shared-layout="header"] {
+    overflow: visible !important;
+    backdrop-filter: none;
+  }
   .site-header[data-shared-layout="header"] .header-inner {
+    position: relative;
     width: min(100% - 24px,1200px);
     min-height: 60px;
     display: flex;
@@ -216,6 +221,8 @@
   .site-header[data-shared-layout="header"] .brand-logo-pc { display: none !important; }
   .site-header[data-shared-layout="header"] .brand-logo-sp { display: block !important; }
   .site-header[data-shared-layout="header"] .menu {
+    position: relative;
+    z-index: 2101;
     display: inline-flex !important;
     flex: 0 0 auto;
     align-items: center;
@@ -227,18 +234,23 @@
     background: #007fae;
   }
   .site-header[data-shared-layout="header"] .nav {
-    position: absolute;
+    position: fixed;
+    z-index: 2100;
     top: 60px;
-    left: 0;
     right: 0;
+    bottom: 0;
+    left: 0;
     display: none;
-    max-height: calc(100dvh - 60px);
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    box-sizing: border-box;
     overflow-y: auto;
     overscroll-behavior: contain;
     flex-direction: column;
     align-items: stretch;
     gap: 4px;
-    padding: 12px 16px 20px;
+    padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
     border-bottom: 1px solid #d9e5ea;
     background: #fff;
     box-shadow: 0 18px 32px rgba(6,25,35,.14);
