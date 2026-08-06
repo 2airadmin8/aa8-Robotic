@@ -2,10 +2,12 @@
 """Attach required shared assets to the generated site.
 
 This script never edits CSS rules, header/footer markup, canonical URLs, or content.
-It only normalizes references to approved CSS, JavaScript, and favicon assets.
+It normalizes approved CSS, JavaScript, and icon references and appends a
+content hash so browsers cannot keep stale shared navigation assets.
 """
 from __future__ import annotations
 
+import hashlib
 import re
 from pathlib import Path
 
@@ -14,7 +16,8 @@ ASSETS = {
     "main_css": "assets/css/main-site-experience.css",
     "shared_css": "assets/css/shared-layout.css",
     "js": "assets/js/main-site-experience.js",
-    "favicon": "assets/img/favicon-airadmin8.svg?v=20260805-3",
+    "favicon": "assets/img/favicon-airadmin8.svg",
+    "apple_touch_icon": "assets/img/apple-touch-icon.png",
 }
 
 
@@ -25,6 +28,12 @@ def replace_or_insert(markup: str, pattern: re.Pattern[str], replacement: str, c
     if closing_tag not in markup:
         raise ValueError(f"Missing {closing_tag}")
     return markup.replace(closing_tag, f"  {replacement}\n{closing_tag}", 1)
+
+
+def versioned_asset(prefix: str, relative: str) -> str:
+    path = OUTPUT / relative
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+    return f"{prefix}{relative}?v={digest}"
 
 
 def main() -> int:
@@ -41,9 +50,8 @@ def main() -> int:
         "assets/img/airadmin8-robotics-badge.svg",
         "assets/img/airadmin8-icon-192.png",
         "assets/img/airadmin8-icon-512.png",
-        "assets/img/apple-touch-icon.png",
     ]
-    missing = [item for item in required if not (OUTPUT / item.split("?", 1)[0]).is_file()]
+    missing = [item for item in required if not (OUTPUT / item).is_file()]
     if missing:
         for item in missing:
             print(f"ERROR: missing asset: {item}")
@@ -67,7 +75,8 @@ def main() -> int:
                 rf'<link\b(?=[^>]*rel=["\'][^"\']*stylesheet[^"\']*["\'])(?=[^>]*href=["\'][^"\']*{re.escape(name)}(?:\?[^"\']*)?["\'])[^>]*>',
                 re.I,
             )
-            markup = replace_or_insert(markup, pattern, f'<link rel="stylesheet" href="{prefix}{asset}">', "</head>")
+            href = versioned_asset(prefix, asset)
+            markup = replace_or_insert(markup, pattern, f'<link rel="stylesheet" href="{href}">', "</head>")
 
         obsolete_footer_css = re.compile(
             r'\s*<link\b(?=[^>]*rel=["\'][^"\']*stylesheet[^"\']*["\'])(?=[^>]*href=["\'][^"\']*footer-mobile-cleanup\.css(?:\?[^"\']*)?["\'])[^>]*>',
@@ -80,8 +89,8 @@ def main() -> int:
             re.I,
         )
         markup = icon_pattern.sub("", markup)
-        icon = prefix + ASSETS["favicon"]
-        apple = prefix + "assets/img/apple-touch-icon.png"
+        icon = versioned_asset(prefix, ASSETS["favicon"])
+        apple = versioned_asset(prefix, ASSETS["apple_touch_icon"])
         icon_block = (
             f'<link rel="icon" type="image/svg+xml" sizes="any" href="{icon}" data-aa8-brand-icon="true">\n'
             f'  <link rel="shortcut icon" href="{icon}" data-aa8-brand-icon="true">\n'
@@ -93,7 +102,8 @@ def main() -> int:
             r'<script\b(?=[^>]*src=["\'][^"\']*main-site-experience\.js(?:\?[^"\']*)?["\'])[^>]*></script>',
             re.I,
         )
-        markup = replace_or_insert(markup, js_pattern, f'<script src="{prefix}{ASSETS["js"]}" defer></script>', "</body>")
+        js_src = versioned_asset(prefix, ASSETS["js"])
+        markup = replace_or_insert(markup, js_pattern, f'<script src="{js_src}" defer></script>', "</body>")
 
         obsolete_runtime_pattern = re.compile(
             r'\s*<script\b(?=[^>]*src=["\'][^"\']*shared-header-runtime\.js(?:\?[^"\']*)?["\'])[^>]*></script>',
@@ -105,7 +115,7 @@ def main() -> int:
             path.write_text(markup, encoding="utf-8")
             changed += 1
 
-    print(f"Applied approved site assets to {len(html_files)} page(s); changed {changed}.")
+    print(f"Applied fingerprinted site assets to {len(html_files)} page(s); changed {changed}.")
     return 0
 
 
