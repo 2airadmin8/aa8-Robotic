@@ -30,7 +30,10 @@ for (const path of pages) {
       expect(navBox.width).toBeGreaterThanOrEqual(389);
       expect(navBox.height).toBeGreaterThanOrEqual(843);
 
-      const navStyle = await nav.evaluate((node) => getComputedStyle(node));
+      const navStyle = await nav.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { position: style.position, overflowY: style.overflowY };
+      });
       expect(navStyle.position).toBe('fixed');
       expect(navStyle.overflowY).toBe('auto');
 
