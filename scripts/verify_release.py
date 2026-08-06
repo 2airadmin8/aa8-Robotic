@@ -28,6 +28,7 @@ REQUIRED_FILES = [
     "assets/img/airadmin8-icon-192.png",
     "assets/img/airadmin8-icon-512.png",
     "assets/img/apple-touch-icon.png",
+    "assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf",
     "sitemap.xml",
     "robots.txt",
     "CNAME",
