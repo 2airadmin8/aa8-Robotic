@@ -52,3 +52,8 @@ test('breakpoint contract: 980 is SP, 981 is PC', async ({ page }) => {
   await expect(page.locator('.site-header .menu')).toBeHidden();
   await expect(page.locator('.site-header .nav')).toBeVisible();
 });
+
+test('legacy repository-prefix product URL redirects to the current URL', async ({ page }) => {
+  await page.goto('http://127.0.0.1:4173/aa8-Robotic/products/tianji-marvin.html');
+  await expect(page).toHaveURL('https://robotics.air-admin8.co.jp/products/tianji-marvin.html');
+});
