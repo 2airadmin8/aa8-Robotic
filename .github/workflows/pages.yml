@@ -15,7 +15,7 @@ env:
 
 concurrency:
   group: pages-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-verify:
@@ -198,7 +198,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Configure Pages
         id: configure
@@ -207,6 +207,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          timeout: 1200000
+          error_count: 20
+          reporting_interval: 5000
 
       - name: Verify exact production SHA
         id: production_sha
