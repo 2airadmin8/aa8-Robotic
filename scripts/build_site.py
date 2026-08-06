@@ -23,6 +23,8 @@ BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
 FOOTER_SOURCE = ROOT / "includes" / "site-footer.html"
+SOURCE_GUIDE_PDF = ROOT / "assets" / "pdf" / "【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf"
+PUBLIC_GUIDE_PDF = OUTPUT / "assets" / "pdf" / "airadmin8-university-ai-robot-guide.pdf"
 
 
 @dataclass
@@ -201,9 +203,9 @@ def build_html(html: str, relative: Path) -> str:
 
 
 def build_output(page_results: list[PageResult], findings: list[str]) -> None:
-    for source in (HEADER_SOURCE, FOOTER_SOURCE):
+    for source in (HEADER_SOURCE, FOOTER_SOURCE, SOURCE_GUIDE_PDF):
         if not source.is_file():
-            raise FileNotFoundError(f"Missing shared source: {source.relative_to(ROOT)}")
+            raise FileNotFoundError(f"Missing required source: {source.relative_to(ROOT)}")
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     OUTPUT.mkdir(parents=True)
@@ -216,6 +218,11 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
             destination.write_text(build_html(source.read_text(encoding="utf-8"), relative), encoding="utf-8")
         else:
             shutil.copy2(source, destination)
+
+    PUBLIC_GUIDE_PDF.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(SOURCE_GUIDE_PDF, PUBLIC_GUIDE_PDF)
+    if PUBLIC_GUIDE_PDF.stat().st_size != SOURCE_GUIDE_PDF.stat().st_size:
+        raise OSError("Published PDF alias size does not match source PDF")
 
     report = {
         "status": "passed_with_findings" if findings else "passed",
@@ -244,6 +251,7 @@ def main() -> int:
         print(f"FATAL: Build failed: {exc}")
         return 1
     print(f"Build completed. {len(pages)} HTML pages were written to _site.")
+    print(f"Published PDF alias: {PUBLIC_GUIDE_PDF.relative_to(OUTPUT)}")
     print(f"QA report: _site/qa-report.json ({len(findings)} finding(s)).")
     return 0
 
