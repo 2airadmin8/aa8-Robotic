@@ -6,15 +6,17 @@
   <title>資料を開いています｜AirAdmin8 Robotics</title>
   <meta name="description" content="大学・研究機関向けAIロボット導入支援資料を表示します。">
   <meta name="robots" content="noindex,nofollow">
+  <meta property="og:url" content="https://robotics.air-admin8.co.jp/resources/document.html">
   <link rel="canonical" href="https://robotics.air-admin8.co.jp/resources/document.html">
-  <link rel="stylesheet" href="/assets/css/site.css?v=20260802-1">
-  <link rel="stylesheet" href="/assets/css/shared-layout.css?v=20260803-1">
+  <link rel="icon" href="/assets/img/favicon-airadmin8.svg" type="image/svg+xml" data-aa8-brand-icon="true">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <link rel="stylesheet" href="/assets/css/shared-layout.css">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-3DCV21L2RT"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-3DCV21L2RT', { send_page_view: true });
+    gtag('config', 'G-3DCV21L2RT');
   </script>
 </head>
 <body>
@@ -26,26 +28,22 @@
     </a>
     <button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button>
     <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
-      <a href="/products.html" data-nav-key="products">製品を探す</a>
-      <a href="/use-cases.html" data-nav-key="use-cases">用途から探す</a>
-      <a href="/support.html" data-nav-key="support">導入支援</a>
-      <a href="/cases.html" data-nav-key="cases">導入事例</a>
-      <a href="/resources.html" data-nav-key="resources">資料・SDK</a>
-      <a class="nav-cta" href="/contact.html" data-nav-key="contact">製品・導入を相談する</a>
+      <a href="/products.html">製品を探す</a>
+      <a href="/use-cases.html">用途から探す</a>
+      <a href="/support.html">導入支援</a>
+      <a href="/cases.html">導入事例</a>
+      <a href="/resources.html">資料・SDK</a>
+      <a class="nav-cta" href="/contact.html">導入を相談する</a>
     </nav>
   </div>
 </header>
 <main>
   <section class="page-hero">
     <div class="wrap">
-      <div class="breadcrumb"><a href="/">ホーム</a> / 資料</div>
       <p class="eyebrow">DOCUMENT</p>
       <h1>資料を開いています。</h1>
-      <p class="lead">大学・研究機関向けAIロボット導入支援資料を表示します。</p>
-      <div class="actions" style="margin-top:24px">
-        <a id="pdf-link" class="button primary" href="#">資料を開く</a>
-      </div>
-      <p id="status" style="margin-top:16px;color:var(--muted)">数秒以内に自動的にPDFへ移動します。</p>
+      <p class="lead">数秒以内にPDFへ移動します。</p>
+      <div class="actions"><a id="pdf-link" class="button primary" href="#">資料を開く</a></div>
     </div>
   </section>
 </main>
@@ -58,72 +56,11 @@
       <p>研究・教育・PoC向けAIロボット導入支援。</p>
     </div>
     <nav class="footer-links" aria-label="フッターナビゲーション">
-      <a href="/products.html">製品</a>
-      <a href="/use-cases.html">用途</a>
-      <a href="/support.html">導入支援</a>
-      <a href="/cases.html">導入事例</a>
-      <a href="/resources.html">資料・SDK</a>
-      <a href="/contact.html">相談</a>
+      <a href="/products.html">製品</a><a href="/use-cases.html">用途</a><a href="/support.html">導入支援</a><a href="/cases.html">導入事例</a><a href="/resources.html">資料・SDK</a><a href="/contact.html">相談</a>
     </nav>
   </div>
 </footer>
-<script src="/assets/js/site.js?v=20260716-7" defer></script>
-<script>
-(function () {
-  'use strict';
-
-  const PDF_URL = '/assets/pdf/%E3%80%90AirAdmin8%E3%80%91%E5%A4%A7%E5%AD%A6%E3%83%BB%E7%A0%94%E7%A9%B6%E6%A9%9F%E9%96%A2%E5%90%91%E3%81%91_AI%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88%E5%B0%8E%E5%85%A5%E6%94%AF%E6%8F%B4%E3%81%AE%E3%81%94%E6%A1%88%E5%86%85.pdf';
-  const params = new URLSearchParams(window.location.search);
-  const deliveryId = params.get('rid') || 'unknown';
-  const source = params.get('utm_source') || 'university_sales';
-  const medium = params.get('utm_medium') || 'email';
-  const campaign = params.get('utm_campaign') || 'ai_robot_intro';
-  const link = document.getElementById('pdf-link');
-  const status = document.getElementById('status');
-  let redirected = false;
-
-  link.href = PDF_URL;
-
-  function openPdf() {
-    if (redirected) return;
-    redirected = true;
-    window.location.replace(PDF_URL);
-  }
-
-  function sendEvent() {
-    if (typeof window.gtag !== 'function') {
-      status.textContent = '資料を表示します。';
-      setTimeout(openPdf, 300);
-      return;
-    }
-
-    gtag('event', 'pdf_open', {
-      delivery_id: deliveryId,
-      document_name: 'university_ai_robot_guide',
-      document_path: PDF_URL,
-      campaign_source: source,
-      campaign_medium: medium,
-      campaign_name: campaign,
-      transport_type: 'beacon',
-      event_callback: openPdf
-    });
-
-    setTimeout(openPdf, 1500);
-  }
-
-  link.addEventListener('click', function () {
-    if (redirected) return;
-    if (typeof window.gtag === 'function') {
-      gtag('event', 'pdf_manual_click', {
-        delivery_id: deliveryId,
-        document_name: 'university_ai_robot_guide',
-        transport_type: 'beacon'
-      });
-    }
-  });
-
-  window.addEventListener('load', sendEvent, { once: true });
-})();
-</script>
+<script src="/assets/js/site.js" defer></script>
+<script src="/assets/js/document-tracking.js" defer></script>
 </body>
 </html>
