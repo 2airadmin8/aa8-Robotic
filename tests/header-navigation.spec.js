@@ -4,13 +4,14 @@ const pages = ['/index.html', '/support.html', '/glossary.html'];
 
 for (const path of pages) {
   test.describe(`header navigation ${path}`, () => {
-    test('SP: menu opens, is usable, and closes', async ({ page }) => {
+    test('SP: full-screen menu opens cleanly and closes', async ({ page }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`http://127.0.0.1:4173${path}`, { waitUntil: 'networkidle' });
 
       const menu = page.locator('.site-header .menu');
       const nav = page.locator('.site-header .nav');
-      const lastLink = nav.locator('a').last();
+      const links = nav.locator('a');
+      const cta = nav.locator('.nav-cta');
 
       await expect(menu).toBeVisible();
       await expect(menu).toHaveAttribute('aria-expanded', 'false');
@@ -19,13 +20,22 @@ for (const path of pages) {
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded', 'true');
       await expect(nav).toBeVisible();
-      await expect(lastLink).toBeVisible();
+      await expect(links).toHaveCount(6);
+      await expect(cta).toBeVisible();
 
       const navBox = await nav.boundingBox();
       expect(navBox).not.toBeNull();
-      expect(navBox.x).toBeGreaterThanOrEqual(0);
-      expect(navBox.y).toBeGreaterThanOrEqual(0);
-      expect(navBox.width).toBeLessThanOrEqual(390);
+      expect(navBox.x).toBe(0);
+      expect(navBox.y).toBe(0);
+      expect(navBox.width).toBeGreaterThanOrEqual(389);
+      expect(navBox.height).toBeGreaterThanOrEqual(843);
+
+      const navStyle = await nav.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { position: style.position, overflowY: style.overflowY };
+      });
+      expect(navStyle.position).toBe('fixed');
+      expect(navStyle.overflowY).toBe('auto');
 
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded', 'false');
