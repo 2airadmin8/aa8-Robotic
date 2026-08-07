@@ -90,11 +90,11 @@ jobs:
           python scripts/verify_release.py
           test -s _site/resources/document.html
           test -s _site/assets/js/document-tracking.js
-          test -s _site/assets/pdf/airadmin8-university-ai-robot-guide.pdf
+          test -s _site/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf
           grep -q 'G-3DCV21L2RT' _site/resources/document.html
           grep -q 'pdf_open' _site/assets/js/document-tracking.js
           grep -q 'delivery_id' _site/assets/js/document-tracking.js
-          grep -q '/assets/pdf/airadmin8-university-ai-robot-guide.pdf' _site/assets/js/document-tracking.js
+          grep -q '/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf' _site/assets/js/document-tracking.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
