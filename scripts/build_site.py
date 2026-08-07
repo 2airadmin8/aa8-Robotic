@@ -23,8 +23,8 @@ BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
 FOOTER_SOURCE = ROOT / "includes" / "site-footer.html"
-SOURCE_GUIDE_PDF = ROOT / "assets" / "pdf" / "【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf"
-PUBLIC_GUIDE_PDF = OUTPUT / "assets" / "pdf" / "airadmin8-university-ai-robot-guide.pdf"
+SOURCE_GUIDE_PDF = ROOT / "assets" / "pdf" / "AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf"
+PUBLIC_GUIDE_PDF = OUTPUT / "assets" / "pdf" / "AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf"
 
 
 @dataclass
