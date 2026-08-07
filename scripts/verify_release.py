@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 
 SOURCE_GUIDE_PDF = "assets/pdf/【AirAdmin8】大学・研究機関向け_AIロボット導入支援のご案内.pdf"
-PUBLIC_GUIDE_PDF = "assets/pdf/airadmin8-university-ai-robot-guide.pdf"
+PUBLIC_GUIDE_PDF = "/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf"
 
 REQUIRED_FILES = [
     "index.html",
