@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const pdfUrl = '/assets/pdf/airadmin8-university-ai-robot-guide.pdf';
+  const pdfUrl = '/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf';
   const params = new URLSearchParams(window.location.search);
   const deliveryId = params.get('rid') || 'unknown';
   const link = document.getElementById('pdf-link');
