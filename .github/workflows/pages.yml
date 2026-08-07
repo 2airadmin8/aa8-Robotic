@@ -167,7 +167,7 @@ jobs:
               && curl -fsSL -H 'Cache-Control: no-cache' \
                  "${BASE_URL}/resources/document.html?v=${cache_bust}" -o "$temp_page" \
               && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}/assets/pdf/airadmin8-university-ai-robot-guide.pdf?v=${cache_bust}" -o "$temp_pdf"; then
+                 "${BASE_URL}/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf?v=${cache_bust}" -o "$temp_pdf"; then
               python - "$temp_meta" "$EXPECTED_SHA" <<'PY'
           import json
           import sys
