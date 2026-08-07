@@ -162,7 +162,7 @@ def main() -> int:
             errors.append(f"tracking page missing required marker: {marker}")
 
     tracking_script = (OUTPUT / "assets/js/document-tracking.js").read_text(encoding="utf-8", errors="replace")
-    for marker in ("pdf_open", "delivery_id", "/assets/pdf/airadmin8-university-ai-robot-guide.pdf"):
+    for marker in ("pdf_open", "delivery_id", "/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf"):
         if marker not in tracking_script:
             errors.append(f"tracking script missing required marker: {marker}")
 
