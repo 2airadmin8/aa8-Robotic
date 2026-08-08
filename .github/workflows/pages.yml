@@ -154,31 +154,27 @@ jobs:
           EXPECTED_SHA: ${{ github.sha }}
           BASE_URL: https://robotics.air-admin8.co.jp
         run: |
-          set -euo pipefail
+          set -u
           temp_meta="$(mktemp)"
           temp_page="$(mktemp)"
           temp_pdf="$(mktemp)"
-          temp_legacy="$(mktemp)"
           temp_current="$(mktemp)"
-          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf" "$temp_legacy" "$temp_current"' EXIT
+          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf" "$temp_current"' EXIT
 
-          legacy_path="/aa8-Robotic/products/tianji-marvin.html"
-          current_path="/products/tianji-marvin.html"
-          current_url="${BASE_URL}${current_path}"
+          legacy_url="${BASE_URL}/aa8-Robotic/products/tianji-marvin.html"
+          current_url="${BASE_URL}/products/tianji-marvin.html"
 
           for attempt in $(seq 1 36); do
             cache_bust="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
-            if curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}/deploy-meta.json?v=${cache_bust}" -o "$temp_meta" \
-              && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}/resources/document.html?v=${cache_bust}" -o "$temp_page" \
-              && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf?v=${cache_bust}" -o "$temp_pdf" \
-              && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}${legacy_path}?v=${cache_bust}" -o "$temp_legacy" \
-              && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${current_url}?v=${cache_bust}" -o "$temp_current"; then
-              python - "$temp_meta" "$EXPECTED_SHA" <<'PY'
+
+            if ! curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}/deploy-meta.json?v=${cache_bust}" -o "$temp_meta"; then
+              echo "deploy-meta not ready (${attempt}/36)"
+              sleep 5
+              continue
+            fi
+
+            if ! python - "$temp_meta" "$EXPECTED_SHA" <<'PY'
           import json
           import sys
           from pathlib import Path
@@ -191,18 +187,43 @@ jobs:
           if data.get("branch") != "main":
               raise SystemExit(f"Branch mismatch: {data.get('branch')!r}")
           PY
-              grep -q 'G-3DCV21L2RT' "$temp_page"
-              grep -q 'document-tracking.js' "$temp_page"
-              test -s "$temp_pdf"
-              test -s "$temp_current"
-              grep -q 'noindex,follow' "$temp_legacy"
-              grep -q "rel=\"canonical\" href=\"${current_url}\"" "$temp_legacy"
-              grep -q "content=\"0;url=${current_url}\"" "$temp_legacy"
-              grep -q "window.location.replace('${current_url}')" "$temp_legacy"
-              echo "Production verified: ${EXPECTED_SHA}; legacy route points to ${current_url}"
-              exit 0
+            then
+              echo "production SHA not ready (${attempt}/36)"
+              sleep 5
+              continue
             fi
-            echo "Production not ready yet (${attempt}/36)."
+
+            if ! curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}/resources/document.html?v=${cache_bust}" -o "$temp_page" \
+              || ! curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf?v=${cache_bust}" -o "$temp_pdf" \
+              || ! curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${current_url}?v=${cache_bust}" -o "$temp_current"; then
+              echo "core resources not ready (${attempt}/36)"
+              sleep 5
+              continue
+            fi
+
+            if ! grep -q 'G-3DCV21L2RT' "$temp_page" \
+              || ! grep -q 'document-tracking.js' "$temp_page" \
+              || ! test -s "$temp_pdf" \
+              || ! test -s "$temp_current"; then
+              echo "core resource validation failed (${attempt}/36)"
+              sleep 5
+              continue
+            fi
+
+            final_url="$(curl -fsSL -o /dev/null -w '%{url_effective}' \
+              -H 'Cache-Control: no-cache' "${legacy_url}?v=${cache_bust}" || true)"
+
+            case "$final_url" in
+              "${current_url}"|"${current_url}?"*)
+                echo "Production verified: ${EXPECTED_SHA}; legacy URL resolves to ${final_url}"
+                exit 0
+                ;;
+            esac
+
+            echo "legacy URL not resolved to current URL yet (${attempt}/36): ${final_url:-unavailable}"
             sleep 5
           done
 
