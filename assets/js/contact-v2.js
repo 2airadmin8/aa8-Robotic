@@ -11,8 +11,8 @@
 
   if (!form || !dialog || !summary) return;
 
-  // Apps Script Web App のデプロイ後、この1箇所だけ本番URLへ置換する。
-  const INQUIRY_WEB_APP_URL = '';
+  // Apps Script Web App の本番URL。問い合わせ送信先はこの1箇所で管理する。
+  const INQUIRY_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzXH_ZrKcOxw5o1FluVtyZ0TaH-uD388PP_BS_gYYCt9VnQhAtT2CXgVoLOcVIse9GFAA/exec';
   const draftKey = 'airadmin8-contact-draft-v1';
   const requestTimeoutMs = 20000;
 
