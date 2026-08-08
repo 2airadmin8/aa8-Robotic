@@ -11,7 +11,11 @@
 
   if (!form || !dialog || !summary) return;
 
+  // Apps Script Web App のデプロイ後、この1箇所だけ本番URLへ置換する。
+  const INQUIRY_WEB_APP_URL = '';
   const draftKey = 'airadmin8-contact-draft-v1';
+  const requestTimeoutMs = 20000;
+
   const params = new URLSearchParams(window.location.search);
   const source = {
     product: params.get('product') || '',
@@ -46,6 +50,7 @@
   restoreDraft();
   applyPrefill();
   installDraftControls();
+  updateLegacyCopy();
 
   form.addEventListener('input', debounce(saveDraft, 350));
   form.addEventListener('change', saveDraft);
@@ -60,18 +65,7 @@
   }, true);
 
   dialog.querySelector('[data-confirm-back]')?.addEventListener('click', () => dialog.close());
-  dialog.querySelector('[data-confirm-send]')?.addEventListener('click', () => {
-    const values = new FormData(form);
-    const subject = createSubject(values);
-    const body = createBody(values);
-    const mailto = `mailto:airobot@robotics.air-admin8.co.jp?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    saveDraft();
-    dialog.close();
-    fallbackPanel?.classList.add('is-visible');
-    fallbackPanel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    window.location.href = mailto;
-  });
+  dialog.querySelector('[data-confirm-send]')?.addEventListener('click', submitInquiry);
 
   document.querySelector('[data-copy-mail]')?.addEventListener('click', async () => {
     const values = new FormData(form);
@@ -89,6 +83,178 @@
     const outside = event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
     if (outside) dialog.close();
   });
+
+  async function submitInquiry() {
+    const sendButton = dialog.querySelector('[data-confirm-send]');
+    if (!validateForm()) {
+      dialog.close();
+      return;
+    }
+
+    if (!INQUIRY_WEB_APP_URL) {
+      dialog.close();
+      showSubmitError('問い合わせ送信APIが未接続です。下のメール連絡をご利用ください。');
+      showFallback();
+      return;
+    }
+
+    const submissionToken = createToken('submission');
+    const responseToken = createToken('response');
+    const payload = buildPayload(submissionToken, responseToken);
+
+    setSendingState(sendButton, true);
+
+    try {
+      const result = await postViaHiddenIframe(payload, responseToken);
+      if (!result.ok) throw new Error(result.error || '送信できませんでした。');
+
+      localStorage.removeItem(draftKey);
+      const destination = new URL('/contact-thanks.html', window.location.origin);
+      destination.searchParams.set('status', 'success');
+      if (result.inquiryId) destination.searchParams.set('id', result.inquiryId);
+      window.location.assign(destination.toString());
+    } catch (error) {
+      dialog.close();
+      showSubmitError(error?.message || '送信できませんでした。時間をおいて再度お試しください。');
+      showFallback();
+      setSendingState(sendButton, false);
+    }
+  }
+
+  function postViaHiddenIframe(payload, responseToken) {
+    return new Promise((resolve, reject) => {
+      const frameName = `aa8-inquiry-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const iframe = document.createElement('iframe');
+      const postForm = document.createElement('form');
+      let settled = false;
+
+      iframe.name = frameName;
+      iframe.hidden = true;
+      iframe.setAttribute('aria-hidden', 'true');
+
+      postForm.method = 'POST';
+      postForm.action = INQUIRY_WEB_APP_URL;
+      postForm.target = frameName;
+      postForm.hidden = true;
+      postForm.acceptCharset = 'UTF-8';
+
+      Object.entries(payload).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = String(value ?? '');
+        postForm.appendChild(input);
+      });
+
+      const cleanup = () => {
+        window.removeEventListener('message', onMessage);
+        window.clearTimeout(timer);
+        postForm.remove();
+        window.setTimeout(() => iframe.remove(), 100);
+      };
+
+      const finish = (callback) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        callback();
+      };
+
+      const onMessage = (event) => {
+        if (event.source !== iframe.contentWindow) return;
+        const data = event.data;
+        if (!data || data.type !== 'aa8-inquiry-response') return;
+        if (data.responseToken !== responseToken) return;
+        finish(() => resolve(data));
+      };
+
+      const timer = window.setTimeout(() => {
+        finish(() => reject(new Error('送信確認がタイムアウトしました。通信環境をご確認ください。')));
+      }, requestTimeoutMs);
+
+      window.addEventListener('message', onMessage);
+      document.body.appendChild(iframe);
+      document.body.appendChild(postForm);
+      postForm.submit();
+    });
+  }
+
+  function buildPayload(submissionToken, responseToken) {
+    const values = new FormData(form);
+    return {
+      category: values.get('category') || '',
+      organization: values.get('organization') || '',
+      name: values.get('name') || '',
+      email: values.get('email') || '',
+      phone: values.get('phone') || '',
+      product: values.get('product') || '',
+      use_case: values.get('use_case') || '',
+      budget: values.get('budget') || '',
+      schedule: values.get('schedule') || '',
+      development: values.get('development') || '',
+      message: values.get('message') || '',
+      source_page: values.get('source_page') || window.location.href,
+      source_product: values.get('source_product') || '',
+      source_maker: values.get('source_maker') || '',
+      source_service: values.get('source_service') || '',
+      source_theme: values.get('source_theme') || '',
+      source_case: values.get('source_case') || '',
+      utm_source: params.get('utm_source') || '',
+      utm_medium: params.get('utm_medium') || '',
+      utm_campaign: params.get('utm_campaign') || '',
+      ga_client_id: getGaClientId(),
+      submission_token: submissionToken,
+      response_token: responseToken,
+      website: '',
+    };
+  }
+
+  function createToken(prefix) {
+    if (window.crypto?.randomUUID) return `${prefix}-${window.crypto.randomUUID()}`;
+    const random = Math.random().toString(36).slice(2);
+    return `${prefix}-${Date.now()}-${random}`;
+  }
+
+  function getGaClientId() {
+    const match = document.cookie.match(/(?:^|;\s*)_ga=GA\d+\.\d+\.(\d+\.\d+)/);
+    return match ? match[1] : '';
+  }
+
+  function setSendingState(button, sending) {
+    if (!button) return;
+    button.disabled = sending;
+    button.setAttribute('aria-busy', String(sending));
+    button.textContent = sending ? '送信中…' : 'この内容で送信する';
+  }
+
+  function showSubmitError(message) {
+    if (!errorBox) return;
+    errorBox.hidden = false;
+    errorBox.textContent = message;
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function showFallback() {
+    fallbackPanel?.classList.add('is-visible');
+    fallbackPanel?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function updateLegacyCopy() {
+    const headingText = document.querySelector('.contact-form-heading p:last-child');
+    if (headingText) headingText.textContent = '入力後に確認画面を表示し、内容を確認してから送信します。';
+
+    const progressItems = document.querySelectorAll('.contact-progress li');
+    if (progressItems[2]) progressItems[2].innerHTML = '<strong>3</strong>確認して送信';
+
+    const submitExplanation = document.querySelector('.submit-explanation');
+    if (submitExplanation) submitExplanation.textContent = 'この時点では送信されません。次の確認画面から送信します。';
+
+    const confirmText = dialog.querySelector('.confirm-dialog-header p');
+    if (confirmText) confirmText.textContent = '内容を確認後、「この内容で送信する」を押してください。';
+
+    const confirmSend = dialog.querySelector('[data-confirm-send]');
+    if (confirmSend) confirmSend.textContent = 'この内容で送信する';
+  }
 
   function installDraftControls() {
     const anchor = prefillNotice?.parentElement ? prefillNotice : form;
