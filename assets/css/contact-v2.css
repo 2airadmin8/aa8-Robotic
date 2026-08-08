@@ -1,6 +1,6 @@
 /* ============================================================
    Contact conversion v2
-   入力順・確認画面・コピー代替導線・端末内下書き保存を追加する。
+   AirAdmin8 Robotics の既存デザインに合わせ、入力・確認・送信状態を明確化する。
    ============================================================ */
 
 .contact-progress {
@@ -150,6 +150,22 @@
   font-size: 0.78rem;
 }
 
+.form-error {
+  margin: 14px 0 0;
+  padding: 13px 14px;
+  border: 1px solid #efc6c6;
+  border-radius: 12px;
+  color: #8b2d2d;
+  background: #fff7f7;
+  font-size: .82rem;
+  font-weight: 800;
+  line-height: 1.65;
+}
+
+.form-error[hidden] {
+  display: none;
+}
+
 .contact-confirm-dialog {
   width: min(680px, calc(100% - 28px));
   max-height: calc(100dvh - 32px);
@@ -234,6 +250,7 @@
   font: inherit;
   font-weight: 900;
   cursor: pointer;
+  transition: opacity .18s ease, transform .18s ease;
 }
 
 .confirm-back {
@@ -248,6 +265,13 @@
   background: #009ad2;
 }
 
+.confirm-open-mail[aria-busy="true"],
+.confirm-open-mail:disabled {
+  cursor: wait;
+  opacity: .68;
+  transform: none;
+}
+
 .mail-fallback-panel {
   display: none;
   gap: 12px;
@@ -260,6 +284,10 @@
 
 .mail-fallback-panel.is-visible {
   display: grid;
+}
+
+.mail-fallback-panel strong {
+  color: #173342;
 }
 
 .mail-fallback-panel p {
