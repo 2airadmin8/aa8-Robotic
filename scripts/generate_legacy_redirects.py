@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 """Generate legacy URL migration pages inside the deploy artifact.
 
-GitHub Pages cannot configure server-side 301 redirects. These pages provide:
-- noindex,follow
-- canonical to the current URL
-- immediate meta refresh
-- JavaScript location.replace fallback
-- visible manual link fallback
-
-They are generated in _site so the source tree stays clean and the normal
-metadata/structured-data/brand injection pipeline can process them.
+Every publishable HTML page is mirrored under the historical `/aa8-Robotic/`
+prefix as a lightweight redirect page. GitHub Pages cannot configure wildcard
+server-side redirects, so the build artifact must contain each legacy path.
 """
 from __future__ import annotations
 
@@ -19,10 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 ORIGIN = "https://robotics.air-admin8.co.jp"
-
-LEGACY_REDIRECTS = {
-    "aa8-Robotic/glossary/physical-ai.html": "/glossary/physical-ai.html",
-}
+LEGACY_ROOT = OUTPUT / "aa8-Robotic"
 
 
 def make_page(target_path: str) -> str:
@@ -40,32 +31,48 @@ def make_page(target_path: str) -> str:
   <link rel="canonical" href="{escaped_url}">
   <meta property="og:url" content="{escaped_url}">
   <meta http-equiv="refresh" content="0;url={escaped_url}">
-  <link rel="stylesheet" href="../../assets/css/site.css">
-  <link rel="stylesheet" href="../../assets/css/shared-layout.css">
   <script>window.location.replace('{js_url}');</script>
 </head>
 <body>
-<header class="site-header"><div class="wrap"><a href="../../index.html">AirAdmin8 Robotics</a></div></header>
-<main><div class="wrap"><h1>ページを移動しました</h1><p><a href="{escaped_url}">新しいページへ移動する</a></p></div></main>
-<footer class="footer"><div class="wrap"><p>© AirAdmin8 Inc.</p></div></footer>
+  <main>
+    <h1>ページを移動しました</h1>
+    <p><a href="{escaped_url}">新しいページへ移動する</a></p>
+  </main>
 </body>
 </html>
 '''
+
+
+def publishable_pages() -> list[Path]:
+    pages: list[Path] = []
+    for path in sorted(OUTPUT.rglob("*.html")):
+        relative = path.relative_to(OUTPUT)
+        if relative.parts and relative.parts[0] == "aa8-Robotic":
+            continue
+        if "includes" in relative.parts:
+            continue
+        pages.append(path)
+    return pages
 
 
 def main() -> None:
     if not OUTPUT.is_dir():
         raise SystemExit("_site does not exist; run build_site.py first")
 
-    for legacy_path, target_path in LEGACY_REDIRECTS.items():
-        target_file = OUTPUT / target_path.lstrip("/")
-        if not target_file.is_file():
-            raise SystemExit(f"Redirect target does not exist: {target_path}")
+    pages = publishable_pages()
+    if not pages:
+        raise SystemExit("No publishable HTML pages found")
 
-        destination = OUTPUT / legacy_path
+    generated = 0
+    for target_file in pages:
+        relative = target_file.relative_to(OUTPUT)
+        target_path = "/" + relative.as_posix()
+        destination = LEGACY_ROOT / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(make_page(target_path), encoding="utf-8")
-        print(f"Generated legacy redirect: /{legacy_path} -> {target_path}")
+        generated += 1
+
+    print(f"Generated {generated} legacy-prefix redirect page(s) under /aa8-Robotic/.")
 
 
 if __name__ == "__main__":
