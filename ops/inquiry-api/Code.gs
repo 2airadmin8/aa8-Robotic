@@ -2,7 +2,7 @@ const INQUIRY_CONFIG = {
   spreadsheetId: '1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI',
   sheetName: '01_Inquiry',
   notifyTo: 'airobot@robotics.air-admin8.co.jp',
-  successRedirect: 'https://robotics.air-admin8.co.jp/contact-thanks.html',
+  parentOrigin: 'https://robotics.air-admin8.co.jp',
   timezone: 'Asia/Tokyo'
 };
 
@@ -11,33 +11,58 @@ function doGet() {
 }
 
 function doPost(e) {
+  const p = (e && e.parameter) || {};
+  const responseToken = clean_(p.response_token);
+
   try {
-    const p = (e && e.parameter) || {};
     validateInquiry_(p);
+
+    const submissionToken = clean_(p.submission_token);
+    if (!submissionToken) throw new Error('Missing submission token');
 
     const lock = LockService.getScriptLock();
     lock.waitLock(10000);
 
     let inquiryId;
+    let isDuplicate = false;
+
     try {
-      inquiryId = createInquiryId_();
-      appendInquiry_(inquiryId, p);
-      sendInquiryNotification_(inquiryId, p);
-      markNotified_(inquiryId);
+      const existing = findBySubmissionToken_(submissionToken);
+      if (existing) {
+        inquiryId = existing.inquiryId;
+        isDuplicate = true;
+      } else {
+        inquiryId = createInquiryId_();
+        appendInquiry_(inquiryId, p, submissionToken);
+      }
     } finally {
       lock.releaseLock();
     }
 
-    return redirectHtml_(
-      INQUIRY_CONFIG.successRedirect + '?status=success&id=' + encodeURIComponent(inquiryId)
-    );
+    if (!isDuplicate) {
+      try {
+        sendInquiryNotification_(inquiryId, p);
+        markNotificationStatus_(inquiryId, 'NOTIFIED', new Date());
+      } catch (mailError) {
+        console.error('Notification failed: ' + (mailError && mailError.stack ? mailError.stack : mailError));
+        markNotificationStatus_(inquiryId, 'FAILED', '');
+      }
+    }
+
+    return responseHtml_({
+      ok: true,
+      inquiryId: inquiryId,
+      responseToken: responseToken,
+      duplicate: isDuplicate
+    });
   } catch (error) {
     console.error(error && error.stack ? error.stack : error);
-    return HtmlService.createHtmlOutput(
-      '<!doctype html><html lang="ja"><meta charset="utf-8"><title>送信エラー</title>' +
-      '<body><h1>送信できませんでした</h1><p>入力内容をご確認のうえ、もう一度お試しください。</p>' +
-      '<p><a href="https://robotics.air-admin8.co.jp/contact.html">問い合わせ画面へ戻る</a></p></body></html>'
-    );
+    return responseHtml_({
+      ok: false,
+      inquiryId: '',
+      responseToken: responseToken,
+      error: '送信できませんでした。入力内容をご確認のうえ、もう一度お試しください。'
+    });
   }
 }
 
@@ -62,11 +87,8 @@ function createInquiryId_() {
   return 'INQ-' + stamp + '-' + suffix;
 }
 
-function appendInquiry_(inquiryId, p) {
-  const sheet = SpreadsheetApp.openById(INQUIRY_CONFIG.spreadsheetId)
-    .getSheetByName(INQUIRY_CONFIG.sheetName);
-  if (!sheet) throw new Error('Inquiry sheet not found');
-
+function appendInquiry_(inquiryId, p, submissionToken) {
+  const sheet = getInquirySheet_();
   sheet.appendRow([
     inquiryId,
     new Date(),
@@ -92,9 +114,26 @@ function appendInquiry_(inquiryId, p) {
     clean_(p.utm_medium),
     clean_(p.utm_campaign),
     clean_(p.ga_client_id),
-    'SAVED',
-    ''
+    'PENDING',
+    '',
+    submissionToken
   ]);
+}
+
+function findBySubmissionToken_(submissionToken) {
+  const sheet = getInquirySheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+
+  const tokens = sheet.getRange(2, 27, lastRow - 1, 1).getValues();
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    if (String(tokens[i][0] || '') === submissionToken) {
+      return {
+        inquiryId: String(sheet.getRange(i + 2, 1).getValue() || '')
+      };
+    }
+  }
+  return null;
 }
 
 function sendInquiryNotification_(inquiryId, p) {
@@ -133,38 +172,51 @@ function sendInquiryNotification_(inquiryId, p) {
   MailApp.sendEmail({
     to: INQUIRY_CONFIG.notifyTo,
     replyTo: clean_(p.email),
-    subject,
-    body,
+    subject: subject,
+    body: body,
     name: 'AirAdmin8 Robotics Inquiry'
   });
 }
 
-function markNotified_(inquiryId) {
-  const sheet = SpreadsheetApp.openById(INQUIRY_CONFIG.spreadsheetId)
-    .getSheetByName(INQUIRY_CONFIG.sheetName);
+function markNotificationStatus_(inquiryId, status, notifiedAt) {
+  const sheet = getInquirySheet_();
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
 
   const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
   for (let i = ids.length - 1; i >= 0; i--) {
-    if (ids[i][0] === inquiryId) {
-      sheet.getRange(i + 2, 25).setValue('NOTIFIED');
-      sheet.getRange(i + 2, 26).setValue(new Date());
+    if (String(ids[i][0] || '') === inquiryId) {
+      sheet.getRange(i + 2, 25).setValue(status);
+      if (notifiedAt) sheet.getRange(i + 2, 26).setValue(notifiedAt);
       return;
     }
   }
+}
+
+function getInquirySheet_() {
+  const sheet = SpreadsheetApp.openById(INQUIRY_CONFIG.spreadsheetId)
+    .getSheetByName(INQUIRY_CONFIG.sheetName);
+  if (!sheet) throw new Error('Inquiry sheet not found');
+  return sheet;
 }
 
 function clean_(value) {
   return String(value == null ? '' : value).trim().slice(0, 10000);
 }
 
-function redirectHtml_(url) {
-  const safe = String(url).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+function responseHtml_(payload) {
+  const json = JSON.stringify({
+    type: 'aa8-inquiry-response',
+    ok: !!payload.ok,
+    inquiryId: payload.inquiryId || '',
+    responseToken: payload.responseToken || '',
+    duplicate: !!payload.duplicate,
+    error: payload.error || ''
+  }).replace(/</g, '\\u003c');
+
   return HtmlService.createHtmlOutput(
-    '<!doctype html><html lang="ja"><head><meta charset="utf-8">' +
-    '<meta http-equiv="refresh" content="0;url=' + safe + '"></head>' +
-    '<body><p>送信が完了しました。移動します。</p>' +
-    '<script>location.replace(' + JSON.stringify(url) + ');<\/script></body></html>'
+    '<!doctype html><html lang="ja"><head><meta charset="utf-8"></head><body>' +
+    '<script>window.parent.postMessage(' + json + ',' + JSON.stringify(INQUIRY_CONFIG.parentOrigin) + ');<\/script>' +
+    '</body></html>'
   );
 }
