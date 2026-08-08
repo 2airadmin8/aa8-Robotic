@@ -2,8 +2,10 @@
 """Inject core JSON-LD into the built HTML artifact.
 
 Search engines should receive Organization, page, breadcrumb and FAQ schemas
-without having to execute JavaScript. The runtime SEO script keeps the same
-IDs, so it becomes a fallback and does not create duplicates.
+without having to execute JavaScript. Product detail pages are intentionally
+published as WebPage schema because pricing and reviews are not fixed public
+commerce data. Existing Product JSON-LD is removed during the build so Google
+does not receive duplicate or incomplete product rich-result markup.
 """
 
 from __future__ import annotations
@@ -58,6 +60,10 @@ CANONICAL_PATTERN = re.compile(
 )
 MANAGED_SCRIPT_PATTERN = re.compile(
     r'\s*<script\s+id=["\'](?:organization-schema|page-schema|breadcrumb-schema|faq-schema)["\']\s+type=["\']application/ld\+json["\']>.*?</script>',
+    re.IGNORECASE | re.DOTALL,
+)
+JSON_LD_SCRIPT_PATTERN = re.compile(
+    r'\s*<script\b(?=[^>]*type=["\']application/ld\+json["\'])[^>]*>(?P<payload>.*?)</script>',
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -140,6 +146,29 @@ class FaqParser(HTMLParser):
 def extract(pattern: re.Pattern[str], text: str) -> str:
     match = pattern.search(text)
     return html.unescape(match.group(1).strip()) if match else ""
+
+
+def contains_product_type(data: object) -> bool:
+    if isinstance(data, dict):
+        value = data.get("@type")
+        if value == "Product" or (isinstance(value, list) and "Product" in value):
+            return True
+        return any(contains_product_type(item) for item in data.values())
+    if isinstance(data, list):
+        return any(contains_product_type(item) for item in data)
+    return False
+
+
+def remove_product_schema(text: str) -> str:
+    def replace(match: re.Match[str]) -> str:
+        payload = html.unescape(match.group("payload")).strip()
+        try:
+            data = json.loads(payload)
+        except json.JSONDecodeError:
+            return match.group(0)
+        return "" if contains_product_type(data) else match.group(0)
+
+    return JSON_LD_SCRIPT_PATTERN.sub(replace, text)
 
 
 def organization_schema() -> dict[str, object]:
@@ -265,6 +294,11 @@ def process_html(text: str, relative: Path) -> str:
 
     config = PAGE_MAP.get(relative_name, {"name": title, "type": "WebPage"})
     text = MANAGED_SCRIPT_PATTERN.sub("", text)
+
+    if config["type"] == "Product":
+        text = remove_product_schema(text)
+        config = {**config, "type": "WebPage"}
+
     scripts = [
         script_tag("organization-schema", organization_schema()),
         script_tag("page-schema", page_schema(config, canonical, description)),
