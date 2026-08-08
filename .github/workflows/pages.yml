@@ -158,7 +158,13 @@ jobs:
           temp_meta="$(mktemp)"
           temp_page="$(mktemp)"
           temp_pdf="$(mktemp)"
-          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf"' EXIT
+          temp_legacy="$(mktemp)"
+          temp_current="$(mktemp)"
+          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf" "$temp_legacy" "$temp_current"' EXIT
+
+          legacy_path="/aa8-Robotic/products/tianji-marvin.html"
+          current_path="/products/tianji-marvin.html"
+          current_url="${BASE_URL}${current_path}"
 
           for attempt in $(seq 1 36); do
             cache_bust="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${attempt}"
@@ -167,7 +173,11 @@ jobs:
               && curl -fsSL -H 'Cache-Control: no-cache' \
                  "${BASE_URL}/resources/document.html?v=${cache_bust}" -o "$temp_page" \
               && curl -fsSL -H 'Cache-Control: no-cache' \
-                 "${BASE_URL}/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf?v=${cache_bust}" -o "$temp_pdf"; then
+                 "${BASE_URL}/assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf?v=${cache_bust}" -o "$temp_pdf" \
+              && curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${BASE_URL}${legacy_path}?v=${cache_bust}" -o "$temp_legacy" \
+              && curl -fsSL -H 'Cache-Control: no-cache' \
+                 "${current_url}?v=${cache_bust}" -o "$temp_current"; then
               python - "$temp_meta" "$EXPECTED_SHA" <<'PY'
           import json
           import sys
@@ -184,7 +194,12 @@ jobs:
               grep -q 'G-3DCV21L2RT' "$temp_page"
               grep -q 'document-tracking.js' "$temp_page"
               test -s "$temp_pdf"
-              echo "Production verified: ${EXPECTED_SHA}"
+              test -s "$temp_current"
+              grep -q 'noindex,follow' "$temp_legacy"
+              grep -q "rel=\"canonical\" href=\"${current_url}\"" "$temp_legacy"
+              grep -q "content=\"0;url=${current_url}\"" "$temp_legacy"
+              grep -q "window.location.replace('${current_url}')" "$temp_legacy"
+              echo "Production verified: ${EXPECTED_SHA}; legacy route points to ${current_url}"
               exit 0
             fi
             echo "Production not ready yet (${attempt}/36)."
