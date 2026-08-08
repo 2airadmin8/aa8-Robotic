@@ -184,18 +184,23 @@ function sendCustomerAcknowledgement_(inquiryId, p) {
   const body = [
     clean_(p.name) + ' 様',
     '',
-    'AirAdmin8 Roboticsへお問い合わせいただき、ありがとうございます。',
-    '以下の内容で受け付けました。内容を確認のうえ、担当よりご連絡します。',
+    'AirAdmin8 Roboticsへお問い合わせいただき、誠にありがとうございます。',
+    '以下の内容で受け付けました。内容を確認のうえ、担当者よりご連絡いたします。',
     '',
     '問い合わせID：' + inquiryId,
     '相談区分：' + clean_(p.category),
     '製品・メーカー：' + (clean_(p.product) || '未定'),
     '',
-    '※このメールはお問い合わせ受付時に自動送信しています。',
-    '※追加情報がある場合は、このメールへの返信ではなく airobot@robotics.air-admin8.co.jp までご連絡ください。',
+    '追加情報や補足がございましたら、本メールへそのままご返信いただけます。',
     '',
-    'AirAdmin8 Robotics',
-    'https://robotics.air-admin8.co.jp/'
+    '------------------------------',
+    '株式会社AirAdmin8',
+    'AirAdmin8 Robotics 問い合わせ窓口',
+    'E-mail：' + INQUIRY_CONFIG.notifyTo,
+    'Web：https://robotics.air-admin8.co.jp/',
+    '------------------------------',
+    '',
+    '※本メールはお問い合わせ受付時に自動送信しています。'
   ].join('\n');
 
   MailApp.sendEmail({
