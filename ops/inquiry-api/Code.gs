@@ -42,6 +42,7 @@ function doPost(e) {
     if (!isDuplicate) {
       try {
         sendInquiryNotification_(inquiryId, p);
+        sendCustomerAcknowledgement_(inquiryId, p);
         markNotificationStatus_(inquiryId, 'NOTIFIED', new Date());
       } catch (mailError) {
         console.error('Notification failed: ' + (mailError && mailError.stack ? mailError.stack : mailError));
@@ -178,6 +179,34 @@ function sendInquiryNotification_(inquiryId, p) {
   });
 }
 
+function sendCustomerAcknowledgement_(inquiryId, p) {
+  const subject = '【AirAdmin8 Robotics】お問い合わせを受け付けました';
+  const body = [
+    clean_(p.name) + ' 様',
+    '',
+    'AirAdmin8 Roboticsへお問い合わせいただき、ありがとうございます。',
+    '以下の内容で受け付けました。内容を確認のうえ、担当よりご連絡します。',
+    '',
+    '問い合わせID：' + inquiryId,
+    '相談区分：' + clean_(p.category),
+    '製品・メーカー：' + (clean_(p.product) || '未定'),
+    '',
+    '※このメールはお問い合わせ受付時に自動送信しています。',
+    '※追加情報がある場合は、このメールへの返信ではなく airobot@robotics.air-admin8.co.jp までご連絡ください。',
+    '',
+    'AirAdmin8 Robotics',
+    'https://robotics.air-admin8.co.jp/'
+  ].join('\n');
+
+  MailApp.sendEmail({
+    to: clean_(p.email),
+    replyTo: INQUIRY_CONFIG.notifyTo,
+    subject: subject,
+    body: body,
+    name: 'AirAdmin8 Robotics'
+  });
+}
+
 function markNotificationStatus_(inquiryId, status, notifiedAt) {
   const sheet = getInquirySheet_();
   const lastRow = sheet.getLastRow();
@@ -216,7 +245,7 @@ function responseHtml_(payload) {
 
   return HtmlService.createHtmlOutput(
     '<!doctype html><html lang="ja"><head><meta charset="utf-8"></head><body>' +
-    '<script>window.parent.postMessage(' + json + ',' + JSON.stringify(INQUIRY_CONFIG.parentOrigin) + ');<\/script>' +
+    '<script>window.top.postMessage(' + json + ',' + JSON.stringify(INQUIRY_CONFIG.parentOrigin) + ');<\/script>' +
     '</body></html>'
   );
 }
