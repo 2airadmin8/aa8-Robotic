@@ -15,6 +15,7 @@
   const INQUIRY_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzXH_ZrKcOxw5o1FluVtyZ0TaH-uD388PP_BS_gYYCt9VnQhAtT2CXgVoLOcVIse9GFAA/exec';
   const draftKey = 'airadmin8-contact-draft-v1';
   const requestTimeoutMs = 20000;
+  let pendingSubmissionToken = '';
 
   const params = new URLSearchParams(window.location.search);
   const source = {
@@ -98,9 +99,9 @@
       return;
     }
 
-    const submissionToken = createToken('submission');
+    pendingSubmissionToken ||= createToken('submission');
     const responseToken = createToken('response');
-    const payload = buildPayload(submissionToken, responseToken);
+    const payload = buildPayload(pendingSubmissionToken, responseToken);
 
     setSendingState(sendButton, true);
 
@@ -108,6 +109,7 @@
       const result = await postViaHiddenIframe(payload, responseToken);
       if (!result.ok) throw new Error(result.error || '送信できませんでした。');
 
+      pendingSubmissionToken = '';
       localStorage.removeItem(draftKey);
       const destination = new URL('/contact-thanks.html', window.location.origin);
       destination.searchParams.set('status', 'success');
@@ -161,7 +163,8 @@
       };
 
       const onMessage = (event) => {
-        if (event.source !== iframe.contentWindow) return;
+        const trustedOrigin = event.origin === 'https://script.google.com' || event.origin === 'https://script.googleusercontent.com';
+        if (!trustedOrigin) return;
         const data = event.data;
         if (!data || data.type !== 'aa8-inquiry-response') return;
         if (data.responseToken !== responseToken) return;
@@ -442,8 +445,8 @@
   }
 
   function escapeHtml(value) {
-    return value.replace(/[&<>'"]/g, (character) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+    return value.replace(/[&<>'\"]/g, (character) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '\"': '&quot;',
     }[character]));
   }
 })();
