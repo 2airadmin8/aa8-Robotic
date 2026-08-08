@@ -159,7 +159,8 @@ jobs:
           temp_page="$(mktemp)"
           temp_pdf="$(mktemp)"
           temp_current="$(mktemp)"
-          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf" "$temp_current"' EXIT
+          temp_legacy="$(mktemp)"
+          trap 'rm -f "$temp_meta" "$temp_page" "$temp_pdf" "$temp_current" "$temp_legacy"' EXIT
 
           legacy_url="${BASE_URL}/aa8-Robotic/products/tianji-marvin.html"
           current_url="${BASE_URL}/products/tianji-marvin.html"
@@ -218,12 +219,20 @@ jobs:
 
             case "$final_url" in
               "${current_url}"|"${current_url}?"*)
-                echo "Production verified: ${EXPECTED_SHA}; legacy URL resolves to ${final_url}"
+                echo "Production verified: ${EXPECTED_SHA}; HTTP redirect reaches ${final_url}"
                 exit 0
                 ;;
             esac
 
-            echo "legacy URL not resolved to current URL yet (${attempt}/36): ${final_url:-unavailable}"
+            if curl -fsS -H 'Cache-Control: no-cache' \
+                 "${legacy_url}?v=${cache_bust}" -o "$temp_legacy" \
+              && grep -Fq "$current_url" "$temp_legacy" \
+              && grep -Eq 'rel="canonical"|http-equiv="refresh"|window\.location\.replace' "$temp_legacy"; then
+              echo "Production verified: ${EXPECTED_SHA}; static legacy page points to ${current_url}"
+              exit 0
+            fi
+
+            echo "legacy migration target not verified yet (${attempt}/36): ${final_url:-unavailable}"
             sleep 5
           done
 
