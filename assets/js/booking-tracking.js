@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const bookingUrl = 'https://calendar.app.google/ZR7YVyiEJzzatvLFA';
+  const bookingUrl = 'https://calendar.app.google/ZnqVPUCv3rLN1pjy6';
   const params = new URLSearchParams(window.location.search);
   const deliveryId = params.get('rid') || 'unknown';
   const link = document.getElementById('booking-link');
