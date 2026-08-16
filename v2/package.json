@@ -1,0 +1,17 @@
+{
+  "name": "airadmin8-robotics-v2",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "astro": "^5.13.0",
+    "typescript": "^5.9.2"
+  }
+}
