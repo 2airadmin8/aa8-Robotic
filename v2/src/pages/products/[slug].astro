@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { products } from '../../data/products';
+
+export function getStaticPaths() {
+  return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
+}
+
+const { product } = Astro.props;
+---
+<BaseLayout
+  title={`${product.maker} ${product.name}｜AirAdmin8 Robotics`}
+  description={product.lead}
+  canonical={`/products/${product.slug}/`}
+>
+  <section class="section hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">{product.category}</p>
+        <h1>{product.maker}<br />{product.name}</h1>
+        <p class="lead">{product.lead}</p>
+        <div class="actions"><a class="button primary" href={`/contact/?product=${encodeURIComponent(product.name)}`}>導入について相談する</a><a class="button" href="#spec">主要仕様を見る</a></div>
+      </div>
+      <div class="visual card" aria-label={`${product.name} 製品画像エリア`}>
+        <span>正式製品画像</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="spec" class="section">
+    <div class="wrap">
+      <p class="eyebrow">まず3点で確認</p>
+      <h2>特徴・主要仕様・主な用途</h2>
+      <div class="three-grid">
+        <article class="card"><h3>特徴</h3><p>{product.lead}</p></article>
+        <article class="card"><h3>主要仕様</h3><ul>{product.facts.map((fact) => <li>{fact}</li>)}</ul></article>
+        <article class="card"><h3>主な用途</h3><ul>{product.uses.map((use) => <li>{use}</li>)}</ul></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section muted">
+    <div class="wrap">
+      <p class="eyebrow">SYSTEM</p>
+      <h2>導入時のシステム構成</h2>
+      <div class="flow">{product.system.map((item, i) => <><span class="flow-item">{item}</span>{i < product.system.length - 1 && <b>→</b>}</>)}</div>
+      <p class="note">AirAdmin8では、製品選定だけでなく、センサー、GPU、SDK、データ、評価方法まで研究・導入目的から構成します。</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap official card">
+      <p class="eyebrow">OFFICIAL INFORMATION</p>
+      <h2>メーカー公式情報と導入判断を分けて確認</h2>
+      <p>{product.officialNote}</p>
+      <p>価格・納期・保証・法令適合・構成可否などは、対象型番と導入条件を確認したうえで担当者が正式に回答します。</p>
+    </div>
+  </section>
+
+  <section class="section cta"><div class="wrap"><h2>研究テーマから構成をご相談ください。</h2><p>製品名が決まっていなくても、研究テーマ、タスク、既存設備、導入時期から整理できます。</p><a class="button primary" href={`/contact/?product=${encodeURIComponent(product.name)}`}>導入について相談する</a></div></section>
+</BaseLayout>
+<style>
+.hero{padding-top:120px}.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center}.lead{font-size:1.15rem;color:var(--muted);max-width:680px}.actions{display:flex;gap:12px;margin-top:30px}.visual{min-height:500px;background:var(--surface);display:grid;place-items:center;color:var(--muted)}.three-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px}.three-grid article{padding:28px}.muted{background:var(--surface)}.flow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:40px 0}.flow-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-weight:700}.note{color:var(--muted)}.official{padding:42px}.cta{border-top:1px solid var(--line)}@media(max-width:800px){.hero-grid,.three-grid{grid-template-columns:1fr}.visual{min-height:320px}.actions{flex-direction:column}.flow b{display:none}.flow-item{width:100%}}
+</style>
