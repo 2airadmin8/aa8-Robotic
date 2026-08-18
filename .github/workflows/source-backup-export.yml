@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - backup-export/20260818
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
