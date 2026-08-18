@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - backup-drive-20260818
-  pull_request:
-    branches:
-      - main
+    paths-ignore:
+      - 'backup_export/**'
+
+permissions:
+  contents: write
 
 jobs:
   export:
@@ -18,10 +20,14 @@ jobs:
           fetch-depth: 1
       - name: Create source archive
         run: |
-          zip -r aa8-Robotic-source-20260818.zip . -x '.git/*' 'aa8-Robotic-source-20260818.zip'
-      - name: Upload source archive
-        uses: actions/upload-artifact@v4
-        with:
-          name: aa8-Robotic-source-20260818
-          path: aa8-Robotic-source-20260818.zip
-          if-no-files-found: error
+          rm -rf backup_export
+          mkdir -p backup_export
+          zip -r backup_export/aa8-Robotic-source-20260818.zip . \
+            -x '.git/*' 'backup_export/*'
+      - name: Commit source archive to backup branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add backup_export/aa8-Robotic-source-20260818.zip
+          git commit -m 'chore: generate Drive source archive' || exit 0
+          git push origin HEAD:backup-drive-20260818
