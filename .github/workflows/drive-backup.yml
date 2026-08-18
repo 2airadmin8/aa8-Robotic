@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   export:
@@ -24,10 +25,23 @@ jobs:
           mkdir -p backup_export
           zip -r backup_export/aa8-Robotic-source-20260818.zip . \
             -x '.git/*' 'backup_export/*'
-      - name: Commit source archive to backup branch
+      - name: Upload source archive artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa8-Robotic-source-20260818
+          path: backup_export/aa8-Robotic-source-20260818.zip
+          if-no-files-found: error
+      - name: Record artifact metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 3
+          artifact_id="$(gh api repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts --jq '.artifacts[] | select(.name=="aa8-Robotic-source-20260818") | .id' | head -1)"
+          printf '{"run_id":%s,"artifact_id":%s,"commit_sha":"%s"}\n' "$GITHUB_RUN_ID" "$artifact_id" "$GITHUB_SHA" > backup_export/export-meta.json
+      - name: Commit export metadata and source archive to backup branch
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add backup_export/aa8-Robotic-source-20260818.zip
-          git commit -m 'chore: generate Drive source archive' || exit 0
+          git add backup_export/aa8-Robotic-source-20260818.zip backup_export/export-meta.json
+          git commit -m 'chore: refresh Drive source archive metadata' || exit 0
           git push origin HEAD:backup-drive-20260818
