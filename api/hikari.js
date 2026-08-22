@@ -4,13 +4,20 @@ const DIFY_API_KEY = process.env.DIFY_API_KEY || '';
 const ALLOWED_ORIGINS = new Set([
   'https://robotics.air-admin8.co.jp',
   'https://2airadmin8.github.io',
+  'https://hikari-proxy-dev-git-dev-ceo-2852s-projects.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ]);
 
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  return /^https:\/\/hikari-proxy-[a-z0-9-]+-ceo-2852s-projects\.vercel\.app$/i.test(origin);
+}
+
 function setCors(req, res) {
   const origin = req.headers.origin || '';
-  if (ALLOWED_ORIGINS.has(origin)) {
+  if (isAllowedOrigin(origin) && origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
   }
@@ -30,7 +37,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
 
   const origin = req.headers.origin || '';
-  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+  if (!isAllowedOrigin(origin)) {
     return res.status(403).json({ error: 'origin_not_allowed' });
   }
 
