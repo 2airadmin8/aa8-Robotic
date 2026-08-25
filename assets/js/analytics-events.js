@@ -3,11 +3,30 @@
 
   const pagePath = window.location.pathname;
   const pageType = detectPageType();
+  const RID_STORAGE_KEY = 'aa8_delivery_id';
+  const params = new URLSearchParams(window.location.search);
+  const deliveryId = resolveDeliveryId();
+  const productId = detectProductId();
+
+  function resolveDeliveryId() {
+    const fromUrl = (params.get('rid') || '').trim();
+    if (fromUrl && fromUrl.length <= 160) {
+      try { sessionStorage.setItem(RID_STORAGE_KEY, fromUrl); } catch (_) {}
+      return fromUrl;
+    }
+    try {
+      return (sessionStorage.getItem(RID_STORAGE_KEY) || '').trim();
+    } catch (_) {
+      return '';
+    }
+  }
 
   function send(eventName, parameters = {}) {
     const payload = {
       page_path: pagePath,
       page_type: pageType,
+      delivery_id: deliveryId || undefined,
+      product_id: productId || undefined,
       ...sanitize(parameters),
     };
 
@@ -32,7 +51,36 @@
     if (pagePath.includes('/support/')) return 'support_detail';
     if (pagePath.endsWith('/support.html')) return 'support_hub';
     if (pagePath.endsWith('/resources.html')) return 'resource_hub';
+    if (pagePath.includes('/manufacturers/')) return 'manufacturer_detail';
     return 'content';
+  }
+
+  function detectProductId() {
+    const match = pagePath.match(/\/products\/([^/?#]+?)(?:\.html)?$/i);
+    return match ? match[1].replace(/\.html$/i, '') : '';
+  }
+
+  function decorateInternalLinks() {
+    if (!deliveryId) return;
+    document.querySelectorAll('a[href]').forEach((anchor) => {
+      const raw = anchor.getAttribute('href') || '';
+      if (!raw || raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('javascript:')) return;
+      try {
+        const url = new URL(raw, window.location.href);
+        if (url.origin !== window.location.origin) return;
+        if (url.pathname.startsWith('/assets/')) return;
+        if (!url.searchParams.get('rid')) url.searchParams.set('rid', deliveryId);
+        anchor.href = url.pathname + url.search + url.hash;
+      } catch (_) {}
+    });
+  }
+
+  if (deliveryId) {
+    decorateInternalLinks();
+    send('lead_page_view', {
+      page_title: document.title,
+      page_location: window.location.href,
+    });
   }
 
   document.addEventListener('change', (event) => {
@@ -61,6 +109,19 @@
   document.addEventListener('click', (event) => {
     const target = event.target.closest('button, a');
     if (!target) return;
+
+    if (target.tagName === 'A' && deliveryId) {
+      try {
+        const url = new URL(target.href, window.location.href);
+        const match = url.pathname.match(/\/products\/([^/?#]+?)(?:\.html)?$/i);
+        if (url.origin === window.location.origin && match) {
+          send('lead_product_click', {
+            target_product_id: match[1].replace(/\.html$/i, ''),
+            target_path: url.pathname,
+          });
+        }
+      } catch (_) {}
+    }
 
     if (target.matches('[data-compare-open]')) {
       send('compare_open', {
