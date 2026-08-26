@@ -4,6 +4,7 @@
   const pagePath = window.location.pathname;
   const pageType = detectPageType();
   const RID_STORAGE_KEY = 'aa8_delivery_id';
+  const WEB_EVENT_ENDPOINT = 'https://hikari-proxy-dev.vercel.app/api/web-event';
   const params = new URLSearchParams(window.location.search);
   const deliveryId = resolveDeliveryId();
   const productId = detectProductId();
@@ -21,6 +22,37 @@
     }
   }
 
+  function emitWebEvent(eventName, payload) {
+    if (!deliveryId || !/^DLV-[A-Za-z0-9._-]+$/.test(deliveryId)) return;
+    if (!['lead_page_view', 'lead_product_click', 'product_view'].includes(eventName)) return;
+
+    const body = JSON.stringify({
+      event: eventName,
+      delivery_id: deliveryId,
+      page_path: payload.page_path,
+      page_type: payload.page_type,
+      product_id: payload.product_id,
+      target_product_id: payload.target_product_id,
+    });
+
+    try {
+      if (navigator.sendBeacon) {
+        const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+        if (navigator.sendBeacon(WEB_EVENT_ENDPOINT, blob)) return;
+      }
+    } catch (_) {}
+
+    try {
+      fetch(WEB_EVENT_ENDPOINT, {
+        method: 'POST',
+        mode: 'cors',
+        keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body,
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
   function send(eventName, parameters = {}) {
     const payload = {
       page_path: pagePath,
@@ -33,6 +65,7 @@
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: eventName, ...payload });
     if (typeof window.gtag === 'function') window.gtag('event', eventName, payload);
+    emitWebEvent(eventName, payload);
   }
 
   function sanitize(values) {
@@ -81,6 +114,11 @@
       page_title: document.title,
       page_location: window.location.href,
     });
+    if (productId) {
+      send('product_view', {
+        product_id: productId,
+      });
+    }
   }
 
   document.addEventListener('change', (event) => {
