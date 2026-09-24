@@ -46,7 +46,7 @@ export default function handler(req, res) {
   if (!ALLOWED_EVENTS.has(event)) {
     return res.status(400).json({ ok: false, error: 'invalid_event' });
   }
-  if (!/^DLV-[A-Za-z0-9._-]+$/.test(deliveryId)) {
+  if (!/^(?:DLV|RSJ|GPT|BATCH|UAT|TEST|GOLDEN)-[A-Za-z0-9._-]+$/.test(deliveryId)) {
     return res.status(400).json({ ok: false, error: 'invalid_delivery_id' });
   }
 
