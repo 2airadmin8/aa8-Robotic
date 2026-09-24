@@ -9,7 +9,7 @@
   let opened = false;
 
   function validDeliveryId(value) {
-    return /^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$/.test(value);
+    return /^(?:DLV|RSJ|GPT|BATCH|UAT|TEST|GOLDEN)-[A-Za-z0-9._-]+$/.test(value);
   }
 
   function emitDirectPdfEvent() {
