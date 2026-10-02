@@ -264,7 +264,9 @@ def main() -> int:
     markdown = markdown_report(audits, redirects, assets)
     with open(args.markdown, "w", encoding="utf-8") as handle:
         handle.write(markdown)
-    print(markdown)
+    console_encoding = sys.stdout.encoding or "utf-8"
+    safe_markdown = markdown.encode(console_encoding, errors="replace").decode(console_encoding)
+    print(safe_markdown)
     return 1 if any(item.errors for item in audits) or any(not item.get("ok") for item in assets) or any(not item.get("ok") for item in redirects) else 0
 
 
