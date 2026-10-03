@@ -123,3 +123,38 @@ jobs:
             production-audit.md
           if-no-files-found: warn
           retention-days: 30
+
+      - name: Notify Slack on failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SLACK_WEBHOOK_URL:-}" ]]; then
+            echo "SLACK_WEBHOOK_URL is not configured; skipping Slack notification."
+            exit 0
+          fi
+
+          payload="$(python - <<'PY'
+          import json
+          import os
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          server = os.environ["GITHUB_SERVER_URL"]
+          sha = os.environ["GITHUB_SHA"]
+          text = (
+              "🚨 AirAdmin8 Robotics Production Release Check failed\n"
+              f"Repository: {repo}\n"
+              f"Run: {server}/{repo}/actions/runs/{run_id}\n"
+              f"Commit: {sha}"
+          )
+          print(json.dumps({"text": text}, ensure_ascii=False))
+          PY
+          )"
+
+          curl -fsSL -X POST \
+            -H 'Content-type: application/json' \
+            --data "${payload}" \
+            "${SLACK_WEBHOOK_URL}"
