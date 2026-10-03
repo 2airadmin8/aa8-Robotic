@@ -11,7 +11,7 @@ on:
         required: false
         type: string
   schedule:
-    - cron: "17 0,3,6,9 * * 1-5"
+    - cron: "17 * * * *"
 
 permissions:
   contents: read
@@ -26,22 +26,38 @@ concurrency:
 
 jobs:
   audit-production:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Check deployment trigger result
+        id: deployment_gate
+        if: ${{ github.event_name == 'workflow_run' }}
+        shell: bash
+        env:
+          DEPLOYMENT_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          set -euo pipefail
+          if [[ "${DEPLOYMENT_CONCLUSION}" != "success" ]]; then
+            echo "Upstream GitHub Pages deployment failed: ${DEPLOYMENT_CONCLUSION}"
+            exit 1
+          fi
+          echo "Upstream GitHub Pages deployment succeeded."
+
       - name: Checkout main
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         uses: actions/checkout@v6
         with:
           ref: main
 
       - name: Set up Python
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Verify expected production SHA
         id: production_sha
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         shell: bash
         env:
           INPUT_SHA: ${{ inputs.expected_sha }}
@@ -55,8 +71,7 @@ jobs:
 
           temp_file="$(mktemp)"
           trap 'rm -f "${temp_file}"' EXIT
-          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache' \
-            "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_file}"
+          curl -fsSL --retry 3 --retry-delay 3 -H 'Cache-Control: no-cache'             "${BASE_URL}/deploy-meta.json?check=${GITHUB_RUN_ID}" -o "${temp_file}"
 
           python - "${temp_file}" "${expected}" <<'PY'
           import json
@@ -83,14 +98,26 @@ jobs:
 
       - name: Audit every production URL from sitemap
         id: site_audit
+        if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
           python -m py_compile scripts/audit_production_site.py
-          python scripts/audit_production_site.py \
-            --base-url "${BASE_URL}" \
-            --json production-audit.json \
-            --markdown production-audit.md
+          python scripts/audit_production_site.py             --base-url "${BASE_URL}"             --json production-audit.json             --markdown production-audit.md
+
+      - name: Validate Slack alert configuration
+        id: slack_config
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${SLACK_WEBHOOK_URL:-}" ]]; then
+            echo "SLACK_WEBHOOK_URL is not configured."
+            exit 1
+          fi
+          echo "Slack alert configuration is present."
 
       - name: Publish audit summary
         if: always()
@@ -99,13 +126,23 @@ jobs:
           {
             echo "## Production Release Check"
             echo ""
+            case '${{ steps.deployment_gate.outcome }}' in
+              success|skipped) echo "- Deploy trigger: ✅ PASS" ;;
+              *) echo "- Deploy trigger: ❌ FAIL" ;;
+            esac
             case '${{ steps.production_sha.outcome }}' in
               success) echo "- 本番SHA: ✅ PASS" ;;
+              skipped) echo "- 本番SHA: ⚪ SKIP" ;;
               *) echo "- 本番SHA: ❌ FAIL" ;;
             esac
             case '${{ steps.site_audit.outcome }}' in
               success) echo "- 全URL監査: ✅ PASS" ;;
+              skipped) echo "- 全URL監査: ⚪ SKIP" ;;
               *) echo "- 全URL監査: ❌ FAIL" ;;
+            esac
+            case '${{ steps.slack_config.outcome }}' in
+              success) echo "- Slack通知設定: ✅ PASS" ;;
+              *) echo "- Slack通知設定: ❌ FAIL" ;;
             esac
             echo ""
             if [[ -f production-audit.md ]]; then
@@ -132,8 +169,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${SLACK_WEBHOOK_URL:-}" ]]; then
-            echo "SLACK_WEBHOOK_URL is not configured; skipping Slack notification."
-            exit 0
+            echo "SLACK_WEBHOOK_URL is not configured; notification cannot be sent."
+            exit 1
           fi
 
           payload="$(python - <<'PY'
@@ -154,7 +191,4 @@ jobs:
           PY
           )"
 
-          curl -fsSL -X POST \
-            -H 'Content-type: application/json' \
-            --data "${payload}" \
-            "${SLACK_WEBHOOK_URL}"
+          curl -fsSL -X POST             -H 'Content-type: application/json'             --data "${payload}"             "${SLACK_WEBHOOK_URL}"
