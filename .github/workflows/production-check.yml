@@ -114,9 +114,11 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${SLACK_WEBHOOK_URL:-}" ]]; then
-            echo "SLACK_WEBHOOK_URL is not configured."
-            exit 1
+            echo "::warning::SLACK_WEBHOOK_URL is not configured. GitHub Actions failure email remains the fallback alert channel."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
           echo "Slack alert configuration is present."
 
       - name: Publish audit summary
@@ -140,10 +142,11 @@ jobs:
               skipped) echo "- 全URL監査: ⚪ SKIP" ;;
               *) echo "- 全URL監査: ❌ FAIL" ;;
             esac
-            case '${{ steps.slack_config.outcome }}' in
-              success) echo "- Slack通知設定: ✅ PASS" ;;
-              *) echo "- Slack通知設定: ❌ FAIL" ;;
-            esac
+            if [[ '${{ steps.slack_config.outputs.configured }}' == 'true' ]]; then
+              echo "- Slack通知設定: ✅ PASS"
+            else
+              echo "- Slack通知設定: ⚠️ 未設定（GitHub Actions失敗通知をフォールバック使用）"
+            fi
             echo ""
             if [[ -f production-audit.md ]]; then
               cat production-audit.md
@@ -169,8 +172,8 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${SLACK_WEBHOOK_URL:-}" ]]; then
-            echo "SLACK_WEBHOOK_URL is not configured; notification cannot be sent."
-            exit 1
+            echo "::warning::SLACK_WEBHOOK_URL is not configured; skipping Slack delivery. The original production-check failure is preserved."
+            exit 0
           fi
 
           payload="$(python - <<'PY'
