@@ -6,6 +6,7 @@ import argparse
 import json
 import re
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -80,6 +81,7 @@ class PageParser(HTMLParser):
 
 
 def fetch(url: str, timeout: int) -> tuple[int, str, bytes, str]:
+    """Fetch a URL, retrying transient network/server failures without hiding persistent errors."""
     request = urllib.request.Request(
         url,
         headers={
@@ -87,12 +89,28 @@ def fetch(url: str, timeout: int) -> tuple[int, str, bytes, str]:
             "Cache-Control": "no-cache",
         },
     )
-    try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            content_type = response.headers.get("Content-Type", "")
-            return response.status, response.geturl(), response.read(), content_type
-    except urllib.error.HTTPError as exc:
-        return exc.code, exc.geturl(), exc.read(), exc.headers.get("Content-Type", "")
+    retryable_statuses = {408, 425, 429, 500, 502, 503, 504}
+    attempts = 3
+
+    for attempt in range(1, attempts + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                content_type = response.headers.get("Content-Type", "")
+                return response.status, response.geturl(), response.read(), content_type
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            final_url = exc.geturl()
+            body = exc.read()
+            content_type = exc.headers.get("Content-Type", "")
+            if status not in retryable_statuses or attempt == attempts:
+                return status, final_url, body, content_type
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == attempts:
+                raise
+
+        time.sleep(min(2 ** (attempt - 1), 4))
+
+    raise RuntimeError(f"unreachable retry state for {url}")
 
 
 def sitemap_urls(base_url: str, timeout: int) -> list[str]:
