@@ -37,11 +37,21 @@ jobs:
           DEPLOYMENT_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: |
           set -euo pipefail
-          if [[ "${DEPLOYMENT_CONCLUSION}" != "success" ]]; then
-            echo "Upstream GitHub Pages deployment failed: ${DEPLOYMENT_CONCLUSION}"
-            exit 1
-          fi
-          echo "Upstream GitHub Pages deployment succeeded."
+          case "${DEPLOYMENT_CONCLUSION}" in
+            success)
+              echo "deployment_state=success" >> "$GITHUB_OUTPUT"
+              echo "Upstream GitHub Pages deployment succeeded."
+              ;;
+            cancelled)
+              echo "deployment_state=cancelled" >> "$GITHUB_OUTPUT"
+              echo "::notice::Upstream GitHub Pages deployment was cancelled because a newer deployment superseded it; skipping production audit without failure."
+              ;;
+            *)
+              echo "deployment_state=failed" >> "$GITHUB_OUTPUT"
+              echo "Upstream GitHub Pages deployment failed: ${DEPLOYMENT_CONCLUSION}"
+              exit 1
+              ;;
+          esac
 
       - name: Checkout main
         if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
@@ -128,9 +138,11 @@ jobs:
           {
             echo "## Production Release Check"
             echo ""
-            case '${{ steps.deployment_gate.outcome }}' in
-              success|skipped) echo "- Deploy trigger: ✅ PASS" ;;
-              *) echo "- Deploy trigger: ❌ FAIL" ;;
+            case '${{ steps.deployment_gate.outputs.deployment_state }}' in
+              success) echo "- Deploy trigger: ✅ PASS" ;;
+              cancelled) echo "- Deploy trigger: ⚪ SKIP（新しいデプロイに置き換え済み）" ;;
+              failed) echo "- Deploy trigger: ❌ FAIL" ;;
+              *) echo "- Deploy trigger: ⚪ N/A（定期・手動監査）" ;;
             esac
             case '${{ steps.production_sha.outcome }}' in
               success) echo "- 本番SHA: ✅ PASS" ;;
