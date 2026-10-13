@@ -1,0 +1,30 @@
+{
+  "product": "X2 EDU",
+  "target": "products/agibot-x2-edu.html",
+  "design_master": {
+    "status": "要承認",
+    "source": "Google Drive R5.0 X2 EDU正式画面設計",
+    "figma_design_url": null,
+    "pc_width": 1440,
+    "sp_width": 390
+  },
+  "assets": {
+    "manufacturer_product_image": "assets/img/products/agibot/x2-edu/agibot-x2-edu-manufacturer-product.jpg",
+    "source": "メーカー提供2026/06資料の抽出画像",
+    "rights": "未確認",
+    "model_match": "要最終確認"
+  },
+  "validation": {
+    "browser_ci": "GitHub Actions Playwright",
+    "screenshot_artifact": "x2-edu-pc-sp-screenshots",
+    "figma_vs_browser_review": "未実施",
+    "contact_real_delivery": "未検証",
+    "manufacturer_claims": "一部要確認"
+  },
+  "release": {
+    "approved": false,
+    "merge_to_main": false,
+    "production_deploy": false,
+    "reason": "Design Master・画像権利・実受信・PC/SP画面比較の承認待ち"
+  }
+}
