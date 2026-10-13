@@ -27,7 +27,7 @@ function Placeholder({ name, label, className="" }: { name:string; label:string;
 }
 
 const assetPaths: Record<string, {pc:string; sp?:string; alt:string}> = {
-  "X2 EDU 製品画像": {pc:"/assets/x2-edu-product-official.jpg",alt:"メーカー資料に掲載されたX2 EDUの本体画像"},
+  "X2 EDU 製品画像": {pc:"/assets/x2-edu-body-clean.png",alt:"X2 EDU組立型ヒューマノイドロボットの本体"},
   "教育・研究画像 01": {pc:"/assets/assembly-training.webp",sp:"/assets/assembly-training.webp",alt:"メーカー資料に掲載された組立実習の参考画像"},
   "教育・研究画像 02": {pc:"/assets/robot-education.webp",sp:"/assets/robot-education.webp",alt:"メーカー資料に掲載されたロボット教育の様子"},
   "教育・研究画像 03": {pc:"/assets/robot-competition.webp",sp:"/assets/robot-competition.webp",alt:"メーカー資料に掲載されたロボット競技の参考画像"},
