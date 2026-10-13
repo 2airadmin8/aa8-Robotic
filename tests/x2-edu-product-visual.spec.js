@@ -20,7 +20,12 @@ for (const viewport of [{ name: 'pc-1440', width: 1440, height: 900 }, { name: '
   expect(metrics.displayWidth).toBeGreaterThan(180);
   expect(metrics.displayWidth).toBeLessThanOrEqual(viewport.width);
   expect(metrics.displayHeight).toBeLessThanOrEqual(viewport.width <= 640 ? 430 : 640);
-  expect(metrics.objectFit).toBe('contain');
+  expect(metrics.objectFit).toBe('cover');
+  await expect(page.locator('.x2-hero-image-crop')).toBeVisible();
+  await expect(page.locator('.product-detail-summary')).toHaveCount(0);
+  const crop = await page.locator('.x2-hero-image-crop').boundingBox();
+  expect(crop).not.toBeNull();
+  expect(crop.height).toBeLessThanOrEqual(viewport.width <= 640 ? 400 : 570);
   expect(metrics.src).toContain('agibot-x2-edu-manufacturer-product.jpg');
   expect(errors).toEqual([]);
   fs.mkdirSync('qa-artifacts/x2-edu',{recursive:true});
