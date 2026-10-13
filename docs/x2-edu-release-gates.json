@@ -2,7 +2,7 @@
   "product": "X2 EDU",
   "target": "products/agibot-x2-edu.html",
   "design_master": {
-    "status": "PC/SP編集可能な骨格作成済・画像配置未完・設計審査未合格",
+    "status": "PC/SP編集可能Design制作版作成（素材6区画配置、最終承認待ち）",
     "source": "Google Drive R5.0 X2 EDU正式画面設計",
     "figma_design_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs",
     "pc_width": 1440,
@@ -16,8 +16,9 @@
     "pc_approved_by": "事業責任者（2026-10-13チャット指定）",
     "sp_design_candidate_url": "https://drive.google.com/file/d/1Eg9hUuGmknD8uuPChniccec14cnDcgWg/view",
     "sp_design_status": "構成案作成済・390px実寸デザインと承認は未完了",
-    "pc_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=1-2",
-    "sp_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=1-3"
+    "pc_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=7-2",
+    "sp_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=7-123",
+    "asset_note": "PC/SP各6セクションにメーカー資料画像・教育場面・キット・仕様画像を配置。07-10はFigma編集可能テキスト／図形。広告許諾・技術整合とDesign Master最終照合は別Gate。"
   },
   "assets": {
     "manufacturer_product_image": "assets/img/products/agibot/x2-edu/agibot-x2-edu-manufacturer-product.jpg",
@@ -28,7 +29,7 @@
   "validation": {
     "browser_ci": "GitHub Actions Playwright",
     "screenshot_artifact": "x2-edu-pc-sp-screenshots",
-    "figma_vs_browser_review": "未実施",
+    "figma_vs_browser_review": "未実施、正式承認不可",
     "contact_real_delivery": "未検証",
     "manufacturer_claims": "一部要確認"
   },
