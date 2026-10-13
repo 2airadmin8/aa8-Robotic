@@ -19,6 +19,7 @@ for (const viewport of [{ name: 'pc-1440', width: 1440, height: 900 }, { name: '
   expect(metrics.naturalWidth).toBeGreaterThanOrEqual(500);
   expect(metrics.displayWidth).toBeGreaterThan(180);
   expect(metrics.displayWidth).toBeLessThanOrEqual(viewport.width);
+  expect(metrics.displayHeight).toBeLessThanOrEqual(viewport.width <= 640 ? 430 : 640);
   expect(metrics.objectFit).toBe('contain');
   expect(metrics.src).toContain('agibot-x2-edu-manufacturer-product.jpg');
   expect(errors).toEqual([]);
