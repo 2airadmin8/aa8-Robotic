@@ -2,9 +2,9 @@
   "product": "X2 EDU",
   "target": "products/agibot-x2-edu.html",
   "design_master": {
-    "status": "PC正式版確定・SP未確定",
+    "status": "PC/SP編集可能な骨格作成済・画像配置未完・設計審査未合格",
     "source": "Google Drive R5.0 X2 EDU正式画面設計",
-    "figma_design_url": null,
+    "figma_design_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs",
     "pc_width": 1440,
     "sp_width": 390,
     "required_pc_frame": "X2 EDU PC 1440px 正式承認版",
@@ -15,7 +15,9 @@
     "pc_source_filename": "HP構成.png",
     "pc_approved_by": "事業責任者（2026-10-13チャット指定）",
     "sp_design_candidate_url": "https://drive.google.com/file/d/1Eg9hUuGmknD8uuPChniccec14cnDcgWg/view",
-    "sp_design_status": "構成案作成済・390px実寸デザインと承認は未完了"
+    "sp_design_status": "構成案作成済・390px実寸デザインと承認は未完了",
+    "pc_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=1-2",
+    "sp_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=1-3"
   },
   "assets": {
     "manufacturer_product_image": "assets/img/products/agibot/x2-edu/agibot-x2-edu-manufacturer-product.jpg",
@@ -26,7 +28,7 @@
   "validation": {
     "browser_ci": "GitHub Actions Playwright",
     "screenshot_artifact": "x2-edu-pc-sp-screenshots",
-    "figma_vs_browser_review": "未実施・デザインGate NG",
+    "figma_vs_browser_review": "未実施",
     "contact_real_delivery": "未検証",
     "manufacturer_claims": "一部要確認"
   },
