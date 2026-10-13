@@ -1,0 +1,44 @@
+{
+  "product": "X2 EDU",
+  "target": "products/agibot-x2-edu.html",
+  "design_master": {
+    "status": "Make元デザインのFigma Design変換確認済み・実画像差替と正式承認待ち",
+    "source": "Google Drive R5.0 X2 EDU正式画面設計",
+    "figma_design_url": "https://www.figma.com/design/qaygzloGf9JrpHAqwUvbnh/",
+    "pc_width": 1440,
+    "sp_width": 390,
+    "required_pc_frame": "X2 EDU PC 1440px 正式承認版",
+    "required_sp_frame": "X2 EDU SP 390px 正式承認版",
+    "policy": "Makeから変換した実レイアウトを保持して編集。新規再設計版は採用しない。PC構成承認図とMake変換済みDesignを照合し、実素材を配置。SPフレームは未確認なら未承認扱い。",
+    "pc_design_source": "https://drive.google.com/file/d/1vFIL4XXzpdCF_NzpDcxPpt2CBi75R9Ar/view",
+    "pc_design_folder": "https://drive.google.com/drive/folders/1nhM5E8Wp-Tt5tAmbqDcbfrgKlTA17K3F",
+    "pc_source_filename": "HP構成.png",
+    "pc_approved_by": "事業責任者（2026-10-13チャット指定）",
+    "sp_design_candidate_url": "https://drive.google.com/file/d/1Eg9hUuGmknD8uuPChniccec14cnDcgWg/view",
+    "sp_design_status": "構成案作成済・390px実寸デザインと承認は未完了",
+    "pc_frame_url": "https://www.figma.com/design/qaygzloGf9JrpHAqwUvbnh/?node-id=4-2",
+    "sp_frame_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs?node-id=7-123",
+    "asset_note": "PC/SP各6セクションにメーカー資料画像・教育場面・キット・仕様画像を配置。07-10はFigma編集可能テキスト／図形。広告許諾・技術整合とDesign Master最終照合は別Gate。",
+    "source_make_url": "https://www.figma.com/make/PjYrDDSNMZnmzvkYOSDqbo/",
+    "superseded_rebuild_url": "https://www.figma.com/design/08pPwMBg3wJ3qYd5oTrnRs"
+  },
+  "assets": {
+    "manufacturer_product_image": "assets/img/products/agibot/x2-edu/agibot-x2-edu-manufacturer-product.jpg",
+    "source": "メーカー提供2026/06資料の抽出画像",
+    "rights": "未確認",
+    "model_match": "要最終確認"
+  },
+  "validation": {
+    "browser_ci": "GitHub Actions Playwright",
+    "screenshot_artifact": "x2-edu-pc-sp-screenshots",
+    "figma_vs_browser_review": "Make継承Design実体を確認、画像プレースホルダー残存、正式QA未完了",
+    "contact_real_delivery": "未検証",
+    "manufacturer_claims": "一部要確認"
+  },
+  "release": {
+    "approved": false,
+    "merge_to_main": false,
+    "production_deploy": false,
+    "reason": "Design Master・画像権利・実受信・PC/SP画面比較の承認待ち"
+  }
+}
