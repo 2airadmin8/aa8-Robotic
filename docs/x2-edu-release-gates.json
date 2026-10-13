@@ -2,11 +2,14 @@
   "product": "X2 EDU",
   "target": "products/agibot-x2-edu.html",
   "design_master": {
-    "status": "要承認",
+    "status": "未承認・自動Gate停止",
     "source": "Google Drive R5.0 X2 EDU正式画面設計",
     "figma_design_url": null,
     "pc_width": 1440,
-    "sp_width": 390
+    "sp_width": 390,
+    "required_pc_frame": "X2 EDU PC 1440px 正式承認版",
+    "required_sp_frame": "X2 EDU SP 390px 正式承認版",
+    "policy": "Figma PC/SP正式frame URLと承認リビジョンが欠ければDesign Gate NG。AIによる布局・画像・CTAの独断変更禁止。"
   },
   "assets": {
     "manufacturer_product_image": "assets/img/products/agibot/x2-edu/agibot-x2-edu-manufacturer-product.jpg",
@@ -17,7 +20,7 @@
   "validation": {
     "browser_ci": "GitHub Actions Playwright",
     "screenshot_artifact": "x2-edu-pc-sp-screenshots",
-    "figma_vs_browser_review": "未実施",
+    "figma_vs_browser_review": "未実施・デザインGate NG",
     "contact_real_delivery": "未検証",
     "manufacturer_claims": "一部要確認"
   },
