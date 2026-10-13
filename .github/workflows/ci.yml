@@ -154,3 +154,12 @@ jobs:
             echo ""
             echo "Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  x2-design-approval-gate:
+    name: X2 EDU Design Approval Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+      - name: Block unapproved PC/SP design release
+        run: python3 scripts/verify_x2_design_gate.py
