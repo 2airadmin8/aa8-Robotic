@@ -183,6 +183,13 @@ def main() -> int:
     for path in html_files:
         relative = path.relative_to(OUTPUT)
         text = path.read_text(encoding="utf-8")
+        # A page-specific regression gate: the X2 EDU page must not reload
+        # the obsolete GitHub Pages /aa8-Robotic/ SEO runtime.
+        if relative.as_posix() == "products/agibot-x2-edu.html":
+            if re.search(r'<script[^>]+src=["\\'][^"\\']*assets/js/seo\\.js', text):
+                errors.append("X2 EDU still loads the legacy seo.js runtime")
+            if "assets/js/analytics-events.js" not in text:
+                errors.append("X2 EDU direct analytics-events.js script missing")
         required_markers = [
             'data-shared-layout="header"',
             'data-shared-layout="footer"',
