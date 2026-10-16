@@ -190,6 +190,21 @@ def main() -> int:
                 errors.append("X2 EDU still loads the legacy seo.js runtime")
             if "assets/js/analytics-events.js" not in text:
                 errors.append("X2 EDU direct analytics-events.js script missing")
+            # Keep the user-approved 00 HERO + 01-10 + 11 CTA structure intact,
+            # even while the currently supplied Figma frames omit 01 and 09.
+            x2_section_ids = (
+                "overview", "issues", "use", "assembly", "features",
+                "specs", "development", "check", "purchase-flow",
+                "support", "contact",
+            )
+            locations = [text.find(f'id="{name}"') for name in x2_section_ids]
+            missing = [name for name, loc in zip(x2_section_ids, locations) if loc < 0]
+            if missing:
+                errors.append(f"X2 EDU approved sections missing: {', '.join(missing)}")
+            elif locations != sorted(locations):
+                errors.append("X2 EDU approved section order changed")
+            if len(re.findall(r"<section\\b", text)) != len(x2_section_ids) + 1:
+                errors.append("X2 EDU section count differs from 00-11 baseline")
         required_markers = [
             'data-shared-layout="header"',
             'data-shared-layout="footer"',
