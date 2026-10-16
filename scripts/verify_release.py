@@ -203,7 +203,7 @@ def main() -> int:
                 errors.append(f"X2 EDU approved sections missing: {', '.join(missing)}")
             elif locations != sorted(locations):
                 errors.append("X2 EDU approved section order changed")
-            if len(re.findall(r"<section\\b", text)) != len(x2_section_ids) + 1:
+            if len(re.findall(r"<section\b", text)) != len(x2_section_ids) + 1:
                 errors.append("X2 EDU section count differs from 00-11 baseline")
         required_markers = [
             'data-shared-layout="header"',
