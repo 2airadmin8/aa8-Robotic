@@ -195,7 +195,13 @@ def build_html(html: str, relative: Path) -> str:
     scripts: list[str] = []
     if "assets/js/mobile-qa.js" not in html:
         scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
-    if "assets/js/seo.js" not in html:
+    # X2 EDU is fully prerendered and gets canonical/OG/JSON-LD in the static
+    # release pipeline. The legacy seo.js loader uses the retired /aa8-Robotic/
+    # prefix and triggers five 404s on the production custom domain.
+    if relative.as_posix() == "products/agibot-x2-edu.html":
+        if "assets/js/analytics-events.js" not in html:
+            scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
+    elif "assets/js/seo.js" not in html:
         scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
     if scripts and "</body>" in html:
         html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
