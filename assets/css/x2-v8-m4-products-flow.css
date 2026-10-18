@@ -1,6 +1,7 @@
 /* V8 M4 — product value panels and ROS2 flow. Draft visuals until Figma approves. */
 #features{background:linear-gradient(170deg,#fff,#eff7ff)!important;color:#0b3059!important}
 #features .heading h2,#features .heading p{color:#082e5b!important}
+#features .heading p.eyebrow{color:#fff!important;background:#0b3a72!important;}
 #features .features-five{
   display:grid!important;
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
@@ -28,6 +29,7 @@
 #development .dev-img{max-width:900px!important;width:100%!important;max-height:390px!important;margin:0 auto!important;overflow:hidden!important;border-radius:12px!important}
 #development .dev-img img{width:100%!important;max-height:390px!important;object-fit:contain!important}
 #development .dev-list{
+  counter-reset:x2-v8-dev;
   display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
   gap:17px!important;align-items:stretch!important;position:relative
 }
@@ -37,8 +39,10 @@
   box-shadow:0 9px 25px rgba(9,49,90,.045)!important;
   background:#f5faff!important;
 }
+#development .dev-list>p::before{content:counter(x2-v8-dev,decimal-leading-zero);color:#0969bf;display:grid;place-items:center;min-width:31px;height:31px;border-radius:50%;background:#e0efff;margin:0 0 11px;font-size:12px;font-weight:800}
+#development .dev-list>p:last-child::after{content:none!important;display:none!important}
 #development .dev-list>p:not(:last-child)::after{
-  content:"→";position:absolute;top:calc(50% - 19px);right:-22px;
+  content:"→"!important;position:absolute;top:calc(50% - 19px);right:-22px;
   color:#0a73c9;font-size:26px;font-weight:900;z-index:2
 }
 #development .dev-list strong{color:#073a6b!important;font-size:14px!important}
