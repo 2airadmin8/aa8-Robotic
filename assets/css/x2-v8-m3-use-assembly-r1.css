@@ -1,0 +1,27 @@
+/* V8 R1 segregated USE and ASSEMBLY only. The 02 education value map stays in Draft #120. */
+#use .use-grid{gap:13px!important}
+#use .use-grid article{display:flex!important;flex-direction:column;min-width:0}
+#use .use-grid article picture{height:228px!important;position:relative;overflow:hidden;border-radius:8px 8px 0 0}
+#use .use-grid article picture img{height:100%!important;object-fit:cover!important;object-position:center!important}
+#use .use-grid article>div{flex:1;padding:17px 18px 20px!important;background:#fff}
+#use .use-grid article>div small{display:inline-block;color:#086abf!important;letter-spacing:.1em;font-weight:800}
+#use .use-grid article>div h3{font-size:17px!important;line-height:1.45!important}
+#assembly .split{grid-template-columns:minmax(0,1fr)!important;gap:28px!important}
+#assembly .steps{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:11px!important}
+#assembly .steps article{
+  padding:18px!important;min-height:170px!important;position:relative;
+  border:1px solid #d4e3f1!important;border-radius:10px!important;
+  background:linear-gradient(170deg,#eff6fd,#e9f2fb)!important;
+  box-shadow:0 4px 17px rgba(9,55,103,.045);
+}
+#assembly .steps article:not(:last-child)::before{
+  content:"→";position:absolute;top:calc(50% - 18px);right:-20px;color:#0769ba;font-size:25px;font-weight:800;z-index:2;
+}
+#assembly .steps article h3{font-size:16px!important;color:#063666!important;line-height:1.5!important}
+#assembly .steps article p{font-size:12px!important;line-height:1.65!important}
+#assembly .assembly-img{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;max-width:890px;margin:0 auto;background:#f4f8fc!important}
+#assembly .assembly-img>picture{display:block;height:310px;overflow:hidden}
+#assembly .assembly-img picture img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important}
+
+@media(max-width:1050px){#assembly .steps{grid-template-columns:repeat(2,minmax(0,1fr))!important}#assembly .steps article:not(:last-child)::before{display:none!important}}
+@media(max-width:640px){#use .use-grid article picture{height:205px!important}#assembly .steps{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}#assembly .steps article{min-height:155px!important;padding:13px!important}#assembly .steps article h3{font-size:13px!important}#assembly .assembly-img>picture{height:295px!important}}
