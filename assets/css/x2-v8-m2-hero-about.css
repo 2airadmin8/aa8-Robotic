@@ -5,7 +5,7 @@
   min-height: 740px!important;
   overflow: hidden!important;
   isolation: isolate;
-  background: linear-gradient(103deg,#071c35 0%,#102d4d 40%,#e0edf7 40.2%,#c9ddeb 100%)!important;
+  background: linear-gradient(90deg,#071c35 0%,#102d4d 44%,#e0edf7 44.1%,#c9ddeb 100%)!important;
   grid-template-columns: minmax(540px,44%) minmax(0,56%)!important;
 }
 .hero::before {
@@ -61,7 +61,7 @@
 .hero .hero-visual>span {opacity:.035!important;font-size:260px!important}
 .hero .x2-v8-hero-values {
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
-  padding:0;margin:25px 0 0;list-style:none;max-width:540px;
+  padding:0;margin:25px 0 0;list-style:none;max-width:465px!important;width:min(465px,100%)!important;
 }
 .hero .x2-v8-hero-values li {
   min-height:75px;min-width:0;
@@ -113,7 +113,7 @@
  .hero .hero-copy .hero-tagline {font-size:26px!important}
  .hero .hero-copy .hero-lead {font-size:13px!important}
  .hero .hero-copy .note {margin-top:12px!important;font-size:10px!important}
- .hero .x2-v8-hero-values {grid-template-columns:repeat(4,minmax(0,1fr));margin:16px 0 0!important;gap:5px}
+ .hero .x2-v8-hero-values {grid-template-columns:repeat(4,minmax(0,1fr));margin:16px 0 0!important;gap:5px;max-width:none!important;width:100%!important}
  .hero .x2-v8-hero-values li {min-height:71px;padding:6px 2px}
  .hero .x2-v8-hero-values strong {font-size:11px!important}
  .hero .x2-v8-hero-values .v8-icon {width:23px;height:23px}
