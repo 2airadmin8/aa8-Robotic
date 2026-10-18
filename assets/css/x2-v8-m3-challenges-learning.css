@@ -57,7 +57,7 @@
 }
 #assembly .steps article h3{font-size:16px!important;color:#063666!important;line-height:1.5!important}
 #assembly .steps article p{font-size:12px!important;line-height:1.65!important}
-#assembly .assembly-img{width:100%!important;max-width:890px;margin:0 auto;background:#f4f8fc!important}
+#assembly .assembly-img{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;max-width:890px;margin:0 auto;background:#f4f8fc!important}
 #assembly .assembly-img>picture{display:block;height:310px;overflow:hidden}
 #assembly .assembly-img picture img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important}
 @media(max-width:1050px){
