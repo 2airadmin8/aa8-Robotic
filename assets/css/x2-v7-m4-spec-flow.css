@@ -1,0 +1,64 @@
+/* X2 EDU V7 / M4 / 06,08,09,11. Cosmetic only; specifications, links and assets unchanged. */
+#specs .spec-table p {
+  min-width: 0;
+}
+#specs .spec-table p span {
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+#specs .spec-table p b {
+  min-width: 0;
+  line-height: 1.6;
+}
+#specs .spec-table > small {
+  overflow-wrap: anywhere;
+}
+#check .cards.four article {
+  isolation: isolate;
+}
+#check .cards.four article h3 {
+  overflow-wrap: anywhere;
+}
+#check .solution a:focus-visible,
+#contact .cta-actions a:focus-visible {
+  outline: 3px solid #65c5ff !important;
+  outline-offset: 4px !important;
+}
+#purchase-flow .purchase-flow article {
+  min-width: 0;
+}
+#purchase-flow .purchase-flow article h3,
+#purchase-flow .purchase-flow article p {
+  overflow-wrap: anywhere;
+}
+#contact .cta-actions a {
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+#contact .cta-actions a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 20, 51, .2) !important;
+}
+#contact .cta-actions a:focus-visible {
+  transform: none;
+}
+@media (max-width: 640px) {
+  #specs .spec-table p {
+    grid-template-columns: minmax(85px, 33%) minmax(0, 1fr) !important;
+  }
+  #specs .spec-table > small {
+    font-size: 12px !important;
+    line-height: 1.8 !important;
+  }
+  #purchase-flow .purchase-flow article {
+    min-height: 145px !important;
+  }
+  #contact .cta-actions a {
+    min-height: 66px !important;
+  }
+  #contact .contact-note {
+    line-height: 1.65 !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #contact .cta-actions a { transition: none !important; }
+}
