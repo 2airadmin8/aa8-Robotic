@@ -1,0 +1,78 @@
+/* X2 EDU V7 / M3 / 03 USE + 04 LEARNING. Does not add photos or text. */
+#use .use-grid article {
+  isolation: isolate;
+  min-width: 0;
+  transition: box-shadow .18s ease, border-color .18s ease;
+}
+#use .use-grid article:hover,
+#use .use-grid article:focus-within {
+  border-color: #abcceb !important;
+  box-shadow: 0 12px 25px rgba(9, 52, 101, .105) !important;
+}
+#use .use-grid article > div {
+  min-width: 0;
+}
+#use .use-grid article > div h3 {
+  line-height: 1.5;
+}
+#use .use-grid article > div p {
+  overflow-wrap: anywhere;
+}
+#assembly .steps {
+  counter-reset: x2-v7-process;
+}
+#assembly .steps article {
+  position: relative;
+  overflow: visible;
+  transition: background-color .18s ease;
+}
+#assembly .steps article::after {
+  content: "";
+  position: absolute;
+  left: 15px;
+  bottom: 0;
+  right: 15px;
+  height: 3px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(90deg, #0b73cb, #55afe9);
+  opacity: .68;
+  pointer-events: none;
+}
+#assembly .steps article h3 {
+  line-height: 1.5 !important;
+}
+#assembly .assembly-img > p {
+  line-height: 1.6;
+}
+#assembly .assembly-img > p span {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 641px) and (max-width: 990px) {
+  #use .use-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+  }
+  #use .use-grid article picture {
+    height: 225px !important;
+  }
+  #assembly .split {
+    gap: 20px !important;
+  }
+}
+@media (max-width: 640px) {
+  #use .use-grid article picture {
+    height: 205px !important;
+  }
+  #use .use-grid article > div {
+    padding-bottom: 18px !important;
+  }
+  #assembly .steps article h3 {
+    overflow-wrap: anywhere;
+  }
+  #assembly .assembly-img > p {
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #use .use-grid article, #assembly .steps article { transition: none !important; }
+}
