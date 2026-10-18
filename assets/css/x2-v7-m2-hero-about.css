@@ -1,0 +1,64 @@
+/* X2 EDU V7 / M2 / 00 HERO + 01 ABOUT. Approved Japanese and imagery untouched. */
+.hero .hero-copy .actions .button:focus-visible,
+.hero .hero-copy .actions a:focus-visible {
+  outline: 3px solid #006fc7 !important;
+  outline-offset: 4px !important;
+}
+.hero .hero-visual picture {
+  backface-visibility: hidden;
+}
+#overview .overview-benefits {
+  counter-reset: x2-v7-benefit;
+}
+#overview .overview-benefits article {
+  counter-increment: x2-v7-benefit;
+  position: relative;
+  padding-right: 68px !important;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+#overview .overview-benefits article::after {
+  content: counter(x2-v7-benefit, decimal-leading-zero);
+  position: absolute;
+  right: 17px;
+  top: 17px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #0870c8;
+  background: #e0efff;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+#overview .overview-benefits article h3 {
+  overflow-wrap: anywhere;
+}
+@media (min-width: 1000px) {
+  .hero .hero-copy .hero-lead {
+    max-width: 520px;
+  }
+  #overview .overview-benefits article {
+    min-height: 99px !important;
+  }
+}
+@media (max-width: 640px) {
+  .hero .hero-copy h1 {
+    max-width: 100%;
+    text-wrap: balance;
+  }
+  .hero .hero-copy .actions .button {
+    min-height: 49px !important;
+  }
+  #overview .overview-benefits article {
+    padding-right: 61px !important;
+  }
+  #overview .overview-benefits article::after {
+    right: 13px;
+    top: 13px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #overview .overview-benefits article { transition: none !important; }
+}
