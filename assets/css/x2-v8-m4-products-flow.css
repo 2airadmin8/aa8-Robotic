@@ -73,3 +73,16 @@
  #check .cards.four{gap:10px!important}
  #contact .cta-actions a{min-height:66px!important}
 }
+
+/* V8 QA-003 / deterministic five-stage numbers and connecting arrows. */
+#development .dev-list { gap:27px!important; }
+#development .dev-list>p { counter-increment:x2-v8-dev!important; z-index:1!important; isolation:isolate; overflow:visible!important; }
+#development .dev-list>p::before { border-radius:50%!important; }
+#development .dev-list>p:nth-child(1)::before{content:"01"!important}
+#development .dev-list>p:nth-child(2)::before{content:"02"!important}
+#development .dev-list>p:nth-child(3)::before{content:"03"!important}
+#development .dev-list>p:nth-child(4)::before{content:"04"!important}
+#development .dev-list>p:nth-child(5)::before{content:"05"!important}
+#development .dev-list>p:not(:last-child)::after{content:"→"!important;display:block!important;z-index:10!important;top:calc(50% - 16px)!important;right:-24px!important}
+#development .dev-list>p:last-child::after{content:none!important;display:none!important}
+@media(max-width:1100px){#development .dev-list>p:not(:last-child)::after{display:none!important}}
