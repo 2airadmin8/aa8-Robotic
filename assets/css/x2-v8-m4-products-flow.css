@@ -1,0 +1,88 @@
+/* V8 M4 — product value panels and ROS2 flow. Draft visuals until Figma approves. */
+#features{background:linear-gradient(170deg,#fff,#eff7ff)!important;color:#0b3059!important}
+#features .heading h2,#features .heading p{color:#082e5b!important}
+#features .heading p.eyebrow{color:#fff!important;background:#0b3a72!important;}
+#features .features-five{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:15px!important;align-items:stretch;margin-top:32px!important;
+}
+#features .features-five article{
+  min-height:230px!important;position:relative;
+  display:flex!important;flex-direction:column;align-items:center;justify-content:flex-start;
+  text-align:center;padding:26px 17px 22px!important;
+  border:1px solid #cfdfef!important;border-radius:12px!important;
+  background:linear-gradient(180deg,#f4faff,#fff)!important;
+  box-shadow:0 10px 25px rgba(8,53,102,.065)!important;
+}
+#features .features-five article>span:first-child{
+  width:60px!important;height:60px!important;display:grid!important;place-items:center!important;
+  border-radius:50%!important;background:#e4effc!important;color:#0666bb!important;
+  font-size:19px!important;margin:0 0 16px!important;font-weight:900!important;
+}
+#features .features-five article h3{font-size:16px!important;line-height:1.5!important;margin:0 0 13px!important;min-height:48px}
+#features .features-five article p{font-size:12px!important;line-height:1.7!important;color:#506b84!important}
+#features .features-five article::after{
+  content:"";height:4px;bottom:0;left:20px;right:20px;position:absolute;background:#187dd3;border-radius:4px 4px 0 0;
+}
+#development .container.split{grid-template-columns:minmax(0,1fr)!important;gap:25px!important}
+#development .dev-img{max-width:900px!important;width:100%!important;max-height:390px!important;margin:0 auto!important;overflow:hidden!important;border-radius:12px!important}
+#development .dev-img img{width:100%!important;max-height:390px!important;object-fit:contain!important}
+#development .dev-list{
+  counter-reset:x2-v8-dev;
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:17px!important;align-items:stretch!important;position:relative
+}
+#development .dev-list article,#development .dev-list>div{
+  position:relative!important;min-width:0;min-height:145px!important;
+  border:1px solid #cbdff1!important;border-radius:11px!important;
+  box-shadow:0 9px 25px rgba(9,49,90,.045)!important;
+  background:#f5faff!important;
+}
+#development .dev-list>p::before{content:counter(x2-v8-dev,decimal-leading-zero);color:#0969bf;display:grid;place-items:center;min-width:31px;height:31px;border-radius:50%;background:#e0efff;margin:0 0 11px;font-size:12px;font-weight:800}
+#development .dev-list>p:last-child::after{content:none!important;display:none!important}
+#development .dev-list>p:not(:last-child)::after{
+  content:"→"!important;position:absolute;top:calc(50% - 19px);right:-22px;
+  color:#0a73c9;font-size:26px;font-weight:900;z-index:2
+}
+#development .dev-list strong{color:#073a6b!important;font-size:14px!important}
+#development .dev-list span{color:#546a80!important;font-size:12px!important;line-height:1.6!important}
+#development .dev-list svg{color:#0a6ec0!important}
+#specs .spec-table{box-shadow:0 10px 24px rgba(8,47,93,.08)!important}
+#specs .spec-table b{color:#063765!important}
+#specs .spec-table>small{line-height:1.85!important}
+#check .cards.four{gap:15px!important}
+#check .cards.four article{box-shadow:0 9px 23px rgba(8,50,97,.035)!important}
+#purchase-flow .purchase-flow article{background:linear-gradient(#fff,#f5faff)!important}
+#contact.final-cta{background:linear-gradient(95deg,#07182c 0%,#103b68 62%,#124c7d 100%)!important}
+#contact .cta-actions{gap:12px!important}
+#contact .cta-actions a{min-height:77px!important}
+@media(max-width:1100px){
+ #features .features-five{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #development .dev-list{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #development .dev-list>p::after{display:none!important}
+}
+@media(max-width:640px){
+ #features .features-five{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ #features .features-five article{padding:20px 10px!important;min-height:205px!important}
+ #features .features-five article h3{font-size:13px!important;min-height:0}
+ #features .features-five article p{font-size:11px!important}
+ #features .features-five article>span:first-child{width:48px!important;height:48px!important;font-size:16px!important}
+ #development .dev-list{grid-template-columns:minmax(0,1fr)!important;gap:11px!important}
+ #development .dev-list>p{min-height:90px!important}
+ #check .cards.four{gap:10px!important}
+ #contact .cta-actions a{min-height:66px!important}
+}
+
+/* V8 QA-003 / deterministic five-stage numbers and connecting arrows. */
+#development .dev-list { gap:27px!important; }
+#development .dev-list>p { counter-increment:x2-v8-dev!important; z-index:1!important; isolation:isolate; overflow:visible!important; }
+#development .dev-list>p::before { border-radius:50%!important; }
+#development .dev-list>p:nth-child(1)::before{content:"01"!important}
+#development .dev-list>p:nth-child(2)::before{content:"02"!important}
+#development .dev-list>p:nth-child(3)::before{content:"03"!important}
+#development .dev-list>p:nth-child(4)::before{content:"04"!important}
+#development .dev-list>p:nth-child(5)::before{content:"05"!important}
+#development .dev-list>p:not(:last-child)::after{content:"→"!important;display:block!important;z-index:10!important;top:calc(50% - 16px)!important;right:-24px!important}
+#development .dev-list>p:last-child::after{content:none!important;display:none!important}
+@media(max-width:1100px){#development .dev-list>p:not(:last-child)::after{display:none!important}}

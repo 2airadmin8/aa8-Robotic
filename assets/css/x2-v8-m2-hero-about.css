@@ -1,0 +1,129 @@
+/* V8 M2 — approved PC-led industrial HERO and ABOUT layout.
+   Decorative geometry only: robot img, copy and claims remain source-of-truth. */
+.hero {
+  position: relative!important;
+  min-height: 740px!important;
+  overflow: hidden!important;
+  isolation: isolate;
+  background: linear-gradient(90deg,#071c35 0%,#102d4d 44%,#e0edf7 44.1%,#c9ddeb 100%)!important;
+  grid-template-columns: minmax(540px,44%) minmax(0,56%)!important;
+}
+.hero::before {
+  inset:0!important; opacity:.75!important;
+  background-image:
+    linear-gradient(90deg, transparent 0 58%,rgba(255,255,255,.22) 58.15% 58.25%,transparent 58.4%),
+    repeating-linear-gradient(90deg, transparent 0 65px,rgba(46,103,141,.12) 66px 67px,transparent 68px 120px),
+    repeating-linear-gradient(0deg,transparent 0 69px,rgba(46,103,141,.12) 70px 71px,transparent 72px 124px)!important;
+  background-size:auto!important;
+  mask-image:linear-gradient(90deg,transparent 25%,#000 57%)!important;
+}
+.hero .hero-copy {
+  align-self: center!important;
+  padding: 32px 24px 32px max(42px,calc((100vw - 1280px)/2))!important;
+  width:100%!important;
+  max-width:none!important;
+  color:#ebf4ff!important;
+  z-index:3!important;
+}
+.hero .product-label {color:#b9e3ff!important;letter-spacing:.105em!important}
+.hero .product-label b {color:#fff!important}
+.hero .hero-copy h1 {color:#fff!important;font-size:clamp(64px,5.8vw,88px)!important;line-height:1!important;text-shadow:0 4px 24px rgba(0,0,0,.16)}
+.hero .hero-copy .hero-tagline {color:#fff!important;font-size:clamp(25px,2.9vw,37px)!important;line-height:1.25!important}
+.hero .hero-copy .hero-lead {color:#d6e8f5!important;font-size:15px!important;line-height:1.75!important;max-width:490px!important}
+.hero .hero-copy .note {color:#b9cee1!important;display:block;margin-top:18px!important}
+.hero .hero-copy .actions {display:flex!important;flex-wrap:wrap;gap:10px!important}
+.hero .hero-copy .button.primary {background:#0c72d3!important;border-color:#459bdc!important;box-shadow:0 12px 20px rgba(0,23,70,.25)!important}
+.hero .hero-copy .button.secondary {background:#fff!important;border:1px solid #b8d6ef!important;color:#0a396b!important}
+.hero .hero-visual {
+  height:710px!important;
+  max-height:710px!important;
+  align-self:center!important;
+  position:relative!important;
+  margin:0!important;
+  background:linear-gradient(145deg,#d4e6f3 0%,#bad3e6 100%)!important;
+  border-left:1px solid rgba(255,255,255,.35)!important;
+}
+.hero .hero-visual::before {
+  background:linear-gradient(90deg,rgba(7,25,47,.15),transparent 28%),repeating-linear-gradient(0deg,transparent 0 85px,rgba(40,105,148,.075) 85px 87px)!important;
+}
+.hero .hero-visual picture {height:100%!important;width:100%!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.hero .hero-visual picture img {
+  width:100%!important;
+  height:100%!important;
+  max-height:710px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  margin:0!important;
+  transform:none!important;
+  mix-blend-mode:multiply;
+  filter:contrast(1.11)!important;
+}
+.hero .hero-visual>span {opacity:.035!important;font-size:260px!important}
+.hero .x2-v8-hero-values {
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+  padding:0;margin:25px 0 0;list-style:none;max-width:465px!important;width:min(465px,100%)!important;
+}
+.hero .x2-v8-hero-values li {
+  min-height:75px;min-width:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  border:1px solid rgba(164,214,250,.46);border-radius:7px;
+  background:rgba(238,248,255,.11);
+  color:#fff!important;text-align:center;padding:9px 4px;
+  box-shadow:inset 0 1px rgba(255,255,255,.07);
+}
+.hero .x2-v8-hero-values .v8-icon {display:grid;place-items:center;width:27px;height:27px;color:#b9eaff}
+.hero .x2-v8-hero-values svg {width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hero .x2-v8-hero-values strong {font-size:13px!important;line-height:1.25;color:#fff!important;white-space:normal}
+#overview {
+  background:linear-gradient(170deg,#f8fbff 0%,#edf6fc 100%)!important;
+}
+#overview .container.overview-grid {gap:30px!important;grid-template-columns:minmax(0,46%) minmax(0,54%)!important}
+#overview .overview-grid>div:first-child>picture {
+  height:490px!important;
+  max-height:490px!important;
+  background:linear-gradient(145deg,#e9f4fc,#daeaf6)!important;
+  border:1px solid #c4dbee!important;border-radius:12px!important;
+  box-shadow:0 12px 27px rgba(17,57,101,.065)!important;
+}
+#overview .overview-grid>div:first-child>picture img {max-height:490px!important;height:100%!important;object-fit:contain!important;object-position:center!important}
+#overview .overview-benefits {grid-template-columns:1fr!important;gap:11px!important}
+#overview .overview-benefits article {
+  min-height:108px!important;padding:19px 75px 19px 21px!important;
+  border-left:5px solid #126db9!important;
+  background:linear-gradient(90deg,#f1f7fe,#e7f1fa)!important;
+  box-shadow:0 4px 12px rgba(7,48,91,.045)!important;
+}
+#overview .overview-benefits article::after {
+  top:calc(50% - 19px)!important;right:22px!important;
+  width:38px!important;height:38px!important;font-size:13px!important;
+}
+#overview .overview-benefits article h3 {font-size:17px!important;line-height:1.5!important}
+@media(max-width:1000px){
+ .hero {grid-template-columns:minmax(0,1fr)!important;min-height:0!important;background:linear-gradient(160deg,#071c35 0%,#123454 58%,#d2e3f0 58.2%,#d3e5f2 100%)!important}
+ .hero .hero-copy {padding:48px 24px 27px!important;max-width:none}
+ .hero .hero-visual {height:500px!important;max-height:500px!important;margin:0 16px 25px!important;border:1px solid rgba(230,244,255,.46)!important;border-radius:12px!important}
+ .hero .hero-visual img {max-height:500px!important}
+ .hero .x2-v8-hero-values {max-width:650px}
+ #overview .container.overview-grid {grid-template-columns:1fr!important;gap:22px!important}
+}
+@media(max-width:640px){
+ .hero {background:linear-gradient(160deg,#0a2342 0%,#12375b 58%,#d7e7f3 58.1%,#d7e7f3 100%)!important}
+ .hero .hero-copy {padding:42px 20px 16px!important}
+ .hero .hero-copy h1 {font-size:48px!important;line-height:1.05!important}
+ .hero .hero-copy .hero-tagline {font-size:26px!important}
+ .hero .hero-copy .hero-lead {font-size:13px!important}
+ .hero .hero-copy .note {margin-top:12px!important;font-size:10px!important}
+ .hero .x2-v8-hero-values {grid-template-columns:repeat(4,minmax(0,1fr));margin:16px 0 0!important;gap:5px;max-width:none!important;width:100%!important}
+ .hero .x2-v8-hero-values li {min-height:71px;padding:6px 2px}
+ .hero .x2-v8-hero-values strong {font-size:11px!important}
+ .hero .x2-v8-hero-values .v8-icon {width:23px;height:23px}
+ .hero .x2-v8-hero-values svg {width:18px;height:18px}
+ .hero .hero-visual {height:390px!important;max-height:390px!important;margin:14px 16px 25px!important}
+ .hero .hero-visual img {max-height:390px!important}
+ #overview .overview-grid>div:first-child>picture {height:420px!important;max-height:420px!important}
+ #overview .overview-grid>div:first-child>picture img {max-height:420px!important}
+ #overview .overview-benefits article {padding:15px 63px 15px 16px!important;min-height:99px!important}
+ #overview .overview-benefits article::after {right:14px!important;width:33px!important;height:33px!important;top:calc(50% - 16px)!important}
+ #overview .overview-benefits article h3 {font-size:15px!important}
+}
+@media(prefers-reduced-motion:reduce){.hero *,#overview *{animation:none!important;transition:none!important}}

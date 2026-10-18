@@ -1,0 +1,80 @@
+/* V8 M3 — 02 education challenge/value map and learning journey.
+   02 additions are draft-only until Figma/Japanese approval. No vendor images created. */
+#issues {background:linear-gradient(180deg,#f5faff,#ecf4fc)!important}
+#issues .x2-v8-map{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);
+  align-items:start;gap:14px;margin-top:26px;
+}
+#issues .x2-v8-map .x2-v8-map-col{min-width:0;display:grid;grid-template-rows:auto 1fr}
+#issues .x2-v8-map .x2-v8-map-head{font-size:16px!important;line-height:1.5!important;font-weight:800!important;color:#073767!important;margin:0 0 13px!important}
+#issues .x2-v8-map .cards.four{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+#issues .x2-v8-map .cards.four article{
+  min-height:108px!important;position:relative;padding:15px 17px 15px 64px!important;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  border:1px solid #d5e3f0!important;border-radius:9px!important;background:#fff!important;
+  box-shadow:0 5px 16px rgba(15,58,103,.038);
+}
+#issues .x2-v8-map .cards.four article small{
+  position:absolute;top:calc(50% - 18px);left:16px;
+  display:grid;place-items:center;height:36px!important;width:36px!important;
+  border-radius:50%!important;background:#e3effa!important;color:#0b62b2!important;
+  font-size:12px!important;font-weight:800!important;
+}
+#issues .x2-v8-map .cards.four article h3{font-size:15px!important;line-height:1.4!important;color:#092f59!important;margin:0 0 6px!important}
+#issues .x2-v8-map .cards.four article p{font-size:12px!important;line-height:1.55!important;margin:0!important;color:#5a728b!important}
+#issues .x2-v8-map-arrow{min-height:506px;display:flex;align-items:center;justify-content:center;color:#0e80d9}
+#issues .x2-v8-map-arrow span{font-size:46px;font-weight:800}
+#issues .x2-v8-map .x2-v8-value-items{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+#issues .x2-v8-map .x2-v8-value-items li{
+  position:relative;display:flex;align-items:center;min-height:108px;padding:18px 17px 18px 62px;
+  background:#deedfc;border:1px solid #c6ddf3;border-radius:9px;
+  font-size:15px!important;line-height:1.55!important;color:#07345e!important;font-weight:800!important;
+}
+#issues .x2-v8-map .x2-v8-value-items li::before{
+  content:"✓";position:absolute;left:15px;top:calc(50% - 18px);
+  display:grid;place-items:center;height:36px;width:36px;border-radius:50%;
+  background:#096fc7;color:#fff;font-size:21px;line-height:1;
+}
+#issues .solution{margin-top:20px!important;border-radius:10px!important;box-shadow:0 6px 20px rgba(8,50,99,.08)!important}
+#use .use-grid{gap:13px!important}
+#use .use-grid article{display:flex!important;flex-direction:column;min-width:0}
+#use .use-grid article picture{height:228px!important;position:relative;overflow:hidden;border-radius:8px 8px 0 0}
+#use .use-grid article picture img{height:100%!important;object-fit:cover!important;object-position:center!important}
+#use .use-grid article>div{flex:1;padding:17px 18px 20px!important;background:#fff}
+#use .use-grid article>div small{display:inline-block;color:#086abf!important;letter-spacing:.1em;font-weight:800}
+#use .use-grid article>div h3{font-size:17px!important;line-height:1.45!important}
+#assembly .split{grid-template-columns:minmax(0,1fr)!important;gap:28px!important}
+#assembly .steps{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:11px!important}
+#assembly .steps article{
+  padding:18px!important;min-height:170px!important;position:relative;
+  border:1px solid #d4e3f1!important;border-radius:10px!important;
+  background:linear-gradient(170deg,#eff6fd,#e9f2fb)!important;
+  box-shadow:0 4px 17px rgba(9,55,103,.045);
+}
+#assembly .steps article:not(:last-child)::before{
+  content:"→";position:absolute;top:calc(50% - 18px);right:-20px;color:#0769ba;font-size:25px;font-weight:800;z-index:2;
+}
+#assembly .steps article h3{font-size:16px!important;color:#063666!important;line-height:1.5!important}
+#assembly .steps article p{font-size:12px!important;line-height:1.65!important}
+#assembly .assembly-img{width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;max-width:890px;margin:0 auto;background:#f4f8fc!important}
+#assembly .assembly-img>picture{display:block;height:310px;overflow:hidden}
+#assembly .assembly-img picture img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important}
+@media(max-width:1050px){
+ #issues .x2-v8-map{grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);gap:10px}
+ #issues .x2-v8-map-arrow span{font-size:29px}
+ #assembly .steps{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #assembly .steps article:not(:last-child)::before{display:none}
+}
+@media(max-width:640px){
+ #issues .x2-v8-map{grid-template-columns:minmax(0,1fr);gap:7px}
+ #issues .x2-v8-map-arrow{min-height:38px!important;transform:rotate(90deg)}
+ #issues .x2-v8-map-arrow span{font-size:33px}
+ #issues .x2-v8-map .cards.four article{min-height:95px!important}
+ #issues .x2-v8-map .x2-v8-value-items li{min-height:78px;font-size:13px!important}
+ #use .use-grid article picture{height:205px!important}
+ #assembly .steps{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ #assembly .steps article{min-height:155px!important;padding:13px!important}
+ #assembly .steps article h3{font-size:13px!important}
+ #assembly .assembly-img>picture{height:295px}
+}
