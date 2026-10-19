@@ -34,6 +34,11 @@ jobs:
           if (u.protocol !== 'https:' || u.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(u.pathname)) {
             throw new Error('Invalid isolated Apps Script endpoint URL');
           }
+          const fs = require('fs');
+          const source = fs.readFileSync('assets/js/contact-v2.js', 'utf8');
+          const productionId = source.match(/AKfycb[a-zA-Z0-9_-]+/);
+          if (!productionId) throw Error('Production endpoint not found');
+          if (u.href.includes(productionId[0])) throw Error('Production endpoint prohibited');
           const email = process.env.E2E_INTERNAL_EMAIL.toLowerCase();
           if (!email.endsWith('@air-admin8.co.jp') && !email.endsWith('@robotics.air-admin8.co.jp')) {
             throw new Error('Only internal test recipient addresses are permitted');
