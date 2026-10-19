@@ -131,6 +131,8 @@
       // Preserve draft and submission token: retries are idempotent.
     };
     const onResponse = (event) => {
+      // Only accept a response from the iframe created for this submission.
+      if (event.source !== iframe.contentWindow) return;
       if (event.origin !== 'https://script.google.com' &&
           !/^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/i.test(event.origin) &&
           event.origin !== 'https://script.googleusercontent.com') return;
