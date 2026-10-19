@@ -44,6 +44,9 @@
     'keio-selection': '慶應義塾大学向け選定・見積支援事例',
   };
 
+  // Legacy versions retained a token even after a completed submission.
+  // An absent draft means there is no pending submission to retry.
+  if (!localStorage.getItem(draftKey)) sessionStorage.removeItem(submissionKey);
   restoreDraft();
   applyPrefill();
   installDraftControls();
@@ -70,44 +73,30 @@
     if (outside) dialog.close();
   });
 
+  let inquiryInFlight = false;
+
   function submitInquiry() {
+    if (inquiryInFlight) return;
     const sendButton = dialog.querySelector('[data-confirm-send]');
     if (!validateForm()) {
       dialog.close();
       return;
     }
 
+    const submissionToken = getOrCreateSubmissionToken();
+    const responseToken = createToken('response');
+    const payload = { ...buildPayload(submissionToken), response_token: responseToken };
+    inquiryInFlight = true;
     setSendingState(sendButton, true);
 
-    const submissionToken = getOrCreateSubmissionToken();
-    const payload = buildPayload(submissionToken);
-    const body = new URLSearchParams();
-    Object.entries(payload).forEach(([key, value]) => body.set(key, String(value ?? '')));
-
-    let queued = false;
-    if (navigator.sendBeacon) {
-      queued = navigator.sendBeacon(INQUIRY_WEB_APP_URL, body);
-    }
-
-    if (!queued) {
-      submitWithHiddenForm(payload);
-    }
-
-    localStorage.removeItem(draftKey);
-    const destination = new URL('/contact-thanks.html', window.location.origin);
-    destination.searchParams.set('status', 'success');
-    window.location.assign(destination.toString());
-  }
-
-  function submitWithHiddenForm(payload) {
-    const frameName = `aa8-inquiry-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    // Google Apps Script returns an HTML postMessage acknowledgement. Do not
+    // use sendBeacon: queued is not equivalent to persisted.
+    const frameName = `aa8-inquiry-${Date.now()}`;
     const iframe = document.createElement('iframe');
     const postForm = document.createElement('form');
-
     iframe.name = frameName;
     iframe.hidden = true;
     iframe.setAttribute('aria-hidden', 'true');
-
     postForm.method = 'POST';
     postForm.action = INQUIRY_WEB_APP_URL;
     postForm.target = frameName;
@@ -122,9 +111,54 @@
       postForm.appendChild(input);
     });
 
+    let completed = false;
+    const cleanup = () => {
+      window.removeEventListener('message', onResponse);
+      clearTimeout(timeout);
+      postForm.remove();
+      iframe.remove();
+      inquiryInFlight = false;
+      setSendingState(sendButton, false);
+    };
+    const fail = (message) => {
+      if (completed) return;
+      completed = true;
+      cleanup();
+      if (errorBox) {
+        errorBox.hidden = false;
+        errorBox.textContent = message;
+      }
+      // Preserve draft and submission token: retries are idempotent.
+    };
+    const onResponse = (event) => {
+      if (event.origin !== 'https://script.googleusercontent.com' &&
+          event.origin !== 'https://script.google.com') return;
+      const data = event.data;
+      if (!data || data.type !== 'aa8-inquiry-response' ||
+          data.responseToken !== responseToken) return;
+      if (!data.ok || !data.inquiryId) {
+        fail('送信を確認できませんでした。入力内容を保持しています。時間をおいて再試行してください。');
+        return;
+      }
+      if (completed) return;
+      completed = true;
+      cleanup();
+      sessionStorage.removeItem(submissionKey);
+      localStorage.removeItem(draftKey);
+      const destination = new URL('/contact-thanks.html', window.location.origin);
+      destination.searchParams.set('status', 'success');
+      destination.searchParams.set('inquiry_id', data.inquiryId);
+      window.location.assign(destination.toString());
+    };
+    const timeout = setTimeout(() => fail('送信結果を確認できませんでした。再送しても同じ受付IDで処理されます。'), 20000);
+    window.addEventListener('message', onResponse);
     document.body.appendChild(iframe);
     document.body.appendChild(postForm);
-    postForm.submit();
+    try {
+      postForm.submit();
+    } catch (error) {
+      fail('送信できませんでした。入力内容を保持しています。再試行してください。');
+    }
   }
 
   function getOrCreateSubmissionToken() {
