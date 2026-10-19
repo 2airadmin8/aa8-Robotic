@@ -131,8 +131,9 @@
       // Preserve draft and submission token: retries are idempotent.
     };
     const onResponse = (event) => {
-      if (event.origin !== 'https://script.googleusercontent.com' &&
-          event.origin !== 'https://script.google.com') return;
+      if (event.origin !== 'https://script.google.com' &&
+          !/^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/i.test(event.origin) &&
+          event.origin !== 'https://script.googleusercontent.com') return;
       const data = event.data;
       if (!data || data.type !== 'aa8-inquiry-response' ||
           data.responseToken !== responseToken) return;
