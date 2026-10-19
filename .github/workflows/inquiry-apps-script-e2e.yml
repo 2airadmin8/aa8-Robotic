@@ -1,0 +1,59 @@
+name: Inquiry Apps Script E2E (isolated)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: inquiry-e2e-isolated
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: inquiry-e2e
+    env:
+      E2E_APPS_SCRIPT_URL: ${{ secrets.E2E_APPS_SCRIPT_URL }}
+      E2E_INTERNAL_EMAIL: ${{ secrets.E2E_INTERNAL_EMAIL }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Require isolated endpoint and internal inbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$E2E_APPS_SCRIPT_URL" || { echo "::error::Missing E2E_APPS_SCRIPT_URL (separate test deployment required)"; exit 1; }
+          test -n "$E2E_INTERNAL_EMAIL" || { echo "::error::Missing E2E_INTERNAL_EMAIL"; exit 1; }
+          node - <<'NODE'
+          const u = new URL(process.env.E2E_APPS_SCRIPT_URL);
+          if (u.protocol !== 'https:' || u.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(u.pathname)) {
+            throw new Error('Invalid isolated Apps Script endpoint URL');
+          }
+          const email = process.env.E2E_INTERNAL_EMAIL.toLowerCase();
+          if (!email.endsWith('@air-admin8.co.jp') && !email.endsWith('@robotics.air-admin8.co.jp')) {
+            throw new Error('Only internal test recipient addresses are permitted');
+          }
+          NODE
+      - name: Install browser
+        run: |
+          npm install --no-save @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Run isolated live Apps Script submissions
+        run: npx playwright test tests/contact-apps-script-e2e.spec.js --reporter=line --workers=1
+      - name: Record test scope
+        if: always()
+        run: |
+          {
+            echo "## Isolated Apps Script E2E"
+            echo "- Only manual workflow_dispatch; never runs on PR, schedule, or production deploy."
+            echo "- Real Apps Script POSTs target E2E_APPS_SCRIPT_URL, not the production deployment."
+            echo "- Customer emails are prohibited; E2E_INTERNAL_EMAIL must be an internal domain."
+            echo "- Checks: two unique inquiry IDs, browser confirmation/redirect, same-tab token rotation."
+            echo "- NOT checked here: Google Sheets independent reconciliation, sales@ inbox, Slack delivery, customer acknowledgement inbox."
+            echo "- The separate test Apps Script deployment MUST use an isolated spreadsheet and suppress external mail/Slack."
+          } >> "$GITHUB_STEP_SUMMARY"
