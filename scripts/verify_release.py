@@ -41,7 +41,7 @@ REQUIRED_FILES = [
     "CNAME",
 ]
 
-ALLOWED_WORKFLOWS = {"ci.yml", "pages.yml", "production-check.yml"}
+ALLOWED_WORKFLOWS = {"ci.yml", "pages.yml", "production-check.yml", "inquiry-apps-script-e2e.yml"}
 LEGACY_REDIRECT_ROOTS = {"aa8-Robotic"}
 FORBIDDEN_SOURCE_PATHS = {
     ".github/workflows/auto-merge.yml",
