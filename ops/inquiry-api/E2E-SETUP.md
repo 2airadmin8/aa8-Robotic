@@ -22,3 +22,11 @@ Two distinct server-acknowledged IDs and thanks-page transitions; independent re
 
 ## No production changes
 Do not alter production Script Properties, PROD Web App, WADAX, DNS, customers, or production Spreadsheet.
+
+## Company-wide architecture alignment (営業OS SSOT v1.5)
+- `Inquiry_Master` and `Inquiry_DEV` are inbound **inquiry event logs**, not customer/person Masters. Do not assign or overwrite canonical customer IDs in this E2E project.
+- Corporate Person Master remains `大学AIロボット営業_顧客Master_APP完成版`. Production outbound mail runtime remains `本番_大学営業メール自動化_自動調査シンプル版_v4.0`.
+- Future inbound CRM routing, if separately approved, must use `00_新規受付 → identity/dedup review → canonical customer ID → permission checks → 配信可否`. Do not directly inject web inquiries into the production mailing core.
+- No new Writer, Trigger, customer Master, mail queue, or campaign is permitted in PR #127.
+- Production Apps Script source, active deployment, triggers and mail recipients remain unverified. Do not modify them. Separate DEV Web App URL must be mapped and proven before live POST.
+- Do not treat `NOTIFIED` in the inquiry log as verified recipient delivery. Independent Gmail and Slack receipt checks are separate gates.
