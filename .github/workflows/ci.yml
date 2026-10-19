@@ -108,7 +108,7 @@ jobs:
             sleep 0.5
           done
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
-          npx playwright test tests/header-navigation.spec.js --reporter=line
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js --reporter=line
 
       - name: Ensure build does not modify tracked source
         id: source_clean
@@ -136,7 +136,7 @@ jobs:
             echo "| 用語集データ・詳細ページ | $(status_icon '${{ steps.glossary.outcome }}') |"
             echo "| Header / Footer共通化 | $(status_icon '${{ steps.display.outcome }}') |"
             echo "| PC / SP Logo | $(status_icon '${{ steps.display.outcome }}') |"
-            echo "| PC/SP実ブラウザメニュー | $(status_icon '${{ steps.browser.outcome }}') |"
+            echo "| PC/SPメニュー・問い合わせ自動QA | $(status_icon '${{ steps.browser.outcome }}') |"
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| BuildによるSource汚染なし | $(status_icon '${{ steps.source_clean.outcome }}') |"
