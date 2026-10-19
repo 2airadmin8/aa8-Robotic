@@ -24,9 +24,19 @@ test('isolated Apps Script: two distinct submissions, two acknowledged IDs', asy
   // Prevent accidental POST to the production Apps Script deployment.
   await page.route('https://script.google.com/macros/s/**/exec', async route => {
     if (route.request().url() !== STAGING) {
+      await route.abort('blockedbyclient');
       throw new Error('Blocked request to non-test Apps Script deployment');
     }
     await route.continue();
+  });
+
+  await page.addInitScript(() => {
+    const original = history.replaceState.bind(history);
+    history.replaceState = (...args) => {
+      const id = new URLSearchParams(location.search).get('inquiry_id');
+      if (id) window.__e2eInquiryId = id;
+      return original(...args);
+    };
   });
 
   const ids = [];
@@ -43,7 +53,7 @@ test('isolated Apps Script: two distinct submissions, two acknowledged IDs', asy
     await expect(page.locator('[data-contact-confirm]')).toHaveJSProperty('open', true);
     await page.locator('[data-confirm-send]').click();
     await expect(page).toHaveURL(/contact-thanks\.html/, { timeout: 30000 });
-    const id = new URL(page.url()).searchParams.get('inquiry_id');
+    const id = await page.evaluate(() => window.__e2eInquiryId || new URLSearchParams(location.search).get('inquiry_id'));
     expect(id).toMatch(/^INQ-/);
     ids.push(id);
   }
