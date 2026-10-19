@@ -1,0 +1,85 @@
+const { test, expect } = require('@playwright/test');
+
+const BASE = 'http://127.0.0.1:4173';
+const API = '**/macros/s/**/exec';
+
+async function fillForm(page, suffix = 'A') {
+  await page.goto(BASE + '/contact.html');
+  await page.locator('[name="category"]').selectOption('導入条件整理');
+  await page.locator('[name="use_case"]').fill('Automated QA ' + suffix);
+  await page.locator('[name="organization"]').fill('AirAdmin8 QA (internal)');
+  await page.locator('[name="name"]').fill('Internal QA');
+  await page.locator('[name="email"]').fill('qa@example.com');
+  await page.locator('[name="privacy"]').check();
+  await page.locator('[data-contact-form] button[type="submit"]').click();
+  await expect(page.locator('[data-contact-confirm]')).toHaveJSProperty('open', true);
+}
+async function submit(page) {
+  await page.locator('[data-confirm-send]').click();
+}
+function reply(token, id, ok = true) {
+  return `<!doctype html><script>window.top.postMessage(${JSON.stringify({
+    type: 'aa8-inquiry-response', ok, inquiryId: id, responseToken: token,
+  })}, ${JSON.stringify(BASE)})</script>`;
+}
+test('SP and PC: form renders, privacy links to corporate policy', async ({ page }) => {
+  for (const width of [375, 390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(BASE + '/contact.html');
+    await expect(page.locator('[data-contact-form]')).toBeVisible();
+    await expect(page.locator('.privacy-consent a')).toHaveAttribute('href', 'https://www.air-admin8.co.jp/privacy-policy/');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 2)).toBeTruthy();
+  }
+});
+test('two distinct inquiries in same tab produce different tokens', async ({ page }) => {
+  const tokens = [];
+  await page.route(API, async route => {
+    const data = new URLSearchParams(route.request().postData() || '');
+    tokens.push(data.get('submission_token'));
+    await route.fulfill({ status: 200, contentType: 'text/html',
+      body: reply(data.get('response_token'), 'INQ-QA-' + tokens.length) });
+  });
+  await fillForm(page, 'first');
+  await submit(page);
+  await expect(page).toHaveURL(/contact-thanks\.html/);
+  await fillForm(page, 'second');
+  await submit(page);
+  await expect(page).toHaveURL(/contact-thanks\.html/);
+  expect(tokens).toHaveLength(2);
+  expect(tokens[0]).toBeTruthy();
+  expect(tokens[1]).not.toBe(tokens[0]);
+});
+test('failed request retains draft and token; retry uses same token', async ({ page }) => {
+  const tokens = [];
+  await page.route(API, async route => {
+    const data = new URLSearchParams(route.request().postData() || '');
+    tokens.push(data.get('submission_token'));
+    await route.fulfill({ status: 200, contentType: 'text/html',
+      body: reply(data.get('response_token'), tokens.length === 1 ? '' : 'INQ-QA-RETRY', tokens.length > 1) });
+  });
+  await fillForm(page);
+  await submit(page);
+  await expect(page.locator('[data-confirm-send]')).toBeEnabled();
+  await expect(page.locator('[data-form-error]')).toBeVisible();
+  expect(page.url()).toContain('contact.html');
+  await submit(page);
+  await expect(page).toHaveURL(/contact-thanks\.html/);
+  expect(tokens).toHaveLength(2);
+  expect(tokens[0]).toBe(tokens[1]);
+});
+test('repeated click during sending produces one request', async ({ page }) => {
+  let calls = 0;
+  await page.route(API, async route => {
+    calls++;
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const data = new URLSearchParams(route.request().postData() || '');
+    await route.fulfill({ status: 200, contentType: 'text/html',
+      body: reply(data.get('response_token'), 'INQ-QA-ONE') });
+  });
+  await fillForm(page);
+  await submit(page);
+  await expect(page.locator('[data-confirm-send]')).toBeDisabled();
+  await page.locator('[data-confirm-send]').evaluate(button => button.click());
+  await expect(page).toHaveURL(/contact-thanks\.html/);
+  expect(calls).toBe(1);
+});
