@@ -1,4 +1,4 @@
-name: Inquiry Apps Script E2E (isolated)
+name: Inquiry Apps Script E2E (existing DEV)
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: inquiry-e2e-isolated
+  group: inquiry-e2e-existing-dev
   cancel-in-progress: false
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$E2E_APPS_SCRIPT_URL" || { echo "::error::Missing E2E_APPS_SCRIPT_URL (separate test deployment required)"; exit 1; }
+          test -n "$E2E_APPS_SCRIPT_URL" || { echo "::error::Missing verified existing DEV Apps Script deployment URL"; exit 1; }
           test -n "$E2E_INTERNAL_EMAIL" || { echo "::error::Missing E2E_INTERNAL_EMAIL"; exit 1; }
           node - <<'NODE'
           const u = new URL(process.env.E2E_APPS_SCRIPT_URL);
@@ -54,11 +54,11 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Isolated Apps Script E2E"
+            echo "## Existing DEV Apps Script E2E"
             echo "- Only manual workflow_dispatch; never runs on PR, schedule, or production deploy."
             echo "- Real Apps Script POSTs target E2E_APPS_SCRIPT_URL, not the production deployment."
             echo "- Customer emails are prohibited; E2E_INTERNAL_EMAIL must be an internal domain."
             echo "- Checks: two unique inquiry IDs, browser confirmation/redirect, same-tab token rotation."
             echo "- NOT checked here: Google Sheets independent reconciliation, sales@ inbox, Slack delivery, customer acknowledgement inbox."
-            echo "- The separate test Apps Script deployment MUST use an isolated spreadsheet and suppress external mail/Slack."
+            echo "- Existing DEV deployment must be verified to use Inquiry_DEV and internal-only mail recipients before triggering."
           } >> "$GITHUB_STEP_SUMMARY"
