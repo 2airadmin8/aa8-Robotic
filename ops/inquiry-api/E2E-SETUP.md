@@ -1,17 +1,24 @@
-# Inquiry E2E test environment (isolated)
+# Robotics inquiry E2E — existing DEV only
 
-This is a manual-only workflow. It MUST NOT target the production Apps Script deployment or production Inquiry Master.
+## Verified
+- GitHub SSOT: 2airadmin8/aa8-Robotic, PR #127.
+- PROD Spreadsheet: 1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI.
+- Existing DEV Spreadsheet: 1PzfHiB50jFDHCosMGTb7MUvbQ9nC3UD5pHjgHbpY9Qk (27 columns, historical test entries).
+- Existing DEV Apps Script project ID / deployment URL / actual code / mail recipients: **NOT VERIFIED**.
 
-## One-time setup
-1. Make a separate Google Spreadsheet with a test-only `01_Inquiry` sheet, copying the 27 header names from the production schema, not customer records.
-2. Use the dedicated `ops/inquiry-api/e2e-test/Code.gs` in a **separate** Apps Script project (do not copy production Code.gs). Its test spreadsheet ID is fixed. Set Apps Script Script Property `E2E_INTERNAL_EMAIL` to the same internal mailbox used by the GitHub E2E environment. It rejects other recipients and non-E2E form data. Never paste this into the production Apps Script project.
-3. Deploy the test script as a Web App accessible to the CI test runner; restrict the deployment's business logic to internal test recipient addresses. Verify that its ID is different from the production Web App ID.
-4. In GitHub, create Environment `inquiry-e2e` with approval protection and add secrets `E2E_APPS_SCRIPT_URL` (test Web App URL) and `E2E_INTERNAL_EMAIL` (internal mailbox).
-5. Manually run **Inquiry Apps Script E2E (isolated)**. It uses the public form UI but intercepts the JS file to replace its Apps Script endpoint **only inside the test browser**.
+## Do not create a third environment
+The additional blank E2E Spreadsheet created during investigation is not an SSOT and is not connected to this workflow. Do not write test data to it or delete it without approval.
 
-## Gates
-- The workflow refuses a missing URL, non-Google Web App URL, production Web App ID, or non-internal email.
-- Real Google Apps Script E2E must return two distinct inquiry IDs and redirect correctly.
-- It does **not** independently verify test spreadsheet rows, inbox receipt, or Slack. Those require separate read-only reconciliation and must not be reported PASS until implemented.
-- Do not merge to main or schedule this workflow until the separate test deployment and protection settings are confirmed.
-- No customer data, real customer mail, or production Spreadsheet writes are permitted.
+## Mandatory preflight before any live POST
+1. Read-only confirm the existing DEV Apps Script project ID and deployment URL.
+2. Read-only verify DEV deployment's effective spreadsheet ID is the existing DEV sheet above; do not infer from filenames.
+3. Verify DEV mail recipients and customer acknowledgement can only reach an approved internal inbox. If this cannot be demonstrated, STOP: do not run live E2E.
+4. GitHub environment `inquiry-e2e`: set `E2E_APPS_SCRIPT_URL` to verified DEV URL, `E2E_INTERNAL_EMAIL` to an internal address, require environment approval.
+5. Verify URL is different from production Apps Script URL; workflow rejects production deployment ID.
+6. Run manually via workflow_dispatch. Never schedule live submissions before isolation proof.
+
+## Acceptance
+Two distinct server-acknowledged IDs and thanks-page transitions; independent read-only check of two DEV sheet rows; duplicate token behavior; internal inbox actual receipt. Mail and Slack checks not yet automated and MUST NOT be marked PASS without evidence.
+
+## No production changes
+Do not alter production Script Properties, PROD Web App, WADAX, DNS, customers, or production Spreadsheet.
