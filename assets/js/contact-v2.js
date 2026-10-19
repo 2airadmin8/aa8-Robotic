@@ -44,6 +44,9 @@
     'keio-selection': '慶應義塾大学向け選定・見積支援事例',
   };
 
+  // Legacy versions retained a token even after a completed submission.
+  // An absent draft means there is no pending submission to retry.
+  if (!localStorage.getItem(draftKey)) sessionStorage.removeItem(submissionKey);
   restoreDraft();
   applyPrefill();
   installDraftControls();
@@ -128,7 +131,7 @@
       // Preserve draft and submission token: retries are idempotent.
     };
     const onResponse = (event) => {
-      if (!event.origin.startsWith('https://script.googleusercontent.com') &&
+      if (event.origin !== 'https://script.googleusercontent.com' &&
           event.origin !== 'https://script.google.com') return;
       const data = event.data;
       if (!data || data.type !== 'aa8-inquiry-response' ||
