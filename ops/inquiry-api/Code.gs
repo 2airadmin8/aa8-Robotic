@@ -40,14 +40,28 @@ function doPost(e) {
     }
 
     if (!isDuplicate) {
+      // The customer acknowledgement must not depend on internal routing.
+      // Record partial failures as FAILED for operator review. Do not retry
+      // automatically: the other message may already have been accepted.
+      let internalSent = false;
+      let customerSent = false;
       try {
         sendInquiryNotification_(inquiryId, p);
-        sendCustomerAcknowledgement_(inquiryId, p);
-        markNotificationStatus_(inquiryId, 'NOTIFIED', new Date());
+        internalSent = true;
       } catch (mailError) {
-        console.error('Notification failed: ' + (mailError && mailError.stack ? mailError.stack : mailError));
-        markNotificationStatus_(inquiryId, 'FAILED', '');
+        console.error('Internal notification failed for ' + inquiryId + ': ' + mailError);
       }
+      try {
+        sendCustomerAcknowledgement_(inquiryId, p);
+        customerSent = true;
+      } catch (mailError) {
+        console.error('Customer acknowledgement failed for ' + inquiryId + ': ' + mailError);
+      }
+      markNotificationStatus_(
+        inquiryId,
+        internalSent && customerSent ? 'NOTIFIED' : 'FAILED',
+        internalSent && customerSent ? new Date() : ''
+      );
     }
 
     return responseHtml_({
