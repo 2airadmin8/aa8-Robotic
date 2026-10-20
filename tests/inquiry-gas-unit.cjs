@@ -20,7 +20,7 @@ for (const [failInternal,failCustomer,expected] of cases) {
   vm.createContext(context);vm.runInContext(src,context);
   const p={category:'製品比較・選定',organization:'AA8 QA',name:'QA',email:'qa@example.com',use_case:'test',submission_token:'tok1',response_token:'resp1'};
   const first=context.doPost({parameter:p});
-  assert.match(first,/'ok":true/);
+  assert.match(first,/"ok":true/);
   assert.equal(row[0][24],expected);
   assert.deepEqual(calls,['airobot@robotics.air-admin8.co.jp','qa@example.com']);
   context.doPost({parameter:p});
