@@ -1,8 +1,6 @@
 name: Deploy verified site to GitHub Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -29,6 +27,16 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      # Release policy: production deployments may only run by explicit dispatch.
+      # If the push trigger is accidentally restored, the self-gate below must fail
+      # before an artifact is published.
+      - name: Verify manual-only production release gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p test_release_trigger.py -v
+          python scripts/verify_release_trigger.py --runtime-event
 
       - name: Build release artifact
         shell: bash
