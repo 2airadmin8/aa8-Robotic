@@ -28,6 +28,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Regression gate for manual-only production release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_release_trigger.py' -v
+          python scripts/verify_release_trigger.py
+
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
