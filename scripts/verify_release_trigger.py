@@ -59,7 +59,7 @@ def main() -> int:
     try:
         verify_manual_release(
             WORKFLOW.read_text(encoding="utf-8"),
-            os.environ.get("GITHUB_EVENT_NAME", ""),
+            os.environ.get("GITHUB_EVENT_NAME", "") if "--runtime-event" in sys.argv else "",
         )
     except (OSError, ReleaseGateError) as exc:
         print(f"RELEASE GATE FAIL: {exc}", file=sys.stderr)
