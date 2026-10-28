@@ -185,6 +185,14 @@ def main() -> int:
         text = path.read_text(encoding="utf-8")
         # A page-specific regression gate: the X2 EDU page must not reload
         # the obsolete GitHub Pages /aa8-Robotic/ SEO runtime.
+        if relative.as_posix() == "products/unitree-g1.html":
+            if "assets/js/seo.js" in text:
+                errors.append("G1 still loads the legacy seo.js runtime")
+            if "assets/js/analytics-events.js" not in text:
+                errors.append("G1 direct analytics-events.js script missing")
+            for marker in ('id="g1-title"', 'id="specifications"', 'id="architecture"', 'id="contact-g1"'):
+                if marker not in text:
+                    errors.append(f"G1 required section missing: {marker}")
         if relative.as_posix() == "products/agibot-x2-edu.html":
             if "assets/js/seo.js" in text:
                 errors.append("X2 EDU still loads the legacy seo.js runtime")
