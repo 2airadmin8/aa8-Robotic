@@ -347,3 +347,56 @@ test('Figma PC related lineup button visual contract',async ({page})=>{
   expect(s.color).toBe('rgb(255, 255, 255)');
   expect(s.display).toBe('flex');
 });
+
+
+// Figma NEXT STEP proposal A approved scrim regression:
+// PC 256:2 / SP 256:44, same manufacturer image and card positions.
+for(const width of [1440,390]){
+  test('Figma NEXT STEP proposal A approved scrim regression / '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const node=page.locator('main.g1-page > section.g1-section.g1-final-cta');
+    await expect(node).toBeVisible();
+    await expect(node.locator('.g1-cta-grid .g1-cta-card')).toHaveCount(3);
+    const details=await node.evaluate(section=>{
+      const css=getComputedStyle(section),
+            top=getComputedStyle(section,'::before'),
+            foot=getComputedStyle(section,'::after'),
+            shell=getComputedStyle(section.querySelector('.g1-shell'));
+      const cards=[...section.querySelectorAll('.g1-cta-card')].map(el=>{
+        const b=el.getBoundingClientRect();
+        return {x:Math.round(b.x),y:Math.round(b.y),w:Math.round(b.width),h:Math.round(b.height)}
+      });
+      return {
+        background:css.backgroundImage,
+        top:{height:top.height,y:top.top,background:top.backgroundImage,events:top.pointerEvents,z:top.zIndex},
+        foot:{height:foot.height,bottom:foot.bottom,background:foot.backgroundImage,events:foot.pointerEvents,z:foot.zIndex},
+        shellZ:shell.zIndex,
+        cards,
+        links:[...section.querySelectorAll('.g1-cta-card')].map(el=>el.getAttribute('href'))
+      };
+    });
+    expect(details.background).toContain('g1-cta-figma-pc.png');
+    expect(details.top.height).toBe('207px');
+    expect(details.top.y).toBe('0px');
+    expect(details.foot.height).toBe(width===1440?'107px':'108px');
+    expect(details.foot.bottom).toBe('0px');
+    expect(details.top.background).toContain('rgba(5, 38, 61, 0.43)');
+    expect(details.foot.background).toContain('rgba(5, 38, 61, 0.43)');
+    expect(details.top.background).toContain('21%');
+    expect(details.foot.background).toContain('78%');
+    expect(details.top.events).toBe('none');
+    expect(details.foot.events).toBe('none');
+    expect(details.top.z).toBe('0');
+    expect(details.foot.z).toBe('0');
+    expect(details.shellZ).toBe('1');
+    expect(details.cards.every(x=>x.w>300)).toBe(true);
+    expect(details.cards.every(x=>Math.abs(x.h-(width===1440?405:328))<=1)).toBe(true);
+    expect(details.cards.every(x=>Math.abs(x.w-(width===1440?383:346))<=1)).toBe(true);
+    expect(details.links[0]).toContain('youtube.com');
+    expect(details.links[1]).toBe('#specifications');
+    expect(details.links[2]).toContain('/contact.html');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width+1);
+  });
+}

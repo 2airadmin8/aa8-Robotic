@@ -574,3 +574,57 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
     color:#fff;background:#007ba9;
   }
 }
+
+
+/* Figma NEXT STEP contrast proposal A / CEO approved design only:
+   PC 256:2 (1440x727); SP 256:44 (390x1330).
+   Preserve exact original approved image and 3 CTA card positions/content.
+   The navy #05263D scrims are layered above the original background,
+   BELOW section copy/cards; fade at each edge exactly as Figma review.
+   No new asset file; background URL/image pixels stay unchanged. */
+main.g1-page > section.g1-section.g1-final-cta{
+  position:relative;
+  isolation:isolate;
+}
+main.g1-page > section.g1-section.g1-final-cta::before,
+main.g1-page > section.g1-section.g1-final-cta::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:1;
+  border:0;
+}
+main.g1-page > section.g1-section.g1-final-cta::before{
+  top:0;
+  bottom:auto;
+  height:207px;
+  background:linear-gradient(
+    to bottom,
+    rgba(5,38,61,0) 0%,
+    rgba(5,38,61,.43) 21%,
+    rgba(5,38,61,.43) 100%
+  );
+}
+main.g1-page > section.g1-section.g1-final-cta::after{
+  top:auto;
+  bottom:0;
+  height:107px;
+  background:linear-gradient(
+    to bottom,
+    rgba(5,38,61,.43) 0%,
+    rgba(5,38,61,.43) 78%,
+    rgba(5,38,61,0) 100%
+  );
+}
+main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
+  position:relative;
+  z-index:1;
+}
+@media (max-width:780px){
+  main.g1-page > section.g1-section.g1-final-cta::after{
+    height:108px;
+  }
+}
