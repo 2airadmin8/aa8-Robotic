@@ -207,3 +207,44 @@ test('G1 Figma official annotated image original-file checksum', async ({ reques
   const digest=createHash('sha256').update(bytes).digest('hex');
   expect(digest).toBe('a67043a37693c814f48c8884e209cf4d647b9660182f3d31d20fef0632fcc0d4');
 });
+
+// FAQ Figma content/visibility contract, PC node 11:165 / SP node 13:152.
+// The approved design shows all three answers, not three collapsed headings.
+for (const width of [1440,390]) {
+  test('G1 Figma FAQ initial visual state at '+width+'px',async ({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const faq=page.locator('.g1-faq');
+    const faqHeight=await faq.evaluate(el=>el.getBoundingClientRect().height);
+    expect(Math.abs(faqHeight-(width===1440?715:630))).toBeLessThanOrEqual(25);
+    await expect(faq.locator('.g1-faq-list details')).toHaveCount(3);
+    for(const d of await faq.locator('.g1-faq-list details').all()){
+      await expect(d).toHaveAttribute('open','');
+      await expect(d.locator('p')).toBeVisible();
+    }
+    const heading=faq.locator('h2');
+    await expect(heading).toHaveText('よくあるご質問');
+    const position=await heading.evaluate(e=>{
+      const h=e.getBoundingClientRect(),s=e.parentElement.getBoundingClientRect();
+      return{center:Math.abs((h.left+h.width/2)-(s.left+s.width/2)),kicker:getComputedStyle(e.parentElement.querySelector('.g1-kicker')).display};
+    });
+    expect(position.center).toBeLessThanOrEqual(1);
+    expect(position.kicker).toBe('none');
+    const q=faq.locator('details').first().locator('summary');
+    if(width===390){
+      await expect(q).toContainText('Q. 通常版で独自開発できますか？');
+      await expect(faq.locator('.g1-heading .g1-intro')).toContainText('条件は正式資料で最終確認します。');
+    } else {
+      await expect(q).toContainText('Q. 通常版 G1 で自作プログラムを開発できますか？');
+    }
+    await q.click();
+    await expect(faq.locator('details').first()).not.toHaveAttribute('open','');
+  });
+}
+test('G1 Figma SP capability heading uses mobile copy', async ({page})=>{
+  await page.setViewportSize({width:390,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  await expect(page.locator('#capabilities h2')).toHaveText('動く。学ぶ。つかむ。');
+  await expect(page.locator('#capabilities .g1-heading .g1-intro')).toContainText('3つの力で、実機研究の可能性を広げる。');
+  await expect(page.locator('#capabilities .g1-proof-photo img')).toHaveAttribute('src','/assets/img/products/unitree/catalog/28_g1.png');
+});

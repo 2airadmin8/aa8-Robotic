@@ -496,3 +496,25 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
   }
   .g1-page .g1-spec-image-source{margin:9px 0 22px;font-size:10px;line-height:1.5}
 }
+
+/* Figma FAQ defaults: all 3 answers visible in PC 11:165 and SP 13:152.
+   Keep <details> functional (visitor may collapse), but opening view matches
+   Figma; the blue plus/minus wasn't in the approved visual design. */
+.g1-page .g1-faq .g1-heading{text-align:center;margin-bottom:44px}
+.g1-page .g1-faq .g1-heading>.g1-kicker{display:none}
+.g1-page .g1-faq .g1-heading h2{margin-top:0}
+.g1-page .g1-faq .g1-heading .g1-intro{margin:18px auto 0;max-width:none}
+.g1-page .g1-faq-list summary::after{display:none}
+.g1-page .g1-faq-list details{padding:18px 0 20px}
+.g1-page .g1-faq-list summary{padding:10px 9px;font-size:16px;color:#333}
+.g1-page .g1-faq-list details p{padding:13px 9px 24px;font-size:14px;line-height:1.7;color:#666}
+.g1-page .g1-faq{min-height:715px}
+@media(max-width:780px){
+ .g1-page .g1-faq{min-height:630px}
+ .g1-page .g1-faq .g1-heading{margin-bottom:34px}
+ .g1-page .g1-faq .g1-heading h2{font-size:26px}
+ .g1-page .g1-faq .g1-heading .g1-intro{font-size:14px;margin-top:17px}
+ .g1-page .g1-faq-list details{padding:15px 0 15px}
+ .g1-page .g1-faq-list summary{font-size:16px;padding:5px 0}
+ .g1-page .g1-faq-list details p{font-size:13px;padding:15px 0 22px}
+}
