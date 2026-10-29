@@ -431,3 +431,20 @@
  .g1-page .g1-cta-card em{font-size:13px;margin-top:10px;padding-top:8px}
  .g1-page .g1-cta-disclaimer{margin-top:28px;font-size:10.2px;line-height:1.52}
 }
+
+
+/* Figma 2.1 background SSOT: PC node 11:2 and SP node 13:2.
+   All visible body sections use #FFFFFF. The single exception is the CTA,
+   backed by the actual Figma approved #12 turquoise/blue geometric image.
+   We intentionally override the higher-specificity legacy alternating pale
+   background rule in main-site-experience.css. Scope is G1 body only. */
+main.g1-page > section.g1-section:not(.g1-final-cta){
+  background:#ffffff !important;
+}
+main.g1-page > section.g1-section.g1-final-cta{
+  background:#009bd2 url("../img/products/unitree/g1/g1-cta-figma-pc.png") center center / cover no-repeat !important;
+  color:#fff;
+}
+main.g1-page > section.g1-section.g1-final-cta .g1-kicker{color:#e4faff}
+main.g1-page > section.g1-section.g1-final-cta h2{color:#fff}
+main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color:#e9f8ff}

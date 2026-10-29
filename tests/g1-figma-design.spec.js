@@ -94,7 +94,7 @@ for (const width of [1440, 390]) {
       const s = getComputedStyle(el);
       return { background: s.backgroundImage, h2Color: getComputedStyle(el.querySelector('h2')).color };
     });
-    expect(ctaStyle.background).toContain('linear-gradient');
+    expect(ctaStyle.background).toContain('g1-cta-figma-pc.png');
     expect(ctaStyle.h2Color).toBe('rgb(255, 255, 255)');
   });
 }
@@ -106,3 +106,37 @@ test('G1 bottom video CTA plays on this page without external navigation', async
   await expect(page.locator('.g1-video-iframe')).toHaveCount(1);
   expect(page.url()).toContain('/products/unitree-g1.html');
 });
+
+// Figma PC 11:2 / SP 13:2 background color contract.
+// All primary content sections are pure white, no alternating legacy pale tint.
+// NEXT STEP alone uses exact approved Figma geometric blue asset (#12).
+for (const width of [1440, 390]) {
+  test('G1 Figma white backgrounds and approved CTA asset / ' + width + 'px', async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(url, { waitUntil: 'networkidle' });
+    const audit = await page.evaluate(() => {
+      const selectors = [
+        '.g1-hero', '.g1-anchor-nav', '#capabilities', '.g1-detail-gallery',
+        '#research', '#models', '#specifications', '#architecture',
+        '#readiness', '.g1-support', '.g1-faq', '.g1-related'
+      ];
+      const sections = selectors.map(sel => ({ selector:sel,
+        color:getComputedStyle(document.querySelector(sel)).backgroundColor,
+        image:getComputedStyle(document.querySelector(sel)).backgroundImage }));
+      const cta=document.querySelector('.g1-final-cta');
+      return {
+        sections, ctaBackground:getComputedStyle(cta).backgroundImage,
+        titleColor:getComputedStyle(cta.querySelector('h2')).color,
+        kickerColor:getComputedStyle(cta.querySelector('.g1-kicker')).color,
+        bodyColor:getComputedStyle(cta.querySelector('.g1-shell > p:not(.g1-kicker)')).color
+      };
+    });
+    expect(audit.sections.filter(x=>x.color!=='rgb(255, 255, 255)')).toEqual([]);
+    expect(audit.sections.filter(x=>x.image!=='none')).toEqual([]);
+    expect(audit.ctaBackground).toContain('g1-cta-figma-pc.png');
+    expect(audit.titleColor).toBe('rgb(255, 255, 255)');
+    const response=await page.request.get('/assets/img/products/unitree/g1/g1-cta-figma-pc.png');
+    expect(response.status()).toBe(200);
+    expect((await response.body()).length).toBeGreaterThan(100000);
+  });
+}
