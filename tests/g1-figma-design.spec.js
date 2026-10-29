@@ -331,3 +331,19 @@ test('Figma mobile final readiness/support/related visuals',async ({page})=>{
   expect(Math.abs(observed.action.height-50)).toBeLessThanOrEqual(1);
   expect(observed.actionHref).toBe('/products.html');
 });
+
+// Figma PC related lineup button visual contract 151:2 (300x52),
+// while SP 151:55 remains the already-approved 346x50.
+test('Figma PC related lineup button visual contract',async ({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const button=page.locator('.g1-related-actions .g1-text-link:first-child');
+  await expect(button).toHaveAttribute('href','/products.html');
+  const s=await button.evaluate(el=>{const r=el.getBoundingClientRect(),c=getComputedStyle(el);
+    return{width:r.width,height:r.height,bg:c.backgroundColor,color:c.color,display:c.display}});
+  expect(Math.abs(s.width-300)).toBeLessThanOrEqual(1);
+  expect(Math.abs(s.height-52)).toBeLessThanOrEqual(1);
+  expect(s.bg).toBe('rgb(0, 155, 210)');
+  expect(s.color).toBe('rgb(255, 255, 255)');
+  expect(s.display).toBe('flex');
+});

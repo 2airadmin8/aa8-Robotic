@@ -556,3 +556,21 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
     background:#007ba9;color:#fff;
   }
 }
+
+
+/* Figma PC related lineup CTA 151:2: the primary card comparison
+   entry is a 300x52 solid brand-blue button, not a plain text link.
+   SP already has its approved separate 346x50 version. */
+@media(min-width:781px){
+  .g1-page .g1-related-actions{align-items:center}
+  .g1-page .g1-related-actions .g1-text-link:first-child{
+    display:flex;justify-content:flex-start;align-items:center;
+    flex:0 0 300px;min-height:52px;padding:12px 17px;
+    border-radius:2px;color:#fff;background:#009bd2;
+    font-weight:800;text-decoration:none;
+  }
+  .g1-page .g1-related-actions .g1-text-link:first-child:hover,
+  .g1-page .g1-related-actions .g1-text-link:first-child:focus-visible{
+    color:#fff;background:#007ba9;
+  }
+}
