@@ -18,6 +18,15 @@ for (const width of [1440, 390]) {
     const links = await page.locator('.g1-anchor-nav a').allTextContents();
     expect(links.map(s => s.trim())).toEqual(['G1の特長', '研究テーマ', 'G1 / EDUの違い', '仕様・開発環境']);
     await expect(page.locator('.g1-proof-list article')).toHaveCount(3);
+    // Shared-drive official G1 original g1.png is byte-identical to static
+    // assets/img/products/unitree/catalog/28_g1.png, confirmed by SHA256.
+    // The 01/FLEXIBILITY proof photo must use this file, while gallery photos remain independent.
+    await expect(page.locator('.g1-proof-photo img')).toHaveAttribute(
+      'src', '/assets/img/products/unitree/catalog/28_g1.png'
+    );
+    await expect(page.locator('.g1-detail-grid img')).toHaveCount(6);
+    expect(await page.locator('.g1-detail-grid img').first().getAttribute('src')).toContain('/g1/g1-dexterous-hand.jpg');
+
     await expect(page.locator('.g1-detail-grid img')).toHaveCount(6);
     await expect(page.locator('.g1-use-list article')).toHaveCount(3);
     await expect(page.locator('#models .g1-model-grid article')).toHaveCount(2);
