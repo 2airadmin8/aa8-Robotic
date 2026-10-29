@@ -628,3 +628,15 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
     height:108px;
   }
 }
+
+
+/* Figma SP research title single-line, approved design baseline 13:56.
+   24px/1.45 vs inherited desktop 30px/1.46. The old inherited font
+   wrapped the headline and added a ~44px line to the 390px page. */
+@media(max-width:780px){
+  .g1-page #research .g1-heading h2{
+    font-size:24px;
+    line-height:1.45;
+    letter-spacing:0;
+  }
+}

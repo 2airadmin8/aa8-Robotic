@@ -400,3 +400,25 @@ for(const width of [1440,390]){
       .toBeLessThanOrEqual(width+1);
   });
 }
+
+// Figma 13:56 (SP 390) / 11:65 (PC1440): single-line 24px research title.
+test('Figma SP research title one-line geometry',async({page})=>{
+  await page.setViewportSize({width:390,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const actual=await page.locator('#research .g1-heading h2').evaluate(el=>{
+    const r=el.getBoundingClientRect(),c=getComputedStyle(el),section=el.closest('#research');
+    return {font:parseFloat(c.fontSize),height:r.height,section:section.getBoundingClientRect().height,
+      text:el.innerText.trim(),width:r.width,overflow:document.documentElement.scrollWidth>innerWidth+1}
+  });
+  expect(actual.text).toBe('身体性AI、新時代の幕開け。');
+  expect(actual.font).toBe(24);
+  expect(actual.height).toBeLessThanOrEqual(37);
+  expect(Math.abs(actual.section-855)).toBeLessThanOrEqual(15);
+  expect(actual.overflow).toBe(false);
+});
+test('Figma PC research headline remains desktop 30px',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const font=await page.locator('#research .g1-heading h2').evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  expect(font).toBe(30);
+});
