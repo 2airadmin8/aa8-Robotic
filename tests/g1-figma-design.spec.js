@@ -639,3 +639,38 @@ for (const width of [1024,390]){
     expect(a.overflow).toBe(false);
   });
 }
+
+// Figma PC Research 11:65 exact section geometry 1440x485;
+// retain research examples, PC typography and previously approved SP.
+test('Figma PC Research 11:65 exact section geometry',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const a=await page.locator('#research').evaluate(el=>{
+    const b=el.getBoundingClientRect(),rect=q=>{const r=el.querySelector(q).getBoundingClientRect();
+      return{y:Math.round(r.y-b.y),height:Math.round(r.height)}};
+    return{height:Math.round(b.height),kicker:rect('.g1-heading .g1-kicker'),
+      headline:rect('h2'),intro:rect('.g1-heading .g1-intro'),
+      first:rect('.g1-use-list article'),note:rect('.g1-shell>.g1-fine'),
+      cards:el.querySelectorAll('.g1-use-list article').length};
+  });
+  expect(a.height).toBe(485);
+  expect(a.kicker.y).toBe(48);
+  expect(a.headline.y).toBe(89);
+  expect(a.intro.y).toBe(155);
+  expect(a.first).toMatchObject({y:203,height:178});
+  expect(a.note.y).toBe(403);
+  expect(a.cards).toBe(3);
+});
+for(const width of [1024,390]){
+  test('Figma PC research refinement does not alter '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const a=await page.locator('#research').evaluate(e=>({
+      height:Math.round(e.getBoundingClientRect().height),
+      title:parseFloat(getComputedStyle(e.querySelector('h2')).fontSize),
+      overflow:document.documentElement.scrollWidth>innerWidth+1}));
+    expect(a.height).toBe(width===1024?462:845);
+    expect(a.title).toBe(width===1024?30:24);
+    expect(a.overflow).toBe(false);
+  });
+}

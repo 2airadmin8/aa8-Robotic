@@ -736,3 +736,15 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
   .g1-page .g1-hero{padding-bottom:23px}
   .g1-page .g1-hero-copy{transform:translateY(-7px)}
 }
+
+
+/* Figma PC Research section geometry 11:65 (1440x485).
+   Keep three research descriptions, approved SP 24px single line,
+   and existing G1 source images unmodified. */
+@media(min-width:1101px){
+  .g1-page .g1-research{padding-bottom:61px}
+  .g1-page .g1-research .g1-heading h2{margin-top:20px}
+  .g1-page .g1-research .g1-heading .g1-intro{margin-top:22px}
+  .g1-page .g1-research .g1-use-list article{min-height:178px}
+  .g1-page .g1-research>.g1-shell>.g1-fine{margin-top:22px}
+}
