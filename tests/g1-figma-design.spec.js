@@ -50,6 +50,20 @@ for (const width of [1440, 390]) {
       expect(boxes.video.width).toBeGreaterThanOrEqual(340);
       expect(boxes.hero.height).toBeLessThan(760);
       expect(boxes.hero.height).toBeGreaterThan(600);
+      // Figma SP node 13:164: NEXT STEP 1330px, three cards 328px each.
+      const cta = await page.evaluate(() => {
+        const rect = e => e.getBoundingClientRect();
+        return {
+          height:rect(document.querySelector('.g1-final-cta')).height,
+          cards:[...document.querySelectorAll('.g1-cta-card')].map(e => rect(e).height),
+          images:[...document.querySelectorAll('.g1-cta-photo')].map(e => rect(e).height),
+          title:document.querySelector('.g1-final-cta h2').innerText.trim()
+        };
+      });
+      expect(Math.abs(cta.height - 1330)).toBeLessThanOrEqual(35);
+      for (const h of cta.cards) expect(Math.abs(h - 328)).toBeLessThanOrEqual(3);
+      for (const h of cta.images) expect(Math.abs(h - 140)).toBeLessThanOrEqual(3);
+      expect(cta.title).toContain('次の一歩へ');
       await expect(page.locator('.g1-hero-ctas a').first()).toContainText('公式デモを見る');
       await expect(page.locator('.g1-hero-ctas a').last()).toContainText('導入を相談する');
       await expect(page.locator('#models .g1-heading .g1-sp-only')).toContainText('通常版の二次開発は非対応です。');
