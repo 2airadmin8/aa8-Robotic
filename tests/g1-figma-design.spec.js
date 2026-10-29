@@ -12,7 +12,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('footer[data-shared-layout="footer"]')).toHaveCount(1);
     await expect(page.locator('#g1-title')).toHaveText('Unitree G1');
     await expect(page.locator('.g1-hero-ctas a').first()).toHaveAttribute('href', officialVideo);
-    await expect(page.locator('.g1-hero-video')).toHaveAttribute('href', officialVideo);
+    await expect(page.locator('.g1-hero-video-poster')).toHaveAttribute('href', officialVideo);
     await expect(page.locator('.g1-video-play')).toBeVisible();
     const links = await page.locator('.g1-anchor-nav a').allTextContents();
     expect(links.map(s => s.trim())).toEqual(['G1の特長', '研究テーマ', 'G1 / EDUの違い', '仕様・開発環境']);
@@ -48,5 +48,28 @@ for (const width of [1440, 390]) {
       return imgs.filter(img=>!img.naturalWidth).map(img=>img.src);
     });
     expect(errors).toEqual([]);
+    // A visitor must stay on AirAdmin8 while playing the manufacturer's
+    // original YouTube video, with the inquiry CTA still available.
+    await expect(page.locator('.g1-video-iframe')).toHaveCount(0);
+    await page.locator('.g1-hero-video-poster').click();
+    await expect(page.locator('.g1-video-iframe')).toHaveAttribute(
+      'src', /youtube-nocookie[.]com\/embed\/O5GphCrjx98/
+    );
+    await expect(page.locator('.g1-hero-ctas a.secondary')).toHaveAttribute('href', /contact[.]html/);
+    expect(page.url()).toContain('/products/unitree-g1.html');
+    const ctaStyle = await page.locator('.g1-final-cta').evaluate(el => {
+      const s = getComputedStyle(el);
+      return { background: s.backgroundImage, h2Color: getComputedStyle(el.querySelector('h2')).color };
+    });
+    expect(ctaStyle.background).toContain('linear-gradient');
+    expect(ctaStyle.h2Color).toBe('rgb(255, 255, 255)');
   });
 }
+
+test('G1 bottom video CTA plays on this page without external navigation', async ({ page }) => {
+  await page.setViewportSize({width: 1440, height: 900});
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.locator('.g1-cta-grid [data-g1-video-trigger]').click();
+  await expect(page.locator('.g1-video-iframe')).toHaveCount(1);
+  expect(page.url()).toContain('/products/unitree-g1.html');
+});

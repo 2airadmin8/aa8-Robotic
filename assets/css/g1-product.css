@@ -378,3 +378,16 @@
 .g1-page .g1-related-item strong{font-size:16px}
 .g1-page .g1-related-actions{display:grid;gap:14px}
 }
+
+/* G1 video: preserve the approved Figma poster and only load YouTube on click. */
+.g1-page .g1-hero-video-poster{position:absolute;inset:0;display:block;color:#fff;text-decoration:none}
+.g1-page .g1-hero-video-poster img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.g1-page .g1-hero-video iframe{display:block;width:100%;height:100%;border:0;background:#000}
+.g1-page .g1-hero-video-poster:focus-visible{outline:4px solid #ffbd30;outline-offset:-4px}
+.g1-page .g1-image-caption a{color:#007fae;font-weight:750;text-decoration:underline}
+/* P0 contrast regression: shared site .g1-section background had overridden
+   Figma gradient with #f4fafc while headings remained white. */
+.g1-page .g1-section.g1-final-cta{background:linear-gradient(115deg,#068bc1 0%,#039fca 45%,#0f80b4 100%) !important;color:#fff}
+.g1-page .g1-final-cta .g1-kicker{color:#e4faff}
+.g1-page .g1-final-cta h2{color:#fff}
+.g1-page .g1-final-cta>.g1-shell>p:not(.g1-kicker){color:#e9f8ff}
