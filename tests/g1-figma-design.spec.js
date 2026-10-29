@@ -556,9 +556,38 @@ test('PC six-photo layout and original desktop titles preserved',async({page})=>
       height:c.getBoundingClientRect().height
     }))
   }));
-  expect(Math.abs(v.height-743)).toBeLessThanOrEqual(1);
+  expect(Math.abs(v.height-759)).toBeLessThanOrEqual(1);
   expect(v.cards).toHaveLength(6);
   expect(v.cards.every(c=>c.height===241)).toBe(true);
   expect(v.cards[0].title).toBe('力を制御する3指ハンド');
   expect(v.cards[5].title).toBe('3D LiDAR＋深度カメラ');
+});
+
+// Figma PC gallery 150:2 pixel geometry after gap correction.
+// PC exact original frame 1440x759, cards y198/458 and note y716.
+// Previously approved SP 150:31 stays 1113px with six correct original images.
+test('Figma PC gallery 150:2 pixel geometry after gap correction',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const a=await page.locator('.g1-detail-gallery').evaluate(sec=>{
+    const base=sec.getBoundingClientRect();
+    const rect=el=>{const r=el.getBoundingClientRect();return{x:Math.round(r.x-base.x),y:Math.round(r.y-base.y),w:Math.round(r.width),h:Math.round(r.height)}};
+    return {section:rect(sec),kicker:rect(sec.querySelector('.g1-heading .g1-kicker')),
+      title:rect(sec.querySelector('h2')),intro:rect(sec.querySelector('.g1-heading .g1-intro')),
+      grid:rect(sec.querySelector('.g1-detail-grid')),note:rect(sec.querySelector('.g1-shell>.g1-fine')),
+      cards:[...sec.querySelectorAll('.g1-detail-item')].map(c=>({card:rect(c),image:rect(c.querySelector('.g1-detail-image'))})),
+      sources:[...sec.querySelectorAll('img')].map(x=>x.getAttribute('src'))
+    };
+  });
+  expect(a.section.h).toBe(759);
+  expect(a.kicker.y).toBe(35);
+  expect(a.title.y).toBe(76);
+  expect(a.intro.y).toBe(134);
+  expect(a.grid.y).toBe(198);
+  expect(a.grid.h).toBe(501);
+  expect(a.note.y).toBe(716);
+  expect(a.note.h).toBe(19);
+  expect(a.cards.map(x=>x.card.y)).toEqual([198,198,198,458,458,458]);
+  expect(a.cards.every(x=>x.card.h===241)).toBe(true);
+  expect(a.sources).toHaveLength(6);
 });

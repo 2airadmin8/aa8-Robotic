@@ -714,3 +714,15 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
     font-size:10.5px;line-height:1.62;margin-top:40px;
   }
 }
+
+
+/* Figma PC six-photo gallery 150:2 geometry (1440x759):
+   first row y198, second row y458, note y716.
+   Preserve G1/SP approved 150:31 at 390x1113 and all six original images. */
+@media(min-width:781px){
+  .g1-page .g1-detail-gallery .g1-heading h2{margin-top:20px}
+  .g1-page .g1-detail-gallery .g1-heading .g1-intro{margin-top:14px}
+  .g1-page .g1-detail-gallery .g1-heading{margin-bottom:38px}
+  .g1-page .g1-detail-gallery .g1-detail-grid{row-gap:19px}
+  .g1-page .g1-detail-gallery>.g1-shell>.g1-fine{margin-top:17px;line-height:19px}
+}
