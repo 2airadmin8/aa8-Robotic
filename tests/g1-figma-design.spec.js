@@ -26,7 +26,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.g1-faq-list details')).toHaveCount(3);
     await expect(page.locator('.g1-spec-table tbody tr:not(.g1-spec-group)')).toHaveCount(28);
     const boxes = await page.evaluate(() => {
-      const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width }; };
+      const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width, height:r.height }; };
       return { copy:box('.g1-hero-copy'), media:box('.g1-hero-media'),
         lead:box('.g1-hero-lead'), video:box('.g1-hero-video'), description:box('.g1-hero-description'),
         buttons:box('.g1-hero-ctas'), primary:box('.g1-hero-ctas .g1-button:first-child'),
