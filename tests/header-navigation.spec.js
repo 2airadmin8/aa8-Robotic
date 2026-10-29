@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const pages = ['/index.html', '/support.html', '/glossary.html'];
+const pages = ['/index.html', '/support.html', '/glossary.html', '/products/unitree-g1.html'];
 
 for (const path of pages) {
   test.describe(`header navigation ${path}`, () => {
@@ -57,3 +57,42 @@ test('legacy repository-prefix product URL redirects to the current URL', async 
   await page.goto('http://127.0.0.1:4173/aa8-Robotic/products/tianji-marvin.html');
   await expect(page).toHaveURL('https://robotics.air-admin8.co.jp/products/tianji-marvin.html');
 });
+
+// G1 must render the same site-owned header and footer as the Robotics homepage,
+// not page-specific lookalikes. Check real computed geometry at PC and SP widths.
+for (const width of [1440, 390]) {
+  test(`G1 common header/footer parity at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const measure = async (path) => {
+      await page.goto(`http://127.0.0.1:4173${path}`, { waitUntil: 'networkidle' });
+      return page.evaluate(() => {
+        const measureNode = (selector) => {
+          const el = document.querySelector(selector);
+          if (!el) return null;
+          const computed = getComputedStyle(el);
+          const r = el.getBoundingClientRect();
+          return {
+            width: Math.round(r.width), height: Math.round(r.height),
+            display: computed.display, color: computed.color,
+            background: computed.backgroundColor, position: computed.position
+          };
+        };
+        return {
+          headerCount: document.querySelectorAll('header.site-header[data-shared-layout="header"]').length,
+          footerCount: document.querySelectorAll('footer.footer[data-shared-layout="footer"]').length,
+          header: measureNode('.site-header'),
+          headerInner: measureNode('.site-header .header-inner'),
+          footer: measureNode('footer.footer'),
+          footerGrid: measureNode('.footer .footer-grid'),
+          navigation: [...document.querySelectorAll('.site-header .nav a')].map(x => x.textContent.trim()),
+          footerLinks: [...document.querySelectorAll('.footer .footer-links a')].map(x => x.textContent.trim())
+        };
+      });
+    };
+    const home = await measure('/index.html');
+    const g1 = await measure('/products/unitree-g1.html');
+    expect(g1).toEqual(home);
+    expect(g1.headerCount).toBe(1);
+    expect(g1.footerCount).toBe(1);
+  });
+}

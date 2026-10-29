@@ -35,7 +35,7 @@
 .g1-key-numbers div+div{border-left:1px solid #e9edf0;padding-left:18px}
 .g1-key-numbers dt{font-size:11px;color:#798691;line-height:1.6}
 .g1-key-numbers dd{font-size:21px;font-weight:800;line-height:1.5;margin:4px 0 0;color:#333}
-.g1-anchor-nav{background:#fff;border-top:1px solid var(--g1-line);border-bottom:1px solid var(--g1-line);position:sticky;top:70px;z-index:20;box-shadow:0 2px 5px rgba(11,41,61,.025)}
+.g1-anchor-nav{background:#fff;border-top:1px solid var(--g1-line);border-bottom:1px solid var(--g1-line);position:sticky;top:73px;z-index:20;box-shadow:0 2px 5px rgba(11,41,61,.025)}
 .g1-anchor-nav .g1-shell{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;overflow-x:auto;scrollbar-width:none}
 .g1-anchor-nav .g1-shell::-webkit-scrollbar{display:none}
 .g1-anchor-nav a{font-size:13px;font-weight:800;color:#3b4c58;text-decoration:none;white-space:nowrap;padding:22px 14px 20px;border-bottom:2px solid transparent}
@@ -170,7 +170,7 @@
 .g1-hero-ctas{display:grid;gap:10px;margin:25px 0}
 .g1-button{width:100%;white-space:normal;min-height:52px;font-size:14px}
 .g1-key-numbers dd{font-size:16px}
-.g1-anchor-nav{top:57px}
+.g1-anchor-nav{top:61px}
 .g1-anchor-nav .g1-shell{min-height:56px;gap:6px}
 .g1-anchor-nav a{font-size:12px;padding:17px 12px}
 .g1-section{padding:60px 0 64px}

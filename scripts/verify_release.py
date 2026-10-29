@@ -137,6 +137,17 @@ def main() -> int:
     errors: list[str] = []
     verify_source_hygiene(errors)
 
+    # G1 direct-preview HTML must carry an unmodified fallback of the
+    # exact shared shell. The production build replaces both from includes/.
+    g1_source = (ROOT / "products/unitree-g1.html").read_text(encoding="utf-8-sig")
+    for tag, source_name in (("header", "site-header.html"), ("footer", "site-footer.html")):
+        canonical = (ROOT / "includes" / source_name).read_text(encoding="utf-8")
+        pattern = re.compile(rf"<{tag}\b[^>]*>[\s\S]*?</{tag}>", re.I)
+        expected = pattern.search(canonical)
+        actual = pattern.search(g1_source)
+        if expected is None or actual is None or actual.group() != expected.group():
+            errors.append(f"G1 {tag} diverges from includes/{source_name}")
+
     if not OUTPUT.is_dir():
         errors.append("_site does not exist")
         return fail(errors)
