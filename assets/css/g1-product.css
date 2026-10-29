@@ -518,3 +518,41 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
  .g1-page .g1-faq-list summary{font-size:16px;padding:5px 0}
  .g1-page .g1-faq-list details p{font-size:13px;padding:15px 0 22px}
 }
+
+
+/* Figma SP final 2.1 remaining section visual parity:
+   Readiness 13:118 / Support 13:137 / Related lineup 151:55.
+   All rules G1-page+SP-only, with official manufacturer images untouched. */
+@media(max-width:780px){
+  .g1-page #readiness .g1-heading,
+  .g1-page .g1-support .g1-heading{text-align:center}
+  .g1-page #readiness .g1-heading>.g1-kicker,
+  .g1-page .g1-support .g1-heading>.g1-kicker{display:none}
+  .g1-page #readiness .g1-heading h2,
+  .g1-page .g1-support .g1-heading h2{margin-top:0;font-size:26px;line-height:1.45}
+  .g1-page #readiness .g1-heading .g1-intro,
+  .g1-page .g1-support .g1-heading .g1-intro{margin:18px auto 0;font-size:14px;line-height:1.6}
+  .g1-page #readiness .g1-check-grid article{min-height:138px;padding:23px 0 21px}
+  .g1-page #readiness .g1-check-grid h3,
+  .g1-page .g1-support-steps strong{color:#333}
+  /* Older global .g1-sp-only assigns cyan to mobile spans. Do not inherit
+     that accent in Figma's neutral black/gray readiness checklist. */
+  .g1-page #readiness .g1-check-grid h3 .g1-sp-only{color:#333!important;font-weight:800}
+  .g1-page #readiness .g1-check-grid p .g1-sp-only{color:#666!important;font-weight:400}
+  /* The approved SP design places the first checklist rule 195px down
+     from the section origin; move the grid, not the whole section. */
+  .g1-page #readiness .g1-heading{margin-bottom:72px}
+  .g1-page #readiness{padding-bottom:18px}
+  .g1-page .g1-support{min-height:618px}
+  .g1-page #readiness .g1-check-grid p{color:#666}
+  .g1-page .g1-support-steps>div{min-height:75px}
+  .g1-page .g1-related-actions .g1-text-link:first-child{
+    display:flex;align-items:center;justify-content:flex-start;
+    width:100%;min-height:50px;background:#009bd2;color:#fff;
+    border-radius:3px;padding:12px 16px;text-decoration:none;
+  }
+  .g1-page .g1-related-actions .g1-text-link:first-child:hover,
+  .g1-page .g1-related-actions .g1-text-link:first-child:focus-visible{
+    background:#007ba9;color:#fff;
+  }
+}

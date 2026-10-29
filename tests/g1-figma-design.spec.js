@@ -250,3 +250,84 @@ test('G1 Figma SP capability heading uses mobile copy', async ({page})=>{
   await expect(page.locator('#capabilities .g1-heading .g1-intro .g1-sp-only')).toHaveText('3つの力で、実機研究の可能性を広げる。');
   await expect(page.locator('#capabilities .g1-proof-photo img')).toHaveAttribute('src','/assets/img/products/unitree/catalog/28_g1.png');
 });
+
+// Figma remaining SP-only content design contract (13:96, 13:118, 13:137, 151:55).
+// Prevent desktop copy from appearing on mobile by checking the VISIBLE spans.
+test('Figma remaining SP-only content design contract',async ({page})=>{
+  await page.setViewportSize({width:390,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const expected=[
+    ['#architecture h2 .g1-sp-only','研究から実機検証へ。'],
+    ['#architecture .g1-heading .g1-intro .g1-sp-only','目的別に、構成と評価方法を整理します。'],
+    ['#readiness h2 .g1-sp-only','購入前に確認したいこと'],
+    ['#readiness .g1-heading .g1-intro .g1-sp-only','研究環境・設置条件を整理します。'],
+    ['#readiness article:nth-child(1) h3 .g1-sp-only','研究目的・評価指標'],
+    ['#readiness article:nth-child(2) h3 .g1-sp-only','SDKとソフトウェア'],
+    ['#readiness article:nth-child(3) h3 .g1-sp-only','安全・設置環境'],
+    ['#readiness article:nth-child(4) h3 .g1-sp-only','見積・納期・検収'],
+    ['.g1-support h2 .g1-sp-only','社会実装を目指す。'],
+    ['.g1-support .g1-heading .g1-intro .g1-sp-only','AirAdmin8が研究・PoCから見積・導入条件まで整理']
+  ];
+  for (const [selector,txt] of expected) {
+    const e=page.locator(selector);
+    await expect(e).toBeVisible();
+    await expect(e).toHaveText(txt);
+  }
+  await expect(page.locator('.g1-related .g1-heading h2 .g1-sp-only')).toContainText('ほかの宇樹ロボットも、');
+  for (const selector of ['#architecture h2','#readiness h2','.g1-support h2','.g1-related .g1-heading h2']){
+    await expect(page.locator(selector+' .g1-pc-only')).toBeHidden();
+  }
+});
+test('PC existing architecture/readiness/support wording unaffected',async ({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  for (const [selector,txt] of [
+    ['#architecture h2 .g1-pc-only','研究と産業、それぞれの「実証環境」を設計する。'],
+    ['#readiness h2 .g1-pc-only','導入前に確認したいこと。'],
+    ['.g1-support h2 .g1-pc-only','AirAdmin8と、社会実装を目指す。'],
+    ['.g1-related .g1-heading h2 .g1-pc-only','目的に合う、次のUnitreeロボットを。']
+  ]){
+    await expect(page.locator(selector)).toBeVisible();
+    await expect(page.locator(selector)).toHaveText(txt);
+  }
+});
+
+// Figma mobile final readiness/support/related visuals (13:118/13:137/151:55).
+test('Figma mobile final readiness/support/related visuals',async ({page})=>{
+  await page.setViewportSize({width:390,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const observed=await page.evaluate(()=>{
+    const rd=document.querySelector('#readiness'),
+      su=document.querySelector('.g1-support'),
+      action=document.querySelector('.g1-related-actions .g1-text-link:first-child');
+    const metrics=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);
+      return {height:r.height,width:r.width,background:s.backgroundColor,color:s.color}};
+    return {
+      readiness:metrics(rd),support:metrics(su),
+      readinessCenter:getComputedStyle(rd.querySelector('.g1-heading')).textAlign,
+      supportCenter:getComputedStyle(su.querySelector('.g1-heading')).textAlign,
+      readinessItems:[...rd.querySelectorAll('.g1-check-grid article')].map(e=>({
+        heading:getComputedStyle(e.querySelector('h3 .g1-sp-only')).color,
+        description:getComputedStyle(e.querySelector('p .g1-sp-only')).color})),
+      readinessKicker:getComputedStyle(rd.querySelector('.g1-heading .g1-kicker')).display,
+      supportKicker:getComputedStyle(su.querySelector('.g1-heading .g1-kicker')).display,
+      action:metrics(action),actionHref:action.getAttribute('href')
+    };
+  });
+  expect(Math.abs(observed.readiness.height-765)).toBeLessThanOrEqual(25);
+  expect(Math.abs(observed.support.height-618)).toBeLessThanOrEqual(25);
+  expect(observed.readinessCenter).toBe('center');
+  expect(observed.supportCenter).toBe('center');
+  expect(observed.readinessKicker).toBe('none');
+  expect(observed.supportKicker).toBe('none');
+  expect(observed.readinessItems).toHaveLength(4);
+  observed.readinessItems.forEach(item=>{
+    expect(item.heading).toBe('rgb(51, 51, 51)');
+    expect(item.description).toBe('rgb(102, 102, 102)');
+  });
+  expect(observed.action.background).toBe('rgb(0, 155, 210)');
+  expect(observed.action.color).toBe('rgb(255, 255, 255)');
+  expect(Math.abs(observed.action.width-346)).toBeLessThanOrEqual(1);
+  expect(Math.abs(observed.action.height-50)).toBeLessThanOrEqual(1);
+  expect(observed.actionHref).toBe('/products.html');
+});
