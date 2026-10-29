@@ -640,3 +640,25 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
     letter-spacing:0;
   }
 }
+
+
+/* Figma SP model comparison geometry 13:41 (390x840):
+   correct oversized vertical whitespace without removing buyer guidance.
+   PC typography and layout remain unchanged. */
+@media (max-width:780px){
+  .g1-page #models{
+    padding-top:20px;
+    padding-bottom:41px;
+  }
+  .g1-page #models .g1-heading{
+    margin-bottom:45px;
+  }
+  .g1-page #models .g1-heading .g1-intro{
+    margin-top:29px;
+  }
+  .g1-page #models .g1-model-grid article,
+  .g1-page #models .g1-model-grid article:last-child{
+    padding-top:23px;
+    padding-bottom:10px;
+  }
+}

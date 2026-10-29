@@ -422,3 +422,47 @@ test('Figma PC research headline remains desktop 30px',async({page})=>{
   const font=await page.locator('#research .g1-heading h2').evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
   expect(font).toBe(30);
 });
+
+
+// Figma G1/EDU comparison 390x840 spatial regression at SP node 13:41.
+// Preserve additional purchasing guidance approved as useful business content.
+for(const width of [390,360]){
+  test('Figma G1/EDU comparison 390x840 spatial regression / '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const d=await page.evaluate(()=>{
+      const section=document.querySelector('#models'),
+            root=section.getBoundingClientRect(),
+            rect=sel=>{const e=section.querySelector(sel),r=e.getBoundingClientRect();
+              return {top:Math.round(r.top-root.top),height:Math.round(r.height),text:e.innerText.trim()}};
+      return {
+        sectionHeight:root.height,
+        title:rect('h2'),
+        intro:rect('.g1-heading .g1-intro'),
+        first:rect('.g1-model-grid article:first-child .g1-kicker'),
+        second:rect('.g1-model-grid article:nth-child(2) .g1-kicker'),
+        note:rect('.g1-model-note'),
+        guidance:[...section.querySelectorAll('.g1-model-grid article .g1-fine')]
+          .map(e=>e.textContent.trim()),
+        overflow:document.documentElement.scrollWidth>innerWidth+1
+      };
+    });
+    expect(Math.abs(d.sectionHeight-840)).toBeLessThanOrEqual(3);
+    expect(Math.abs(d.title.top-20)).toBeLessThanOrEqual(1);
+    expect(Math.abs(d.intro.top-86)).toBeLessThanOrEqual(2);
+    expect(Math.abs(d.first.top-181)).toBeLessThanOrEqual(2);
+    // Additional guidance in live HTML remains and explains +12px vs older Figma model 02.
+    expect(Math.abs(d.second.top-468)).toBeLessThanOrEqual(3);
+    expect(d.guidance).toEqual([
+      '購入前に制御範囲・用途を照合',
+      '研究目的・開発環境・構成部品を照合'
+    ]);
+    expect(d.overflow).toBe(false);
+  });
+}
+test('PC model section preserved while SP spacing fixed',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const size=await page.locator('#models').evaluate(el=>el.getBoundingClientRect().height);
+  expect(Math.abs(size-698)).toBeLessThanOrEqual(3);
+});
