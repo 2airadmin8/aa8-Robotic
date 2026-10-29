@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "manufacturer": "Unitree",
+  "sourceType": "internal-approved-shared-drive",
+  "sourceFolder": "Unitree/素材/ヒューマノイドRobot/_本体製品画像",
+  "notes": "Model-specific original product pictures. Copied bytes unchanged to static web assets; site never loads a local G: path.",
+  "images": [
+    {
+      "model": "Unitree G1",
+      "sourceFile": "28_g1.png",
+      "webPath": "/assets/img/products/unitree/catalog/28_g1.png",
+      "width": 500,
+      "height": 500,
+      "bytes": 92553,
+      "sha256": "9d7cc68a7b6e53f337c7bf92ba942bd8d115d56cec63a7f79aaee8fee79ecbd7"
+    },
+    {
+      "model": "Unitree G1+",
+      "sourceFile": "29_g1pl.png",
+      "webPath": "/assets/img/products/unitree/catalog/29_g1pl.png",
+      "width": 500,
+      "height": 500,
+      "bytes": 85724,
+      "sha256": "19b7f18838ef055d4439217912bee6efca6efb7616c56d3759687bae9e715f03"
+    },
+    {
+      "model": "Unitree H2",
+      "sourceFile": "26_h2.png",
+      "webPath": "/assets/img/products/unitree/catalog/26_h2.png",
+      "width": 800,
+      "height": 800,
+      "bytes": 150299,
+      "sha256": "63060b5f944e8caff8f4870b5d22a9ec1f7e77d0905e214595432b47980a1082"
+    },
+    {
+      "model": "Unitree Go2",
+      "sourceFile": "22_go2.png",
+      "webPath": "/assets/img/products/unitree/catalog/22_go2.png",
+      "width": 801,
+      "height": 801,
+      "bytes": 285710,
+      "sha256": "36c38c06130c92ae329650a2337ad43900e62808daabddd78cf38a5eab71b16f"
+    },
+    {
+      "model": "Unitree A2",
+      "sourceFile": "24_a2.png",
+      "webPath": "/assets/img/products/unitree/catalog/24_a2.png",
+      "width": 800,
+      "height": 801,
+      "bytes": 312088,
+      "sha256": "a23bf74444db86dacfc01192dee7144a6cfcc01b8b7523cb6d8bd0795bb03096"
+    },
+    {
+      "model": "Unitree B2",
+      "sourceFile": "23_b2.png",
+      "webPath": "/assets/img/products/unitree/catalog/23_b2.png",
+      "width": 801,
+      "height": 801,
+      "bytes": 304397,
+      "sha256": "ba6637fe52b7c85646d9e85dd201f41ffa908648c7788beb04eec512586df50f"
+    }
+  ]
+}

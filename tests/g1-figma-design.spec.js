@@ -22,6 +22,10 @@ for (const width of [1440, 390]) {
     await expect(page.locator('#models .g1-model-grid article')).toHaveCount(2);
     await expect(page.locator('#models h2')).toHaveText('G1 と G1 EDU の違い');
     await expect(page.locator('.g1-related-grid .g1-related-item')).toHaveCount(6);
+    const officialCatalogFiles = ["28_g1.png", "29_g1pl.png", "26_h2.png", "22_go2.png", "24_a2.png", "23_b2.png"];
+    const actualCatalogFiles = await page.locator('.g1-related-grid .g1-related-item img').evaluateAll(imgs => imgs.map(x => x.getAttribute('src').split('/').pop()));
+    expect(actualCatalogFiles).toEqual(officialCatalogFiles);
+
     await expect(page.locator('.g1-cta-grid .g1-cta-card')).toHaveCount(3);
     await expect(page.locator('.g1-faq-list details')).toHaveCount(3);
     await expect(page.locator('.g1-spec-table tbody tr:not(.g1-spec-group)')).toHaveCount(28);
