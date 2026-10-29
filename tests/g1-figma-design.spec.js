@@ -135,7 +135,7 @@ for (const width of [1440, 390]) {
     expect(audit.sections.filter(x=>x.image!=='none')).toEqual([]);
     expect(audit.ctaBackground).toContain('g1-cta-figma-pc.png');
     expect(audit.titleColor).toBe('rgb(255, 255, 255)');
-    const response=await page.request.get('/assets/img/products/unitree/g1/g1-cta-figma-pc.png');
+    const response=await page.request.get('http://127.0.0.1:4173/assets/img/products/unitree/g1/g1-cta-figma-pc.png');
     expect(response.status()).toBe(200);
     expect((await response.body()).length).toBeGreaterThan(100000);
   });
