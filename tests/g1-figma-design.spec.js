@@ -39,6 +39,7 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.g1-cta-grid .g1-cta-card')).toHaveCount(3);
     await expect(page.locator('.g1-faq-list details')).toHaveCount(3);
     await expect(page.locator('.g1-spec-table tbody tr:not(.g1-spec-group)')).toHaveCount(28);
+    await expect(page.locator('.g1-spec-table thead th').first()).toHaveText('モデル');
 
     // Missing spec-image prevention, per visible Figma node 62:10 PC / 62:147 SP.
     // Current G1/G1 EDU factual spec values are preserved independently.
