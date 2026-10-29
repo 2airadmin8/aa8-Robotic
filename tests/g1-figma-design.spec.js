@@ -1,3 +1,4 @@
+const { createHash } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 const url = 'http://127.0.0.1:4173/products/unitree-g1.html';
 const officialVideo = 'https://www.youtube.com/watch?v=O5GphCrjx98';
@@ -54,6 +55,18 @@ for (const width of [1440, 390]) {
     expect(specPhoto.naturalHeight).toBe(590);
     expect(specPhoto.objectFit).toBe('contain');
     expect(specPhoto.bottom).toBeLessThan(specPhoto.tableTop);
+    // Figma source legend belongs between the overview panel and the
+    // comparison table. Never allow it to overflow the absolute image slot.
+    const sourceFlow = await page.evaluate(() => {
+      const overview = document.querySelector('.g1-spec-overview').getBoundingClientRect();
+      const caption = document.querySelector('.g1-spec-image-source').getBoundingClientRect();
+      const table = document.querySelector('.g1-table-wrap').getBoundingClientRect();
+      return { overviewBottom:overview.bottom, captionTop:caption.top,
+        captionBottom:caption.bottom, tableTop:table.top };
+    });
+    expect(sourceFlow.captionTop).toBeGreaterThanOrEqual(sourceFlow.overviewBottom);
+    expect(sourceFlow.captionBottom).toBeLessThan(sourceFlow.tableTop);
+
     expect(Math.abs(specPhoto.width-(width===1440?313:346))).toBeLessThanOrEqual(1);
     expect(Math.abs(specPhoto.height-(width===1440?174:227))).toBeLessThanOrEqual(1);
 
@@ -172,3 +185,13 @@ for (const width of [1440, 390]) {
     expect((await response.body()).length).toBeGreaterThan(100000);
   });
 }
+
+test('G1 Figma official annotated image original-file checksum', async ({ request }) => {
+  const response=await request.get('http://127.0.0.1:4173/assets/img/products/unitree/g1/g1-spec-annotated-official.jpg');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('image/jpeg');
+  const bytes=await response.body();
+  expect(bytes.length).toBe(26766);
+  const digest=createHash('sha256').update(bytes).digest('hex');
+  expect(digest).toBe('a67043a37693c814f48c8884e209cf4d647b9660182f3d31d20fef0632fcc0d4');
+});
