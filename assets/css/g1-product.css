@@ -451,11 +451,11 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
 
 
 /* CEO-approved exception to the small Figma image slot:
-   show original 630x590 annotated G1 photo at native size on PC.
+   show the original 630x590 annotated G1 photo at half size 315x295 on PC.
    SP fits available 346px width and keeps the original 630:590 ratio.
    Keep the same original JPEG pixels and preserve table/source ordering. */
 .g1-page .g1-spec-overview{
-  position:relative;width:100%;min-height:590px;margin:0;
+  position:relative;width:100%;min-height:295px;margin:0;
   border-top:1px solid #d6e6ed;background:#fff;
   display:flex;align-items:flex-start;gap:16px;
 }
@@ -469,11 +469,11 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
 .g1-page .g1-spec-overview-entry span{color:#687983}
 .g1-page .g1-spec-overview-figure{
   position:static;flex:none;right:auto;top:auto;
-  width:630px;max-width:100%;margin:0;
+  width:315px;max-width:100%;margin:0;
 }
 .g1-page .g1-spec-overview-figure picture,
 .g1-page .g1-spec-overview-figure img{
-  display:block;width:100%;height:auto;max-width:630px;
+  display:block;width:100%;height:auto;max-width:315px;
 }
 .g1-page .g1-spec-overview-figure img{
   object-fit:initial;object-position:center;background:transparent;
@@ -481,7 +481,7 @@ main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color
 .g1-page .g1-spec-image-source{font-size:11px;color:#647582;line-height:1.55;margin:18px 0 22px}
 @media (min-width:781px) and (max-width:1100px){
   .g1-page .g1-spec-overview{min-height:0}
-  .g1-page .g1-spec-overview-figure{width:58%}
+  .g1-page .g1-spec-overview-figure{width:min(315px,45%)}
   .g1-page .g1-spec-overview-models{padding:20px 0 15px 12px}
 }
 @media (max-width:780px){

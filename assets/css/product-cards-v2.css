@@ -293,3 +293,35 @@
     padding:5px 2px;
   }
 }
+
+
+/* G1-D / G1 listing image baseline (catalog-only):
+   Preserve exact source PNG and entire robot; align silhouettes to the
+   bottom of the uniform 16:10 card media frame without clipping. */
+body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1) .product-visual{
+  display:flex;align-items:flex-end;justify-content:center;
+}
+body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1) .product-visual img{
+  width:100%;height:100%;padding:0 6px 0;
+  object-fit:contain;object-position:center bottom;opacity:1;
+}
+@media(max-width:640px){
+  body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1) .product-visual img{
+    padding:0 2px 0;
+  }
+}
+
+
+/* Align G1-D robot feet with G1 in the 3-column comparison:
+   the approved source PNG has extra whitespace below its robot base.
+   Translation affects card display only; published source pixels unchanged. */
+@media(min-width:641px){
+  body:has(.product-page-hero) #unitree-g1-d .product-visual img{
+    transform:translateY(18px);
+  }
+}
+@media(max-width:640px){
+  body:has(.product-page-hero) #unitree-g1-d .product-visual img{
+    transform:translateY(5px);
+  }
+}

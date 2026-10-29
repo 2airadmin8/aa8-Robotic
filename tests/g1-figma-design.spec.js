@@ -78,9 +78,9 @@ for (const width of [1440, 390]) {
     expect(sourceFlow.captionBottom).toBeLessThan(sourceFlow.tableTop);
 
     // CEO-approved enlarged image overrides the smaller Figma image slot:
-    // PC original 630x590, SP fills 346px and preserves source aspect ratio.
-    expect(Math.abs(specPhoto.width-(width===1440?630:346))).toBeLessThanOrEqual(1);
-    expect(Math.abs(specPhoto.height-(width===1440?590:346*590/630))).toBeLessThanOrEqual(1);
+    // PC half-size 315x295, SP fills 346px and preserves source aspect ratio.
+    expect(Math.abs(specPhoto.width-(width===1440?315:346))).toBeLessThanOrEqual(1);
+    expect(Math.abs(specPhoto.height-(width===1440?295:346*590/630))).toBeLessThanOrEqual(1);
 
     const boxes = await page.evaluate(() => {
       const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width, height:r.height }; };

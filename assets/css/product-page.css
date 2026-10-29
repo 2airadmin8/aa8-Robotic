@@ -388,3 +388,21 @@
     flex-direction: column;
   }
 }
+
+/* Compare listing hero title: user-approved smaller type.
+   Override global typography-system.css !important only for products.html;
+   preserve the shared header, other H1 typography and product details. */
+body:has(.product-page-hero) .product-page-hero h1{
+  font-size:clamp(36px,3.2vw,48px)!important;
+  line-height:1.28!important;
+  letter-spacing:-.025em!important;
+  max-width:100%;
+  overflow-wrap:anywhere;
+  text-wrap:wrap;
+}
+@media(max-width:640px){
+  body:has(.product-page-hero) .product-page-hero h1{
+    font-size:clamp(29px,7.8vw,34px)!important;
+    line-height:1.33!important;
+  }
+}
