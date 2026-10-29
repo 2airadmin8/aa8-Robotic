@@ -36,6 +36,10 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.g1-spec-overview-figure img')).toHaveAttribute(
       'src', '/assets/img/products/unitree/g1/g1-spec-annotated-official.jpg'
     );
+    // This spec image intentionally uses loading=lazy. Scroll first and wait for
+    // the real image to decode rather than checking naturalWidth while off-screen.
+    await page.locator('.g1-spec-overview-figure img').scrollIntoViewIfNeeded();
+    await expect(page.locator('.g1-spec-overview-figure img')).toHaveJSProperty('naturalWidth', 630);
     const specPhoto = await page.locator('.g1-spec-overview-figure img').evaluate(img => {
       const r=img.getBoundingClientRect();
       const table=document.querySelector('.g1-table-wrap').getBoundingClientRect();
