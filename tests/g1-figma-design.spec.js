@@ -460,11 +460,62 @@ for(const width of [390,360]){
     expect(d.overflow).toBe(false);
   });
 }
-test('PC model section preserved while SP spacing fixed',async({page})=>{
+test('V11 Figma PC model 11:46 geometry while SP remains 840px',async({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto(url,{waitUntil:'networkidle'});
-  const size=await page.locator('#models').evaluate(el=>el.getBoundingClientRect().height);
-  expect(Math.abs(size-698)).toBeLessThanOrEqual(3);
+  const m=await page.evaluate(()=>{
+    const section=document.querySelector('#models'),base=section.getBoundingClientRect();
+    const at=selector=>{const r=section.querySelector(selector).getBoundingClientRect();return {y:r.y-base.y,x:r.x-base.x,height:r.height};};
+    return {height:base.height,title:at('h2'),intro:at('.g1-heading .g1-intro'),grid:at('.g1-model-grid'),
+      model1:at('.g1-model-grid article:first-child .g1-kicker'),
+      name:at('.g1-model-grid article:first-child h3'),status:at('.g1-model-grid article:first-child strong'),
+      condition:at('.g1-model-grid article:first-child p.g1-fine'),
+      model2:at('.g1-model-grid article:last-child .g1-kicker'),note:at('.g1-model-note'),
+      guidance:[...section.querySelectorAll('.g1-model-grid article p.g1-fine')].map(x=>x.textContent.trim())};
+  });
+  const near=(a,b)=>expect(Math.abs(a-b)).toBeLessThanOrEqual(3);
+  near(m.height,735);near(m.title.y,33);near(m.intro.y,98);near(m.grid.y,168);
+  near(m.model1.y,204);near(m.name.y,249);near(m.status.y,455);
+  near(m.condition.y,538);near(m.model2.x,750);near(m.note.y,658);
+  expect(m.guidance).toEqual(['購入前に制御範囲・用途を照合','研究目的・開発環境・構成部品を照合']);
+});
+
+test('V11 Figma PC readiness/support 11:130 11:149 geometry',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const boxes=await page.evaluate(()=>{
+    const collect=(selector,parts)=>{
+      const e=document.querySelector(selector),b=e.getBoundingClientRect();
+      const nodes=Object.fromEntries(Object.entries(parts).map(([key,sel])=>{
+        const r=e.querySelector(sel).getBoundingClientRect();return [key,{y:r.y-b.y,x:r.x-b.x,height:r.height}];
+      }));return {height:b.height,nodes,visibleKicker:getComputedStyle(e.querySelector('.g1-heading>.g1-kicker')).display};
+    };
+    return {readiness:collect('#readiness',{title:'h2',intro:'.g1-heading .g1-intro',first:'.g1-check-grid article:first-child',third:'.g1-check-grid article:nth-child(3)'}),
+      support:collect('.g1-support',{title:'h2',intro:'.g1-heading .g1-intro',steps:'.g1-support-steps',number:'.g1-support-steps span',desc:'.g1-support-steps strong',fine:'.g1-fine'})};
+  });
+  const near=(a,b)=>expect(Math.abs(a-b)).toBeLessThanOrEqual(3);
+  near(boxes.readiness.height,505);near(boxes.readiness.nodes.title.y,20);
+  near(boxes.readiness.nodes.intro.y,85);near(boxes.readiness.nodes.first.y,195);
+  near(boxes.readiness.nodes.third.y,355);
+  near(boxes.support.height,480);near(boxes.support.nodes.title.y,39);
+  near(boxes.support.nodes.intro.y,105);near(boxes.support.nodes.steps.y,195);
+  near(boxes.support.nodes.number.y,195);near(boxes.support.nodes.desc.y,251);
+  near(boxes.support.nodes.fine.y,383);
+  expect(boxes.readiness.visibleKicker).toBe('none');
+  expect(boxes.support.visibleKicker).toBe('none');
+});
+
+test('V11 only PC >1100 changes; tablet and SP original geometry preserved',async({page})=>{
+  for(const [width,model,readiness,support] of [[1024,698,523,457],[390,840,765,618],[360,840,765,618]]){
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const heights=await page.evaluate(()=>{
+      const h=s=>document.querySelector(s).getBoundingClientRect().height;
+      return [h('#models'),h('#readiness'),h('.g1-support'),document.documentElement.scrollWidth-innerWidth];
+    });
+    [model,readiness,support].forEach((expected,i)=>expect(Math.abs(heights[i]-expected)).toBeLessThanOrEqual(3));
+    expect(heights[3]).toBeLessThanOrEqual(1);
+  }
 });
 
 // Figma SP six-photo gallery headline wraps at the design line break

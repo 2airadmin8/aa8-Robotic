@@ -748,3 +748,43 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
   .g1-page .g1-research .g1-use-list article{min-height:178px}
   .g1-page .g1-research>.g1-shell>.g1-fine{margin-top:22px}
 }
+
+
+/* V11 PC-only: exact Figma G1/EDU, readiness, support geometry.
+   Three scoped visual corrections; SP/tablet, manufacturer facts, shared SSOT and CTAs unchanged. */
+@media(min-width:1101px){
+  /* PC model comparison: Figma 11:46 / 1440x735. */
+  .g1-page #models{padding-top:33px;padding-bottom:56px}
+  .g1-page #models .g1-heading{margin-bottom:45px}
+  .g1-page #models .g1-model-grid{gap:60px}
+  .g1-page #models .g1-model-grid h3{margin-top:25px}
+  .g1-page #models .g1-model-grid p:not(.g1-kicker):not(.g1-fine){min-height:123px}
+  .g1-page #models .g1-model-grid strong{margin-bottom:34px}
+  .g1-page #models .g1-model-grid article,
+  .g1-page #models .g1-model-grid article:last-child{padding-bottom:63px}
+  .g1-page #models .g1-model-note{margin-top:28px}
+
+  /* PC four pre-purchase checks: Figma 11:130 / 1440x505. */
+  .g1-page #readiness{padding-top:20px;padding-bottom:36px}
+  .g1-page #readiness .g1-heading,
+  .g1-page .g1-support .g1-heading{text-align:center}
+  .g1-page #readiness .g1-heading>.g1-kicker,
+  .g1-page .g1-support .g1-heading>.g1-kicker{display:none}
+  .g1-page #readiness .g1-heading h2,
+  .g1-page .g1-support .g1-heading h2{margin-top:0}
+  .g1-page #readiness .g1-heading .g1-intro,
+  .g1-page .g1-support .g1-heading .g1-intro{max-width:100%;margin:21px auto 0}
+  .g1-page #readiness .g1-heading{margin-bottom:84px}
+  .g1-page #readiness .g1-check-grid{row-gap:46px}
+
+  /* PC AirAdmin8 four-step support: Figma 11:149 / 1440x480. */
+  .g1-page .g1-support{padding-top:39px;padding-bottom:76px}
+  .g1-page .g1-support .g1-heading .g1-intro{margin-top:22px}
+  .g1-page .g1-support .g1-heading{margin-bottom:64px}
+  .g1-page .g1-support-steps{margin-bottom:76px}
+  .g1-page .g1-support-steps>div{
+    min-height:112px;border-top:0;border-bottom:1px solid #e8e8e8;padding-top:0
+  }
+  .g1-page .g1-support-steps span{font-size:35px;line-height:1.6;margin-bottom:0}
+  .g1-page .g1-support-steps strong{font-size:17px;line-height:1.75}
+}
