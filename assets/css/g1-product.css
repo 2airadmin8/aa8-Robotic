@@ -662,3 +662,14 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
     padding-bottom:10px;
   }
 }
+
+
+/* Figma SP gallery heading size (node 150:31): 24px/1.54 two lines.
+   Desktop 30px and all six approved manufacturer photos stay unchanged. */
+@media(max-width:780px){
+  .g1-page .g1-detail-gallery .g1-heading h2{
+    font-size:24px;
+    line-height:1.54;
+    letter-spacing:0;
+  }
+}

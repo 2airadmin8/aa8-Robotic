@@ -466,3 +466,30 @@ test('PC model section preserved while SP spacing fixed',async({page})=>{
   const size=await page.locator('#models').evaluate(el=>el.getBoundingClientRect().height);
   expect(Math.abs(size-698)).toBeLessThanOrEqual(3);
 });
+
+// Figma SP six-photo gallery headline wraps at the design line break
+// node 150:31; protect against splitting the last "る。" from the title.
+test('Figma SP six-photo gallery headline wraps at the design line break',async({page})=>{
+  await page.setViewportSize({width:390,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const h=page.locator('.g1-detail-gallery .g1-heading h2');
+  const span=h.locator('.g1-sp-only');
+  await expect(span).toBeVisible();
+  await expect(h.locator('.g1-pc-only')).toBeHidden();
+  await expect(span).toHaveText('機体の可能性を、細部から見る。');
+  expect(await span.locator('br').count()).toBe(1);
+  const m=await h.evaluate(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+    return{font:parseFloat(s.fontSize),line:parseFloat(s.lineHeight),height:r.height}});
+  expect(m.font).toBe(24);
+  expect(Math.abs(m.height-74)).toBeLessThanOrEqual(2);
+  const imgs=page.locator('.g1-detail-grid img');
+  await expect(imgs).toHaveCount(6);
+});
+test('Figma PC six-photo gallery heading unchanged',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const h=page.locator('.g1-detail-gallery .g1-heading h2');
+  await expect(h.locator('.g1-pc-only')).toBeVisible();
+  await expect(h.locator('.g1-sp-only')).toBeHidden();
+  expect(await h.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBe(30);
+});
