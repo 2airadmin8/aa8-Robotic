@@ -244,7 +244,9 @@ for (const width of [1440,390]) {
 test('G1 Figma SP capability heading uses mobile copy', async ({page})=>{
   await page.setViewportSize({width:390,height:900});
   await page.goto(url,{waitUntil:'networkidle'});
-  await expect(page.locator('#capabilities h2')).toHaveText('動く。学ぶ。つかむ。');
-  await expect(page.locator('#capabilities .g1-heading .g1-intro')).toContainText('3つの力で、実機研究の可能性を広げる。');
+  await expect(page.locator('#capabilities h2 .g1-sp-only')).toHaveText('動く。学ぶ。つかむ。');
+  await expect(page.locator('#capabilities h2 .g1-sp-only')).toBeVisible();
+  await expect(page.locator('#capabilities h2 .g1-pc-only')).toBeHidden();
+  await expect(page.locator('#capabilities .g1-heading .g1-intro .g1-sp-only')).toHaveText('3つの力で、実機研究の可能性を広げる。');
   await expect(page.locator('#capabilities .g1-proof-photo img')).toHaveAttribute('src','/assets/img/products/unitree/catalog/28_g1.png');
 });
