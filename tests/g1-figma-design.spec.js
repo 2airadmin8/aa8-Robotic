@@ -591,3 +591,51 @@ test('Figma PC gallery 150:2 pixel geometry after gap correction',async({page})=
   expect(a.cards.every(x=>x.card.h===241)).toBe(true);
   expect(a.sources).toHaveLength(6);
 });
+
+// Figma original PC Hero y-coordinates: node 11:28, 1440x555.
+// Preserve manufacturer video in-page playback and fallback link,
+// rather than removing valid business text to force the Figma screenshot.
+test('Figma original PC Hero y-coordinates',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const a=await page.locator('.g1-hero').evaluate(section=>{
+    const r=section.getBoundingClientRect();
+    const coord=q=>{const e=section.querySelector(q),b=e.getBoundingClientRect();
+      return {y:Math.round(b.top-r.top),x:Math.round(b.left-r.left),h:Math.round(b.height)}};
+    return {
+      hero:coord('.g1-shell'),
+      height:Math.round(r.height),
+      eyebrow:coord('.g1-hero-copy>.g1-kicker'),
+      title:coord('#g1-title'),
+      lead:coord('.g1-hero-lead'),
+      description:coord('.g1-hero-description'),
+      actions:coord('.g1-hero-ctas'),
+      note:coord('.g1-hero-note'),
+      video:coord('.g1-hero-video'),
+      externalFallback:!!section.querySelector('.g1-image-caption a[href*="youtube.com"]')
+    };
+  });
+  expect(a.height).toBe(555);
+  expect(a.eyebrow).toMatchObject({x:120,y:101});
+  expect(a.title).toMatchObject({x:120,y:136});
+  expect(Math.abs(a.lead.y-202)).toBeLessThanOrEqual(1);
+  expect(a.description).toMatchObject({x:120,y:312});
+  expect(a.actions).toMatchObject({x:120,y:414,h:50});
+  expect(a.note).toMatchObject({x:120,y:482});
+  expect(a.video).toMatchObject({x:720,y:86,h:400});
+  expect(a.externalFallback).toBe(true);
+});
+for (const width of [1024,390]){
+  test('PC Hero CSS adjustment does not affect '+width+'px layout',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const a=await page.locator('.g1-hero').evaluate(e=>({
+      h:Math.round(e.getBoundingClientRect().height),
+      titleY:Math.round(e.querySelector('#g1-title').getBoundingClientRect().top-e.getBoundingClientRect().top),
+      overflow:document.documentElement.scrollWidth>innerWidth+1
+    }));
+    expect(Math.abs(a.h-(width===1024?532:696))).toBeLessThanOrEqual(2);
+    expect(a.titleY).toBe(width===1024?121:79);
+    expect(a.overflow).toBe(false);
+  });
+}

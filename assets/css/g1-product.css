@@ -726,3 +726,13 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
   .g1-page .g1-detail-gallery .g1-detail-grid{row-gap:19px}
   .g1-page .g1-detail-gallery>.g1-shell>.g1-fine{margin-top:17px;line-height:19px}
 }
+
+
+/* Figma PC Hero remaining -7px alignment / original node 11:28.
+   Original PC copy begins at y101, while Vercel HTML was y108.
+   Retain inline video + official external fallback/disclaimer, therefore
+   collapse only excess section bottom whitespace (576->555px). SP unchanged. */
+@media(min-width:1101px){
+  .g1-page .g1-hero{padding-bottom:23px}
+  .g1-page .g1-hero-copy{transform:translateY(-7px)}
+}
