@@ -27,14 +27,33 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.g1-spec-table tbody tr:not(.g1-spec-group)')).toHaveCount(28);
     const boxes = await page.evaluate(() => {
       const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width }; };
-      return { copy:box('.g1-hero-copy'), media:box('.g1-hero-media'), modelHeading:box('#models h2'),
+      return { copy:box('.g1-hero-copy'), media:box('.g1-hero-media'),
+        lead:box('.g1-hero-lead'), video:box('.g1-hero-video'), description:box('.g1-hero-description'),
+        buttons:box('.g1-hero-ctas'), primary:box('.g1-hero-ctas .g1-button:first-child'),
+        secondary:box('.g1-hero-ctas .g1-button:last-child'), hero:box('.g1-hero'),
+        modelHeading:box('#models h2'),
         overflow:document.documentElement.scrollWidth > innerWidth + 1 };
     });
     expect(boxes.overflow).toBe(false);
     if (width === 1440) {
       expect(boxes.copy.x).toBeLessThan(boxes.media.x);
       expect(boxes.media.width).toBeGreaterThanOrEqual(590);
-    } else expect(boxes.copy.y).toBeLessThan(boxes.media.y);
+    } else {
+      // Figma visible SP 390 Product-first 2.1 / 13:2, 22:81:
+      // headline, then official video, then description, two equal CTAs on one row.
+      expect(boxes.lead.y).toBeLessThan(boxes.video.y);
+      expect(boxes.video.y).toBeLessThan(boxes.description.y);
+      expect(boxes.description.y).toBeLessThan(boxes.buttons.y);
+      expect(boxes.primary.y).toBe(boxes.secondary.y);
+      expect(Math.abs(boxes.primary.width - 167)).toBeLessThanOrEqual(3);
+      expect(Math.abs(boxes.secondary.width - 167)).toBeLessThanOrEqual(3);
+      expect(boxes.video.width).toBeGreaterThanOrEqual(340);
+      expect(boxes.hero.height).toBeLessThan(760);
+      expect(boxes.hero.height).toBeGreaterThan(600);
+      await expect(page.locator('.g1-hero-ctas a').first()).toContainText('公式デモを見る');
+      await expect(page.locator('.g1-hero-ctas a').last()).toContainText('導入を相談する');
+      await expect(page.locator('#models .g1-heading .g1-sp-only')).toContainText('通常版の二次開発は非対応です。');
+    }
     const errors = await page.evaluate(async () => {
       const imgs=[...document.querySelectorAll('.g1-page img')];
       await Promise.all(imgs.map(img => {
