@@ -673,3 +673,44 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
     letter-spacing:0;
   }
 }
+
+
+/* Figma SP six-photo gallery card geometry 150:31:
+   six 164x249 cards, 146x173 photo slots, y=215/485/755.
+   Exact maker images and PC verbose headings preserved. */
+@media(max-width:780px){
+  .g1-page .g1-detail-gallery{padding:30px 0 35px}
+  .g1-page .g1-detail-gallery .g1-heading{margin-bottom:32px}
+  .g1-page .g1-detail-gallery .g1-heading>.g1-kicker{
+    font-size:12px;line-height:1.5;
+  }
+  .g1-page .g1-detail-gallery .g1-heading h2{
+    font-size:24px;line-height:1.54;letter-spacing:0;margin-top:21px;
+  }
+  .g1-page .g1-detail-gallery .g1-heading .g1-intro{
+    font-size:12px;line-height:1.65;margin-top:0;max-width:346px;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    column-gap:19px;row-gap:21px;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-item{
+    height:249px;min-height:249px;max-height:249px;
+    padding:8px 8px 8px;overflow:hidden;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-image{
+    height:173px;width:100%;overflow:hidden;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-item h3{
+    font-size:13.1px;line-height:1.53;margin:5px 2px 5px;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-item h3 .g1-sp-only{
+    color:#333;font-weight:800;
+  }
+  .g1-page .g1-detail-gallery .g1-detail-item p{
+    font-size:10.5px;line-height:1.43;
+  }
+  .g1-page .g1-detail-gallery>.g1-shell>.g1-fine{
+    font-size:10.5px;line-height:1.62;margin-top:40px;
+  }
+}

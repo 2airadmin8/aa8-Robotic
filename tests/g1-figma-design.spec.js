@@ -493,3 +493,72 @@ test('Figma PC six-photo gallery heading unchanged',async({page})=>{
   await expect(h.locator('.g1-sp-only')).toBeHidden();
   expect(await h.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBe(30);
 });
+
+
+// Figma six-photo SP 150:31 card geometry guard.
+// The source manufacturer's six images and all PC titles remain unchanged.
+for(const width of [390,360]){
+  test('Figma six-photo SP 150:31 card geometry guard at '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const v=await page.locator('.g1-detail-gallery').evaluate(section=>{
+      const origin=section.getBoundingClientRect();
+      const box=e=>{const r=e.getBoundingClientRect();
+        return {x:Math.round(r.x-origin.x),y:Math.round(r.y-origin.y),w:Math.round(r.width),h:Math.round(r.height)}};
+      const cards=[...section.querySelectorAll('.g1-detail-item')];
+      return {
+        section:box(section),
+        kicker:box(section.querySelector('.g1-heading .g1-kicker')),
+        title:box(section.querySelector('h2')),
+        intro:box(section.querySelector('.g1-heading .g1-intro')),
+        grid:box(section.querySelector('.g1-detail-grid')),
+        cards:cards.map(c=>({card:box(c),image:box(c.querySelector('.g1-detail-image')),
+          title:c.querySelector('h3 .g1-sp-only')?.textContent.trim(),
+          pc:getComputedStyle(c.querySelector('h3 .g1-pc-only')).display})),
+        note:box(section.querySelector('.g1-shell>.g1-fine')),
+        sources:[...section.querySelectorAll('img')].map(i=>i.getAttribute('src')),
+        overflow:document.documentElement.scrollWidth>innerWidth+1
+      };
+    });
+    expect(Math.abs(v.section.h-1113)).toBeLessThanOrEqual(1);
+    expect(v.kicker.y).toBe(30);
+    expect(v.title.y).toBe(69);
+    expect(v.intro.y).toBe(143);
+    expect(v.grid.y).toBe(215);
+    expect(v.cards).toHaveLength(6);
+    for(let i=0;i<6;i++){
+      const c=v.cards[i];
+      expect(c.card.y).toBe([215,215,485,485,755,755][i]);
+      expect(c.card.h).toBe(249);
+      expect(c.image.h).toBe(173);
+      expect(c.pc).toBe('none');
+    }
+    if(width===390){
+      expect(v.cards[0].card.w).toBe(164);
+      expect(v.cards[0].image.w).toBe(146);
+      expect(v.note.y).toBe(1044);
+    }
+    expect(v.cards.map(c=>c.title)).toEqual([
+      '力制御ハンド','機体構造','全身の可動域',
+      '関節の駆動','バッテリー','環境を捉える感知'
+    ]);
+    expect(v.sources).toHaveLength(6);
+    expect(v.overflow).toBe(false);
+  });
+}
+test('PC six-photo layout and original desktop titles preserved',async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(url,{waitUntil:'networkidle'});
+  const v=await page.locator('.g1-detail-gallery').evaluate(s=>({
+    height:s.getBoundingClientRect().height,
+    cards:[...s.querySelectorAll('.g1-detail-item')].map(c=>({
+      title:c.querySelector('h3 .g1-pc-only').textContent.trim(),
+      height:c.getBoundingClientRect().height
+    }))
+  }));
+  expect(Math.abs(v.height-743)).toBeLessThanOrEqual(1);
+  expect(v.cards).toHaveLength(6);
+  expect(v.cards.every(c=>c.height===241)).toBe(true);
+  expect(v.cards[0].title).toBe('力を制御する3指ハンド');
+  expect(v.cards[5].title).toBe('3D LiDAR＋深度カメラ');
+});
