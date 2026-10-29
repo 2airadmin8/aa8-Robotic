@@ -62,7 +62,7 @@ for (const width of [1440, 390]) {
     });
     expect(specPhoto.naturalWidth).toBe(630);
     expect(specPhoto.naturalHeight).toBe(590);
-    expect(specPhoto.objectFit).toBe('contain');
+    expect(specPhoto.objectFit).toBe('fill'); // Intrinsic ratio preserved by width:100%, height:auto.
     expect(specPhoto.bottom).toBeLessThan(specPhoto.tableTop);
     // Figma source legend belongs between the overview panel and the
     // comparison table. Never allow it to overflow the absolute image slot.
@@ -76,8 +76,10 @@ for (const width of [1440, 390]) {
     expect(sourceFlow.captionTop).toBeGreaterThanOrEqual(sourceFlow.overviewBottom);
     expect(sourceFlow.captionBottom).toBeLessThan(sourceFlow.tableTop);
 
-    expect(Math.abs(specPhoto.width-(width===1440?313:346))).toBeLessThanOrEqual(1);
-    expect(Math.abs(specPhoto.height-(width===1440?174:227))).toBeLessThanOrEqual(1);
+    // CEO-approved enlarged image overrides the smaller Figma image slot:
+    // PC original 630x590, SP fills 346px and preserves source aspect ratio.
+    expect(Math.abs(specPhoto.width-(width===1440?630:346))).toBeLessThanOrEqual(1);
+    expect(Math.abs(specPhoto.height-(width===1440?590:346*590/630))).toBeLessThanOrEqual(1);
 
     const boxes = await page.evaluate(() => {
       const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width, height:r.height }; };

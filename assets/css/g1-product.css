@@ -450,24 +450,49 @@ main.g1-page > section.g1-section.g1-final-cta h2{color:#fff}
 main.g1-page > section.g1-section.g1-final-cta>.g1-shell>p:not(.g1-kicker){color:#e9f8ff}
 
 
-/* Figma SSOT / G1 specifications official annotated photo:
-   PC 62:4 overview (1200x211), visible image 62:10 (313x174)
-   SP 62:147 visible image (346x227), before the 28-item spec table.
-   Preserve official source pixels via object-fit:contain (no crop). */
-.g1-page .g1-spec-overview{position:relative;width:100%;min-height:211px;margin:0;border-top:1px solid #d6e6ed;background:#fff;display:flex;align-items:stretch}
-.g1-page .g1-spec-overview-models{display:flex;flex-direction:column;gap:12px;padding:20px 0 16px 24px;max-width:650px;flex:1;min-width:0}
+/* CEO-approved exception to the small Figma image slot:
+   show original 630x590 annotated G1 photo at native size on PC.
+   SP fits available 346px width and keeps the original 630:590 ratio.
+   Keep the same original JPEG pixels and preserve table/source ordering. */
+.g1-page .g1-spec-overview{
+  position:relative;width:100%;min-height:590px;margin:0;
+  border-top:1px solid #d6e6ed;background:#fff;
+  display:flex;align-items:flex-start;gap:16px;
+}
+.g1-page .g1-spec-overview-models{
+  display:flex;flex-direction:column;gap:12px;padding:25px 10px 18px 24px;
+  max-width:none;min-width:0;flex:1;
+}
 .g1-page .g1-spec-overview-label{color:#0075b5;font-weight:800;font-size:15px;line-height:1.5}
-.g1-page .g1-spec-overview-entry{display:flex;align-items:baseline;gap:16px;font-size:14px;line-height:1.45}
-.g1-page .g1-spec-overview-entry strong{color:#333;min-width:85px;font-size:17px}
+.g1-page .g1-spec-overview-entry{display:flex;flex-direction:column;gap:5px;font-size:14px;line-height:1.45}
+.g1-page .g1-spec-overview-entry strong{color:#333;font-size:17px}
 .g1-page .g1-spec-overview-entry span{color:#687983}
-.g1-page .g1-spec-overview-figure{position:absolute;right:24px;top:18px;width:313px;margin:0}
-.g1-page .g1-spec-overview-figure picture,.g1-page .g1-spec-overview-figure img{display:block;width:313px;height:174px}
-.g1-page .g1-spec-overview-figure img{object-fit:contain;object-position:center;background:#fff}
+.g1-page .g1-spec-overview-figure{
+  position:static;flex:none;right:auto;top:auto;
+  width:630px;max-width:100%;margin:0;
+}
+.g1-page .g1-spec-overview-figure picture,
+.g1-page .g1-spec-overview-figure img{
+  display:block;width:100%;height:auto;max-width:630px;
+}
+.g1-page .g1-spec-overview-figure img{
+  object-fit:initial;object-position:center;background:transparent;
+}
 .g1-page .g1-spec-image-source{font-size:11px;color:#647582;line-height:1.55;margin:18px 0 22px}
-@media(max-width:780px){
- .g1-page .g1-spec-overview{border-top:0;min-height:0;display:flex;flex-direction:column;margin:0}
- .g1-page .g1-spec-overview-models{display:none}
- .g1-page .g1-spec-overview-figure{position:static;width:346px;max-width:100%;margin:0}
- .g1-page .g1-spec-overview-figure picture,.g1-page .g1-spec-overview-figure img{width:346px;max-width:100%;height:227px}
- .g1-page .g1-spec-image-source{margin:9px 0 22px;font-size:10px;line-height:1.5}
+@media (min-width:781px) and (max-width:1100px){
+  .g1-page .g1-spec-overview{min-height:0}
+  .g1-page .g1-spec-overview-figure{width:58%}
+  .g1-page .g1-spec-overview-models{padding:20px 0 15px 12px}
+}
+@media (max-width:780px){
+  .g1-page .g1-spec-overview{border-top:0;min-height:0;display:block;margin:0}
+  .g1-page .g1-spec-overview-models{display:none}
+  .g1-page .g1-spec-overview-figure{
+    position:static;width:100%;max-width:346px;margin:0 auto;
+  }
+  .g1-page .g1-spec-overview-figure picture,
+  .g1-page .g1-spec-overview-figure img{
+    width:100%;max-width:346px;height:auto;
+  }
+  .g1-page .g1-spec-image-source{margin:9px 0 22px;font-size:10px;line-height:1.5}
 }
