@@ -29,6 +29,30 @@ for (const width of [1440, 390]) {
     await expect(page.locator('.g1-cta-grid .g1-cta-card')).toHaveCount(3);
     await expect(page.locator('.g1-faq-list details')).toHaveCount(3);
     await expect(page.locator('.g1-spec-table tbody tr:not(.g1-spec-group)')).toHaveCount(28);
+
+    // Missing spec-image prevention, per visible Figma node 62:10 PC / 62:147 SP.
+    // Current G1/G1 EDU factual spec values are preserved independently.
+    await expect(page.locator('.g1-spec-overview-figure img')).toHaveCount(1);
+    await expect(page.locator('.g1-spec-overview-figure img')).toHaveAttribute(
+      'src', '/assets/img/products/unitree/g1/g1-spec-annotated-official.jpg'
+    );
+    const specPhoto = await page.locator('.g1-spec-overview-figure img').evaluate(img => {
+      const r=img.getBoundingClientRect();
+      const table=document.querySelector('.g1-table-wrap').getBoundingClientRect();
+      const style=getComputedStyle(img);
+      return {
+        width:r.width,height:r.height,objectFit:style.objectFit,
+        naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
+        top:r.top,bottom:r.bottom,tableTop:table.top
+      };
+    });
+    expect(specPhoto.naturalWidth).toBe(630);
+    expect(specPhoto.naturalHeight).toBe(590);
+    expect(specPhoto.objectFit).toBe('contain');
+    expect(specPhoto.bottom).toBeLessThan(specPhoto.tableTop);
+    expect(Math.abs(specPhoto.width-(width===1440?313:346))).toBeLessThanOrEqual(1);
+    expect(Math.abs(specPhoto.height-(width===1440?174:227))).toBeLessThanOrEqual(1);
+
     const boxes = await page.evaluate(() => {
       const box = q => { const r = document.querySelector(q).getBoundingClientRect();return { x:r.x, y:r.y, width:r.width, height:r.height }; };
       return { copy:box('.g1-hero-copy'), media:box('.g1-hero-media'),
