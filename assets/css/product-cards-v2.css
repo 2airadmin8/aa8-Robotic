@@ -279,3 +279,17 @@
     padding-inline: 12px;
   }
 }
+/* Unitree original-product card imagery: only G1-D and G1.
+   The originals come from the approved shared-drive source;
+   expand card artwork without cropping the robots or changing G2. */
+.research-product-card:is(#unitree-g1-d,#unitree-g1) .product-visual img{
+  object-fit:contain;
+  padding:6px;
+  opacity:1;
+  background:transparent;
+}
+@media(max-width:640px){
+  .research-product-card:is(#unitree-g1-d,#unitree-g1) .product-visual img{
+    padding:5px 2px;
+  }
+}

@@ -7,12 +7,13 @@
   "images": [
     {
       "model": "Unitree G1",
-      "sourceFile": "28_g1.png",
+      "sourceFile": "g1.png",
       "webPath": "/assets/img/products/unitree/catalog/28_g1.png",
       "width": 500,
       "height": 500,
       "bytes": 92553,
-      "sha256": "9d7cc68a7b6e53f337c7bf92ba942bd8d115d56cec63a7f79aaee8fee79ecbd7"
+      "sha256": "9d7cc68a7b6e53f337c7bf92ba942bd8d115d56cec63a7f79aaee8fee79ecbd7",
+      "publishedFile": "28_g1.png"
     },
     {
       "model": "Unitree G1+",
@@ -58,6 +59,15 @@
       "height": 801,
       "bytes": 304397,
       "sha256": "ba6637fe52b7c85646d9e85dd201f41ffa908648c7788beb04eec512586df50f"
+    },
+    {
+      "model": "Unitree G1-D",
+      "sourceFile": "unitree-g1-d.png",
+      "webPath": "/assets/img/products/unitree/catalog/unitree-g1-d.png",
+      "width": 801,
+      "height": 800,
+      "bytes": 122062,
+      "sha256": "fe461d3c3195d5821c42fd5eca3731e0a36fd522bbe4b0b4b5c370dd7a8c2cc1"
     }
   ]
 }
