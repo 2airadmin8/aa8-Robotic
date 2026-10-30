@@ -90,3 +90,24 @@ test('H2-D real consultation entry prefilled without POST',async({page})=>{
  await expect(page.locator('[data-contact-form]')).toBeVisible();
  expect(posts).toBe(0);
 });
+
+test('H2-D embedded manufacturer video is actually decodable in Chromium',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ await page.goto(BASE+PAGE,{waitUntil:'networkidle'});
+ const video=page.locator('video[controls]');
+ await expect(video).toHaveCount(1);
+ const support=await video.evaluate(el=>({
+  h264:el.canPlayType('video/mp4; codecs="avc1.640028"'),
+  hevc:el.canPlayType('video/mp4; codecs="hvc1"')
+ }));
+ expect(support.h264).not.toBe('');
+ await video.evaluate(el=>{el.muted=true;el.preload='auto';el.load();});
+ await expect.poll(()=>video.evaluate(el=>({ready:el.readyState,width:el.videoWidth,duration:el.duration})),{
+  timeout:15000,
+  message:'embedded H2-D H.264 video must expose decoded video frames'
+ }).toMatchObject({ready:expect.any(Number),width:expect.any(Number),duration:expect.any(Number)});
+ await expect.poll(()=>video.evaluate(el=>el.videoWidth),{timeout:15000}).toBeGreaterThan(0);
+ await expect.poll(()=>video.evaluate(el=>el.duration),{timeout:15000}).toBeGreaterThan(1);
+ await video.evaluate(el=>el.play());
+ await expect.poll(()=>video.evaluate(el=>el.currentTime),{timeout:15000}).toBeGreaterThan(.1);
+});

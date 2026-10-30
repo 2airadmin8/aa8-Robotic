@@ -7,7 +7,7 @@ Checked: 2026-10-30 JST. State: isolated development candidate, **not** approved
 - User-specified 2026-10-28 archived manufacturer page: `G:\共有ドライブ\002_PAI_ID009_[PhyicalAI]_AIロボット\03_販売製品資料_カタログ_パンフレット\Unitree\素材\ヒューマノイドRobot\Application Plan\H2-D.html`
 - The matching archive Google Drive file: https://drive.google.com/file/d/11CJfRHe1kAhYgUVdxv1LFGT2tqSwxXBC/view
 - Media master: `G:\共有ドライブ\002_PAI_ID009_[PhyicalAI]_AIロボット\03_販売製品資料_カタログ_パンフレット\Unitree\素材\ヒューマノイドRobot\Application Plan\H2-D_assets` and shared Drive folder https://drive.google.com/drive/folders/1T7Pf7I-QeKg0SoiNXqxONa3W0Thm31EO.
-- Archive contains 25 files: 22 still images/SVG, one MP4, one video_url text and remaining associated thumbnail format. Selection below copied only actual page assets (15 files), verifying byte-for-byte SHA256.
+- Archive contains 25 files: 23 still images/SVG, 1 MP4 and 1 video-URL text. 14 selected still images were copied byte-for-byte and verified by SHA256. The selected original MP4 was HEVC/hvc1 and was converted once to H.264/avc1 for Chromium compatibility; the original file in Drive is unchanged.
 - The archived single-file HTML is approximately 8MB of full-page capture, **not** a source template to copy wholesale; this product page reuses the AirAdmin8-approved G1 website components.
 
 ## Manufacturer-published SKU comparison (do not conflate with full bipedal H2)
