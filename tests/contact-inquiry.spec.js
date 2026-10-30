@@ -83,3 +83,39 @@ test('repeated click during sending produces one request', async ({ page }) => {
   await expect(page).toHaveURL(/contact-thanks\.html/);
   expect(calls).toBe(1);
 });
+
+// PM_PREFILL regression: verify actual acquisition handoff, not just HTTP 200.
+// Never submit the form or call the live Apps Script endpoint.
+const pmPrefillBase = (process.env.PM_CONTACT_BASE_URL || BASE).replace(/\/$/, '');
+for (const entry of [
+  { query: '?product=Unitree%20G1', category: '導入条件整理', product: 'Unitree G1' },
+  { query: '?product=Unitree%20G1-D', category: '導入条件整理', product: 'Unitree G1-D' },
+  { query: '?theme=data', category: 'VLA・模倣学習データ収集', product: '' },
+  { query: '?product=AgiBot%20G2&service=multi-brand-comparison&theme=data', category: '製品比較・選定', product: 'AgiBot G2' },
+  { query: '?theme=use-case-review', category: '導入条件整理', product: '' },
+  { query: '', category: '', product: '' },
+]) {
+  test('PM_PREFILL source context '+(entry.query||'plain'), async ({ page }) => {
+    await page.goto(pmPrefillBase+'/contact.html'+entry.query, {waitUntil:'networkidle'});
+    const form=page.locator('[data-contact-form]');
+    await expect(form.locator('[name="category"]')).toHaveValue(entry.category);
+    await expect(form.locator('[name="product"]')).toHaveValue(entry.product);
+    if (entry.product) {
+      await expect(form.locator('[name="source_product"]')).toHaveValue(entry.product);
+    }
+    const sourceTheme = new URLSearchParams(entry.query).get('theme') || '';
+    await expect(form.locator('[name="source_theme"]')).toHaveValue(sourceTheme);
+    await expect(page.locator('[data-contact-confirm]')).not.toHaveJSProperty('open',true);
+  });
+}
+test('PM_PREFILL product-only context retains prior draft category',async({page})=>{
+  await page.addInitScript(()=>{
+    if(!window.localStorage.getItem('airadmin8-contact-draft-v1')) {
+      window.localStorage.setItem('airadmin8-contact-draft-v1',
+        JSON.stringify({savedAt:Date.now(),values:{category:'見積・大学購買'}}));
+    }
+  });
+  await page.goto(pmPrefillBase+'/contact.html?product=Unitree%20G1',{waitUntil:'networkidle'});
+  await expect(page.locator('[name="category"]')).toHaveValue('見積・大学購買');
+  await expect(page.locator('[name="product"]')).toHaveValue('Unitree G1');
+});
