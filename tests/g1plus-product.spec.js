@@ -36,6 +36,20 @@ for(const width of [1440,390,360]){
    await expect.poll(()=>image.evaluate(el=>el.naturalWidth),{timeout:15000}).toBeGreaterThan(100);
    expect((await image.getAttribute('alt')||'').trim().length).toBeGreaterThan(4);
   }
+  if(width<=480){
+   const order=await page.evaluate(()=>{
+    const y=(q)=>{const e=document.querySelector(q);return e.getBoundingClientRect().top+scrollY;};
+    return [
+     y('.g1p-hero .g1-hero-copy h1'),
+     y('.g1p-hero .g1p-hero-stage'),
+     y('.g1p-hero .g1-hero-description'),
+     y('.g1p-hero .g1-hero-ctas'),
+     y('.g1p-hero .g1-hero-copy .g1-fine')
+    ];
+   });
+   expect(order).toEqual([...order].sort((a,b)=>a-b));
+   expect(new Set(order).size).toBe(5);
+  }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
   expect(errors).toEqual([]);
   expect(failed).toEqual([]);

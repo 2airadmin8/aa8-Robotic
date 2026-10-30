@@ -154,3 +154,12 @@
  .g1p-card-visual,.g1p-card-numeric{height:195px;min-height:195px}
  .g1p-page .g1-shell{width:calc(100% - 28px)}
 }
+/* At phone widths, approved G1 base uses display:contents for the Hero.
+   Reorder the G1+ photo and note explicitly: kicker -> headline -> photo -> copy -> CTA -> fine print. */
+@media(max-width:480px){
+ .g1p-page .g1p-hero .g1p-hero-stage{order:3;width:100%;margin:8px 0 0}
+ .g1p-page .g1p-hero .g1-hero-media>.g1-image-caption{order:4;text-align:center;margin:5px 0 0}
+ .g1p-page .g1p-hero .g1-hero-copy>.g1-hero-description{order:5;margin:14px 0 0!important}
+ .g1p-page .g1p-hero .g1-hero-copy>.g1-hero-ctas{order:6;margin:18px 0 0}
+ .g1p-page .g1p-hero .g1-hero-copy>.g1-fine{order:7;margin:13px 0 0!important}
+}
