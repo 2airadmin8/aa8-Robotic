@@ -101,7 +101,7 @@
       "categoryId": "humanoid",
       "categoryLabel": "ヒューマノイド",
       "filterGroups": ["humanoid","education"],
-      "status": "preparing",
+      "status": "researching",
       "statusLabel": "取扱条件確認中",
       "visibility": "public",
       "salesStatus": "confirmation_required",
