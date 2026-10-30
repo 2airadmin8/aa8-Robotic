@@ -13,11 +13,11 @@ for(const width of [1440,390]){
     expect(title.scrollWidth).toBeLessThanOrEqual(title.width+1);
     const root=page.locator('[data-product-list]');
     await expect(root).toHaveAttribute('data-exclude-products','limx-oli');
-    await expect(root.locator('.research-product-card')).toHaveCount(8);
+    await expect(root.locator('.research-product-card')).toHaveCount(9);
     await expect(root.locator('#unitree-g1-plus')).toHaveCount(1);
     await expect(root.locator('#unitree-h2-d')).toHaveCount(1);
     await expect(root.locator('#limx-oli')).toHaveCount(0);
-    await expect(page.locator('.product-list-summary')).toContainText('8製品を比較');
+    await expect(page.locator('.product-list-summary')).toContainText('9製品を比較');
     for(const [id,filename] of [['unitree-g1-d','unitree-g1-d.png'],['unitree-g1','28_g1.png']]){
       const im=root.locator('#'+id+' .product-visual img');
       await expect(im).toHaveAttribute('src',new RegExp(filename.replaceAll('.','\\.')+'$'));

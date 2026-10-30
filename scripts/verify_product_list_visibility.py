@@ -21,4 +21,4 @@ assert next(p for p in products if p['id']=='limx-oli')['visibility']=='public'
 home=(root/'index.html').read_text(encoding='utf-8')
 home_output,count=render_html(home,Path('index.html'),products)
 assert count==1 and home_output.count('class="product-card research-product-card"')==3
-print('Product catalog exclusion SSOT PASS: 8 compare cards; LimX Oli data preserved; home 3 unaffected')
+print('Product catalog exclusion SSOT PASS: 9 compare cards; LimX Oli data preserved; home 3 unaffected')
