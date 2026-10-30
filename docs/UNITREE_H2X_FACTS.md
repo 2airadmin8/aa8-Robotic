@@ -12,3 +12,12 @@
 - Factory images are not a blanket transfer of copyright rights. Manufacturer source is disclosed; user policy permits promotional use with attribution.
 - Videos absent intentionally: original Drive folder is H2 footage, not proved to be H2-X, and playback is not validated.
 - Release Gate: isolated PR -> CI / independent QA -> exact SHA interactive noindex HTML Preview -> CEO approval -> manual-only release. No premature main merge.
+## Corrected H2-X material SSOT (CEO correction, 2026-10-31)
+Exact authorized source folder on G:
+G:\蜈ｱ譛峨ラ繝ｩ繧､繝暴002_PAI_ID009_[PhyicalAI]_AI繝ｭ繝懊ャ繝・03_雋ｩ螢ｲ陬ｽ蜩∬ｳ・侭_繧ｫ繧ｿ繝ｭ繧ｰ_繝代Φ繝輔Ξ繝・ヨ\Unitree\邏譚申繝偵Η繝ｼ繝槭ヮ繧､繝嘘obot\繝偵Η繝ｼ繝槭ヮ繧､繝峨Ο繝懊ャ繝医・3遞ｮ・募刀\H2-X_assets
+This folder was verified to contain 25 files including 3 videos; it supersedes the previously misinterpreted H2_assets location.
+Website selected images: image_005.webp, image_012.jpg, image_013.jpg, image_014.jpg.
+Website videos: video_01.mp4, video_02.mp4, video_03.mp4, copied without modification to originals. FFmpeg confirmed H.264 (avc1) 1920x1080 50fps, AAC, durations 14.46s / 14.94s / 11.40s.
+Remaining source images stay in the folder, indexed as candidate raw material rather than blindly published.
+Visual media depict manufacturer demos, not independent proof of guaranteed operation.
+No deployment or production merge granted for this change; CEO must inspect exact-HEAD HTML Preview.
