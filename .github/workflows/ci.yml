@@ -116,7 +116,7 @@ jobs:
             sleep 0.5
           done
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js --reporter=line
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js --reporter=line
 
       - name: Ensure build does not modify tracked source
         id: source_clean

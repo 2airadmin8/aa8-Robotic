@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-28",
+  "updatedAt": "2026-10-30",
   "pages": {
     "products/unitree-g1-d.html": {
       "title": "Unitree G1-D｜価格・SDK・VLA・大学研究向け導入支援｜AirAdmin8 Robotics",
@@ -29,6 +29,10 @@
     "products/tianji-marvin.html": {
       "title": "Tianji Marvin｜VLA・双腕テレオペ・HDF5/RLDSデータ収集｜AirAdmin8 Robotics",
       "description": "Tianji Marvinの双腕力制御、全方向移動、テレオペ、HDF5・RLDS、VLA・模倣学習向けデータ収集、価格・納期・構成条件を整理します。"
+    },
+    "products/unitree-g1-plus.html": {
+      "title": "Unitree G1+｜25自由度・G1+ EDU比較・研究導入相談｜AirAdmin8 Robotics",
+      "description": "Unitree G1+の新しい2自由度ネック、強化された関節駆動、双眼・広角カメラと対話機能を解説。G1+標準版とG1+ EDUの仕様・二次開発の違い、日本国内での導入条件を比較できます。"
     }
   }
 }
