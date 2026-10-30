@@ -40,6 +40,7 @@ PAGE_MAP = {
     "products/unitree-g1.html": {"name": "Unitree G1", "type": "Product", "brand": "Unitree"},
     "products/unitree-g1-plus.html": {"name": "Unitree G1+", "type": "Product", "brand": "Unitree"},
     "products/unitree-h2-d.html": {"name": "Unitree H2-D", "type": "Product", "brand": "Unitree"},
+    "products/unitree-h2.html": {"name": "Unitree H2", "type": "Product", "brand": "Unitree"},
     "products/unitree-go2.html": {"name": "Unitree Go2 EDU", "type": "Product", "brand": "Unitree"},
     "products/agibot-x2-edu.html": {"name": "AgiBot X2 EDU", "type": "Product", "brand": "AgiBot"},
     "products/limx-oli.html": {"name": "LimX Oli", "type": "Product", "brand": "LimX Dynamics"},

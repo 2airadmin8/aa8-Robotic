@@ -37,6 +37,10 @@
     "products/unitree-h2-d.html": {
       "title": "Unitree H2-D｜輪式双腕ロボット・産業マニピュレーション・仕様比較｜AirAdmin8 Robotics",
       "description": "Unitree H2-Dは双腕7軸、片腕定格約7kgの車輪型・据置型マニピュレーションロボット。標準版19自由度とフラッグシップ20自由度、搬送・組立・研究PoC、SDKと導入条件を比較。"
+    },
+    "products/unitree-h2.html": {
+      "title": "Unitree H2｜31自由度の人型ロボット・H2 EDU仕様比較・大学研究導入｜AirAdmin8 Robotics",
+      "description": "Unitree H2は約182cm・70kgの31自由度フルサイズヒューマノイド。H2とH2 EDUの二次開発対応、関節トルク、双眼カメラ、研究用途、国内導入条件を比較。"
     }
   }
 }
