@@ -1,0 +1,10 @@
+
+/* H2-X scoped white-base extension of approved G1/H2 template */
+.h2x-page .h2-hero{background:linear-gradient(115deg,#fff,#f6fafc 64%,#eaf4f9)}
+.h2x-page .h2-hero h1 span{color:#0879ad}
+.h2x-page .h2-product-stage{background:#f1f6fa}
+.h2x-page .h2-product-stage img{mix-blend-mode:normal;object-fit:contain;width:100%;height:100%}
+.h2x-page .h2-research-photo{background:#f5f8fb}
+.h2x-page .h2-research-photo img{object-fit:cover}
+.h2x-page .h2-hero-lead{max-width:580px}
+.h2x-page .h2-stats strong{font-variant-numeric:tabular-nums}

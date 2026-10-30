@@ -73,7 +73,7 @@ test('H2-D in product master and visible comparison card exactly once',async({pa
  expect(products[0].salesStatus).toBe('confirmation_required');
  expect(products[0].detailPage).toBe('products/unitree-h2-d.html');
  await page.goto(BASE+'/products.html',{waitUntil:'networkidle'});
- await expect(page.locator('[data-product-list] .research-product-card')).toHaveCount(9);
+ await expect(page.locator('[data-product-list] .research-product-card')).toHaveCount(10);
  await expect(page.locator('[data-product-list] #unitree-h2-d')).toHaveCount(1);
  await expect(page.locator('[data-product-list] #unitree-h2-d a[href*="unitree-h2-d.html"]').first()).toBeVisible();
 });
