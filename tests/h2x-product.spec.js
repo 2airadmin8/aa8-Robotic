@@ -13,7 +13,7 @@ for(const width of [1440,390,360])test('H2-X official SKU, white layout, actual 
  await expect(page.locator('.h2-model-grid article')).toHaveCount(2);
  await expect(page.locator('.h2-table tbody tr')).toHaveCount(15);
  await expect(page.locator('#faq details')).toHaveCount(4);
- await expect(page.locator('.h2-next-grid a')).toHaveCount(3);
+ await expect(page.locator('.h2x-final-cta .g1-cta-card')).toHaveCount(3);
  const spec=await page.locator('#specifications').innerText();
  for(const text of ['1725 × 455 × 245','65kg以上','31 DoF','300 N·m','150 N·m','1.152kWh','非対応','対応（SDK範囲確認）'])expect(spec).toContain(text);
  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href','https://robotics.air-admin8.co.jp'+PAGE);
@@ -22,8 +22,8 @@ for(const width of [1440,390,360])test('H2-X official SKU, white layout, actual 
   return {white:s('.h2-strengths').backgroundColor,blue:s('.h2-use').backgroundColor,gradient:s('.h2-next').backgroundImage,text:s('.h2-next h2').color,width:document.documentElement.scrollWidth};
  });
  expect(css.white).toBe('rgb(255, 255, 255)');
- expect(css.blue).toBe('rgb(243, 248, 251)');
- expect(css.gradient).toContain('linear-gradient');
+ expect(css.blue).toBe('rgb(255, 255, 255)');
+ expect(css.gradient).toContain('g1-cta-figma-pc.png');
  expect(css.text).toBe('rgb(255, 255, 255)');
  expect(css.width).toBeLessThanOrEqual(width+1);
  for(const im of await page.locator('main.h2x-page img').all()){

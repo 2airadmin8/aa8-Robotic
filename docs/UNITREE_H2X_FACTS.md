@@ -27,3 +27,10 @@ G:\共有ドライブ\002_PAI_ID009_[PhyicalAI]_AIロボット\03_販売製品�
 
 ## 验收与发布门禁
 同一 PR 与精确 SHA → GitHub CI、另一环境独立 QA（PC/SP、目录、分享图、3段视频、CTA）→ 可交互 noindex HTML Preview → CEO 单次明确批准 → 受控合并/手动发布/线上SHA及真浏览器回归。
+
+## 2026-10-31｜CEO指出的背景/CTA视觉不一致：独立修复候选
+- 生产基线 main: `c21c1dbd57038225512c5191ad337150147c2c3d`。用户指出此前「PC/SP25/25 PASS」不能代表实际G1 Figma视觉一致。
+- 实测 G1 的首屏及非CTA正文都是纯白，G1最终CTA使用 `assets/img/products/unitree/g1/g1-cta-figma-pc.png` 背景及海军蓝遮罩，3张带图片的G1 CTA卡片；H2-X此前仍有白蓝渐变首屏、浅蓝正文、深蓝无图文字CTA。
+- 本候选只调整 H2-X: 首屏及各大正文区恢复纯白；末尾复用真正G1 `g1-final-cta`/`g1-cta-grid`/`g1-cta-card` 结构和同一个几何背景图。H2-X 官方图片分别作为视频/型号对照/咨询卡片，现有 H2-X 视频、`image_007.webp`、SKU、SEO、G1原页及其它产品保持不变。
+- 新增 `tests/h2x-g1-fidelity.spec.js` PC1440/SP390/360 **同时读取G1/H2-X的实际computed CSS**，验证背景URL一致、白色主体和三张有实图的CTA卡片，而不再仅测试“蓝色就算通过”。
+- 本阶段 Draft PR / 未授权生产上线；需精确SHA的独立QA、GitHub CI和真实noindex HTML Preview，CEO再次批准才合并/发布。
