@@ -826,6 +826,272 @@
           "unitree-g1"
         ]
       }
+    },
+    {
+      "id": "agibot-a3-ultra",
+      "name": "AGIBOT A3 Ultra",
+      "manufacturerId": "agibot",
+      "manufacturerName": "AGIBOT",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "全高174cm・約60kgのフルサイズヒューマノイド。メーカー公表700TOPS演算、360°センシング、8時間のバッテリー運用例、自動充電・多数台運用などに対応。国内供給条件は要確認。",
+      "featureLabels": [
+        "174cm・約60kg",
+        "700 TOPS (メーカー公表)",
+        "全周囲センシング",
+        "A3 Ultra専用仕様"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "education",
+        "human-robot-interaction",
+        "vla-data-collection"
+      ],
+      "useLabels": [
+        "受付・案内",
+        "巡回・点検",
+        "データ収集",
+        "研究教育"
+      ],
+      "detailPage": "products/agibot-a3-ultra.html",
+      "image": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+      "imageAlt": "AGIBOT A3 Ultra 公式のダイナミックな動作イメージ（A3 Ultra専用写真）",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-10-31",
+      "note": "A3とA3 Ultraは別型番。旧A3Ultra_assets/image_023.pngは誤保存されたA2 Ultraの画像でありA3 Ultraとして公開不可。メーカー専用画像で代替した候補。",
+      "pageFactory": {
+        "template": "g1-v1",
+        "releaseReady": true,
+        "officialSource": "https://www.agibot.com/products/A3Ultra",
+        "title": "AGIBOT A3 Ultra｜174cm・700 TOPS・自律運用対応ヒューマノイド｜AirAdmin8 Robotics",
+        "metaDescription": "AGIBOT A3 Ultraは174cm・約60kg、700TOPSメーカー公表演算性能、全周囲知覚や自律充電を備えたフルサイズヒューマノイド。研究・受付・巡回活用、仕様、国内調達条件を紹介。",
+        "heroLead": "自律サービスから研究開発まで。24時間運用を見据えるA3 Ultra。",
+        "facts": [
+          {
+            "label": "機体全高",
+            "value": "174cm",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "本体重量",
+            "value": "約60kg",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "機体演算性能",
+            "value": "700 TOPS",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "label": "メーカー公表バッテリー運用",
+            "value": "約8時間",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          }
+        ],
+        "applications": [
+          {
+            "title": "受付・展示施設での案内",
+            "description": "来訪者の案内、説明、施設内移動などの商業施設向け活用。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "巡回・点検",
+            "description": "屋内外の多視点知覚と位置推定による巡回業務への検証。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "大学研究・具身AI",
+            "description": "RGB-D、魚眼カメラ、LiDARとSDKを用いたデータ収集・VLA研究を検討。",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "title": "ショッピング支援・体験",
+            "description": "商品案内、対話、展示イベント等のサービス用途。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "ステージ・パフォーマンス",
+            "description": "全身動作を活かしたイベント・演出用途の検討。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "specifications": [
+          {
+            "label": "本体サイズ",
+            "value": "174 × 52 × 30 cm (H × W × D)",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "本体重量",
+            "value": "60kg",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "能動自由度",
+            "value": "51（手部の選択により増減・最大71構成）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "頸部/片腕/腰/片脚の自由度",
+            "value": "2 / 7 / 3 / 6",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "ハンド構成",
+            "value": "標準10自由度・オプション最大20自由度",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "演算性能",
+            "value": "700 TOPS（メーカー公表値）",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "label": "環境知覚",
+            "value": "LiDAR、全周囲魚眼、胸部・下半身RGB-D、双眼カメラ",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "位置推定",
+            "value": "UWB・RTK（構成/環境条件を確認）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "バッテリー",
+            "value": "1152Wh、総合約8h（立位/歩行条件別）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "充電・交換",
+            "value": "充電/交換対応。短時間バッテリー交換はメーカー条件参照",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "通信",
+            "value": "Wi-Fi、4G/5G、Bluetooth",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "二次開発",
+            "value": "公式ガイド・開発構成に従い可。SDK範囲要確認",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "faq": [
+          {
+            "question": "AGIBOT A3 と A3 Ultra は同じですか？",
+            "answer": "別型番です。A3向けの旧製品ページの55kg・10時間等の数値をA3 Ultraの仕様としてコピーしません。"
+          },
+          {
+            "question": "A3 Ultraの700 TOPSは常時の実効推論速度ですか？",
+            "answer": "いいえ。メーカー公表の演算性能指標です。使用するモデルや構成、消費電力で実効性能は変わります。"
+          },
+          {
+            "question": "24時間動くという意味は8時間バッテリーだけで24時間稼働することですか？",
+            "answer": "いいえ。自律充電やバッテリー交換等を組み合わせた運用コンセプトです。連続稼働の保証条件は別途確認します。"
+          },
+          {
+            "question": "大学向けのSDK/価格/納期は決まっていますか？",
+            "answer": "二次開発ガイドはありますが、日本向けの販売構成・SDK範囲、価格・納期・保証は要確認です。"
+          },
+          {
+            "question": "原厂媒体素材はすべてA3 Ultraのものですか？",
+            "answer": "掲載画像と動画はA3 Ultra公式製品ページの専用パスに由来します。過去のA2 Ultra誤保存画像は使用していません。"
+          }
+        ],
+        "images": [
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+            "alt": "A3 Ultraの全身動作・公式ビジュアル",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra-parms.png",
+            "alt": "A3 Ultra本体・仕様の公式説明図",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img1.png",
+            "alt": "受付・ガイドの公式利用シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img2.png",
+            "alt": "ショッピング支援の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img3.png",
+            "alt": "巡回・点検の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img4.png",
+            "alt": "データ分析・説明の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img5.png",
+            "alt": "研究・データ収集の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img6.png",
+            "alt": "舞台・パフォーマンスの公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "videos": [
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/1.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img1.png",
+            "label": "A3 Ultra 公式シーン映像 01",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/1.mp4"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/2.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img2.png",
+            "label": "A3 Ultra 公式シーン映像 02",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/2.mp4"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra-2.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+            "label": "A3 Ultra 公式デモ映像",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/A3Ultra-2.mp4"
+          }
+        ],
+        "ctaImageIndexes": [
+          0,
+          2,
+          6
+        ],
+        "relatedProductIds": [
+          "unitree-h2-plus",
+          "unitree-h2-x",
+          "unitree-g1-plus",
+          "unitree-g1"
+        ]
+      }
     }
   ]
 }
