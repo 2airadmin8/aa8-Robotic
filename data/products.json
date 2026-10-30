@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-08-02",
+  "updatedAt": "2026-10-30",
   "products": [
     {
       "id": "agibot-g2",
@@ -92,6 +92,37 @@
       "relatedCaseIds": [],
       "relatedResourceIds": ["sdk", "ros2"],
       "verifiedAt": "2026-07-16"
+    },
+    {
+      "id": "unitree-g1-plus",
+      "name": "Unitree G1+",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": ["humanoid","education"],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "2自由度ネック、関節駆動、双眼＋広角カメラ、音声・タッチ機能を強化したヒューマノイド。",
+      "featureLabels": ["25自由度","2自由度ネック","双眼＋広角","音声・タッチ"],
+      "useCaseIds": ["humanoid-research","education","human-robot-interaction"],
+      "useLabels": ["実機評価","研究・教育","展示","インタラクション"],
+      "detailPage": "products/unitree-g1-plus.html",
+      "image": "assets/img/products/unitree/catalog/29_g1pl.png",
+      "imageAlt": "Unitree G1+ メーカー公式製品画像（標準版）",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [],
+      "note": "G1+標準版は二次開発非対応。G1+ EDUは構成・開発条件が異なります。",
+      "verifiedAt": "2026-10-30"
     },
     {
       "id": "agibot-x2-edu",

@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes"}
+EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "tests", "node_modules", "test-results", "playwright-report"}
 BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
@@ -197,7 +197,7 @@ def build_html(html: str, relative: Path) -> str:
         scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
     # X2 EDU and G1 are prerendered; release pipeline owns canonical/OG/JSON-LD.
     # Legacy seo.js uses retired /aa8-Robotic/ paths and creates five 404s.
-    if relative.as_posix() in {"products/agibot-x2-edu.html", "products/unitree-g1.html"}:
+    if relative.as_posix() in {"products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html"}:
         if "assets/js/analytics-events.js" not in html:
             scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
     elif "assets/js/seo.js" not in html:
