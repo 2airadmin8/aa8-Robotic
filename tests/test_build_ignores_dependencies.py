@@ -9,7 +9,7 @@ from build_site import EXCLUDED_DIRS
 
 class BuildExclusionRegression(unittest.TestCase):
     def test_dependency_and_browser_artifacts_cannot_be_published(self):
-        for directory in ('node_modules','test-results','playwright-report'):
+        for directory in ('node_modules','test-results','playwright-report','tests'):
             with self.subTest(directory=directory):
                 self.assertIn(directory,EXCLUDED_DIRS)
 
