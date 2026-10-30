@@ -406,3 +406,53 @@ body:has(.product-page-hero) .product-page-hero h1{
     line-height:1.33!important;
   }
 }
+
+/* Research robot catalog: screenshot visual/whitespace fix 2026-10-30.
+   Scoped to products.html; preserve SSOT filters, cards, Header/Footer. */
+body:has(.product-page-hero) .product-page-hero{
+  padding-top:38px;
+  padding-bottom:36px;
+}
+body:has(.product-page-hero) .product-page-hero-grid{align-items:start}
+body:has(.product-page-hero) main .section-heading h2{
+  font-size:clamp(29px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  letter-spacing:-.02em!important;
+}
+body:has(.product-page-hero) .category-priority-grid{
+  grid-template-columns:1.25fr 1fr 1fr;
+  align-items:stretch;
+}
+body:has(.product-page-hero) .priority-category{
+  min-height:158px;
+  padding:20px 22px;
+}
+body:has(.product-page-hero) .priority-category-main{
+  min-height:338px;
+  justify-content:center;
+}
+body:has(.product-page-hero) .priority-category .card-index{margin-bottom:12px}
+body:has(.product-page-hero) .priority-category h3{
+  font-size:clamp(19px,1.7vw,25px);
+  line-height:1.35;
+}
+body:has(.product-page-hero) .priority-category strong{margin-top:15px}
+body:has(.product-page-hero) .compact-dark-cta h2{
+  color:#fff!important;
+  font-size:clamp(28px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  max-width:800px;
+  overflow-wrap:anywhere;
+}
+@media(max-width:980px){
+  body:has(.product-page-hero) .category-priority-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body:has(.product-page-hero) .priority-category-main{grid-column:span 2;grid-row:auto;min-height:235px}
+}
+@media(max-width:640px){
+  body:has(.product-page-hero) .product-page-hero{padding-top:30px;padding-bottom:32px}
+  body:has(.product-page-hero) main .section-heading h2{font-size:clamp(24px,6.5vw,27px)!important}
+  body:has(.product-page-hero) .category-priority-grid{grid-template-columns:1fr}
+  body:has(.product-page-hero) .priority-category{grid-column:auto;min-height:145px;padding:19px 20px}
+  body:has(.product-page-hero) .priority-category-main{grid-column:auto;min-height:205px}
+  body:has(.product-page-hero) .compact-dark-cta h2{font-size:clamp(25px,6.4vw,28px)!important}
+}
