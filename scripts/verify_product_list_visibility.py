@@ -15,7 +15,7 @@ products=data['products']
 output,count=render_html(source,Path('products.html'),products)
 assert count==1
 assert 'id="limx-oli"' not in output
-assert output.count('class="product-card research-product-card"')==8
+assert output.count('class="product-card research-product-card"')==9
 assert 'id="unitree-g1-d"' in output and 'id="unitree-g1"' in output
 assert next(p for p in products if p['id']=='limx-oli')['visibility']=='public'
 home=(root/'index.html').read_text(encoding='utf-8')
