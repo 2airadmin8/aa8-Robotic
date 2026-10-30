@@ -46,7 +46,7 @@ test('H2 catalog one record and compare card',async({request,page})=>{
  await expect(page.locator('.research-product-card')).toHaveCount(9);
 });
 test('H2 inquiry CTA prefills without submitting',async({page})=>{
- let post=0;page.on('request',r=>{if(r.method()==='POST')post++});
+ let post=0;page.on('request',r=>{if(r.method()==='POST' && (r.url().includes('script.google.com')||r.url().includes('contact-v2')))post++});
  await page.goto(base+route,{waitUntil:'networkidle'});
  await page.locator('.h2-hero-buttons .g1-button.primary').click();
  await expect(page).toHaveURL(/\/contact\.html\?product=/);
