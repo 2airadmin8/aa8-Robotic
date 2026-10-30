@@ -65,8 +65,13 @@ test('A3 Ultra source-safe Master/SEO, no A2 Ultra archive contamination',async(
  expect(r.status()).toBe(200);
  expect(html).toContain('A3Ultra_One-bg.jpg');
  expect(html).not.toContain('image_023.png');
- expect(html).not.toContain('55KG');
- expect(html).not.toContain('10時間');
+ const specs=html.match(/<section class="g1-section g1-factory-section" id="specifications">([\s\S]*?)<\/section>/)?.[1]||'';
+ expect(specs).toContain('700 TOPS');
+ // FAQ can legitimately warn that the DIFFERENT A3 model is 55kg/10h;
+ // those values must never appear as A3 Ultra technical specifications.
+ expect(specs).not.toContain('55KG');
+ expect(specs).not.toContain('10時間');
+ expect(specs).not.toContain('55kg');
  expect(html).toContain('700 TOPS');
  const j=await (await request.get(base+'/data/products.json')).json();
  const x=j.products.find(p=>p.id==='agibot-a3-ultra');
