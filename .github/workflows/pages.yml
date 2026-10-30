@@ -119,42 +119,15 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      # One-shot release: any Pages deployment failure terminates this run.
+      # Do not add an in-workflow retry; any new dispatch requires CEO approval.
       - name: Deploy to GitHub Pages
         id: deployment_primary
-        continue-on-error: true
         uses: actions/deploy-pages@v4
         with:
           timeout: 1200000
           error_count: 20
           reporting_interval: 5000
-
-      - name: Wait before retry
-        if: steps.deployment_primary.outcome == 'failure'
-        shell: bash
-        run: sleep 20
-
-      - name: Retry GitHub Pages deployment
-        id: deployment_retry
-        if: steps.deployment_primary.outcome == 'failure'
-        uses: actions/deploy-pages@v4
-        with:
-          timeout: 1200000
-          error_count: 20
-          reporting_interval: 5000
-
-      - name: Require successful deployment
-        shell: bash
-        env:
-          PRIMARY_OUTCOME: ${{ steps.deployment_primary.outcome }}
-          RETRY_OUTCOME: ${{ steps.deployment_retry.outcome }}
-        run: |
-          set -euo pipefail
-          if [[ "$PRIMARY_OUTCOME" == "success" || "$RETRY_OUTCOME" == "success" ]]; then
-            echo "GitHub Pages deployment succeeded."
-            exit 0
-          fi
-          echo "Both GitHub Pages deployment attempts failed."
-          exit 1
 
       - name: Verify production release
         shell: bash
