@@ -163,3 +163,217 @@ body:has(.product-page-hero) main > section:nth-of-type(6) { padding-top: 42px; 
   html { scroll-behavior: auto; }
   .aa8-back-to-top { transition: none; }
 }
+
+/* V15｜CEO annotated visual corrections (2026-10-30).
+   Scope: homepage, cases, resources, support, contact only.
+   Do not change global Header/Footer ownership or the approved product pages. */
+
+/* PC hero: compact Japanese titles without clipping or oversized line breaks. */
+body:has(main .hero-grid-v2) main > .hero .hero-copy h1,
+body:has(main .case-proof-card) main > .hub-hero h1,
+body:has(main .service-module-grid) main > .hub-hero h1,
+body:has(main .resource-hero) main > .resource-hero h1,
+body:has(main .contact-hero) main > .contact-hero h1 {
+  max-width:100%!important;
+  font-size:clamp(38px,3.5vw,50px)!important;
+  line-height:1.26!important;
+  letter-spacing:-.025em!important;
+  overflow-wrap:anywhere;
+  text-wrap:pretty;
+}
+
+/* Selected page section headings. Product pages / other hubs are unaffected. */
+body:has(main .hero-grid-v2) main > section.section .section-heading h2,
+body:has(main .case-proof-card) main > section.section .section-heading h2,
+body:has(main .resource-hero) main > section.section .section-heading h2,
+body:has(main .service-module-grid) main > section.section .section-heading h2 {
+  font-size:clamp(29px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  letter-spacing:-.02em!important;
+  overflow-wrap:anywhere;
+  text-wrap:pretty;
+}
+
+/* All annotated navy bands: white text, readable compact scale. */
+body:has(main .hero-grid-v2) main > section.dark .section-heading h2,
+body:has(main .hero-grid-v2) main > section.dark .case-feature h3,
+body:has(main .case-proof-card) main > section.dark .contact-panel-dark h2,
+body:has(main .resource-hero) main > section.dark .resource-cta-grid h2,
+body:has(main .service-module-grid) main > section.dark .contact-panel-dark h2 {
+  color:#fff!important;
+}
+body:has(main .case-proof-card) main > section.dark .contact-panel-dark h2,
+body:has(main .resource-hero) main > section.dark .resource-cta-grid h2,
+body:has(main .service-module-grid) main > section.dark .contact-panel-dark h2 {
+  font-size:clamp(28px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  max-width:790px;
+  overflow-wrap:anywhere;
+}
+body:has(main .hero-grid-v2) main > section.dark .case-feature h3 {
+  font-size:clamp(22px,2.0vw,29px)!important;
+  line-height:1.32!important;
+}
+
+/* Reduce section-level dead space without affecting content cards or approved FAQs. */
+body:has(main .hero-grid-v2) main > section.section,
+body:has(main .case-proof-card) main > section.section,
+body:has(main .service-module-grid) main > section.section {
+  padding-top:48px!important;
+  padding-bottom:48px!important;
+}
+body:has(main .hero-grid-v2) main > section.section.section-tight,
+body:has(main .case-proof-card) main > section.section.section-tight {
+  padding-top:44px!important;
+  padding-bottom:44px!important;
+}
+body:has(main .hero-grid-v2) main > section.hero {
+  padding-top:42px!important;
+  padding-bottom:38px!important;
+}
+body:has(main .case-proof-card) main > .hub-hero,
+body:has(main .service-module-grid) main > .hub-hero,
+body:has(main .resource-hero) main > .resource-hero {
+  padding-top:44px!important;
+  padding-bottom:28px!important;
+}
+body:has(main .contact-hero) main > .contact-hero {
+  padding-top:42px!important;
+  padding-bottom:30px!important;
+}
+body:has(main .contact-hero) .contact-hero-grid {align-items:start}
+body:has(main .contact-hero) main > section.section.section-tight {
+  padding-top:36px!important;
+  padding-bottom:42px!important;
+}
+body:has(main .contact-hero) main .contact-form-heading h2 {
+  font-size:clamp(29px,2.5vw,36px)!important;
+  line-height:1.25!important;
+}
+
+/* Cases did not load product-page.css, leaving the four evidence axes unstyled
+   and stacked in a very tall single column. Give them their own scoped grid. */
+body:has(main .case-proof-card) .comparison-axis-grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+body:has(main .case-proof-card) .comparison-axis-grid article {
+  min-width:0;
+  padding:18px;
+  border-top:3px solid #009ad2;
+  border-radius:0 0 14px 14px;
+  background:#f4f9fb;
+}
+body:has(main .case-proof-card) .comparison-axis-grid article span {
+  color:#009ad2;
+  font-size:.76rem;
+  font-weight:900;
+}
+body:has(main .case-proof-card) .comparison-axis-grid h3 {margin:12px 0 7px}
+body:has(main .case-proof-card) .comparison-axis-grid p {
+  margin:0;
+  color:#667d88;
+  font-size:.85rem;
+}
+
+@media(max-width:980px){
+  body:has(main .case-proof-card) .comparison-axis-grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:640px){
+  body:has(main .hero-grid-v2) main > .hero .hero-copy h1,
+  body:has(main .case-proof-card) main > .hub-hero h1,
+  body:has(main .service-module-grid) main > .hub-hero h1,
+  body:has(main .resource-hero) main > .resource-hero h1,
+  body:has(main .contact-hero) main > .contact-hero h1 {
+    font-size:clamp(29px,7.8vw,33px)!important;
+    line-height:1.3!important;
+  }
+  body:has(main .hero-grid-v2) main > section.section .section-heading h2,
+  body:has(main .case-proof-card) main > section.section .section-heading h2,
+  body:has(main .resource-hero) main > section.section .section-heading h2,
+  body:has(main .service-module-grid) main > section.section .section-heading h2 {
+    font-size:clamp(24px,6.5vw,27px)!important;
+    line-height:1.32!important;
+  }
+  body:has(main .case-proof-card) main > section.dark .contact-panel-dark h2,
+  body:has(main .resource-hero) main > section.dark .resource-cta-grid h2,
+  body:has(main .service-module-grid) main > section.dark .contact-panel-dark h2 {
+    font-size:clamp(24px,6.5vw,27px)!important;
+  }
+  body:has(main .hero-grid-v2) main > section.dark .case-feature h3 {
+    font-size:clamp(20px,5.8vw,24px)!important;
+  }
+  body:has(main .hero-grid-v2) main > section.section,
+  body:has(main .case-proof-card) main > section.section,
+  body:has(main .service-module-grid) main > section.section {
+    padding-top:36px!important;
+    padding-bottom:36px!important;
+  }
+  body:has(main .hero-grid-v2) main > section.section.section-tight,
+  body:has(main .case-proof-card) main > section.section.section-tight {
+    padding-top:34px!important;
+    padding-bottom:34px!important;
+  }
+  body:has(main .hero-grid-v2) main > section.hero {padding-block:32px!important}
+  body:has(main .case-proof-card) main > .hub-hero,
+  body:has(main .service-module-grid) main > .hub-hero,
+  body:has(main .resource-hero) main > .resource-hero {
+    padding-top:34px!important;padding-bottom:24px!important;
+  }
+  body:has(main .contact-hero) main > .contact-hero {
+    padding-top:34px!important;padding-bottom:26px!important;
+  }
+  body:has(main .contact-hero) main > section.section.section-tight {
+    padding-top:30px!important;padding-bottom:34px!important;
+  }
+  body:has(main .contact-hero) main .contact-form-heading h2 {
+    font-size:clamp(26px,6.5vw,29px)!important;
+  }
+  body:has(main .case-proof-card) .comparison-axis-grid {
+    grid-template-columns:1fr;
+    gap:10px;
+  }
+}
+
+body:has(main .hero-grid-v2) main > section.section .contact-panel h2 {
+  font-size:clamp(29px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  letter-spacing:-.02em!important;
+  overflow-wrap:anywhere;
+}
+@media(max-width:640px){
+  body:has(main .hero-grid-v2) main > section.section .contact-panel h2 {
+    font-size:clamp(24px,6.5vw,27px)!important;
+  }
+}
+
+@media(min-width:981px){
+  /* V15: slightly reduce the homepage's combined robot illustration on PC;
+     do not alter approved category links or the mobile image. */
+  body:has(main .hero-grid-v2) main > .hero .category-lineup {
+    width:min(100%,580px);
+    justify-self:end;
+  }
+}
+
+/* Resources: the final white guidance section and navy CTA were padded taller
+   than the preceding sections; keep the conclusion tight and readable. */
+body:has(main .resource-hero) #resource-search + .section {
+  padding-bottom:42px!important;
+}
+body:has(main .resource-hero) main > section.compact-resource-cta {
+  padding-top:48px!important;
+  padding-bottom:48px!important;
+}
+@media(max-width:640px){
+  body:has(main .resource-hero) #resource-search + .section {
+    padding-bottom:34px!important;
+  }
+  body:has(main .resource-hero) main > section.compact-resource-cta {
+    padding-top:36px!important;
+    padding-bottom:36px!important;
+  }
+}
