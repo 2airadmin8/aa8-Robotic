@@ -58,6 +58,19 @@ def load_product_seo() -> dict[str, dict[str, str]]:
     return pages
 
 
+
+def social_image_for(override: dict[str, str]) -> str:
+    """Use approved local per-page image; retain existing global fallback."""
+    image_path = override.get("image")
+    if not image_path:
+        return SOCIAL_IMAGE
+    if (not isinstance(image_path, str)
+            or not re.fullmatch(r"assets/img/products/[A-Za-z0-9_./-]+\.(?:png|jpe?g|webp)", image_path, re.IGNORECASE)
+            or ".." in Path(image_path).parts
+            or not (ROOT / image_path).is_file()):
+        raise ValueError(f"Invalid/missing product social image: {image_path!r}")
+    return f"{PUBLIC_BASE}{image_path}"
+
 def replace_title(text: str, title: str) -> str:
     escaped = html.escape(title)
     if TITLE_PATTERN.search(text):
@@ -79,6 +92,7 @@ def replace_description(text: str, description: str) -> str:
 def build_static_meta(text: str, relative: Path, product_seo: dict[str, dict[str, str]]) -> str:
     relative_name = relative.as_posix()
     override = product_seo.get(relative_name, {})
+    social_image = social_image_for(override)
 
     title = str(override.get("title") or extract(TITLE_PATTERN, text) or "AirAdmin8 Robotics")
     description = str(override.get("description") or extract(DESCRIPTION_PATTERN, text))
@@ -108,11 +122,11 @@ def build_static_meta(text: str, relative: Path, product_seo: dict[str, dict[str
         meta_tag("property", "og:title", title),
         meta_tag("property", "og:description", description),
         meta_tag("property", "og:url", canonical),
-        meta_tag("property", "og:image", SOCIAL_IMAGE),
+        meta_tag("property", "og:image", social_image),
         meta_tag("name", "twitter:card", "summary_large_image"),
         meta_tag("name", "twitter:title", title),
         meta_tag("name", "twitter:description", description),
-        meta_tag("name", "twitter:image", SOCIAL_IMAGE),
+        meta_tag("name", "twitter:image", social_image),
     ]
 
     managed_patterns = [

@@ -44,7 +44,8 @@
     },
     "products/unitree-h2-x.html": {
       "title": "Unitree H2-X｜31自由度・H2-X EDU比較・新型ヒューマノイド｜AirAdmin8 Robotics",
-      "description": "Unitree H2-Xの31自由度、約172.5cm・65kg以上、LED表示・双眼深度カメラ・双電池構成とH2-X EDUの二次開発条件を比較。"
+      "description": "Unitree H2-Xの31自由度、約172.5cm・65kg以上、LED表示・双眼深度カメラ・双電池構成とH2-X EDUの二次開発条件を比較。",
+      "image": "assets/img/products/unitree/h2x/drive/image_007.webp"
     }
   }
 }
