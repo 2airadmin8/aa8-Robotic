@@ -28,7 +28,7 @@ for(const width of [1440,390,360]){
    return {body:getComputedStyle(section).backgroundColor,gradient:getComputedStyle(cta).backgroundImage,ctaText:getComputedStyle(title).color,width:document.documentElement.scrollWidth,alt:document.querySelector('.h2-product-stage img')?.getAttribute('alt'),menu:document.querySelector('.g1-anchor-nav')?.getAttribute('aria-label')};
   });
   expect(facts.body).toBe('rgb(255, 255, 255)');
-  expect(facts.gradient).toContain('linear-gradient');
+  expect(facts.gradient).toContain('g1-cta-figma-pc.png');
   expect(facts.ctaText).toBe('rgb(255, 255, 255)');
   expect(facts.width).toBeLessThanOrEqual(width+1);
   expect(facts.alt).toContain('H2-X');
@@ -77,7 +77,7 @@ for(const width of [1440,390,360]){
   });
   expect(props.imageFit).toBe('contain');
   expect(props.sectionBackground).toBe('rgb(255, 255, 255)');
-  expect(props.ctaBackground).toContain('linear-gradient');
+  expect(props.ctaBackground).toContain('g1-cta-figma-pc.png');
   expect(props.overflow).toBeLessThanOrEqual(width+1);
   expect(errors).toEqual([]);
   expect(bad).toEqual([]);
