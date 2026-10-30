@@ -326,3 +326,33 @@
     flex-direction: column;
   }
 }
+
+/* Use-cases content: screenshot issue 2026-10-30.
+   Keep approved theme card content and a single SSR heading source of truth. */
+body:has(#themes) .hub-hero h1{
+  max-width:100%;
+  font-size:clamp(38px,3.5vw,50px)!important;
+  line-height:1.26!important;
+  letter-spacing:-.025em!important;
+}
+body:has(#themes) main .section-heading h2{
+  font-size:clamp(29px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  letter-spacing:-.02em!important;
+}
+body:has(#themes) #themes{padding-bottom:36px}
+body:has(#themes) #themes + .section.muted{padding-top:42px}
+body:has(#themes) .compact-dark-cta h2{
+  color:#fff!important;
+  font-size:clamp(28px,2.6vw,38px)!important;
+  line-height:1.3!important;
+  max-width:800px;
+  overflow-wrap:anywhere;
+}
+@media(max-width:640px){
+  body:has(#themes) .hub-hero h1{font-size:clamp(29px,7.8vw,33px)!important;line-height:1.32!important}
+  body:has(#themes) main .section-heading h2{font-size:clamp(24px,6.5vw,27px)!important}
+  body:has(#themes) #themes{padding-bottom:30px}
+  body:has(#themes) #themes + .section.muted{padding-top:34px}
+  body:has(#themes) .compact-dark-cta h2{font-size:clamp(25px,6.4vw,28px)!important}
+}
