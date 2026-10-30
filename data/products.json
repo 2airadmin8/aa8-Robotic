@@ -114,6 +114,26 @@
       "image": "assets/img/products/unitree/h2x/drive/image_007.webp",
       "imageAlt": "Unitree H2-X メーカー公式の新型ヒューマノイド",
       "imageStatus": "official",
+      "designContract": {
+        "template": "g1-approved-v1",
+        "officialSource": "https://www.unitree.com/H2-X/",
+        "ctaBackground": "assets/img/products/unitree/g1/g1-cta-figma-pc.png",
+        "ctaImages": [
+          "assets/img/products/unitree/h2x/drive/image_005.webp",
+          "assets/img/products/unitree/h2x/drive/image_007.webp",
+          "assets/img/products/unitree/h2x/drive/image_013.jpg"
+        ],
+        "videos": [
+          "assets/img/products/unitree/h2x/drive/video_01.mp4",
+          "assets/img/products/unitree/h2x/drive/video_02.mp4",
+          "assets/img/products/unitree/h2x/drive/video_03.mp4"
+        ],
+        "ctaLinks": [
+          "/assets/img/products/unitree/h2x/drive/video_01.mp4",
+          "#specifications",
+          "/contact.html?product=Unitree%20H2-X&service=university-procurement"
+        ]
+      },
       "priceStatus": "confirmation_required",
       "priceLabel": "見積要確認",
       "leadTimeStatus": "confirmation_required",

@@ -55,6 +55,22 @@ def load_product_seo() -> dict[str, dict[str, str]]:
     pages = payload.get("pages", {})
     if not isinstance(pages, dict):
         raise ValueError("Product SEO registry pages must be an object")
+    # New opt-in pages inherit title, description and OG image from the
+    # existing Product Master. The legacy SEO registry remains authoritative
+    # for older manually authored pages until they are safely migrated.
+    from product_factory import catalog, validate_page_factory
+    for product in catalog(ROOT):
+        if "pageFactory" not in product:
+            continue
+        spec = validate_page_factory(ROOT, product)
+        page = product["detailPage"]
+        if page in pages:
+            raise ValueError(f"Generated product must not shadow legacy SEO registry: {page}")
+        pages[page] = {
+            "title": spec["title"],
+            "description": spec["metaDescription"],
+            "image": product["image"],
+        }
     return pages
 
 
