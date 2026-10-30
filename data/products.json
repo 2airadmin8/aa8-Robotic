@@ -94,6 +94,56 @@
       "verifiedAt": "2026-07-16"
     },
     {
+      "id": "unitree-h2-d",
+      "name": "Unitree H2-D",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "mobile-manipulation",
+      "categoryLabel": "移動型ヒューマノイド",
+      "filterGroups": [
+        "mobile-manipulation",
+        "humanoid"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "双腕7自由度・片腕定格約7kgの産業用操作ロボット。19/20自由度の標準版と車輪移動Flagshipを用途別に比較。",
+      "featureLabels": [
+        "片腕定格約7kg",
+        "19/20自由度",
+        "昇降0.5m",
+        "SDK/API"
+      ],
+      "useCaseIds": [
+        "manipulation",
+        "factory-automation",
+        "vla-data-collection"
+      ],
+      "useLabels": [
+        "産業マニピュレーション",
+        "搬送",
+        "組立PoC",
+        "具身AI研究"
+      ],
+      "detailPage": "products/unitree-h2-d.html",
+      "image": "assets/img/products/unitree/h2d/h2d-hero.webp",
+      "imageAlt": "Unitree H2-D 移動型双腕ロボットのメーカー公式写真",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk"
+      ],
+      "note": "H2-D Standard19自由度／Flagship20自由度。末端効果器と開発条件、移動機能はSKU別に確認。",
+      "verifiedAt": "2026-10-30"
+    },
+    {
       "id": "unitree-g1-plus",
       "name": "Unitree G1+",
       "manufacturerId": "unitree",
