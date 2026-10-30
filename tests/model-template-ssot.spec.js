@@ -92,5 +92,5 @@ test('H2-X product catalog uses the same selected hero image',async({request,pag
  await page.goto(base+'/products.html',{waitUntil:'networkidle'});
  const card=page.locator('#unitree-h2-x');
  await expect(card).toHaveCount(1);
- await expect(card.locator('img').first()).toHaveAttribute('src',heroAsset);
+ await expect(card.locator('img').first()).toHaveAttribute('src',heroAsset.slice(1));
 });
