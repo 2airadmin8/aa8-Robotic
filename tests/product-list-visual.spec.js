@@ -13,7 +13,7 @@ for(const width of [1440,390]){
     expect(title.scrollWidth).toBeLessThanOrEqual(title.width+1);
     const root=page.locator('[data-product-list]');
     await expect(root).toHaveAttribute('data-exclude-products','limx-oli');
-    await expect(root.locator('.research-product-card')).toHaveCount(10);
+    await expect(root.locator('.research-product-card')).toHaveCount(11);
     await expect(root.locator('#unitree-g1-plus')).toHaveCount(1);
     await expect(root.locator('#unitree-h2-d')).toHaveCount(1);
     await expect(root.locator('#limx-oli')).toHaveCount(0);

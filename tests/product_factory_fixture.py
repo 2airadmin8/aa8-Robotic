@@ -64,6 +64,7 @@ def sample_product() -> dict:
                 "sourceUrl": official,
             }],
             "ctaImageIndexes": [0, 1, 2],
+            "relatedProductIds": ["unitree-g1", "unitree-h2", "unitree-h2-x"],
             "releaseReady": False,
         },
     }
