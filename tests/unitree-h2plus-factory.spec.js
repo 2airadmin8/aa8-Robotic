@@ -22,6 +22,11 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('.g1-final-cta .g1-cta-card')).toHaveCount(3);
   await expect(page.locator('.g1-factory-videos video')).toHaveCount(0);
   await expect(page.locator('main')).toContainText('検証可能な動画がありません');
+  // Real lazy-loaded gallery must be visited before checking decoded pixels.
+  for (const image of await page.locator('.g1-factory-media-grid img').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(()=>image.evaluate(el=>el.naturalWidth)).toBeGreaterThan(0);
+  }
   await page.locator('.g1-final-cta').scrollIntoViewIfNeeded();
   const m=await page.evaluate(()=>{
    const main=document.querySelector('main.g1-page');
