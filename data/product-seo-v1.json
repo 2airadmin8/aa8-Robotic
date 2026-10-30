@@ -41,6 +41,10 @@
     "products/unitree-h2.html": {
       "title": "Unitree H2｜31自由度の人型ロボット・H2 EDU仕様比較・大学研究導入｜AirAdmin8 Robotics",
       "description": "Unitree H2は約182cm・70kgの31自由度フルサイズヒューマノイド。H2とH2 EDUの二次開発対応、関節トルク、双眼カメラ、研究用途、国内導入条件を比較。"
+    },
+    "products/unitree-h2-x.html": {
+      "title": "Unitree H2-X｜31自由度・H2-X EDU比較・新型ヒューマノイド｜AirAdmin8 Robotics",
+      "description": "Unitree H2-Xの31自由度、約172.5cm・65kg以上、LED表示・双眼深度カメラ・双電池構成とH2-X EDUの二次開発条件を比較。"
     }
   }
 }
