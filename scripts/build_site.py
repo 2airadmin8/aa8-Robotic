@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes"}
+EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "node_modules", "test-results", "playwright-report"}
 BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
