@@ -1,4 +1,4 @@
-
+﻿
 /* H2-X scoped white-base extension of approved G1/H2 template */
 .h2x-page .h2-hero{background:linear-gradient(115deg,#fff,#f6fafc 64%,#eaf4f9)}
 .h2x-page .h2-hero h1 span{color:#0879ad}
@@ -8,3 +8,15 @@
 .h2x-page .h2-research-photo img{object-fit:cover}
 .h2x-page .h2-hero-lead{max-width:580px}
 .h2x-page .h2-stats strong{font-variant-numeric:tabular-nums}
+\n
+/* H2-X: dedicated user-supplied H2-X imagery and actual playable demonstrations */
+main.g1-page.h2x-page>section.g1-section.h2x-media-section{background:#fff!important}
+.h2x-media-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.h2x-media-gallery figure,.h2x-video-grid figure{margin:0;min-width:0;background:#f7fafc;border:1px solid #dae8ee;border-radius:8px;overflow:hidden}
+.h2x-media-gallery img{display:block;width:100%;height:280px;object-fit:cover}
+.h2x-media-gallery figcaption,.h2x-video-grid figcaption{padding:12px 16px;font-size:13px;color:#466577}
+.h2x-video-heading{margin-top:44px}
+.h2x-video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.h2x-video-grid video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#071523}
+.h2x-media-source{font-size:12px;color:#5c7888;line-height:1.8;margin-top:20px}
+@media(max-width:780px){.h2x-media-gallery,.h2x-video-grid{grid-template-columns:1fr;gap:14px}.h2x-media-gallery img{height:auto;aspect-ratio:16/9}}
