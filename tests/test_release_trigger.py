@@ -42,6 +42,16 @@ class ManualPagesReleaseGateTest(unittest.TestCase):
         source = (root / ".github/workflows/pages.yml").read_text(encoding="utf-8")
         verify_manual_release(source)
 
+    def test_real_workflow_deploy_is_one_shot(self):
+        root = Path(__file__).resolve().parents[1]
+        source = (root / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        self.assertEqual(source.count("uses: actions/deploy-pages@v4"), 1)
+        self.assertNotIn("continue-on-error: true", source)
+        self.assertNotIn("Retry GitHub Pages deployment", source)
+        self.assertNotIn("Wait before retry", source)
+        self.assertNotIn("deployment_retry", source)
+        self.assertIn("id: deployment_primary", source)
+
 
 if __name__ == "__main__":
     unittest.main()
