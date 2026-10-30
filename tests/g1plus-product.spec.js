@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-const base='http://127.0.0.1:4173';
+const base=process.env.AA8_TEST_BASE||'http://127.0.0.1:4173';
 const route='/products/unitree-g1-plus.html';
 for(const width of [1440,390,360]){
  test('Unitree G1+ exact SKU, real images, SEO, CTA and responsive at '+width+'px',async ({page})=>{
