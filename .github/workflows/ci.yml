@@ -35,6 +35,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_release_trigger.py' -v
           python -m unittest discover -s tests -p 'test_build_ignores_dependencies.py' -v
           python -m unittest discover -s tests -p 'test_h2x_social_meta.py' -v
+          python -m unittest discover -s tests -p 'test_product_factory.py' -v
           python scripts/verify_release_trigger.py
 
       - name: Set up Node.js
@@ -68,6 +69,7 @@ jobs:
             scripts/inject_static_meta.py \
             scripts/inject_structured_data.py
           python scripts/verify_product_list_visibility.py
+          python scripts/product_factory.py audit
           python scripts/build_site.py
           python scripts/generate_glossary.py
           python scripts/generate_legacy_redirects.py
@@ -118,7 +120,9 @@ jobs:
             sleep 0.5
           done
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js --reporter=line
+          # CI-only synthetic product; preview never reaches Pages production artifact.
+          python tests/prepare_product_factory_qa.py
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js --reporter=line
 
       - name: Ensure build does not modify tracked source
         id: source_clean

@@ -135,6 +135,12 @@ def verify_source_hygiene(errors: list[str]) -> None:
 
 def main() -> int:
     errors: list[str] = []
+    # Both PR CI and the existing manual-only Pages deploy must pass this
+    # catalog / approved-design gate; no second workflow or runner is created.
+    from product_factory import audit_catalog
+    catalog_errors, catalog_warnings, catalog_stats = audit_catalog(ROOT)
+    errors.extend(f"PRODUCT FACTORY: {e}" for e in catalog_errors)
+    print(f"Product factory gate: {catalog_stats}; {len(catalog_warnings)} declared legacy placeholder(s)")
     verify_source_hygiene(errors)
 
     # G1 direct-preview HTML must carry an unmodified fallback of the

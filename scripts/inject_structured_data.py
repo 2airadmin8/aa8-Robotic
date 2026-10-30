@@ -296,7 +296,18 @@ def process_html(text: str, relative: Path) -> str:
     if not canonical:
         canonical = PUBLIC_BASE if relative_name == "index.html" else f"{PUBLIC_BASE}{relative_name}"
 
-    config = PAGE_MAP.get(relative_name, {"name": title, "type": "WebPage"})
+    config = PAGE_MAP.get(relative_name)
+    if config is None and relative_name.startswith("products/"):
+        # Opt-in generated pages take their name and manufacturer from the
+        # existing Product Master, not a second product schema registry.
+        from product_factory import catalog
+        for product in catalog(ROOT):
+            if product.get("pageFactory") and product["detailPage"] == relative_name:
+                config = {"name": product["name"], "type": "Product",
+                          "brand": product["manufacturerName"]}
+                break
+    if config is None:
+        config = {"name": title, "type": "WebPage"}
     text = MANAGED_SCRIPT_PATTERN.sub("", text)
 
     if config["type"] == "Product":
