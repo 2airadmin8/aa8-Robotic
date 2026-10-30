@@ -36,6 +36,31 @@ for(const width of [1440,390,360]){
    await expect.poll(()=>image.evaluate(el=>el.naturalWidth),{timeout:15000}).toBeGreaterThan(100);
    expect((await image.getAttribute('alt')||'').trim().length).toBeGreaterThan(4);
   }
+  // Visual regression from CEO full-page review: old G1 !important white background
+  // must never erase G1+ alternating sections or blue NEXT STEP and its white text.
+  const visual=await page.evaluate(()=>{
+   const get=q=>getComputedStyle(document.querySelector(q));
+   const next=get('main.g1p-page > section.g1p-next');
+   const heading=get('.g1p-next h2');
+   const usage=get('main.g1p-page > section.g1p-use-section');
+   const safety=get('main.g1p-page > section.g1p-safety');
+   const area=get('main.g1p-page > section.g1p-intro-section');
+   return {nextBackground:next.backgroundImage,
+    nextHeadingColor:heading.color,useBackground:usage.backgroundColor,
+    safetyBackground:safety.backgroundColor,topPadding:parseFloat(area.paddingTop),
+    bottomPadding:parseFloat(area.paddingBottom),
+    heroFine:document.querySelectorAll('.g1p-hero .g1-fine').length,
+    oldChineseDiagram:document.querySelectorAll('img[src*="g1plus-hero-original.png"]').length};
+  });
+  expect(visual.nextBackground).toContain('linear-gradient');
+  expect(visual.nextHeadingColor).toBe('rgb(255, 255, 255)');
+  expect(visual.useBackground).toBe('rgb(244, 249, 252)');
+  expect(visual.safetyBackground).toBe('rgb(244, 249, 252)');
+  expect(visual.topPadding).toBeLessThanOrEqual(width<=780?50:65);
+  expect(visual.bottomPadding).toBeLessThanOrEqual(width<=780?55:70);
+  expect(visual.heroFine).toBe(0);
+  expect(visual.oldChineseDiagram).toBe(0);
+  await expect(page.locator('.g1p-technical-visual img')).toHaveAttribute('src','/assets/img/products/unitree/g1plus/g1plus-touch.png');
   if(width<=480){
    const order=await page.evaluate(()=>{
     const y=(q)=>{const e=document.querySelector(q);return e.getBoundingClientRect().top+scrollY;};
@@ -43,12 +68,11 @@ for(const width of [1440,390,360]){
      y('.g1p-hero .g1-hero-copy h1'),
      y('.g1p-hero .g1p-hero-stage'),
      y('.g1p-hero .g1-hero-description'),
-     y('.g1p-hero .g1-hero-ctas'),
-     y('.g1p-hero .g1-hero-copy .g1-fine')
+     y('.g1p-hero .g1-hero-ctas')
     ];
    });
    expect(order).toEqual([...order].sort((a,b)=>a-b));
-   expect(new Set(order).size).toBe(5);
+   expect(new Set(order).size).toBe(4);
   }
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
   expect(errors).toEqual([]);

@@ -1,5 +1,5 @@
 # Unitree G1+ product page — Fact & media evidence
-Date: 2026-10-30 JST / Status: Draft, pending manufacturer commercial asset permission and CEO production approval.
+Date: 2026-10-30 JST / G1+ product page: released baseline. Screenshot visual QA revision is Draft pending separate CEO approval. Manufacturer image permissions remain separately disclosed.
 
 ## Sources and version separation
 - Manufacturer product specifications, images, feature comparison: https://www.unitree.com/G1plus/
@@ -23,7 +23,7 @@ Date: 2026-10-30 JST / Status: Draft, pending manufacturer commercial asset perm
 Local files are original bytes downloaded on 2026-10-30 from the following manufacturer page. Images must not be presented as proof of delivery performance.
 - Main hero and catalog: `assets/img/products/unitree/catalog/29_g1pl.png` — approved existing internal catalog asset; see `data/unitree-product-image-sources.json`; do not substitute G1 original.
 - `assets/img/products/unitree/g1plus/g1plus-engineering-original.png`: https://www.unitree.com/images/1c07b00b22eb40448af5736919891c77_1454x1902.png
-- `assets/img/products/unitree/g1plus/g1plus-hero-original.png`: https://www.unitree.com/images/0e5960107c1648a490cf11f869941269_2000x1346.png (official annotation is in Chinese; no modification)
+- Retired from site in screenshot visual review: the original Chinese-annotated front/rear graphic at https://www.unitree.com/images/0e5960107c1648a490cf11f869941269_2000x1346.png; the existing original rear-view image below now conveys the hardware with readable Japanese HTML labels.
 - `assets/img/products/unitree/g1plus/g1plus-vision.png`: https://www.unitree.com/images/6feac9066863484b9f238b86d16d0fb5_3202x2146.png
 - `assets/img/products/unitree/g1plus/g1plus-touch.png`: https://www.unitree.com/images/a7ee597e374e48d5a7c94ccbc3196ccf_1758x2160.png
 
@@ -31,4 +31,4 @@ Local files are original bytes downloaded on 2026-10-30 from the following manuf
 - The site owner has asked to use manufacturer promotional assets on product pages, retain source credit. That decision does not constitute independently verified legal authorization.
 - Internal catalogue notes commercial usage authorization for some high-res media remains unverified. Record status; CEO accepts disclosed exception before release per existing rules.
 - No foreign currency price, distributor quote, fictional stock, delivery timeline, testimonial, certification or ratings is published.
-- `products/unitree-g1-plus.html` is a candidate, not a production webpage. Draft PR + real noindex Preview + independent PC/SP QA required; no main merge or production deployment without separate CEO approval.
+- The original G1+ page was published under CEO approval. Subsequent screenshot visual edits are a new Draft PR only: independent PC/SP QA and real noindex Preview must pass; no merge or production deployment without a new exact-SHA CEO approval.
