@@ -1,23 +1,29 @@
-# Unitree H2-X｜事实・素材来源・上线门禁
+# Unitree H2-X｜产品页单一事实与素材基线（2026-10-31）
 
-- Date 2026-10-31 JST; Status Draft, NOT production.
-- Official manufacturer product: https://www.unitree.com/H2-X/
-- User-supplied Drive URL: https://drive.google.com/drive/folders/1_ErrDClSRDPIWFXkKTwtZ4ASKsQHq8xM is **H2_assets**, not H2-X. The assets in that folder must not be misrepresented as H2-X.
-- The H2-X page currently uses direct Unitree H2-X official images, not an unverified H2 image from Drive.
-- Hero: https://www.unitree.com/images/b7d78affa59a4ef49d8b2e56ca48a46b_1921x2380.png
-- Scenario: https://www.unitree.com/images/388c42c376f54b2eae1e1b528d7000f0_2067x1152.png
-- H2-X 1725×455×245 mm, 65kg+, 31 DoF, max leg 300 N·m, arm 150 N·m, dual hot-swap 20Ah/1.152kWh. Standard vs EDU: secondary development only EDU.
-- Do not conflate H2-X with H2 (1820mm/70kg) or mobile manipulator H2-D.
-- Official manufacturer price in USD is not a domestic quotation. No Japanese price, inventory, warranty or support promise is published.
-- Factory images are not a blanket transfer of copyright rights. Manufacturer source is disclosed; user policy permits promotional use with attribution.
-- Videos absent intentionally: original Drive folder is H2 footage, not proved to be H2-X, and playback is not validated.
-- Release Gate: isolated PR -> CI / independent QA -> exact SHA interactive noindex HTML Preview -> CEO approval -> manual-only release. No premature main merge.
-## Corrected H2-X material SSOT (CEO correction, 2026-10-31)
-Exact authorized source folder on G:
-G:\蜈ｱ譛峨ラ繝ｩ繧､繝暴002_PAI_ID009_[PhyicalAI]_AI繝ｭ繝懊ャ繝・03_雋ｩ螢ｲ陬ｽ蜩∬ｳ・侭_繧ｫ繧ｿ繝ｭ繧ｰ_繝代Φ繝輔Ξ繝・ヨ\Unitree\邏譚申繝偵Η繝ｼ繝槭ヮ繧､繝嘘obot\繝偵Η繝ｼ繝槭ヮ繧､繝峨Ο繝懊ャ繝医・3遞ｮ・募刀\H2-X_assets
-This folder was verified to contain 25 files including 3 videos; it supersedes the previously misinterpreted H2_assets location.
-Website selected images: image_005.webp, image_012.jpg, image_013.jpg, image_014.jpg.
-Website videos: video_01.mp4, video_02.mp4, video_03.mp4, copied without modification to originals. FFmpeg confirmed H.264 (avc1) 1920x1080 50fps, AAC, durations 14.46s / 14.94s / 11.40s.
-Remaining source images stay in the folder, indexed as candidate raw material rather than blindly published.
-Visual media depict manufacturer demos, not independent proof of guaranteed operation.
-No deployment or production merge granted for this change; CEO must inspect exact-HEAD HTML Preview.
+## 页面状态
+- H2-X 正式线上基线：`a0f3556edf704745b837fcb3390333a9b05b1045`。
+- 本轮：隔离 Draft PR，待 CEO 检查真实 HTML Preview 并按新 HEAD 授权。**本文件不是上线完成证明。**
+- 产品：Unitree H2-X，独立于 H2、H2-D；官方资料 https://www.unitree.com/H2-X/ 。
+- 产品规格：31 DoF、1725×455×245mm、65kg以上、腿最大300N·m、臂最大150N·m、20Ah双电池（总1.152kWh）；H2-X标准版二次开发非对应，EDU支持但具体SDK依SKU。
+- 日本价格、库存、交期、保修与SDK仍需正式商谈确认；不虚构授权与业务保证。
+
+## 正确素材正本
+G:\共有ドライブ\002_PAI_ID009_[PhyicalAI]_AIロボット\03_販売製品資料_カタログ_パンフレット\Unitree\素材\ヒューマノイドRobot\ヒューマノイドロボットー3種５品\H2-X_assets
+
+- 当前 G: 文件夹共25件，为 H2-X 正本。早期提供的 Google Drive H2_assets **不是** 本产品素材正本，不应再引用为 H2-X。
+- **新指定主产品图** `image_007.webp`：原文件 88,124 bytes，1290×1930，含 alpha；SHA256 `4D08C159B66D85C66E5212208B757060B97817A4125FE00ADFB695AC3459F0E5`。复制原字节至 `assets/img/products/unitree/h2x/drive/image_007.webp`，不编辑 G: 原始素材。
+- Hero、产品列表目录、Open Graph 分享图使用**同一张** `image_007.webp`；CSS 仅控制图像在白色背景中完整显示，不改变原始图。
+- 实景图仍用 `image_005.webp`、`image_012.jpg`、`image_013.jpg`、`image_014.jpg`。其他源图保留在G:，无需重复堆砌。
+- 视频仍用 `video_01.mp4`（14.46s）、`video_02.mp4`（14.94s）、`video_03.mp4`（11.40s），H.264/AAC，已有真实 Chrome 播放证据。修改主图时不得破坏这3段视频。
+- 官网旧 `h2x-hero.png` 是此前官方技术标注图，保留在仓库作为历史/可回滚素材，但**不用于主产品图**。
+
+## G1 母版必须继承的规则
+- 共用 Header/Footer `data-shared-layout`、`g1-product.css` 布局骨架、`g1-shell`、锚点导航、主CTA、规格表、FAQ、相关产品模块。
+- 所有已批准的 G1 派生产品页规格表首列：**モデル**，不可为 `項目` 或 `比較項目`。三列表头必须为 `th scope="col"`。
+- H2-X 页面目录里必须有「写真・動画」入口，并与 `#media-h2x` 对应；章节番号无重复：01/02/03/04/05/06。
+- H2-X 型号、ALT、页内导航、FAQ 不允许混成 H2；只有「H2-X 和 H2 的产品比较」可使用独立的 H2 字样。
+- 主图必须匹配 `1290×1930` intrinsic 尺寸，PC1440/SP390/360 保持完整主体、无横向溢出、无图片404、无白底白字。
+- 素材商业使用遵守既有 CEO 方针，标注厂商来源，不声称无条件版权授权。
+
+## 验收与发布门禁
+同一 PR 与精确 SHA → GitHub CI、另一环境独立 QA（PC/SP、目录、分享图、3段视频、CTA）→ 可交互 noindex HTML Preview → CEO 单次明确批准 → 受控合并/手动发布/线上SHA及真浏览器回归。

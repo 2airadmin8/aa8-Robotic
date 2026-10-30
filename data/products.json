@@ -111,7 +111,7 @@
       "useCaseIds": ["humanoid-research", "education", "human-robot-interaction"],
       "useLabels": ["全身運動研究", "大学・研究", "ヒューマノイド", "対話・具身AI"],
       "detailPage": "products/unitree-h2-x.html",
-      "image": "assets/img/products/unitree/h2x/h2x-hero.png",
+      "image": "assets/img/products/unitree/h2x/drive/image_007.webp",
       "imageAlt": "Unitree H2-X メーカー公式の新型ヒューマノイド",
       "imageStatus": "official",
       "priceStatus": "confirmation_required",
