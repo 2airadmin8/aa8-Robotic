@@ -788,3 +788,14 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
   .g1-page .g1-support-steps span{font-size:35px;line-height:1.6;margin-bottom:0}
   .g1-page .g1-support-steps strong{font-size:17px;line-height:1.75}
 }
+
+/* G1 product-specific Figma visual regression: NEXT STEP video affordance.
+   Preserve maker photography, the official YouTube fallback and all CTA actions. */
+.g1-page .g1-cta-card[data-g1-video-trigger] .g1-cta-photo{position:relative}
+.g1-page .g1-cta-play{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;background:#fff;color:#009bd2;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;line-height:1;padding-left:3px;
+  box-shadow:0 2px 8px rgba(10,28,40,.16);pointer-events:none;
+}

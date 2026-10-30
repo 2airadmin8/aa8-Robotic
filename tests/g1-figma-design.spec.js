@@ -725,3 +725,33 @@ for(const width of [1024,390]){
     expect(a.overflow).toBe(false);
   });
 }
+
+// Visual regression: Figma NEXT STEP card 01 includes an obvious play affordance.
+// Keep business imagery, 3 CTA cards, and same-page official video playback.
+for(const width of [1440,390]){
+  test('G1 NEXT STEP play icon Figma affordance / '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(url,{waitUntil:'networkidle'});
+    const card=page.locator('.g1-cta-card[data-g1-video-trigger]');
+    const photo=card.locator('.g1-cta-photo');
+    const play=card.locator('.g1-cta-play');
+    await expect(card).toHaveCount(1);
+    await expect(page.locator('.g1-cta-card')).toHaveCount(3);
+    await expect(play).toBeVisible();
+    await expect(play).toHaveAttribute('aria-hidden','true');
+    const pos=await page.evaluate(()=>{
+      const r=document.querySelector('.g1-cta-card[data-g1-video-trigger] .g1-cta-photo').getBoundingClientRect();
+      const p=document.querySelector('.g1-cta-play').getBoundingClientRect();
+      const style=getComputedStyle(document.querySelector('.g1-cta-play'));
+      return {dx:(p.left+p.width/2)-(r.left+r.width/2),dy:(p.top+p.height/2)-(r.top+r.height/2),width:p.width,height:p.height,pointer:style.pointerEvents};
+    });
+    expect(Math.abs(pos.dx)).toBeLessThanOrEqual(1);
+    expect(Math.abs(pos.dy)).toBeLessThanOrEqual(1);
+    expect(pos.width).toBe(38);expect(pos.height).toBe(38);
+    expect(pos.pointer).toBe('none');
+    await card.click();
+    const src=await page.locator('.g1-video-iframe').getAttribute('src');
+    expect(src).toContain('youtube-nocookie.com/embed/O5GphCrjx98');
+    expect(page.url()).toContain('/products/unitree-g1.html');
+  });
+}
