@@ -196,6 +196,13 @@ def main() -> int:
         text = path.read_text(encoding="utf-8")
         # A page-specific regression gate: the X2 EDU page must not reload
         # the obsolete GitHub Pages /aa8-Robotic/ SEO runtime.
+        if relative.as_posix() == "contact.html":
+            if "assets/js/seo.js" in text:
+                errors.append("contact: obsolete seo.js runtime reintroduced")
+            if text.count("assets/js/analytics-events.js") != 1:
+                errors.append("contact: expected one direct analytics-events.js")
+            if "/aa8-Robotic/assets/" in text:
+                errors.append("contact: retired GitHub Pages asset prefix reintroduced")
         if relative.as_posix() == "products/unitree-g1.html":
             if "assets/js/seo.js" in text:
                 errors.append("G1 still loads the legacy seo.js runtime")

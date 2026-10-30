@@ -96,3 +96,37 @@ for (const width of [1440, 390]) {
     expect(g1.footerCount).toBe(1);
   });
 }
+
+
+// Issue #138: actual G1+ -> inquiry handoff must never fetch retired GitHub Pages assets.
+// This test checks navigation and prefilling only: it MUST NOT submit a real inquiry.
+for (const width of [1440, 390]) {
+  test(`Issue138 G1+ inquiry zero legacy asset 404 at ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    const brokenAssets=[], pageErrors=[];
+    page.on('response', response => {
+      const url=new URL(response.url());
+      if (url.origin === 'http://127.0.0.1:4173' && response.status() >= 400)
+        brokenAssets.push({path:url.pathname, status:response.status()});
+    });
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto('http://127.0.0.1:4173/products/unitree-g1-plus.html',
+      {waitUntil:'networkidle'});
+    await page.locator('.g1-hero-ctas .g1-button.primary').click();
+    await expect(page).toHaveURL(/\/contact\.html\?product=/);
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[name="source_product"]')).toHaveValue('Unitree G1+');
+    await expect(page.locator('[name="product"]')).toHaveValue('Unitree G1+');
+    await expect(page.locator('[name="source_service"]')).toHaveValue('university-procurement');
+    await expect(page.locator('[name="category"]')).toHaveValue('見積・大学購買');
+    await expect(page.locator('#contact-form')).toBeVisible();
+    await expect(page.locator('script[src*="analytics-events.js"]')).toHaveCount(1);
+    await expect(page.locator('script[src*="/seo.js"]')).toHaveCount(0);
+    expect(await page.evaluate(() =>
+      [...document.scripts].some(s=>s.src.includes('/aa8-Robotic/assets/')))).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width + 1);
+    expect(brokenAssets).toEqual([]);
+    expect(pageErrors).toEqual([]);
+  });
+}
