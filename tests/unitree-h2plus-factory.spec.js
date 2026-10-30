@@ -27,6 +27,10 @@ for (const width of [1440,390,360]) {
     await image.scrollIntoViewIfNeeded();
     await expect.poll(()=>image.evaluate(el=>el.naturalWidth)).toBeGreaterThan(0);
   }
+  for (const image of await page.locator('.g1-factory-related-card img').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect.poll(()=>image.evaluate(el=>el.naturalWidth)).toBeGreaterThan(0);
+  }
   await page.locator('.g1-final-cta').scrollIntoViewIfNeeded();
   const m=await page.evaluate(()=>{
    const main=document.querySelector('main.g1-page');
