@@ -211,6 +211,14 @@ def main() -> int:
             for marker in ('id="g1-title"', 'id="specifications"', 'id="architecture"', 'id="contact-g1"'):
                 if marker not in text:
                     errors.append(f"G1 required section missing: {marker}")
+        if relative.as_posix() == "products/unitree-h2-d.html":
+            if "assets/js/seo.js" in text:
+                errors.append("H2-D: obsolete seo.js loader reintroduced")
+            if text.count("assets/js/analytics-events.js") != 1:
+                errors.append("H2-D: expected exactly one direct analytics-events.js")
+            for marker in ('id="strengths"', 'id="use-cases"', 'id="models"', 'id="specifications"', 'id="development"', 'id="faq"', 'id="consult"', 'h2d-motion.mp4'):
+                if marker not in text:
+                    errors.append(f"H2-D section/video missing: {marker}")
         if relative.as_posix() == "products/unitree-g1-plus.html":
             if "assets/js/seo.js" in text:
                 errors.append("G1+ still loads the legacy seo.js runtime")

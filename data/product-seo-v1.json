@@ -33,6 +33,10 @@
     "products/unitree-g1-plus.html": {
       "title": "Unitree G1+｜25自由度・G1+ EDU比較・研究導入相談｜AirAdmin8 Robotics",
       "description": "Unitree G1+の新しい2自由度ネック、強化された関節駆動、双眼・広角カメラと対話機能を解説。G1+標準版とG1+ EDUの仕様・二次開発の違い、日本国内での導入条件を比較できます。"
+    },
+    "products/unitree-h2-d.html": {
+      "title": "Unitree H2-D｜輪式双腕ロボット・産業マニピュレーション・仕様比較｜AirAdmin8 Robotics",
+      "description": "Unitree H2-Dは双腕7軸、片腕定格約7kgの車輪型・据置型マニピュレーションロボット。標準版19自由度とフラッグシップ20自由度、搬送・組立・研究PoC、SDKと導入条件を比較。"
     }
   }
 }
