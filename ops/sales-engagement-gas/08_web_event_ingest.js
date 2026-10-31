@@ -81,7 +81,7 @@ function aa8WebEventPersist_(r) {
   const data=queue.getDataRange().getValues();
   if(data.length<2)return {ok:false,error:'empty_sales_queue'};
   const h=headerMap_(data[0]);
-  validateHeaders_(h,['送信管理ID','ステータス','大学名','先生氏名'],SALES_IMPORT_APP.QUEUE_SHEET);
+  validateHeaders_(h,['送信管理ID','ステータス','大学名','先生氏名','実行モード','送信承認'],SALES_IMPORT_APP.QUEUE_SHEET);
   const matches=[];
   for(let i=1;i<data.length;i++){
     if(String(value_(data[i],h,'送信管理ID')||'').trim()===r.delivery_id) matches.push(data[i]);
@@ -91,6 +91,20 @@ function aa8WebEventPersist_(r) {
   const customer=matches[0];
   const status=String(value_(customer,h,'ステータス')||'').trim();
   if(status!=='送信済'&&status!=='SENT')return {ok:false,error:'delivery_not_sent'};
+  const mode=String(value_(customer,h,'実行モード')||'').trim().toUpperCase();
+  const testId=/^(?:DLV|RSJ)-TEST-/i.test(r.delivery_id);
+  // Fail closed on any ambiguous PROD/TEST mismatch. A synthetic record
+  // must NEVER be silently attributed as a real customer interaction.
+  if((mode==='TEST')!==testId)return {ok:false,error:'delivery_test_mode_mismatch'};
+  // The existing campaign uses mode=DRAFT for messages that were later
+  // CEO-approved and actually SENT. Do not confuse creation mode with
+  // delivery environment (PROD). Both require explicit send approval.
+  const isTest=mode==='TEST';
+  if(!isTest){
+    if(mode!=='DRAFT'&&mode!=='PROD')return {ok:false,error:'delivery_mode_not_verified'};
+    if(String(value_(customer,h,'送信承認')||'').trim().toUpperCase()!=='YES')
+      return {ok:false,error:'delivery_not_approved'};
+  }
 
   const headers=log.getRange(1,1,1,Math.max(log.getLastColumn(),12)).getValues()[0];
   const existing=['取得日時','送信管理ID','大学名','先生氏名','イベント日時','ページ種別','ページパス','製品ID','閲覧回数','PDF閲覧回数','最終PDF閲覧日時','データソース'];
@@ -113,7 +127,8 @@ function aa8WebEventPersist_(r) {
   const at=new Date(r.event_at);
   const displayTypes={
     lead_page_view:'WEB_VIEW',product_view:'PRODUCT_VIEW',lead_product_click:'PRODUCT_CLICK',
-    lead_contact_click:'CONTACT_CLICK',lead_inquiry_success:'INQUIRY_CONFIRMED',pdf_open:'PDF'
+    // The browser's success signal is not a backend-verified Inquiry SSOT join.
+    lead_contact_click:'CONTACT_CLICK',lead_inquiry_success:'INQUIRY_SIGNAL',pdf_open:'PDF'
   };
   const kind=displayTypes[r.event];
   if(!kind)return {ok:false,error:'unsupported_event'};
@@ -122,11 +137,12 @@ function aa8WebEventPersist_(r) {
   const isPdf=r.event==='pdf_open';
   // Avoid double-counting one actual page view as two because product_view is
   // a secondary SKU-specific event. Source row remains available for analysis.
-  const views=r.event==='lead_page_view'||isPdf?1:0;
+  const views=isTest?0:(r.event==='lead_page_view'||isPdf?1:0);
   log.appendRow([
     new Date(),r.delivery_id,String(value_(customer,h,'大学名')||''),
-    String(value_(customer,h,'先生氏名')||''),at,kind,path,product,
-    views,isPdf?1:0,isPdf?at:'','VERCEL_WEB_EVENT',
+    String(value_(customer,h,'先生氏名')||''),at,isTest?'TEST_'+kind:kind,path,product,
+    views,!isTest&&isPdf?1:0,!isTest&&isPdf?at:'',
+    isTest?'VERCEL_WEB_EVENT_TEST':'VERCEL_WEB_EVENT',
     r.event_id,r.page_path
   ]);
   SpreadsheetApp.flush();

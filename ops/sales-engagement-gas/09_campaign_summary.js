@@ -13,7 +13,7 @@ function syncAa8WebMarketingSummary_() {
   const values=queue.getDataRange().getValues();
   if(values.length<2)return {ok:true,rows:0};
   const h=headerMap_(values[0]);
-  validateHeaders_(h,['送信管理ID'],SALES_IMPORT_APP.QUEUE_SHEET);
+  validateHeaders_(h,['送信管理ID','実行モード'],SALES_IMPORT_APP.QUEUE_SHEET);
   const required=['Web閲覧数','製品閲覧数','製品リンククリック数','最終クリック製品ID','最終Webページ','最終Web反応日時','開封品質区分'];
   let headers=queue.getRange(1,1,1,queue.getLastColumn()).getDisplayValues()[0];
   const found=required.map(function(name){return headers.indexOf(name)});
@@ -33,12 +33,13 @@ function syncAa8WebMarketingSummary_() {
   }
   const w=web.getDataRange().getValues();
   const wh=headerMap_(w[0]||[]);
-  validateHeaders_(wh,['送信管理ID','イベント日時','ページ種別','ページパス','製品ID'],'Web行動ログ');
+  validateHeaders_(wh,['送信管理ID','イベント日時','ページ種別','ページパス','製品ID','データソース'],'Web行動ログ');
   const results=Object.create(null);
   for(let i=1;i<w.length;i++){
     const row=w[i],id=String(value_(row,wh,'送信管理ID')||'').trim();
     const kind=String(value_(row,wh,'ページ種別')||'').trim();
-    if(!id)continue;
+    const source=String(value_(row,wh,'データソース')||'').trim();
+    if(!id||kind.startsWith('TEST_')||source==='VERCEL_WEB_EVENT_TEST')continue;
     const date=asDate_(value_(row,wh,'イベント日時'));
     if(!date)continue;
     const obj=results[id]||(results[id]={visits:0,productViews:0,productClicks:0,last:null,lastPath:'',lastProduct:''});
@@ -67,6 +68,10 @@ function syncAa8WebMarketingSummary_() {
   }
   const data=values.slice(1).map(function(row){
     const id=String(value_(row,h,'送信管理ID')||'').trim();
+    const mode=String(value_(row,h,'実行モード')||'').trim().toUpperCase();
+    // Keep synthetic tests visible only as excluded QA, not as sales KPIs.
+    if(mode==='TEST'||/^(?:DLV|RSJ)-TEST-/i.test(id))
+      return [0,0,0,'','','','TEST除外'];
     const v=results[id]||{visits:0,productViews:0,productClicks:0,last:null,lastPath:'',lastProduct:''};
     const o=opened[id]||{proxy:0,other:0};
     let quality='未検出';

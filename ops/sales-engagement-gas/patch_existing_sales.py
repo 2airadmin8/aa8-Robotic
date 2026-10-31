@@ -27,6 +27,22 @@ def patch(source: str) -> str:
        "    if(!summary.ok)throw new Error('Web attribution summary failed: '+summary.error);\n"
        "  } catch (webLogError) {",
       ),
+      (
+       "  validateHeaders_(wh, ['送信管理ID','イベント日時','ページ種別','ページパス'], 'Web行動ログ');",
+       "  validateHeaders_(wh, ['送信管理ID','イベント日時','ページ種別','ページパス','データソース'], 'Web行動ログ');",
+      ),
+      (
+       "    const pageType = clean_(value_(row, wh, 'ページ種別'));\n"
+       "    const pagePath = clean_(value_(row, wh, 'ページパス'));\n"
+       "    if (!byId[deliveryId])",
+       "    const pageType = clean_(value_(row, wh, 'ページ種別'));\n"
+       "    const pagePath = clean_(value_(row, wh, 'ページパス'));\n"
+       "    const dataSource = clean_(value_(row, wh, 'データソース'));\n"
+       "    // TEST events remain in existing Web行動ログ for audit, but never\n"
+       "    // advance live customer last-reaction timestamps or sales KPIs.\n"
+       "    if (pageType.startsWith('TEST_') || dataSource === 'VERCEL_WEB_EVENT_TEST') continue;\n"
+       "    if (!byId[deliveryId])",
+      ),
     ]
     for old, new in rules:
         times = source.count(old)

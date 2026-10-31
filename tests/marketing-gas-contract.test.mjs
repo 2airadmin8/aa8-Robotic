@@ -33,10 +33,10 @@ class Sheet {
  }
  appendRow(row){if(row.length>this.max)throw Error('append past max');this.rows.push([...row])}
 }
-function create({status='送信済',oldLogRows=[],openRows=[],duplicateId=false}={}){
+function create({status='送信済',oldLogRows=[],openRows=[],deliveryId=RID,mode='DRAFT',approval='YES'}={}){
  const queue=new Sheet([
-  ['送信管理ID','ステータス','大学名','先生氏名'],
-  [RID,status,'SYNTHETIC_UNIVERSITY','TEST_RESEARCHER']
+  ['送信管理ID','ステータス','大学名','先生氏名','実行モード','送信承認'],
+  [deliveryId,status,'SYNTHETIC_UNIVERSITY','TEST_RESEARCHER',mode,approval]
  ]);
  const web=new Sheet([webHeaders,...oldLogRows]);
  const open=new Sheet([['送信管理ID','user_agent','is_test'],...openRows]);
@@ -58,7 +58,7 @@ function create({status='送信済',oldLogRows=[],openRows=[],duplicateId=false}
  });
  vm.runInContext(sources,context);
  const record=(data={})=>({
-  schema:'aa8_web_event_v2',event_id:eventId,event:'lead_product_click',delivery_id:RID,
+  schema:'aa8_web_event_v2',event_id:eventId,event:'lead_product_click',delivery_id:deliveryId,
   event_at:new Date().toISOString(),page_path:'/products.html',target_path:'/products/unitree-h2-plus.html',
   target_product_id:'unitree-h2-plus',product_id:'',...data
  });
@@ -115,21 +115,21 @@ test('summary reuses original sales sheet, records clicked product and proxy unc
  const result=c.context.syncAa8WebMarketingSummary_();
  assert.equal(result.ok,true);
  assert.equal(c.queue.rows.length,2);
- assert.equal(c.queue.rows[0][4],'Web閲覧数');
- assert.equal(c.queue.rows[1][6],1);
- assert.equal(c.queue.rows[1][7],'unitree-h2-plus');
- assert.equal(c.queue.rows[1][10],'画像代理取得のみ・真人未確認');
+ assert.equal(c.queue.rows[0][6],'Web閲覧数');
+ assert.equal(c.queue.rows[1][8],1);
+ assert.equal(c.queue.rows[1][9],'unitree-h2-plus');
+ assert.equal(c.queue.rows[1][12],'画像代理取得のみ・真人未確認');
 });
 test('open events with real browser UA still NOT assert a verified human',()=>{
  const c=create({openRows:[[RID,'Mozilla/5.0 Chrome/156','NO']]});
  const result=c.context.syncAa8WebMarketingSummary_();
  assert.equal(result.ok,true);
- assert.equal(c.queue.rows[1][10],'開封観測・真人未確認');
+ assert.equal(c.queue.rows[1][12],'開封観測・真人未確認');
 });
 test('test opens excluded from production sales assessment',()=>{
  const c=create({openRows:[[RID,'Mozilla/5.0 Chrome/156','YES']]});
  c.context.syncAa8WebMarketingSummary_();
- assert.equal(c.queue.rows[1][10],'未検出');
+ assert.equal(c.queue.rows[1][12],'未検出');
 });
 test('tracked catalog link joins delivery ID and campaign, never an email address',()=>{
  const c=create();let u=c.context.buildTrackedCatalogUrl_(RID);
@@ -142,4 +142,75 @@ test('failed server-side input does not create a second Master or Sheet',()=>{
  const c=create({status:'未作成'});
  assert.equal(c.call().ok,false);
  assert.deepEqual(Object.keys({'a':c.queue,'b':c.web,'c':c.open}).sort(),['a','b','c']);
+});
+
+const TEST_RID='DLV-TEST-SYNTHQA-20261101-001';
+
+test('original production mode DRAFT + approval YES + SENT is a legitimate click',()=>{
+ const c=create({mode:'DRAFT',approval:'YES',status:'送信済'});
+ const ack=c.call();
+ assert.equal(ack.persisted,true);
+ assert.equal(c.web.rows[1][5],'PRODUCT_CLICK');
+ assert.equal(c.web.rows[1][11],'VERCEL_WEB_EVENT');
+});
+
+test('a sent-looking row without original CEO send approval is rejected',()=>{
+ const c=create({mode:'DRAFT',approval:'NO',status:'送信済'});
+ const ack=c.call();
+ assert.equal(ack.ok,false);
+ assert.equal(ack.error,'delivery_not_approved');
+ assert.equal(c.web.rows.length,1);
+});
+
+test('pure synthetic TEST event is auditable but never a production interest signal',()=>{
+ const c=create({
+  mode:'TEST',approval:'NO',status:'送信済',deliveryId:TEST_RID,
+  openRows:[[TEST_RID,'Mozilla/5.0 Chrome/156','NO']],
+ });
+ const first=c.call(),duplicate=c.call();
+ assert.equal(first.ok,true);
+ assert.equal(first.persisted,true);
+ assert.equal(duplicate.duplicate,true);
+ assert.equal(c.web.rows.length,2);
+ const row=c.web.rows[1];
+ assert.equal(row[1],TEST_RID);
+ assert.equal(row[5],'TEST_PRODUCT_CLICK');
+ assert.equal(row[7],'unitree-h2-plus');
+ assert.equal(row[8],0);
+ assert.equal(row[9],0);
+ assert.equal(row[11],'VERCEL_WEB_EVENT_TEST');
+ const summary=c.context.syncAa8WebMarketingSummary_();
+ assert.equal(summary.ok,true);
+ assert.equal(c.queue.rows[1][6],0); // Web閲覧数
+ assert.equal(c.queue.rows[1][7],0); // 製品閲覧数
+ assert.equal(c.queue.rows[1][8],0); // 製品リンククリック数
+ assert.equal(c.queue.rows[1][9],''); // 最終クリック製品ID
+ assert.equal(c.queue.rows[1][11],''); // 最終Web反応日時
+ assert.equal(c.queue.rows[1][12],'TEST除外');
+});
+
+test('TEST/non-TEST identity mismatch must fail-closed before writing',()=>{
+ let c=create({mode:'TEST',approval:'NO',deliveryId:RID});
+ assert.equal(c.call().error,'delivery_test_mode_mismatch');
+ assert.equal(c.web.rows.length,1);
+ c=create({mode:'DRAFT',approval:'YES',deliveryId:TEST_RID});
+ assert.equal(c.call().error,'delivery_test_mode_mismatch');
+ assert.equal(c.web.rows.length,1);
+});
+
+test('unknown execution modes cannot be counted as customer interest',()=>{
+ const c=create({mode:'UNVERIFIED',approval:'YES',deliveryId:RID});
+ assert.equal(c.call().error,'delivery_mode_not_verified');
+ assert.equal(c.web.rows.length,1);
+});
+
+test('client inquiry signal never poses as a backend-confirmed business lead',()=>{
+ const c=create();
+ const ack=c.call({
+  event:'lead_inquiry_success',page_path:'/contact.html',
+  target_path:'',product_id:'',target_product_id:''
+ });
+ assert.equal(ack.ok,true);
+ assert.equal(c.web.rows[1][5],'INQUIRY_SIGNAL');
+ assert.notEqual(c.web.rows[1][5],'INQUIRY_CONFIRMED');
 });

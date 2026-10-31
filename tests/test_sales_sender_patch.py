@@ -27,6 +27,12 @@ ORIGINAL=(
     "  }\n"
     "  // Existing send safeguards and triggers remain untouched.\n"
     "}\n"
+    "function syncWebEngagementFromLog_() {\n"
+    "  validateHeaders_(wh, ['送信管理ID','イベント日時','ページ種別','ページパス'], 'Web行動ログ');\n"
+    "    const pageType = clean_(value_(row, wh, 'ページ種別'));\n"
+    "    const pagePath = clean_(value_(row, wh, 'ページパス'));\n"
+    "    if (!byId[deliveryId]) byId[deliveryId] = {count:0};\n"
+    "}\n"
 )
 
 class SalesSenderPatchTests(unittest.TestCase):
@@ -34,6 +40,8 @@ class SalesSenderPatchTests(unittest.TestCase):
         updated=module.patch(ORIGINAL)
         self.assertIn("buildTrackedCatalogUrl_(deliveryId)",updated)
         self.assertIn("syncAa8WebMarketingSummary_()",updated)
+        self.assertIn("VERCEL_WEB_EVENT_TEST", updated)
+        self.assertIn("pageType.startsWith('TEST_')", updated)
         self.assertEqual(updated.count("研究用ロボット製品一覧を見る"),1)
         self.assertEqual(updated.count("研究用ロボット製品一覧："),1)
         self.assertIn("Existing send safeguards and triggers remain untouched",updated)

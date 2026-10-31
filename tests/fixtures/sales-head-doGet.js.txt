@@ -1,0 +1,25 @@
+function doGet(e) {
+  try {
+    const p = e && e.parameter ? e.parameter : {};
+
+    if (String(p.action || '') === 'email_open') {
+      recordEmailOpen_(
+        String(p.sid || ''),
+        String(p.test || '') === '1'
+      );
+    }
+
+    return ContentService
+      .createTextOutput('ok')
+      .setMimeType(ContentService.MimeType.TEXT);
+
+  } catch (err) {
+  const msg = err && err.stack ? err.stack : String(err);
+
+  console.error('email_open endpoint error:', msg);
+
+  return ContentService
+    .createTextOutput('ERROR')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+}

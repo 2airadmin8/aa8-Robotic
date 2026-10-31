@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node --test tests/marketing-web-event.test.mjs tests/marketing-gas-contract.test.mjs
+          node --test tests/marketing-web-event.test.mjs tests/marketing-gas-contract.test.mjs tests/marketing-open-compat.test.mjs tests/marketing-hourly-isolation.test.mjs
           python -m unittest discover -s tests -p 'test_sales_sender_patch.py' -v
           python -m unittest discover -s tests -p 'test_marketing_loader.py' -v
           python scripts/validate_analytics.py

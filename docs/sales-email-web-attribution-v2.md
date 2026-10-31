@@ -56,3 +56,38 @@ Vercel hikari-proxy-dev 环境仅见 DIFY_API_KEY；不存在以下配置：
 - 真实生产：以上自动PASS后还需要Webhook与GAS ACK真实读写E2E、Gmail原发送不退化（仅原有已发送只读证据）、不发送新营销邮件。
 
 **不可回补的历史空缺**：Vercel日志旧事件没有持久化时，不能假造产品点击或补齐真实客户轨迹。
+
+
+## 2026-11-01｜P0 开封兼容与TEST数据隔离验收
+
+本章仅描述 Draft PR #163 中的隔离候选，绝不代表真实GAS或Vercel部署、正式Sheet写入、或客户发信。
+
+### 已核实的开封事实
+- 只读解码2026-10-07及2026-10-20三封已发营销邮件RFC822 HTML，3/3均使用独立既有Vercel项目 aa8-email-open-test.vercel.app/api/open 的实际开封像素，不调用GAS @43 doGet。
+- 现有原Sheet「設定.EMAIL_OPEN_ENDPOINT」仍引用原GAS历史@43 WebApp，必须保持其兼容；不能把@43误认为所有当前开封邮件的入口。
+- AA8-N-018只读克隆原@43版本与当前HEAD的真实 doGet。正常调用、email_open、TEST标记、返回值一致；仅@43错误时向客户端暴露服务端详情，当前HEAD错误响应已脱敏。原04_email_open_tracking.js本次不修改，两个真实doGet片段作为只读哈希回归基线放在 tests/fixtures。
+- 不得回退整个GAS当前HEAD到旧@43：原HEAD已有更多配信、Runner和研究功能。
+
+### TEST行为与正式销售数据的严格分离
+- 正式已发记录实测状态：実行モード=DRAFT、送信承認=YES、ステータス=送信済；DRAFT是创建方式而非未发。候选 writer 允许 DRAFT/YES/已发或 PROD/YES/已发。
+- 内部合成TEST记录实测：実行モード=TEST、送信承認=NO、ステータス=送信済。必须匹配合成 TEST 前缀，否则拒绝；未知模式、未发和未经批准的正式记录都拒绝。
+- 合成事件在既有Web行動ログ仅作审计，类别 TEST_ 前缀、来源 VERCEL_WEB_EVENT_TEST，访问和PDF计数为0；event_id重复不增加行数。
+- 原HEAD的 syncWebEngagementFromLog_ 通过候选源五处最小补丁跳过上述TEST类别和TEST来源，故TEST不更新正式最終反応日時或WEB_ENGAGEMENT_SUMMARY_JSON。
+- 原 syncAa8WebMarketingSummary_ 对TEST行只填0次和 TEST除外，代理/浏览器开封均不推断真人。
+- 前端 lead_inquiry_success 在后端仅标记 INQUIRY_SIGNAL，尚未核对 Inquiry SSOT前，不能称为已收到的真实业务询盘。
+
+### 源码、隔离QA与回滚边界
+- 当前GAS HEAD原03源码UTF8标准化SHA256：44114a9ce75a96f14c7574b4c76acaef05a0a7593dc99962ec81bdbd5dc2e108。
+- AA8-N-018隔离目录 AA8_Sales_OpenCompat_QA_20261101 的03源码5个精确补丁候选SHA256：99f92855158545402747d7eb6408d4defa46f21bd2142579483dea5a09bd279c，原文件未覆盖，JS语法通过；候选不是生产版本。
+- 原历史@43部署只读完整快照在 AA8_Sales_v43_snapshot_20261101；原HEAD比@43增加大量功能，禁止直接用@43全量文件覆盖当前HEAD。
+- 回滚（需未来另行审批）：先冻结新事件入口，再按确切部署ID恢复原GAS既有版本、恢复Vercel原生产部署与原环境配置，确认现有开封、配信、时间触发和原Sheet不退化；不创建第二WebApp、Runner或数据库。
+- 自动回归：marketing-open-compat.test.mjs、marketing-gas-contract.test.mjs、marketing-hourly-isolation.test.mjs、test_sales_sender_patch.py和AA8-N-015 PC1440/SP390/SP360。
+- 生产签名密钥仍未配置，本轮禁止clasp push/deploy、Vercel生产变更、真实客户写入、PR合并、pages.yml或发送真实邮件。
+
+
+### 可回滚的干净候选包（AA8-N-018）
+- 隔离目录 AA8_Sales_OpenCompat_Package_20261101，仅有10个GAS JS源码＋原appsscript.json，共11文件；不含 .clasp.json、凭据、旧PROPOSED副本、第二个WebApp或第二个Runner。
+- 候选包清单整体SHA256：a38a9e1bcbe54ab55eda6d95f30f7a292daf9a179d0922dcb87748a87ae68c39。原业务01/02/04/05/06/07及manifest与正式HEAD只读快照一致；仅03精确5处补丁＋08/09/11增量代码。
+- 函数去重：doGet 1、doPost 1、salesEngagementHourlyTrigger_ 1、syncWebEngagementFromLog_ 1、syncAa8WebMarketingSummary_ 1、buildTrackedCatalogUrl_ 1；所有JS语法PASS。
+- 配信真实模式已只读确认：DRAFT/YES/送信済；TEST配信：TEST/NO/送信済。两类在签名写入、汇总和每小时同步中有各自分支并独立测试。
+- 回滚时不把整个GAS HEAD降级成旧@43。必须在独立CEO审批后冻结新增API、将既有部署指向此前确切版本并恢复原HEAD文件03的SHA；核对已有Vercel开封像素、GAS GET、原发送与定时同步。若无法确认版本/角色，停止不发布。
