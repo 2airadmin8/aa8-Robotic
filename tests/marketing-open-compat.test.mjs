@@ -9,7 +9,10 @@ import crypto from 'node:crypto';
 // No real Gmail, GAS or EmailOpenLog call is made by these tests.
 const fixture=(name)=>fs.readFileSync('tests/fixtures/sales-'+name+'-doGet.js.txt','utf8');
 const v43=fixture('v43'), head=fixture('head');
-const digest=(s)=>crypto.createHash('sha256').update(s).digest('hex');
+// Windows git checkout may convert LF to CRLF. Pin the exact UTF-8
+// *content* hash while preserving all business-code bytes except line endings.
+const canonicalLF=(s)=>s.replace(/\r\n/g,'\n');
+const digest=(s)=>crypto.createHash('sha256').update(canonicalLF(s),'utf8').digest('hex');
 
 function exercise(source, parameters={},throwOpen=false){
  const recorded=[],errors=[];
@@ -36,6 +39,21 @@ function exercise(source, parameters={},throwOpen=false){
 test('doGet fixtures are immutable hashes from @43 and current GAS HEAD',()=>{
  assert.equal(digest(v43),'2be621d09982b7bceffdf5212178317b33ef2a20ae86572c46b774ad83976146');
  assert.equal(digest(head),'970bfe4b005c370e9ee686749cfb716ae3a9760107231f39ec9a747b100e849b');
+});
+
+test('Windows CRLF and Unix LF yield the exact same approved fixture SHA',()=>{
+ for(const [label,source,approved] of [
+  ['@43',v43,'2be621d09982b7bceffdf5212178317b33ef2a20ae86572c46b774ad83976146'],
+  ['HEAD',head,'970bfe4b005c370e9ee686749cfb716ae3a9760107231f39ec9a747b100e849b']
+ ]){
+  const unix=canonicalLF(source);
+  const windows=unix.replace(/\n/g,'\r\n');
+  assert.equal(digest(unix),approved,label+' LF');
+  assert.equal(digest(windows),approved,label+' Windows CRLF');
+  assert.equal(digest(source),approved,label+' checked-out version');
+  // The guard must not hide a real logic change: ONLY newline variants match.
+  assert.notEqual(digest(unix.replace('email_open','email_open_changed')),approved,label+' business drift');
+ }
 });
 
 test('after safe privacy normalization, deployed @43 and HEAD open code is equivalent',()=>{
