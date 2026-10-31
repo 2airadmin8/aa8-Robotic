@@ -1,4 +1,17 @@
 /* Product Page Factory V1. Scoped to generated pages, never changes approved G1/H2-X. */
+
+/* G1 factory: related products are product-linked photo cards, not a text footer. */
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;margin-top:32px}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card{display:flex;flex-direction:column;min-width:0;border:1px solid #e4ecf1;border-radius:9px;padding:16px;text-decoration:none;background:#fff;box-shadow:0 4px 18px rgba(22,53,73,.04);color:#1b4058;transition:transform .2s}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card:hover{transform:translateY(-2px)}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-photo{display:block;aspect-ratio:1/1;background:#fff;overflow:hidden}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-photo img{width:100%;height:100%;object-fit:contain}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card strong{font-size:17px;margin:12px 0 8px}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card small{font-size:12px;line-height:1.7;color:#647887;flex:1}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card em{font-style:normal;color:#007faa;font-size:13px;margin-top:12px;font-weight:700}
+@media(max-width:900px){.g1-page[data-product-factory="g1-v1"] .g1-factory-related-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.g1-page[data-product-factory="g1-v1"] .g1-factory-related-grid{grid-template-columns:1fr}.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card{flex-direction:row;flex-wrap:wrap;gap:12px}.g1-page[data-product-factory="g1-v1"] .g1-factory-related-photo{width:105px;flex:none}.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card strong{flex:1;align-self:center}.g1-page[data-product-factory="g1-v1"] .g1-factory-related-card small{flex-basis:100%}}
+
 main.g1-page[data-product-factory="g1-v1"] > .g1-hero,
 main.g1-page[data-product-factory="g1-v1"] > .g1-section:not(.g1-final-cta) {
   background: #fff !important;

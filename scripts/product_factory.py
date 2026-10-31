@@ -112,7 +112,9 @@ def validate_page_factory(root: Path, product: dict) -> dict:
         local_asset(root, item.get("src", ""), f"{pid}.images[{i}].src", IMAGE_EXT)
         required(item.get("alt"), f"{pid}.images[{i}].alt")
         official_url(item.get("sourceUrl"), f"{pid}.images[{i}].sourceUrl")
-    vids = _strings(spec.get("videos"), f"{pid}.videos", 1)
+    vids = _strings(spec.get("videos"), f"{pid}.videos", 0)
+    if not vids and spec.get("videoAvailability") != "not_provided_by_manufacturer":
+        raise ContractError(f"{pid}: no verified videos; mark manufacturer media absence explicitly")
     for i, v in enumerate(vids):
         if not isinstance(v, dict):
             raise ContractError(f"{pid}.videos[{i}]: expected object")
@@ -134,6 +136,11 @@ def validate_page_factory(root: Path, product: dict) -> dict:
                 required(fact.get(key), f"{pid}.{field}[{i}].{key}")
             if field != "faq":
                 official_url(fact.get("sourceUrl"), f"{pid}.{field}[{i}].sourceUrl")
+    related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds", 3)
+    related_ids = {p.get("id") for p in catalog(root)}
+    if (len(related) != len(set(related)) or len(related)>6 or pid in related
+        or any(not isinstance(x,str) or x not in related_ids for x in related)):
+        raise ContractError(f"{pid}: invalid relatedProductIds or self-reference")
     if type(spec.get("releaseReady")) is not bool:
         raise ContractError(f"{pid}: explicit releaseReady boolean required")
     try:
@@ -266,8 +273,14 @@ def render(root: Path, product: dict, mode: str) -> str:
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
     ]
+    if spec["videos"]:
+        primary_action = ("01 / SEE THE MOTION", f"/{spec['videos'][0]['src']}",
+                          "公式デモを見る", "メーカーの実演映像を確認します。")
+    else:
+        primary_action = ("01 / OFFICIAL SOURCE", spec["officialSource"],
+                          "メーカー公式情報を見る", "動画がないため公式仕様へ案内します。")
     card_data = [
-        ("01 / SEE THE MOTION", f"/{spec['videos'][0]['src']}", "公式デモを見る", "実際の動きを動画で確認します。"),
+        primary_action,
         ("02 / COMPARE THE HARDWARE", "#specifications", "仕様を比較する", "メーカー公開仕様と導入条件を整理します。"),
         ("03 / PLAN YOUR NEXT STEP", contact, "研究・導入を相談する", "用途、SDK、見積、納期を個別に確認します。"),
     ]
@@ -278,7 +291,17 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<small>{esc(description)}</small><em>詳細を見る →</em></a>'
         for i, (kicker, url, title, description) in enumerate(card_data)
     )
+    by_id = {p["id"]: p for p in catalog(root)}
+    related = "\n".join(
+        f'<a class="g1-factory-related-card" href="/{esc(by_id[rid]["detailPage"])}">'
+        f'<span class="g1-factory-related-photo"><img loading="lazy" decoding="async" '
+        f'src="{esc(local_asset(root,by_id[rid]["image"],"related",IMAGE_EXT))}" '
+        f'alt="{esc(by_id[rid]["imageAlt"])}"></span>'
+        f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(by_id[rid]["summary"])}</small>'
+        f'<em>製品詳細へ →</em></a>' for rid in spec["relatedProductIds"]
+    )
     mapping = {
+        "related": related,
         "title": esc(spec["title"]),
         "description": esc(spec["metaDescription"]),
         "canonical": esc(f'{PUBLIC_ORIGIN}/{product["detailPage"]}'),
@@ -296,6 +319,14 @@ def render(root: Path, product: dict, mode: str) -> str:
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
         "videos": videos,
+        "video_section": (
+            '<div class="g1-factory-videos">' + videos + '</div>'
+            '<p class="g1-fine">メーカー映像と実際の納入仕様は異なる場合があります。動作保証ではありません。</p>'
+            if spec["videos"] else
+            '<p class="g1-fine">提供された公式製品素材には検証可能な動画がありません。'
+            '最新の実演情報は <a href="' + source +
+            '" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>'
+        ),
         "cards": cards,
         "official_source": source,
         "status": esc(product.get("statusLabel", "条件確認中")),

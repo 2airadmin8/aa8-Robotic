@@ -43,7 +43,7 @@ test('H2 catalog one record and compare card',async({request,page})=>{
  expect(h2[0].salesStatus).toBe('confirmation_required');
  await page.goto(base+'/products.html',{waitUntil:'networkidle'});
  await expect(page.locator('#unitree-h2')).toHaveCount(1);
- await expect(page.locator('.research-product-card')).toHaveCount(10);
+ await expect(page.locator('.research-product-card')).toHaveCount(11);
 });
 test('H2 inquiry CTA prefills without submitting',async({page})=>{
  let post=0;page.on('request',r=>{if(r.method()==='POST' && (r.url().includes('script.google.com')||r.url().includes('contact-v2')))post++});
