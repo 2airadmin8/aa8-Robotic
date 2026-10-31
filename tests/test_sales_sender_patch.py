@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -46,6 +47,41 @@ class SalesSenderPatchTests(unittest.TestCase):
         self.assertEqual(updated.count("研究用ロボット製品一覧："),1)
         self.assertIn("Existing send safeguards and triggers remain untouched",updated)
         self.assertNotIn("newTrigger(",updated)
+
+    def test_gate_default_off_and_explicit_on_with_exact_generated_code(self):
+        patched = module.patch(ORIGINAL)
+        start = patched.index("    syncWebEngagementFromLog_();")
+        end = patched.index("  } catch (webLogError) {", start)
+        gate = patched[start:end]
+        self.assertIn("AA8_WEB_EVENT_SUMMARY_ENABLED", gate)
+        self.assertEqual(gate.count("syncWebEngagementFromLog_();"), 1)
+        self.assertEqual(gate.count("syncAa8WebMarketingSummary_();"), 1)
+        self.assertLess(gate.index("syncWebEngagementFromLog_();"), gate.index("AA8_WEB_EVENT_SUMMARY_ENABLED"))
+        js = """
+const assert=require('node:assert/strict');
+let originalSync=0,newSummary=0,customerStatsWrites=0;
+function syncWebEngagementFromLog_(){originalSync++;}
+function syncAa8WebMarketingSummary_(){newSummary++;customerStatsWrites+=7;return {ok:true};}
+function execute(prop){
+  const PropertiesService={getScriptProperties:()=>({getProperty:(key)=>{
+    assert.equal(key,'AA8_WEB_EVENT_SUMMARY_ENABLED');
+    return prop;
+  }})};
+  try{
+""" + gate + """
+  }catch(err){throw err;}
+}
+for(const setting of [undefined,null,'','0','FALSE','false','NO',' trueX ','TRUE','true']){
+ const oldSync=originalSync,oldSummary=newSummary,oldWrites=customerStatsWrites;
+ execute(setting);
+ assert.equal(originalSync-oldSync,1,'original hourly web sync must always run');
+ const enabled=typeof setting==='string'&&setting.trim().toUpperCase()==='TRUE';
+ assert.equal(newSummary-oldSummary,enabled?1:0,'summary gate mismatch '+setting);
+ assert.equal(customerStatsWrites-oldWrites,enabled?7:0,'new customer columns must not be written with gate OFF');
+}
+"""
+        result = subprocess.run(["node", "-e", js], capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
 
     def test_second_patch_rejected(self):
         with self.assertRaises(ValueError):

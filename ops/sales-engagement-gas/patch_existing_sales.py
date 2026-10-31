@@ -23,8 +23,12 @@ def patch(source: str) -> str:
       (
        "    syncWebEngagementFromLog_();\n  } catch (webLogError) {",
        "    syncWebEngagementFromLog_();\n"
-       "    const summary=syncAa8WebMarketingSummary_();\n"
-       "    if(!summary.ok)throw new Error('Web attribution summary failed: '+summary.error);\n"
+       "    // Sales-wide KPI materialization is disabled by default during TEST E2E.\n"
+       "    // Original Web engagement sync and TEST filtering remain unchanged.\n"
+       "    if (String(PropertiesService.getScriptProperties().getProperty('AA8_WEB_EVENT_SUMMARY_ENABLED') || '').trim().toUpperCase() === 'TRUE') {\n"
+       "      const summary=syncAa8WebMarketingSummary_();\n"
+       "      if(!summary.ok)throw new Error('Web attribution summary failed: '+summary.error);\n"
+       "    }\n"
        "  } catch (webLogError) {",
       ),
       (
