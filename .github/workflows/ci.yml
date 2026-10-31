@@ -50,6 +50,7 @@ jobs:
           set -euo pipefail
           node --test tests/marketing-web-event.test.mjs tests/marketing-gas-contract.test.mjs
           python -m unittest discover -s tests -p 'test_sales_sender_patch.py' -v
+          python -m unittest discover -s tests -p 'test_marketing_loader.py' -v
           python scripts/validate_analytics.py
 
       - name: Verify shared CSS ownership

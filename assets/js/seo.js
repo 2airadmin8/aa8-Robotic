@@ -10,7 +10,8 @@
 
   injectBrowserIdentity();
   injectRelationAssets();
-  ensureScript(`${siteBase}assets/js/analytics-events.js?v=20260716-1`, 'analytics-events-loader');
+  // Analytics is injected directly by build_site.py on all pages.
+  // Legacy /aa8-Robotic/ loader was broken on the official custom domain.
 
   const pageMap = {
     'index.html': { name: 'AirAdmin8 Robotics', type: 'WebSite' },

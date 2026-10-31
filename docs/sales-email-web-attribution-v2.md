@@ -11,6 +11,7 @@
 - Vercel已有项目 hikari-proxy-dev，项目ID prj_xJW0H0vKZ3hnHrUevcHBJQrnIGT6，GitHub与官网同一仓库
 - 现有真邮件链接已包含 PDF 的 rid=DLV-... + UTM，官网根 URL 和产品页原来未必带 rid
 - 之前 Web行動ログ 31 条记录均为 PDF，最后9月4日，没有已核验的产品点击行
+- 追加发现的实际根因：原 `products.html` 没有直接加载 analytics-events.js，legacy seo.js 在官网错误请求 /aa8-Robotic/assets/js/analytics-events.js，导致整段产品点击/归属 JS 未执行；已修复 build_site.py 统一在每个产品和营销落地页直接注入恰好1份，并移除旧 seo.js 错路径入口，新增 test_marketing_loader.py 4项回归。
 - Vercel hobby runtime log retention约1小时，不是可依赖的长期业务账本
 
 ## 新业务流程
