@@ -9,12 +9,15 @@
   let opened = false;
 
   function validDeliveryId(value) {
-    return /^(?:DLV|RSJ|GPT|BATCH|UAT|TEST|GOLDEN)-[A-Za-z0-9._-]+$/.test(value);
+    return /^(?:DLV|RSJ)-[A-Za-z0-9._-]{5,153}$/.test(value);
   }
 
   function emitDirectPdfEvent() {
-    if (!validDeliveryId(deliveryId)) return;
+    if (!validDeliveryId(deliveryId) || !window.crypto?.randomUUID) return;
+    // PDF landing/redirect requested, not proof the PDF was read.
     const body = JSON.stringify({
+      event_id: window.crypto.randomUUID(),
+      event_at: new Date().toISOString(),
       event: 'pdf_open',
       delivery_id: deliveryId,
       page_path: window.location.pathname,
@@ -53,7 +56,8 @@
 
     if (typeof window.gtag === 'function') {
       window.gtag('event', 'pdf_open', {
-        delivery_id: deliveryId || 'unknown',
+        // Delivery ID is sent exclusively to the signed first-party sink,
+        // never to GA4 where it might be joinable to customer information.
         document_name: 'university_ai_robot_guide',
         document_path: pdfUrl,
         transport_type: 'beacon',
