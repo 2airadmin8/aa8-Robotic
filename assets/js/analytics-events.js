@@ -145,6 +145,12 @@
     // Read and validate campaign attribution before rewriting internal links.
     ['utm_source', 'utm_medium', 'utm_campaign'].forEach(campaignParam);
     decorateInternalLinks();
+    // Product cards are sometimes reconstructed asynchronously after our defer
+    // loader runs. Never rely only on the initial static DOM snapshot.
+    document.querySelectorAll('[data-product-list], [data-resource-list]').forEach((root) => {
+      const observer = new MutationObserver(() => decorateInternalLinks());
+      observer.observe(root, { childList: true, subtree: true });
+    });
     send('lead_page_view', {
       page_title: document.title,
       page_location: window.location.href,
