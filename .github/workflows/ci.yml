@@ -44,6 +44,15 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Marketing attribution and existing GAS sink contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/marketing-web-event.test.mjs tests/marketing-gas-contract.test.mjs tests/marketing-open-compat.test.mjs tests/marketing-hourly-isolation.test.mjs
+          python -m unittest discover -s tests -p 'test_sales_sender_patch.py' -v
+          python -m unittest discover -s tests -p 'test_marketing_loader.py' -v
+          python scripts/validate_analytics.py
+
       - name: Verify shared CSS ownership
         id: css_owner
         shell: bash
@@ -123,7 +132,7 @@ jobs:
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
           # CI-only synthetic product; preview never reaches Pages production artifact.
           python tests/prepare_product_factory_qa.py
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/unitree-h2plus-factory.spec.js --reporter=line
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/unitree-h2plus-factory.spec.js tests/marketing-attribution.spec.js --reporter=line
 
       - name: Ensure build does not modify tracked source
         id: source_clean
