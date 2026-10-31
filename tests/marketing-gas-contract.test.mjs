@@ -9,7 +9,7 @@ const root=path.resolve('ops/sales-engagement-gas');
 const sources=['08_web_event_ingest.js','09_campaign_summary.js','11_campaign_link_utils.js']
   .map(name=>fs.readFileSync(path.join(root,name),'utf8')).join('\n');
 const SECRET='synthetic-32-char-test-secret-no-customer-data-12345';
-const RID='DLV-20261020-RM1137-001';
+const RID='DLV-20990101-SYNTHQA-001';
 const eventId='89a2d324-43af-47ad-843b-bdd4ec0321b1';
 const webHeaders=['取得日時','送信管理ID','大学名','先生氏名','イベント日時','ページ種別','ページパス',
                   '製品ID','閲覧回数','PDF閲覧回数','最終PDF閲覧日時','データソース'];

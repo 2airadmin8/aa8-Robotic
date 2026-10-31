@@ -7,7 +7,7 @@ const ORIGIN='https://robotics.air-admin8.co.jp';
 const WEBHOOK='https://script.google.com/macros/s/AKfycbREALAPPROVEDTESTENDPOINT/exec';
 const SECRET='test-only-signing-secret-not-a-production-credential-123';
 const ID='89a2d324-43af-47ad-843b-bdd4ec0321b1';
-const RID='DLV-20261020-RM1137-001';
+const RID='DLV-20990101-SYNTHQA-001';
 let currentFetch,oldUrl,oldSecret;
 test.beforeEach(()=>{
  currentFetch=globalThis.fetch;

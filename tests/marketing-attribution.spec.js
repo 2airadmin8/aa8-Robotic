@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');
 
 const BASE=process.env.AA8_TEST_BASE||'http://127.0.0.1:4173';
 const TRACK='https://hikari-proxy-dev.vercel.app/api/web-event';
-const RID='DLV-20261020-RM1137-001';
+const RID='DLV-20990101-SYNTHQA-001';
 
 for(const width of [1440,390,360]){
  test('Marketing: email ID -> clicked SKU -> product view -> contact / '+width,async({page})=>{
@@ -18,7 +18,7 @@ for(const width of [1440,390,360]){
   await expect(page.locator('#unitree-h2-plus')).toBeVisible();
   await expect.poll(()=>captured.some(e=>e.event==='lead_page_view')).toBeTruthy();
   const ref=page.locator('#unitree-h2-plus a.product-link').first();
-  await expect(ref).toHaveAttribute('href',/rid=DLV-20261020-RM1137-001/);
+  await expect(ref).toHaveAttribute('href',/rid=DLV-20990101-SYNTHQA-001/);
   await ref.click();
   await page.waitForURL(/\/products\/unitree-h2-plus\.html\?/);
   await expect.poll(()=>captured.some(e=>e.event==='product_view'&&e.product_id==='unitree-h2-plus')).toBeTruthy();
