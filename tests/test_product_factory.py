@@ -136,5 +136,39 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertGreaterEqual(source.count("出典 ↗"), 5)
 
 
+    def test_no_video_product_copy_is_consistent(self):
+        from copy import deepcopy
+        item = deepcopy(self.item)
+        item["pageFactory"]["videos"] = []
+        item["pageFactory"]["videoAvailability"] = "not_provided_by_manufacturer"
+        source = render(ROOT, item, "preview")
+        for label in ("公式写真を見る", "公式写真</a>", "公式写真</h2>",
+                      "製品写真と公式仕様を確認し", "画像出典"):
+            self.assertIn(label, source)
+        for wrong in ("公式写真・動画を見る", "写真・動画</a>", "画像・動画出典",
+                      "動きを見て、仕様を比べ"):
+            self.assertNotIn(wrong, source)
+        self.assertNotIn("<video ", source)
+        self.assertIn("検証可能な動画がありません", source)
+        self.assertIn('href="https://www.unitree.com/H2-X/"', source)
+
+    def test_real_h2plus_has_no_fake_video_claims(self):
+        item = next(p for p in catalog(ROOT) if p["id"] == "unitree-h2-plus")
+        source = (ROOT / item["detailPage"]).read_text(encoding="utf-8")
+        self.assertEqual(item["pageFactory"]["videos"], [])
+        self.assertIn("検証可能な動画がありません", source)
+        # Previously shipped HTML still has old misleading CTA copy:
+        # check the new renderer output rather than rewriting production here.
+        generated = render(ROOT, item, "candidate")
+        self.assertIn("公式写真を見る", generated)
+        self.assertNotIn("公式写真・動画を見る", generated)
+
+    def test_video_product_retains_media_labels(self):
+        source = render(ROOT, self.item, "preview")
+        self.assertIn("公式写真・動画を見る", source)
+        self.assertIn("写真・動画</a>", source)
+        self.assertIn("画像・動画出典", source)
+        self.assertIn("動きを見て、仕様を比べ", source)
+
 if __name__ == "__main__":
     unittest.main()
