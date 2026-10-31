@@ -302,6 +302,13 @@ def render(root: Path, product: dict, mode: str) -> str:
     )
     mapping = {
         "related": related,
+        "media_button_label": "公式写真・動画を見る" if spec["videos"] else "公式写真を見る",
+        "media_nav_label": "写真・動画" if spec["videos"] else "公式写真",
+        "media_title": "公式写真・動画" if spec["videos"] else "公式写真",
+        "cta_lead": ("動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
+                     if spec["videos"] else
+                     "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"),
+        "media_attribution": "画像・動画出典" if spec["videos"] else "画像出典",
         "title": esc(spec["title"]),
         "description": esc(spec["metaDescription"]),
         "canonical": esc(f'{PUBLIC_ORIGIN}/{product["detailPage"]}'),
