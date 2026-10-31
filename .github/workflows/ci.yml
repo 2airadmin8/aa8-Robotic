@@ -36,6 +36,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_build_ignores_dependencies.py' -v
           python -m unittest discover -s tests -p 'test_h2x_social_meta.py' -v
           python -m unittest discover -s tests -p 'test_product_factory.py' -v
+          python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
           python scripts/verify_release_trigger.py
 
       - name: Set up Node.js
