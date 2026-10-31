@@ -20,7 +20,7 @@ $robots
 <p class="g1-kicker">$manufacturer / ROBOTICS</p><h1 id="product-name">$name</h1>
 <p class="g1-hero-lead">$hero_lead</p><p class="g1-hero-description">$summary</p>
 <div class="g1-hero-ctas">
-<a class="g1-button primary" href="#media">公式写真・動画を見る ↓</a>
+<a class="g1-button primary" href="#media">$media_button_label ↓</a>
 <a class="g1-button secondary" href="$contact" data-factory-cta="hero">研究・導入を相談する ↗</a>
 </div><p class="g1-fine">取扱状況：$status ／ 価格：$price_label ／ 納期：$lead_time。SDK・保証・仕様は購入構成に応じて確認します。</p>
 </div><div class="g1-hero-media"><div class="g1-hero-image">
@@ -29,7 +29,7 @@ $robots
 </div></div></div></section>
 <nav class="g1-anchor-nav" aria-label="$name のページ内メニュー"><div class="g1-shell">
 <a href="#capabilities">製品特徴</a><a href="#applications">用途</a>
-<a href="#media">写真・動画</a><a href="#specifications">仕様</a>
+<a href="#media">$media_nav_label</a><a href="#specifications">仕様</a>
 <a href="#faq">FAQ</a><a href="#related">関連製品</a><a href="#contact-product">導入相談</a>
 </div></nav>
 <section class="g1-section g1-factory-section" id="capabilities"><div class="g1-shell">
@@ -39,7 +39,7 @@ $robots
 <p class="g1-kicker">RESEARCH / APPLICATIONS</p><h2>研究・活用用途</h2>
 <div class="g1-factory-applications">$applications</div></div></section>
 <section class="g1-section g1-factory-section" id="media"><div class="g1-shell">
-<p class="g1-kicker">OFFICIAL MEDIA</p><h2>公式写真・動画</h2>
+<p class="g1-kicker">OFFICIAL MEDIA</p><h2>$media_title</h2>
 <div class="g1-factory-media-grid">$images</div>
 $video_section
 </div></section>
@@ -57,9 +57,9 @@ $video_section
 <div class="g1-factory-related-grid">$related</div></div></section>
 <section class="g1-section g1-final-cta g1-factory-cta" id="contact-product"><div class="g1-shell">
 <p class="g1-kicker">NEXT STEP / $name</p><h2>$name の可能性を、次の一歩へ。</h2>
-<p>動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。</p>
+<p>$cta_lead</p>
 <div class="g1-cta-grid">$cards</div>
-<p class="g1-fine">画像・動画出典：$manufacturer。価格、納期、導入構成は個別に確認します。</p>
+<p class="g1-fine">$media_attribution：$manufacturer。価格、納期、導入構成は個別に確認します。</p>
 </div></section></main>
 <footer class="footer" data-shared-layout="footer"><div class="wrap">© AirAdmin8 Inc.</div></footer>
 <script src="/assets/js/site.js" defer></script>
