@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
 import inject_structured_data as seo
 
-RECENT=("unitree-g1-plus","unitree-h2-d","unitree-h2","unitree-h2-x","unitree-h2-plus")
+RECENT=("unitree-g1-plus","unitree-h2-d","unitree-h2","unitree-h2-x","unitree-h2-plus","agibot-a3-ultra")
 
 class RecentProductSeoTest(unittest.TestCase):
     def test_every_recent_published_product_in_sitemap(self):
@@ -20,7 +20,6 @@ class RecentProductSeoTest(unittest.TestCase):
         self.assertEqual(len(locs),len(set(locs)))
         for slug in RECENT:
             self.assertIn(f"https://robotics.air-admin8.co.jp/products/{slug}.html",locs)
-        self.assertNotIn("https://robotics.air-admin8.co.jp/products/agibot-a3-ultra.html",locs)
 
     def test_each_recent_product_has_unique_keyword(self):
         pages=json.loads((ROOT/"data/seo-keywords.json").read_text(encoding="utf-8"))["pages"]
