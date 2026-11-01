@@ -457,6 +457,18 @@
       ],
       "searchIntent": "製品の正確な仕様・研究用途・日本向け導入条件を確認したい",
       "priority": "S"
+    },
+    {
+      "path": "products/agibot-a3-ultra.html",
+      "pageType": "product-detail",
+      "primaryKeyword": "AGIBOT A3 Ultra",
+      "secondaryKeywords": [
+        "AGIBOT A3 Ultra 仕様",
+        "AGIBOT A3 Ultra 日本 導入",
+        "AGIBOT A3 Ultra 研究 見積"
+      ],
+      "searchIntent": "メーカー確認済みの仕様・日本での研究用途・導入相談を確認したい",
+      "priority": "S"
     }
   ]
 }

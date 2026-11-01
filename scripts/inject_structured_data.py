@@ -44,6 +44,7 @@ PAGE_MAP = {
     "products/unitree-h2-x.html": {"name": "Unitree H2-X", "type": "Product", "brand": "Unitree"},
     "products/unitree-go2.html": {"name": "Unitree Go2 EDU", "type": "Product", "brand": "Unitree"},
     "products/agibot-x2-edu.html": {"name": "AgiBot X2 EDU", "type": "Product", "brand": "AgiBot"},
+    "products/agibot-a3-ultra.html": {"name": "AGIBOT A3 Ultra", "type": "Product", "brand": "AGIBOT"},
     "products/limx-oli.html": {"name": "LimX Oli", "type": "Product", "brand": "LimX Dynamics"},
     "products/tianji-marvin.html": {"name": "Tianji Marvin", "type": "Product", "brand": "Tianji"},
     "manufacturers/unitree.html": {"name": "Unitree Robotics", "type": "Brand"},
@@ -235,10 +236,10 @@ def page_schema(config: dict[str, str], canonical: str, description: str) -> dic
     return result
 
 
-# Publicly launched product pages only. Never include draft A3 Ultra.
+# Publicly launched product pages only; A3 Ultra included after CEO go-live instruction.
 RECENT_PRODUCT_SLUGS = {
     "unitree-g1-plus", "unitree-h2-d", "unitree-h2",
-    "unitree-h2-x", "unitree-h2-plus",
+    "unitree-h2-x", "unitree-h2-plus", "agibot-a3-ultra",
 }
 
 
