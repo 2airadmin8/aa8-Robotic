@@ -126,3 +126,9 @@ test('DEV SAFETY GATE: unpatched GAS explicitly targets PRODUCTION and must not 
   assert(original.includes("parentOrigin: 'https://robotics.air-admin8.co.jp'"));
   assert(original.includes("notifyTo: 'airobot@robotics.air-admin8.co.jp'"));
 });
+
+// Release blockers: these assertions are deliberately NOT treated as passing
+// business behavior. Turn TODO into real passing tests after code and DEV E2E fixes.
+test.todo('P1: same token with changed payload must reject stale ACK or require explicit reconciliation');
+test.todo('P1: internal notification and customer acknowledgement must have independent retryable delivery states');
+test.todo('P0: web Inquiry must pass existing Customer Identity/Dedup and Opportunity Gate before CRM handoff');
