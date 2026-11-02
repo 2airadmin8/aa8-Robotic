@@ -402,7 +402,9 @@ def render(root: Path, product: dict, mode: str) -> str:
         '" data-factory-cta="hero">研究・導入を相談する ↗</a>'
     )
     anchor_navigation = (
-        "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a><a href=\"#specifications\">仕様</a><a href=\"#development\">SDK</a><a href=\"#solutions\">研究構成</a><a href=\"#introduction\">導入</a><a href=\"#contact-product\">相談</a>"
+        "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a>"
+        + ("<a href=\"#model-selection\">モデル</a>" if spec.get("v3", {}).get("models") else "")
+        + "<a href=\"#specifications\">仕様</a><a href=\"#development\">SDK</a><a href=\"#solutions\">研究構成</a><a href=\"#introduction\">導入</a><a href=\"#contact-product\">相談</a>"
         if spec.get("v3") else
         ('<a href="#capabilities">製品特徴</a><a href="#applications">用途</a>\n'
          '<a href="#media">' + esc("写真・動画" if spec["videos"] else "公式写真") + '</a>'
