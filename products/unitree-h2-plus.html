@@ -29,7 +29,7 @@
 </div></div></div></section>
 <nav class="g1-anchor-nav" aria-label="Unitree H2 Plus のページ内メニュー"><div class="g1-shell">
 <a href="#capabilities">製品特徴</a><a href="#applications">用途</a>
-<a href="#media">公式写真</a><a href="#specifications">仕様</a>
+<a href="#media">公式写真</a><a href="#model-selection">モデル選定</a><a href="#development">SDK・開発</a><a href="#solutions">推奨構成</a><a href="#introduction">導入フロー</a><a href="#specifications">仕様</a>
 <a href="#faq">FAQ</a><a href="#related">関連製品</a><a href="#contact-product">導入相談</a>
 </div></nav>
 <section class="g1-section g1-factory-section" id="capabilities"><div class="g1-shell">
@@ -57,6 +57,13 @@
 <figure><img loading="lazy" src="/assets/img/products/unitree/h2plus/drive/image_023.jpg" alt="H2 Plusの公式構成・開発装備図"><figcaption>H2 Plusの公式構成・開発装備図</figcaption></figure></div>
 <p class="g1-fine">提供された公式製品素材には検証可能な動画がありません。最新の実演情報は <a href="https://www.unitree.com/H2plus" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>
 </div></section>
+<section class="g1-section g1-factory-section g1-factory-v3" id="model-selection"><div class="g1-shell">
+<p class="g1-kicker">MODEL SELECTION</p><h2>H2 Plus・H2・H2-Xの選び方</h2>
+<table class="g1-factory-spec-table"><caption>Unitree研究用ヒューマノイドの選定目安</caption><tbody><tr><th scope="row"><a href="#specifications">Unitree H2 Plus</a></th><td>機上演算・双眼視覚・選択ハンドを中心に、模倣学習や全身制御を研究。SDK公開範囲は構成別に確認。</td></tr>
+<tr><th scope="row"><a href="/products/unitree-h2.html">Unitree H2</a></th><td>二足歩行・全身協調を軸に比較。H2 EDUの二次開発条件はH2 Plusと同一と見なさず個別確認。</td></tr>
+<tr><th scope="row"><a href="/products/unitree-h2-x.html">Unitree H2-X</a></th><td>機体構成や研究適合性を別SKUとして比較。ハンド、SDK、センサー、納期は型番ごとに確認。</td></tr></tbody></table>
+<p class="g1-fine">G1と同様、用途と開発条件で選定します。別型番の仕様を混同せず、正式な構成と販売条件を確認してください。</p>
+</div></section>
 <section class="g1-section g1-factory-section" id="specifications"><div class="g1-shell">
 <p class="g1-kicker">SPECIFICATIONS</p><h2>メーカー公開仕様</h2>
 <table class="g1-factory-spec-table"><caption>Unitree H2 Plus 製品仕様</caption><tbody><tr><th scope="row">機体サイズ（立位）</th><td>1820 × 456 × 218 mm <small><a href="https://www.unitree.com/H2plus" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></td></tr>
@@ -75,6 +82,29 @@
 <tr><th scope="row">二次開発</th><td>メーカーは対応を案内。実際のSDK/開発範囲は構成確認 <small><a href="https://www.unitree.com/H2plus" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></td></tr></tbody></table>
 <p class="g1-fine">仕様確認日：2026-10-31。出典：
 <a href="https://www.unitree.com/H2plus" target="_blank" rel="noopener noreferrer">メーカー公式ページ ↗</a>。</p>
+</div></section>
+<section class="g1-section g1-factory-section g1-factory-v3" id="development"><div class="g1-shell">
+<p class="g1-kicker">SDK / DEVELOPMENT</p><h2>SDK・開発環境</h2>
+<div class="g1-factory-applications"><article><h3>SDK / 制御API</h3><p>二次開発対応はメーカー案内あり。実際に利用できる制御API、SDK配布条件、対象構成は購入前に確認します。</p></article>
+<article><h3>ROS 2・OS・シミュレータ</h3><p>ROS 2やLinux、シミュレータの対応版・利用範囲を照会。標準対応や動作保証を断定しません。</p></article>
+<article><h3>VLA・学習データ</h3><p>Isaac TeleOpやGR00T等を検討する際はデータ同期、モデルの互換性、ライセンスと安全条件を確認します。</p></article></div>
+<p class="g1-fine">技術資料：<a href="/resources.html">SDK・技術資料一覧</a>／<a href="https://www.unitree.com/H2plus" target="_blank" rel="noopener noreferrer">Unitree公式情報</a>。対応・ダウンロード条件は要確認。</p>
+</div></section>
+<section class="g1-section g1-factory-section g1-factory-v3" id="solutions"><div class="g1-shell">
+<p class="g1-kicker">SOLUTION / CONFIGURATION</p><h2>研究目的別の推奨構成例</h2>
+<div class="g1-factory-applications"><article><h3>模倣学習・VLA評価</h3><p>H2 Plus本体＋選択ハンド＋テレオペ/記録環境＋開発PCの参考構成。SDK、データ形式、同期を確認します。</p></article>
+<article><h3>全身制御・歩行研究</h3><p>機体＋制御可能なAPI＋安全な実験スペース＋評価ツール。転倒・接触リスクと研究環境を確認します。</p></article>
+<article><h3>把持・HRI・研究教育</h3><p>視覚センサーや選択ハンドを使う把持・協調研究の構成例。教材や技術支援の付属を保証しません。</p></article></div>
+<p class="g1-fine">研究目的別の参考構成であり、周辺機器・SDK・サービスの標準付属や動作保証を意味しません。</p>
+</div></section>
+<section class="g1-section g1-factory-section g1-factory-v3" id="introduction"><div class="g1-shell">
+<p class="g1-kicker">INTRODUCTION / SUPPORT</p><h2>導入・研究開始までの流れ</h2>
+<div class="g1-factory-applications"><article><h3>01｜用途・研究条件</h3><p>研究課題、対象物、評価方法、運用環境、予算、希望時期を整理します。</p></article>
+<article><h3>02｜本体・オプション</h3><p>H2 Plusの正式SKU、ハンド、センサー、同梱品、必要な開発PCを確認します。</p></article>
+<article><h3>03｜開発・安全条件</h3><p>SDK/API、OS/ROS 2、ライセンス、ネットワーク、転倒・接触安全、支援範囲を確認します。</p></article>
+<article><h3>04｜正式見積・大学購買</h3><p>国内価格、輸送、納期、保証、検収、初期設定の条件を確認してから見積します。</p></article>
+<article><h3>05｜納品・検証開始</h3><p>受領、初期設定、SDK接続、研究開始。技術支援の実施範囲は契約条件に従います。</p></article></div>
+<p class="g1-fine">AirAdmin8・メーカー・お客様の担当範囲、保証と有償支援は正式見積・契約時に明確化します。</p>
 </div></section>
 <section class="g1-section g1-factory-section g1-faq" id="faq"><div class="g1-shell">
 <p class="g1-kicker">FAQ</p><h2>よくある質問</h2>
