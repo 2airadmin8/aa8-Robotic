@@ -36,7 +36,7 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('#solutions')).toContainText('参考構成');
   await expect(page.locator('#introduction')).toContainText('正式見積');
   await expect(page.locator('a[href="#development"]')).toHaveCount(1);
-  if (width <= 390) {
+  {
     const nav = await page.locator('.g1-anchor-nav .g1-shell').evaluate(el => {
       const nodes=[...el.querySelectorAll(':scope > a')];
       const boxes=nodes.map(n=>n.getBoundingClientRect());
@@ -46,7 +46,8 @@ for (const width of [1440,390,360]) {
         allFocusable: nodes.every(n=>n.getAttribute('href')?.startsWith('#'))
       };
     });
-    expect(nav.canScroll).toBeTruthy();
+    if (width <= 390) expect(nav.canScroll).toBeTruthy();
+    else expect(nav.canScroll).toBeFalsy();
     expect(nav.noOverlap).toBeTruthy();
     expect(nav.allFocusable).toBeTruthy();
   }
