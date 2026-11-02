@@ -24,6 +24,22 @@ for (const width of [1440,390,360]) {
     await expect(page.locator(selector)).toBeVisible();
   }
   await expect(page.locator('#model-selection tbody tr')).toHaveCount(3);
+  // CEO annotated screenshot: four balanced cards per row on PC, no orphan last row.
+  const density=await page.evaluate(()=>{
+    const f=document.querySelector('#capabilities .g1-factory-facts');
+    const a=document.querySelector('#applications .g1-factory-applications');
+    const cols=el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length;
+    return {facts:cols(f),apps:cols(a)};
+  });
+  expect(density.facts).toBe(width >= 1120?4:1);
+  expect(density.apps).toBe(width >= 1120?4:1);
+  await expect(page.locator('#media h2')).toHaveText('製品画像・構造');
+  await expect(page.locator('#specifications h2')).toHaveText('製品スペック');
+  await expect(page.locator('#specifications .g1-factory-source')).toHaveCount(1);
+  await expect(page.locator('#specifications .g1-factory-source summary')).toBeVisible();
+  await expect(page.locator('#specifications .g1-factory-spec-table caption')).toBeHidden();
+  await expect(page.locator('#contact-product > .g1-shell > .g1-kicker')).toBeHidden();
+  await expect(page.locator('#media .g1-v3-video-note')).toBeHidden();
   await expect(page.locator('#development article')).toHaveCount(3);
   await expect(page.locator('#solutions article')).toHaveCount(3);
   await expect(page.locator('#introduction article')).toHaveCount(5);
