@@ -36,6 +36,20 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('#solutions')).toContainText('参考構成');
   await expect(page.locator('#introduction')).toContainText('正式見積');
   await expect(page.locator('a[href="#development"]')).toHaveCount(1);
+  if (width <= 390) {
+    const nav = await page.locator('.g1-anchor-nav .g1-shell').evaluate(el => {
+      const nodes=[...el.querySelectorAll(':scope > a')];
+      const boxes=nodes.map(n=>n.getBoundingClientRect());
+      return {
+        canScroll: el.scrollWidth>el.clientWidth,
+        noOverlap: boxes.every((b,i)=>i===0 || b.left>=boxes[i-1].right-1),
+        allFocusable: nodes.every(n=>n.getAttribute('href')?.startsWith('#'))
+      };
+    });
+    expect(nav.canScroll).toBeTruthy();
+    expect(nav.noOverlap).toBeTruthy();
+    expect(nav.allFocusable).toBeTruthy();
+  }
   await expect(page.locator('.g1-final-cta .g1-cta-card')).toHaveCount(3);
   await expect(page.locator('.g1-factory-videos video')).toHaveCount(0);
   await expect(page.locator('main')).toContainText('検証可能な動画がありません');
