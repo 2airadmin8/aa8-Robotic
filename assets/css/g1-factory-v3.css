@@ -70,3 +70,20 @@
     font-size: 12px;
   }
 }
+
+/* Approved G1 uses 140px minimum and 44px gap. V3's longer nav must
+ * override those numbers on PC without touching the approved G1 stylesheet. */
+@media (min-width: 781px) {
+  .g1-page[data-product-factory="g1-v1"] .g1-anchor-nav .g1-shell {
+    justify-content: space-between !important;
+    gap: 10px !important;
+    overflow-x: visible;
+  }
+  .g1-page[data-product-factory="g1-v1"] .g1-anchor-nav a {
+    flex: 0 0 auto;
+    min-width: 0 !important;
+    padding: 22px 10px 19px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
