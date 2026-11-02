@@ -119,11 +119,13 @@ test('DEV candidate: customer mail failure preserves INTERNAL sent checkpoint an
   assert.equal(h.mails.length,1);
 });
 
-test('IDENTITY GATE: inquiry GAS has no CanonicalCustomerID/Identity-Dedup or CRM case writer',()=>{
-  assert(!original.includes('CanonicalCustomerID'));
-  assert(!original.includes('00_新規受付'));
-  assert(!original.includes('IdentityResolver'));
-  assert(!original.includes('CanonicalCaseID'));
+test('IDENTITY GATE: no executable CustomerID resolver or case writer',()=>{
+  // Exclude developer comments; names written only in warnings do not count as implementation.
+  const executable = original.replace(/^\s*\/\/.*$/gm, '');
+  assert(!executable.includes('CanonicalCustomerID'));
+  assert(!executable.includes('00_新規受付'));
+  assert(!executable.includes('IdentityResolver'));
+  assert(!executable.includes('CanonicalCaseID'));
 });
 
 test('DEV SAFETY GATE: unpatched GAS explicitly targets PRODUCTION and must not be used as DEV',()=>{
