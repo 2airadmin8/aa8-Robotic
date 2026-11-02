@@ -86,32 +86,37 @@ test('DEV mock: separate tokens produce separate IDs',()=>{
   assert.notEqual(a.inquiryId,b.inquiryId);assert.equal(h.rows.length,2);
 });
 
-test('KNOWN GAP: same token with changed payload is acknowledged as old record',()=>{
+test('DEV candidate: same token with changed product fails closed and cannot reuse old ID',()=>{
   const h=harness(),p=base(),a=h.post(p);
   const b=h.post({...p,product:'Different Robot',source_product:'Different Robot'});
-  assert.equal(a.inquiryId,b.inquiryId);assert.equal(h.rows.length,1);
+  assert.equal(a.ok,true);assert.equal(b.ok,false);
+  assert.equal(b.inquiryId,'');assert.equal(h.rows.length,1);
   assert.equal(h.rows[0][8],'Unitree H2 Plus');
-  assert.notEqual(h.rows[0][8],'Different Robot');
+  assert.equal(h.mails.length,2);
 });
 
-test('KNOWN GAP: internal mail failure records FAILED but success ACK; duplicate cannot safely resend',()=>{
+test('DEV candidate: internal mail failure records INTERNAL_FAILED; duplicate never resends',()=>{
   const h=harness(),p=base();
   h.setFailTo(TEST_NOTIFY);
   const r=h.post(p);
   assert.equal(r.ok,true);assert.equal(h.rows.length,1);
-  assert.equal(h.rows[0][24],'FAILED');
+  assert.equal(h.rows[0][24],'INTERNAL_FAILED');
   h.setFailTo('');
   const repeat=h.post(p);
   assert.equal(repeat.duplicate,true);
   assert.equal(h.mails.length,0);
 });
 
-test('KNOWN GAP: acknowledgment mail failure hides already-sent internal mail',()=>{
+test('DEV candidate: customer mail failure preserves INTERNAL sent checkpoint and ACK_FAILED',()=>{
   const h=harness(),p=base();h.setFailTo('qa@example.test');
   const r=h.post(p);
-  assert.equal(r.ok,true);assert.equal(h.rows[0][24],'FAILED');
+  assert.equal(r.ok,true);assert.equal(h.rows[0][24],'ACK_FAILED');
   assert.equal(h.mails.length,1);
   assert.equal(h.mails[0].to,TEST_NOTIFY);
+  h.setFailTo('');
+  const again=h.post(p);
+  assert.equal(again.duplicate,true);
+  assert.equal(h.mails.length,1);
 });
 
 test('IDENTITY GATE: inquiry GAS has no CanonicalCustomerID/Identity-Dedup or CRM case writer',()=>{
@@ -129,6 +134,17 @@ test('DEV SAFETY GATE: unpatched GAS explicitly targets PRODUCTION and must not 
 
 // Release blockers: these assertions are deliberately NOT treated as passing
 // business behavior. Turn TODO into real passing tests after code and DEV E2E fixes.
-test.todo('P1: same token with changed payload must reject stale ACK or require explicit reconciliation');
-test.todo('P1: internal notification and customer acknowledgement must have independent retryable delivery states');
+test('DEV candidate: same-token reuse with changed use case, not just product, fails closed',()=>{
+  const h=harness(),p=base();
+  assert.equal(h.post(p).ok,true);
+  assert.equal(h.post({...p,use_case:'Another use case'}).ok,false);
+  assert.equal(h.rows.length,1);assert.equal(h.mails.length,2);
+});
+test('DEV candidate: status checkpoint records full success and notification timestamp',()=>{
+  const h=harness(),res=h.post(base());
+  assert.equal(res.ok,true);
+  assert.equal(h.rows[0][24],'NOTIFIED');
+  assert(h.rows[0][25] instanceof Date);
+});
+test.todo('P1: delivery failure is reconciled against actual inbox evidence before authorized manual replay');
 test.todo('P0: web Inquiry must pass existing Customer Identity/Dedup and Opportunity Gate before CRM handoff');
