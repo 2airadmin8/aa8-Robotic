@@ -43,3 +43,30 @@
     padding: 19px 16px;
   }
 }
+
+/* V3-only: keep long anchor navigation usable on mobile.
+ * Do not compress 11 items into one narrow viewport. */
+@media (max-width: 780px) {
+  .g1-anchor-nav .g1-shell {
+    display: flex;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    scroll-snap-type: x proximity;
+    padding-inline: 16px;
+  }
+  .g1-anchor-nav .g1-shell > a {
+    flex: 0 0 auto !important;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    scroll-snap-align: start;
+    padding: 15px 7px;
+    font-size: 12px;
+  }
+}
