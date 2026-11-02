@@ -627,6 +627,75 @@
         "title": "Unitree H2 Plus｜全身31関節・Jetson Thor・研究開発向けヒューマノイド｜AirAdmin8 Robotics",
         "metaDescription": "Unitree H2 PlusはJetson Thor 2,070 TFLOPS(FP4 sparse)、広視野双眼視覚、最大15kg（ピーク）のアーム負荷などを持つ研究開発向けロボット。H2/H2-Xとの違い、仕様、国内導入条件を確認。",
         "heroLead": "高い演算性能と全身制御を、研究から実機展開へ。",
+        "v3": {
+          "models": [
+            {
+              "title": "Unitree H2 Plus",
+              "description": "機上演算・双眼視覚・選択ハンドを中心に、模倣学習や全身制御を研究。SDK公開範囲は構成別に確認。",
+              "href": "#specifications"
+            },
+            {
+              "title": "Unitree H2",
+              "description": "二足歩行・全身協調を軸に比較。H2 EDUの二次開発条件はH2 Plusと同一と見なさず個別確認。",
+              "href": "/products/unitree-h2.html"
+            },
+            {
+              "title": "Unitree H2-X",
+              "description": "機体構成や研究適合性を別SKUとして比較。ハンド、SDK、センサー、納期は型番ごとに確認。",
+              "href": "/products/unitree-h2-x.html"
+            }
+          ],
+          "sdk": [
+            {
+              "title": "SDK / 制御API",
+              "description": "二次開発対応はメーカー案内あり。実際に利用できる制御API、SDK配布条件、対象構成は購入前に確認します。"
+            },
+            {
+              "title": "ROS 2・OS・シミュレータ",
+              "description": "ROS 2やLinux、シミュレータの対応版・利用範囲を照会。標準対応や動作保証を断定しません。"
+            },
+            {
+              "title": "VLA・学習データ",
+              "description": "Isaac TeleOpやGR00T等を検討する際はデータ同期、モデルの互換性、ライセンスと安全条件を確認します。"
+            }
+          ],
+          "solutions": [
+            {
+              "title": "模倣学習・VLA評価",
+              "description": "H2 Plus本体＋選択ハンド＋テレオペ/記録環境＋開発PCの参考構成。SDK、データ形式、同期を確認します。"
+            },
+            {
+              "title": "全身制御・歩行研究",
+              "description": "機体＋制御可能なAPI＋安全な実験スペース＋評価ツール。転倒・接触リスクと研究環境を確認します。"
+            },
+            {
+              "title": "把持・HRI・研究教育",
+              "description": "視覚センサーや選択ハンドを使う把持・協調研究の構成例。教材や技術支援の付属を保証しません。"
+            }
+          ],
+          "process": [
+            {
+              "title": "01｜用途・研究条件",
+              "description": "研究課題、対象物、評価方法、運用環境、予算、希望時期を整理します。"
+            },
+            {
+              "title": "02｜本体・オプション",
+              "description": "H2 Plusの正式SKU、ハンド、センサー、同梱品、必要な開発PCを確認します。"
+            },
+            {
+              "title": "03｜開発・安全条件",
+              "description": "SDK/API、OS/ROS 2、ライセンス、ネットワーク、転倒・接触安全、支援範囲を確認します。"
+            },
+            {
+              "title": "04｜正式見積・大学購買",
+              "description": "国内価格、輸送、納期、保証、検収、初期設定の条件を確認してから見積します。"
+            },
+            {
+              "title": "05｜納品・検証開始",
+              "description": "受領、初期設定、SDK接続、研究開始。技術支援の実施範囲は契約条件に従います。"
+            }
+          ]
+        },
         "facts": [
           {
             "label": "機上FP4 sparse演算性能",
