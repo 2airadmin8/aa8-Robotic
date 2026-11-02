@@ -29,6 +29,11 @@ function doPost(e) {
     try {
       const existing = findBySubmissionToken_(submissionToken);
       if (existing) {
+        // A lost browser ACK must not silently bind edited content to the old ID.
+        // The row is the persisted truth; a conflicting retry is rejected.
+        if (!sameInquiryPayload_(existing.fields, p)) {
+          throw new Error('Submission token already used with different inquiry content');
+        }
         inquiryId = existing.inquiryId;
         isDuplicate = true;
       } else {
@@ -40,13 +45,28 @@ function doPost(e) {
     }
 
     if (!isDuplicate) {
+      // Save the internal delivery checkpoint before attempting customer ACK.
+      // Duplicate tokens NEVER automatically resend either email; failures need
+      // explicit reconciliation by an authorized operator.
+      let internalSent = false;
       try {
         sendInquiryNotification_(inquiryId, p);
-        sendCustomerAcknowledgement_(inquiryId, p);
-        markNotificationStatus_(inquiryId, 'NOTIFIED', new Date());
+        internalSent = true;
+        markNotificationStatus_(inquiryId, 'INTERNAL_SENT', new Date());
       } catch (mailError) {
-        console.error('Notification failed: ' + (mailError && mailError.stack ? mailError.stack : mailError));
-        markNotificationStatus_(inquiryId, 'FAILED', '');
+        console.error('Internal notification failed: ' + String(mailError));
+        if (!internalSent) markNotificationStatus_(inquiryId, 'INTERNAL_FAILED', '');
+        // If status persistence failed AFTER MailApp.sendEmail, do not overwrite
+        // a possibly-sent email as FAILED or trigger another automatic send.
+      }
+      if (internalSent) {
+        try {
+          sendCustomerAcknowledgement_(inquiryId, p);
+          markNotificationStatus_(inquiryId, 'NOTIFIED', new Date());
+        } catch (mailError) {
+          console.error('Customer ACK failed: ' + String(mailError));
+          markNotificationStatus_(inquiryId, 'ACK_FAILED', new Date());
+        }
       }
     }
 
@@ -130,11 +150,28 @@ function findBySubmissionToken_(submissionToken) {
   for (let i = tokens.length - 1; i >= 0; i--) {
     if (String(tokens[i][0] || '') === submissionToken) {
       return {
-        inquiryId: String(sheet.getRange(i + 2, 1).getValue() || '')
+        inquiryId: String(sheet.getRange(i + 2, 1).getValue() || ''),
+        fields: sheet.getRange(i + 2, 4, 1, 21).getValues()[0]
       };
     }
   }
   return null;
+}
+
+// 21 immutable public inquiry fields stored in columns D:X of 01_Inquiry.
+// CustomerID/CanonicalCaseID are not included and remain owned by their SSOTs.
+const INQUIRY_PAYLOAD_FIELDS_ = [
+  'category', 'organization', 'name', 'email', 'phone', 'product', 'use_case',
+  'budget', 'schedule', 'development', 'message', 'source_page',
+  'source_product', 'source_maker', 'source_service', 'source_theme',
+  'source_case', 'utm_source', 'utm_medium', 'utm_campaign', 'ga_client_id'
+];
+
+function sameInquiryPayload_(fields, p) {
+  if (!Array.isArray(fields) || fields.length !== INQUIRY_PAYLOAD_FIELDS_.length) return false;
+  return INQUIRY_PAYLOAD_FIELDS_.every((key, index) =>
+    clean_(fields[index]) === clean_(p[key])
+  );
 }
 
 function sendInquiryNotification_(inquiryId, p) {
