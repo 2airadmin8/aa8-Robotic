@@ -881,7 +881,8 @@
           "unitree-h2-x",
           "unitree-g1-plus",
           "unitree-g1"
-        ]
+        ],
+        "contactService": ""
       }
     },
     {
