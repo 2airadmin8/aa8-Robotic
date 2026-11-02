@@ -20,10 +20,10 @@ for (const width of [1440,390,360,320]) {
   await expect(page.locator('.g1-factory-media-grid figure')).toHaveCount(9);
   await expect(page.locator('.g1-factory-related-grid a')).toHaveCount(4);
   // V3: model choice, verified SDK conditions, solution examples and delivery process.
-  for (const selector of ['#model-selection','#development','#solutions','#introduction']) {
+  for (const selector of ['#development','#solutions','#introduction']) {
     await expect(page.locator(selector)).toBeVisible();
   }
-  await expect(page.locator('#model-selection tbody tr')).toHaveCount(3);
+  await expect(page.locator('#model-selection')).toHaveCount(0);
   // CEO annotated screenshot: four balanced cards per row on PC, no orphan last row.
   const density=await page.evaluate(()=>{
     const f=document.querySelector('#capabilities .g1-factory-facts');
@@ -44,8 +44,10 @@ for (const width of [1440,390,360,320]) {
   await expect(page.locator('#solutions article')).toHaveCount(3);
   await expect(page.locator('#introduction article')).toHaveCount(5);
   await expect(page.locator('#development')).toContainText('対応版');
-  await expect(page.locator('#development a[href="/resources.html"]')).toBeVisible();
-  await expect(page.locator('#model-selection')).toContainText('開発権限');
+  await expect(page.locator('#development a[href^="/resources.html?"]')).toBeVisible();
+  await expect(page.locator('#development a[href="https://support.unitree.com/home/en/H2_developer"]')).toBeVisible();
+  await expect(page.locator('#solutions a[href^="/support.html#"]')).toHaveCount(3);
+  await expect(page.locator('#development')).toContainText('H2 Plusへの適用可否');
   await expect(page.locator('link[href="/assets/css/g1-factory-v3.css"]')).toHaveCount(1);
   await expect(page.locator('.g1-hero-ctas .g1-button.primary')).toHaveAttribute('href', /maker=Unitree/);
   await expect(page.locator('.g1-hero-ctas .g1-button.secondary')).toHaveAttribute('href', '#media');
@@ -131,11 +133,14 @@ for (const width of [1440,390,360,320]) {
   expect(m.links[0]).toBe('https://www.unitree.com/H2plus');
   expect(m.links[1]).toBe('#specifications');
   expect(m.links[2]).toContain('product=Unitree%20H2%20Plus');
+  expect(m.links[2]).toContain('maker=Unitree');
+  expect(m.links[2]).not.toContain('service=university-procurement');
   await page.locator('.g1-final-cta .g1-cta-card').nth(2).click();
   await page.waitForURL(/\/contact\.html\?product=/);
   await expect(page.locator('input[name="product"]')).toHaveValue('Unitree H2 Plus');
   await expect(page.locator('input[name="source_maker"]')).toHaveValue('Unitree');
   await expect(page.locator('input[name="source_product"]')).toHaveValue('Unitree H2 Plus');
+  await expect(page.locator('select[name="category"]')).toHaveValue('導入条件整理');
   expect(errors).toEqual([]);
   expect(bad).toEqual([]);
  });
@@ -148,7 +153,7 @@ test('H2 Plus SEO manufacturer / Master status / model isolation',async({page,re
  expect(source).toContain('h2plus.png');
  expect(source).toContain('2,070');
  expect(source).toContain('SharpaWave');
- expect(source).toContain('id="model-selection"');
+ expect(source).not.toContain('id="model-selection"');
  expect(source).toContain('id="development"');
  expect(source).toContain('id="solutions"');
  expect(source).toContain('id="introduction"');
@@ -160,7 +165,7 @@ test('H2 Plus SEO manufacturer / Master status / model isolation',async({page,re
  expect(model.image).toContain('/h2plus.png');
  expect(model.pageFactory.releaseReady).toBe(true);
  expect(model.pageFactory.videos).toHaveLength(0);
- expect(model.pageFactory.v3.models).toHaveLength(3);
+ expect(model.pageFactory.v3.models).toBeUndefined();
  expect(model.pageFactory.v3.sdk).toHaveLength(3);
  expect(model.pageFactory.v3.solutions).toHaveLength(3);
  expect(model.pageFactory.v3.process).toHaveLength(5);
@@ -177,4 +182,13 @@ test('V3 factory generated candidate equals committed H2 Plus HTML (SSOT)',async
  "import sys,pathlib;sys.path.insert(0,'scripts');import product_factory as p;r=pathlib.Path('.').resolve();x=next(x for x in p.catalog(r) if x['id']=='unitree-h2-plus');assert p.render(r,x,'candidate')==(r/x['detailPage']).read_text(encoding='utf-8'),'generated V3 HTML drift';print('H2PLUS_V3_PARITY_OK')"
  ],{cwd:require('node:path').resolve(__dirname,'..'),encoding:'utf8'});
  expect(output).toContain('H2PLUS_V3_PARITY_OK');
+});
+
+test('Unitree H2 official developer documentation is discoverable in Resources',async({page})=>{
+ await page.goto(base+'/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2',{waitUntil:'networkidle'});
+ const card=page.locator('.resource-card').filter({hasText:'Unitree H2 Developer Documentation'});
+ await expect(card).toBeVisible();
+ await expect(card.locator('a.resource-open-link')).toHaveAttribute('href','https://support.unitree.com/home/en/H2_developer');
+ await expect(card).toContainText('H2 Plusへの適用可否');
+ await expect(card).toContainText('後日追加予定');
 });
