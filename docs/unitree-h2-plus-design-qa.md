@@ -49,3 +49,11 @@
 - V3 long anchor navigation on 390/360px must scroll horizontally without colliding labels; test neighboring DOM bounding boxes and source CSS. Header is validated against built `_site` artifact, not just source placeholders.
 
 - Strict design fix: the V3 header anchor navigation is reduced to 9 key sections. Desktop width 1440 must fit without horizontal scrolling; SP390/SP360 must scroll horizontally with non-overlapping labels. FAQ and related modules stay on the page.
+
+## CEO screenshot redline / 2026-11-03
+- H2 Plus V3 only: remove visible Hero repeated status line and tiny manufacturer caption; original manufacturer source retained at specification disclosure and illustrated CTA.
+- Four feature cards and four application cards: 4 in one row on >=1120px, 2 columns on intermediate tablet, one column on SP. No 3+1 orphan layout.
+- Keep all nine verified manufacturer images; equal 16:10 containment frame with caption alignment, never crop or substitute another SKU.
+- Rename heading to 製品スペック and group source/date in expandable detail; machine-readable/SSOT per-fact source links remain in generation data.
+- Suppress long zero-video fine print and duplicate final CTA kicker/lead/fine text on V3 only; preserve factual notes in Product Master and manufacturer source.
+- Do not touch approved legacy pages, shared G1 CSS, QA Factory, contact/CRM or manual-only deployment.
