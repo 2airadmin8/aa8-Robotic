@@ -47,3 +47,5 @@
 - The exact PR HEAD, CI and independent QA must be reverified before a separate CEO merge/deploy approval.
 
 - V3 long anchor navigation on 390/360px must scroll horizontally without colliding labels; test neighboring DOM bounding boxes and source CSS. Header is validated against built `_site` artifact, not just source placeholders.
+
+- Strict design fix: the V3 header anchor navigation is reduced to 9 key sections. Desktop width 1440 must fit without horizontal scrolling; SP390/SP360 must scroll horizontally with non-overlapping labels. FAQ and related modules stay on the page.
