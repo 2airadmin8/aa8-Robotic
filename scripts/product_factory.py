@@ -136,6 +136,21 @@ def validate_page_factory(root: Path, product: dict) -> dict:
                 required(fact.get(key), f"{pid}.{field}[{i}].{key}")
             if field != "faq":
                 official_url(fact.get("sourceUrl"), f"{pid}.{field}[{i}].sourceUrl")
+    v3 = spec.get("v3")
+    if v3 is not None:
+        if not isinstance(v3, dict):
+            raise ContractError(f"{pid}.v3: expected object")
+        for field, minimum in (("models", 3), ("sdk", 3), ("solutions", 3), ("process", 5)):
+            items = _strings(v3.get(field), f"{pid}.v3.{field}", minimum)
+            for i, item in enumerate(items):
+                if not isinstance(item, dict):
+                    raise ContractError(f"{pid}.v3.{field}[{i}]: expected object")
+                required(item.get("title"), f"{pid}.v3.{field}[{i}].title")
+                required(item.get("description"), f"{pid}.v3.{field}[{i}].description")
+                if field == "models":
+                    href = required(item.get("href"), f"{pid}.v3.models[{i}].href")
+                    if not (href == "#specifications" or re.fullmatch(r"/products/[a-z0-9-]+\.html", href)):
+                        raise ContractError(f"{pid}.v3.models[{i}]: unsafe href")
     related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds", 3)
     related_ids = {p.get("id") for p in catalog(root)}
     if (len(related) != len(set(related)) or len(related)>6 or pid in related
@@ -252,6 +267,47 @@ def _item_html(items: list[dict], kind: str) -> str:
     raise AssertionError(kind)
 
 
+
+def render_v3_sections(spec: dict) -> dict[str, str]:
+    """Optional, validated V3 content from Product Master, without changing legacy pages."""
+    empty = {"v3_navigation": "", "v3_model_section": "", "v3_sdk_section": "",
+             "v3_solutions_section": "", "v3_process_section": ""}
+    v3 = spec.get("v3")
+    if not v3:
+        return empty
+
+    def section(anchor: str, kicker: str, title: str, inner: str, foot: str) -> str:
+        return (f'<section class="g1-section g1-factory-section g1-factory-v3" id="{anchor}"><div class="g1-shell">\n'
+                f'<p class="g1-kicker">{kicker}</p><h2>{title}</h2>\n'
+                + inner + '\n<p class="g1-fine">' + foot + '</p>\n</div></section>')
+
+    model_rows = '\n'.join(
+        '<tr><th scope="row"><a href="' + esc(item["href"]) + '">' + esc(item["title"]) +
+        '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in v3["models"]
+    )
+    model_table = ('<table class="g1-factory-spec-table"><caption>Unitree研究用ヒューマノイドの選定目安</caption>'
+                   '<tbody>' + model_rows + '</tbody></table>')
+
+    def cards(field: str) -> str:
+        return ('<div class="g1-factory-applications">' +
+                '\n'.join('<article><h3>' + esc(item["title"]) + '</h3><p>' +
+                          esc(item["description"]) + '</p></article>' for item in v3[field]) +
+                '</div>')
+
+    return {
+        "v3_navigation": ('<a href="#model-selection">モデル選定</a><a href="#development">SDK・開発</a>'
+                          '<a href="#solutions">推奨構成</a><a href="#introduction">導入フロー</a>'),
+        "v3_model_section": section("model-selection", "MODEL SELECTION",
+            "H2 Plus・H2・H2-Xの選び方", model_table, "G1と同様、用途と開発条件で選定します。別型番の仕様を混同せず、正式な構成と販売条件を確認してください。"),
+        "v3_sdk_section": section("development", "SDK / DEVELOPMENT",
+            "SDK・開発環境", cards("sdk"), "技術資料：<a href=\"/resources.html\">SDK・技術資料一覧</a>／<a href=\"https://www.unitree.com/H2plus\" target=\"_blank\" rel=\"noopener noreferrer\">Unitree公式情報</a>。対応・ダウンロード条件は要確認。"),
+        "v3_solutions_section": section("solutions", "SOLUTION / CONFIGURATION",
+            "研究目的別の推奨構成例", cards("solutions"), "研究目的別の参考構成であり、周辺機器・SDK・サービスの標準付属や動作保証を意味しません。"),
+        "v3_process_section": section("introduction", "INTRODUCTION / SUPPORT",
+            "導入・研究開始までの流れ", cards("process"), "AirAdmin8・メーカー・お客様の担当範囲、保証と有償支援は正式見積・契約時に明確化します。"),
+    }
+
+
 def render(root: Path, product: dict, mode: str) -> str:
     spec = validate_page_factory(root, product)
     if mode == "candidate" and not spec["releaseReady"]:
@@ -343,6 +399,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         "product_id": esc(slug),
         "verified_at": esc(product["verifiedAt"]),
     }
+    mapping.update(render_v3_sections(spec))
     return Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
 
 
