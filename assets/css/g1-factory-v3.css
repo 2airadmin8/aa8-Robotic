@@ -189,3 +189,24 @@
     min-height: 0;
   }
 }
+
+/* V3 responsive guard: on narrow 320px devices the primary consultation CTA
+ * can exceed its half-width label. Stack actions instead of clipping text. */
+@media (max-width: 359px) {
+  .g1-page[data-product-factory="g1-v1"] .g1-hero-copy > .g1-hero-ctas {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .g1-page[data-product-factory="g1-v1"] .g1-hero-copy > .g1-hero-ctas > .g1-button {
+    flex: none;
+    width: 100%;
+    min-height: 50px;
+    height: auto;
+    padding: 11px 8px;
+    font-size: 13px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
