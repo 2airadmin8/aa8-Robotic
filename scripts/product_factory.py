@@ -389,7 +389,19 @@ def render(root: Path, product: dict, mode: str) -> str:
         "related": related,
         "media_button_label": "公式写真・動画を見る" if spec["videos"] else "公式写真を見る",
         "media_nav_label": "写真・動画" if spec["videos"] else "公式写真",
-        "media_title": "公式写真・動画" if spec["videos"] else "公式写真",
+        "media_title": (
+            "製品画像・構造" if spec.get("v3") else
+            ("公式写真・動画" if spec["videos"] else "公式写真")
+        ),
+        "spec_heading": "製品スペック" if spec.get("v3") else "メーカー公開仕様",
+        "spec_origin": (
+            '<details class="g1-factory-source"><summary>仕様の出典・確認情報</summary>'
+            '<p>Unitree公式の公表値を参照。確認日：' + esc(product["verifiedAt"]) +
+            '。掲載値は購入するSKU・オプション構成で異なる場合があります。 '
+            '<a href="' + source + '" target="_blank" rel="noopener noreferrer">'
+            'メーカー公式仕様を見る ↗</a></p></details>'
+            if spec.get("v3") else ""
+        ),
         "cta_lead": ("動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
                      if spec["videos"] else
                      "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"),
@@ -415,9 +427,9 @@ def render(root: Path, product: dict, mode: str) -> str:
             '<div class="g1-factory-videos">' + videos + '</div>'
             '<p class="g1-fine">メーカー映像と実際の納入仕様は異なる場合があります。動作保証ではありません。</p>'
             if spec["videos"] else
-            '<p class="g1-fine">提供された公式製品素材には検証可能な動画がありません。'
-            '最新の実演情報は <a href="' + source +
-            '" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>'
+            ('<p class="g1-fine g1-v3-video-note">提供された公式製品素材には検証可能な動画がありません。'
+             '最新の実演情報は <a href="' + source +
+             '" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>')
         ),
         "cards": cards,
         "official_source": source,
