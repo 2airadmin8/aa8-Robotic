@@ -268,7 +268,7 @@ def _item_html(items: list[dict], kind: str) -> str:
 
 
 
-def render_v3_sections(spec: dict) -> dict[str, str]:
+def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
     """Optional, validated V3 content from Product Master, without changing legacy pages."""
     empty = {"v3_navigation": "", "v3_model_section": "", "v3_sdk_section": "",
              "v3_solutions_section": "", "v3_process_section": ""}
@@ -285,7 +285,7 @@ def render_v3_sections(spec: dict) -> dict[str, str]:
         '<tr><th scope="row"><a href="' + esc(item["href"]) + '">' + esc(item["title"]) +
         '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in v3["models"]
     )
-    model_table = ('<table class="g1-factory-spec-table"><caption>Unitree研究用ヒューマノイドの選定目安</caption>'
+    model_table = ('<table class="g1-factory-spec-table"><caption>関連モデルの選定目安</caption>'
                    '<tbody>' + model_rows + '</tbody></table>')
 
     def cards(field: str) -> str:
@@ -294,13 +294,20 @@ def render_v3_sections(spec: dict) -> dict[str, str]:
                           esc(item["description"]) + '</p></article>' for item in v3[field]) +
                 '</div>')
 
+    source = esc(official_url(spec["officialSource"], "officialSource"))
+    sdk_foot = (
+        '技術資料：<a href="/resources.html">SDK・技術資料一覧</a>／'
+        '<a href="' + source + '" target="_blank" rel="noopener noreferrer">メーカー公式情報</a>。'
+        'SDKの対象SKU・対応OS・配布条件は購入前に確認してください。'
+    )
     return {
         "v3_navigation": ('<a href="#model-selection">モデル選定</a><a href="#development">SDK・開発</a>'
                           '<a href="#solutions">推奨構成</a><a href="#introduction">導入フロー</a>'),
         "v3_model_section": section("model-selection", "MODEL SELECTION",
-            "H2 Plus・H2・H2-Xの選び方", model_table, "G1と同様、用途と開発条件で選定します。別型番の仕様を混同せず、正式な構成と販売条件を確認してください。"),
+            esc(product["name"]) + "と関連モデルの選び方", model_table,
+            "用途・本体構成・開発権限・ハンド・国内見積を比較。別型番の仕様・SDK条件を混同せず個別に確認してください。"),
         "v3_sdk_section": section("development", "SDK / DEVELOPMENT",
-            "SDK・開発環境", cards("sdk"), "技術資料：<a href=\"/resources.html\">SDK・技術資料一覧</a>／<a href=\"https://www.unitree.com/H2plus\" target=\"_blank\" rel=\"noopener noreferrer\">Unitree公式情報</a>。対応・ダウンロード条件は要確認。"),
+            "SDK・開発環境", cards("sdk"), sdk_foot),
         "v3_solutions_section": section("solutions", "SOLUTION / CONFIGURATION",
             "研究目的別の推奨構成例", cards("solutions"), "研究目的別の参考構成であり、周辺機器・SDK・サービスの標準付属や動作保証を意味しません。"),
         "v3_process_section": section("introduction", "INTRODUCTION / SUPPORT",
@@ -324,7 +331,9 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<source src="{esc(local_asset(root,v["src"],"video",VIDEO_EXT))}" type="video/mp4"></video>'
         f'<figcaption>{esc(v["label"])}</figcaption></figure>' for v in spec["videos"]
     )
-    contact = "/contact.html?product=" + quote(product["name"], safe="") + "&service=university-procurement"
+    contact = ("/contact.html?product=" + quote(product["name"], safe="")
+               + "&maker=" + quote(product["manufacturerName"], safe="")
+               + "&service=university-procurement")
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
@@ -356,7 +365,19 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(by_id[rid]["summary"])}</small>'
         f'<em>製品詳細へ →</em></a>' for rid in spec["relatedProductIds"]
     )
+    hero_actions = (
+        '<a class="g1-button primary" href="' + esc(contact) +
+        '" data-factory-cta="hero">研究・導入を相談する ↗</a>\n'
+        '<a class="g1-button secondary" href="#media">' +
+        esc("公式写真・動画を見る" if spec["videos"] else "公式写真を見る") + ' ↓</a>'
+        if spec.get("v3") else
+        '<a class="g1-button primary" href="#media">' +
+        esc("公式写真・動画を見る" if spec["videos"] else "公式写真を見る") + ' ↓</a>\n'
+        '<a class="g1-button secondary" href="' + esc(contact) +
+        '" data-factory-cta="hero">研究・導入を相談する ↗</a>'
+    )
     mapping = {
+        "hero_actions": hero_actions,
         "related": related,
         "media_button_label": "公式写真・動画を見る" if spec["videos"] else "公式写真を見る",
         "media_nav_label": "写真・動画" if spec["videos"] else "公式写真",
@@ -399,7 +420,11 @@ def render(root: Path, product: dict, mode: str) -> str:
         "product_id": esc(slug),
         "verified_at": esc(product["verifiedAt"]),
     }
-    mapping.update(render_v3_sections(spec))
+    mapping.update(render_v3_sections(spec, product))
+    mapping["v3_styles"] = (
+        '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
+        if spec.get("v3") else ""
+    )
     return Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
 
 
