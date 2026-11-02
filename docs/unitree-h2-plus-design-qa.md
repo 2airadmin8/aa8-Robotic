@@ -45,3 +45,5 @@
 - Product/Maker must prefill existing contact form; full Inquiry ID, persistent receipt and CRM routing are separate end-to-end projects and are NOT claimed as passed here.
 - CI must assert candidate generated from data/products.json equals committed H2 Plus HTML. Independent AA8-N-015 PC1440/SP390/SP360 must still inspect screenshots and actual interaction.
 - The exact PR HEAD, CI and independent QA must be reverified before a separate CEO merge/deploy approval.
+
+- V3 long anchor navigation on 390/360px must scroll horizontally without colliding labels; test neighboring DOM bounding boxes and source CSS. Header is validated against built `_site` artifact, not just source placeholders.
