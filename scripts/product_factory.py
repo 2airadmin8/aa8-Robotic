@@ -141,6 +141,8 @@ def validate_page_factory(root: Path, product: dict) -> dict:
         if not isinstance(v3, dict):
             raise ContractError(f"{pid}.v3: expected object")
         for field, minimum in (("models", 3), ("sdk", 3), ("solutions", 3), ("process", 5)):
+            if field == "models" and field not in v3:
+                continue
             items = _strings(v3.get(field), f"{pid}.v3.{field}", minimum)
             for i, item in enumerate(items):
                 if not isinstance(item, dict):
@@ -151,6 +153,9 @@ def validate_page_factory(root: Path, product: dict) -> dict:
                     href = required(item.get("href"), f"{pid}.v3.models[{i}].href")
                     if not (href == "#specifications" or re.fullmatch(r"/products/[a-z0-9-]+\.html", href)):
                         raise ContractError(f"{pid}.v3.models[{i}]: unsafe href")
+                if field == "solutions" and item.get("supportSectionId") is not None:
+                    if item.get("supportSectionId") not in {"university", "poc", "vla", "procurement", "setup", "maintenance"}:
+                        raise ContractError(f"{pid}.v3.solutions[{i}]: unsafe supportSectionId")
     related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds", 3)
     related_ids = {p.get("id") for p in catalog(root)}
     if (len(related) != len(set(related)) or len(related)>6 or pid in related
@@ -281,34 +286,54 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
                 f'<p class="g1-kicker">{kicker}</p><h2>{title}</h2>\n'
                 + inner + '\n<p class="g1-fine">' + foot + '</p>\n</div></section>')
 
+    models = v3.get("models", [])
     model_rows = '\n'.join(
         '<tr><th scope="row"><a href="' + esc(item["href"]) + '">' + esc(item["title"]) +
-        '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in v3["models"]
+        '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in models
     )
     model_table = ('<table class="g1-factory-spec-table"><caption>関連モデルの選定目安</caption>'
-                   '<tbody>' + model_rows + '</tbody></table>')
+                   '<tbody>' + model_rows + '</tbody></table>') if models else ""
+    model_section = section("model-selection", "MODEL SELECTION",
+        esc(product["name"]) + "と関連モデルの選び方", model_table,
+        "用途・本体構成・開発権限・ハンド・国内見積を比較。別型番の仕様・SDK条件を混同せず個別に確認してください。") if models else ""
 
     def cards(field: str) -> str:
-        return ('<div class="g1-factory-applications">' +
-                '\n'.join('<article><h3>' + esc(item["title"]) + '</h3><p>' +
-                          esc(item["description"]) + '</p></article>' for item in v3[field]) +
-                '</div>')
+        rendered = []
+        for item in v3[field]:
+            support_link = ""
+            support_id = item.get("supportSectionId") if field == "solutions" else None
+            if support_id in {"university", "poc", "vla", "procurement", "setup", "maintenance"}:
+                support_link = '<a class="g1-factory-support-link" href="/support.html#' + support_id + '">導入支援の詳細を見る →</a>'
+            rendered.append('<article><h3>' + esc(item["title"]) + '</h3><p>' +
+                            esc(item["description"]) + '</p>' + support_link + '</article>')
+        return '<div class="g1-factory-applications">' + '\n'.join(rendered) + '</div>'
 
     source = esc(official_url(spec["officialSource"], "officialSource"))
-    sdk_foot = (
-        '技術資料：<a href="/resources.html">SDK・技術資料一覧</a>／'
+    resource_href = str(v3.get("resourceSearchUrl") or "/resources.html")
+    if not resource_href.startswith("/resources.html"):
+        raise ContractError(f"{product['id']}.v3.resourceSearchUrl: unsafe local path")
+    developer_url = v3.get("developerDocsUrl")
+    developer_link = (
+        '<a href="' + esc(official_url(developer_url, "developerDocsUrl")) +
+        '" target="_blank" rel="noopener noreferrer">Unitree H2 Developer Documentation（公式）</a>。'
+        if developer_url else
         '<a href="' + source + '" target="_blank" rel="noopener noreferrer">メーカー公式情報</a>。'
-        'SDKの対象SKU・対応OS・配布条件は購入前に確認してください。'
+    )
+    sdk_foot = (
+        '技術資料：<a href="' + esc(resource_href) + '">UnitreeのSDK・開発資料一覧</a>／'
+        + developer_link +
+        'この資料はH2向けです。H2 Plusへの適用可否、対象SKU、対応OS、SDK配布条件は購入前にメーカーへ確認してください。'
+        'SDK本体・ダウンロードファイルは準備中です。'
     )
     return {
         "v3_navigation": "",
-        "v3_model_section": section("model-selection", "MODEL SELECTION",
-            esc(product["name"]) + "と関連モデルの選び方", model_table,
-            "用途・本体構成・開発権限・ハンド・国内見積を比較。別型番の仕様・SDK条件を混同せず個別に確認してください。"),
+        "v3_model_section": model_section,
         "v3_sdk_section": section("development", "SDK / DEVELOPMENT",
             "SDK・開発環境", cards("sdk"), sdk_foot),
         "v3_solutions_section": section("solutions", "SOLUTION / CONFIGURATION",
-            "研究目的別の推奨構成例", cards("solutions"), "研究目的別の参考構成であり、周辺機器・SDK・サービスの標準付属や動作保証を意味しません。"),
+            "研究目的別の推奨構成例", cards("solutions"),
+            '研究目的別の参考構成です。周辺機器・SDK・サービスの標準付属や動作保証を意味しません。'
+            + '<a class="g1-factory-support-link" href="/support.html">導入支援メニュー・責任分界を見る →</a>'),
         "v3_process_section": section("introduction", "INTRODUCTION / SUPPORT",
             "導入・研究開始までの流れ", cards("process"), "AirAdmin8・メーカー・お客様の担当範囲、保証と有償支援は正式見積・契約時に明確化します。"),
     }
@@ -331,8 +356,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<figcaption>{esc(v["label"])}</figcaption></figure>' for v in spec["videos"]
     )
     contact = ("/contact.html?product=" + quote(product["name"], safe="")
-               + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else "")
-               + "&service=university-procurement")
+               + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else ""))
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
@@ -376,7 +400,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         '" data-factory-cta="hero">研究・導入を相談する ↗</a>'
     )
     anchor_navigation = (
-        "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a><a href=\"#model-selection\">モデル</a><a href=\"#specifications\">仕様</a><a href=\"#development\">SDK</a><a href=\"#solutions\">研究構成</a><a href=\"#introduction\">導入</a><a href=\"#contact-product\">相談</a>"
+        "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a><a href=\"#specifications\">仕様</a><a href=\"#development\">SDK</a><a href=\"#solutions\">研究構成</a><a href=\"#introduction\">導入</a><a href=\"#contact-product\">相談</a>"
         if spec.get("v3") else
         ('<a href="#capabilities">製品特徴</a><a href="#applications">用途</a>\n'
          '<a href="#media">' + esc("写真・動画" if spec["videos"] else "公式写真") + '</a>'
