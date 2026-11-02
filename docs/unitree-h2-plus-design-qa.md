@@ -35,3 +35,13 @@
 - No edit of existing G1/H2/H2-X product HTML or approved CSS.
 - No new automation, Master, runner, or external email/CRM write.
 - Code merge and production deploy require existing CEO SHA approval gates.
+
+## V3.0 strict review / additive modules (2026-11-03)
+- H2 Plus only: model selection, SDK/developer resources, research solution examples, procurement/implementation steps.
+- V3 factory code must be product-agnostic: model heading, manufacturer source and Hero CTA generated from Product Master, never hard-coded to Unitree or H2 Plus.
+- The first Hero CTA is consultation; official image gallery remains accessible by secondary CTA.
+- Resource link points to existing /resources.html and verified manufacturer source; do NOT claim a downloadable H2 Plus SDK or guaranteed ROS 2 compatibility.
+- Five-step process uses scoped V3 layout; retain original white background, 9 official images, three G1 illustrated CTA cards and four related products.
+- Product/Maker must prefill existing contact form; full Inquiry ID, persistent receipt and CRM routing are separate end-to-end projects and are NOT claimed as passed here.
+- CI must assert candidate generated from data/products.json equals committed H2 Plus HTML. Independent AA8-N-015 PC1440/SP390/SP360 must still inspect screenshots and actual interaction.
+- The exact PR HEAD, CI and independent QA must be reverified before a separate CEO merge/deploy approval.
