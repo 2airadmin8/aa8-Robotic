@@ -332,7 +332,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<figcaption>{esc(v["label"])}</figcaption></figure>' for v in spec["videos"]
     )
     contact = ("/contact.html?product=" + quote(product["name"], safe="")
-               + "&maker=" + quote(product["manufacturerName"], safe="")
+               + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else "")
                + "&service=university-procurement")
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
