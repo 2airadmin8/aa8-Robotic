@@ -19,6 +19,18 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('.g1-hero-image img')).toHaveAttribute('src',hero);
   await expect(page.locator('.g1-factory-media-grid figure')).toHaveCount(9);
   await expect(page.locator('.g1-factory-related-grid a')).toHaveCount(4);
+  // V3: model choice, verified SDK conditions, solution examples and delivery process.
+  for (const selector of ['#model-selection','#development','#solutions','#introduction']) {
+    await expect(page.locator(selector)).toBeVisible();
+  }
+  await expect(page.locator('#model-selection tbody tr')).toHaveCount(3);
+  await expect(page.locator('#development article')).toHaveCount(3);
+  await expect(page.locator('#solutions article')).toHaveCount(3);
+  await expect(page.locator('#introduction article')).toHaveCount(5);
+  await expect(page.locator('#development')).toContainText('対応版');
+  await expect(page.locator('#solutions')).toContainText('参考構成');
+  await expect(page.locator('#introduction')).toContainText('正式見積');
+  await expect(page.locator('a[href="#development"]')).toHaveCount(1);
   await expect(page.locator('.g1-final-cta .g1-cta-card')).toHaveCount(3);
   await expect(page.locator('.g1-factory-videos video')).toHaveCount(0);
   await expect(page.locator('main')).toContainText('検証可能な動画がありません');
@@ -94,6 +106,10 @@ test('H2 Plus SEO manufacturer / Master status / model isolation',async({page,re
  expect(model.image).toContain('/h2plus.png');
  expect(model.pageFactory.releaseReady).toBe(true);
  expect(model.pageFactory.videos).toHaveLength(0);
+ expect(model.pageFactory.v3.models).toHaveLength(3);
+ expect(model.pageFactory.v3.sdk).toHaveLength(3);
+ expect(model.pageFactory.v3.solutions).toHaveLength(3);
+ expect(model.pageFactory.v3.process).toHaveLength(5);
  expect(model.pageFactory.relatedProductIds).toHaveLength(4);
  await page.goto(base+'/products.html',{waitUntil:'networkidle'});
  await expect(page.locator('[data-product-list] #unitree-h2-plus')).toHaveCount(1);
