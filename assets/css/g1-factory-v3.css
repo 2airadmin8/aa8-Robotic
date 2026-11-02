@@ -87,3 +87,105 @@
     white-space: nowrap;
   }
 }
+
+/* H2 Plus / V3 customer screenshot review: balanced information hierarchy.
+   Scoped so previously approved G1/H2-X pages stay unchanged. */
+@media (min-width: 1120px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+  }
+}
+@media (min-width: 781px) and (max-width: 1119px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+.g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts article,
+.g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications article {
+  border: 1px solid #e2eaf0;
+  border-top: 3px solid #009bd2;
+  border-radius: 8px;
+  padding: 20px 17px;
+  min-width: 0;
+  height: 100%;
+}
+.g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts strong {
+  font-size: clamp(21px, 2vw, 28px);
+}
+.g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications h3 {
+  font-size: clamp(17px, 1.55vw, 20px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid {
+  align-items: stretch;
+  column-gap: 18px;
+  row-gap: 28px;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figure {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid img {
+  aspect-ratio: 16 / 10;
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 8px;
+  border: 1px solid #edf1f4;
+  border-radius: 6px;
+  background: #fff;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figcaption {
+  margin-top: 9px;
+  line-height: 1.55;
+  min-height: 2.9em;
+  font-size: 13px;
+}
+.g1-page[data-product-factory="g1-v1"] .g1-hero .g1-fine,
+.g1-page[data-product-factory="g1-v1"] .g1-hero .g1-image-caption,
+.g1-page[data-product-factory="g1-v1"] #media .g1-v3-video-note,
+.g1-page[data-product-factory="g1-v1"] #specifications > .g1-shell > .g1-fine,
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-spec-table small,
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-spec-table caption,
+.g1-page[data-product-factory="g1-v1"] #contact-product > .g1-shell > .g1-kicker,
+.g1-page[data-product-factory="g1-v1"] #contact-product > .g1-shell > p:not(.g1-kicker) {
+  display: none;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source {
+  margin: 16px 0 0;
+  color: #516775;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source summary {
+  display: list-item;
+  cursor: pointer;
+  color: #007faa;
+  font-weight: 700;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source a {
+  color: #007faa;
+  text-decoration: underline;
+}
+.g1-page[data-product-factory="g1-v1"] #contact-product .g1-cta-grid {
+  margin-top: 20px;
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figcaption {
+    min-height: 0;
+  }
+}
