@@ -2,7 +2,7 @@ const {test,expect} = require('@playwright/test');
 const base=process.env.AA8_TEST_BASE||'http://127.0.0.1:4173';
 const target='/products/unitree-h2-plus.html';
 const hero='/assets/img/products/unitree/h2plus/drive/h2plus.png';
-for (const width of [1440,390,360]) {
+for (const width of [1440,390,360,320]) {
  test('H2 Plus G1 approved contract / '+width+'px',async({page})=>{
   await page.setViewportSize({width,height:900});
   const errors=[],bad=[];
@@ -49,6 +49,18 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('link[href="/assets/css/g1-factory-v3.css"]')).toHaveCount(1);
   await expect(page.locator('.g1-hero-ctas .g1-button.primary')).toHaveAttribute('href', /maker=Unitree/);
   await expect(page.locator('.g1-hero-ctas .g1-button.secondary')).toHaveAttribute('href', '#media');
+  // 320px regression: no CTA text clipping on narrow devices.
+  const ctaFit=await page.locator('.g1-hero-ctas').evaluate(el=>{
+    const actions=[...el.querySelectorAll('a')];
+    const rectangles=actions.map(a=>a.getBoundingClientRect());
+    return {
+      fits:actions.every(a=>a.scrollWidth<=a.clientWidth+1),
+      stacked:rectangles.length===2&&rectangles[1].top>=rectangles[0].bottom-1
+    };
+  });
+  expect(ctaFit.fits).toBeTruthy();
+  if(width===320) expect(ctaFit.stacked).toBeTruthy();
+
   await expect(page.locator('#solutions')).toContainText('参考構成');
   await expect(page.locator('#introduction')).toContainText('正式見積');
   await expect(page.locator('a[href="#development"]')).toHaveCount(1);
