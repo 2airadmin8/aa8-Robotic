@@ -355,8 +355,10 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<source src="{esc(local_asset(root,v["src"],"video",VIDEO_EXT))}" type="video/mp4"></video>'
         f'<figcaption>{esc(v["label"])}</figcaption></figure>' for v in spec["videos"]
     )
+    contact_service = spec.get("contactService", "university-procurement")
     contact = ("/contact.html?product=" + quote(product["name"], safe="")
-               + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else ""))
+               + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else "")
+               + ("&service=" + quote(contact_service, safe="") if contact_service else ""))
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
