@@ -628,23 +628,6 @@
         "metaDescription": "Unitree H2 PlusはJetson Thor 2,070 TFLOPS(FP4 sparse)、広視野双眼視覚、最大15kg（ピーク）のアーム負荷などを持つ研究開発向けロボット。H2/H2-Xとの違い、仕様、国内導入条件を確認。",
         "heroLead": "高い演算性能と全身制御を、研究から実機展開へ。",
         "v3": {
-          "models": [
-            {
-              "title": "Unitree H2 Plus",
-              "description": "機上演算・双眼視覚・選択ハンドを中心に、模倣学習や全身制御を研究。SDK公開範囲は構成別に確認。",
-              "href": "#specifications"
-            },
-            {
-              "title": "Unitree H2",
-              "description": "二足歩行・全身協調を軸に比較。H2 EDUの二次開発条件はH2 Plusと同一と見なさず個別確認。",
-              "href": "/products/unitree-h2.html"
-            },
-            {
-              "title": "Unitree H2-X",
-              "description": "機体構成や研究適合性を別SKUとして比較。ハンド、SDK、センサー、納期は型番ごとに確認。",
-              "href": "/products/unitree-h2-x.html"
-            }
-          ],
           "sdk": [
             {
               "title": "SDK / 制御API",
@@ -662,15 +645,18 @@
           "solutions": [
             {
               "title": "模倣学習・VLA評価",
-              "description": "H2 Plus本体＋選択ハンド＋テレオペ/記録環境＋開発PCの参考構成。SDK、データ形式、同期を確認します。"
+              "description": "H2 Plus本体＋選択ハンド＋テレオペ/記録環境＋開発PCの参考構成。SDK、データ形式、同期を確認します。",
+              "supportSectionId": "vla"
             },
             {
               "title": "全身制御・歩行研究",
-              "description": "機体＋制御可能なAPI＋安全な実験スペース＋評価ツール。転倒・接触リスクと研究環境を確認します。"
+              "description": "機体＋制御可能なAPI＋安全な実験スペース＋評価ツール。転倒・接触リスクと研究環境を確認します。",
+              "supportSectionId": "poc"
             },
             {
               "title": "把持・HRI・研究教育",
-              "description": "視覚センサーや選択ハンドを使う把持・協調研究の構成例。教材や技術支援の付属を保証しません。"
+              "description": "視覚センサーや選択ハンドを使う把持・協調研究の構成例。教材や技術支援の付属を保証しません。",
+              "supportSectionId": "setup"
             }
           ],
           "process": [
@@ -694,7 +680,9 @@
               "title": "05｜納品・検証開始",
               "description": "受領、初期設定、SDK接続、研究開始。技術支援の実施範囲は契約条件に従います。"
             }
-          ]
+          ],
+          "developerDocsUrl": "https://support.unitree.com/home/en/H2_developer",
+          "resourceSearchUrl": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2"
         },
         "facts": [
           {
