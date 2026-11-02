@@ -301,8 +301,7 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
         'SDKの対象SKU・対応OS・配布条件は購入前に確認してください。'
     )
     return {
-        "v3_navigation": ('<a href="#model-selection">モデル選定</a><a href="#development">SDK・開発</a>'
-                          '<a href="#solutions">推奨構成</a><a href="#introduction">導入フロー</a>'),
+        "v3_navigation": "",
         "v3_model_section": section("model-selection", "MODEL SELECTION",
             esc(product["name"]) + "と関連モデルの選び方", model_table,
             "用途・本体構成・開発権限・ハンド・国内見積を比較。別型番の仕様・SDK条件を混同せず個別に確認してください。"),
@@ -376,7 +375,16 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<a class="g1-button secondary" href="' + esc(contact) +
         '" data-factory-cta="hero">研究・導入を相談する ↗</a>'
     )
+    anchor_navigation = (
+        "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a><a href=\"#model-selection\">モデル</a><a href=\"#specifications\">仕様</a><a href=\"#development\">SDK</a><a href=\"#solutions\">研究構成</a><a href=\"#introduction\">導入</a><a href=\"#contact-product\">相談</a>"
+        if spec.get("v3") else
+        ('<a href="#capabilities">製品特徴</a><a href="#applications">用途</a>\n'
+         '<a href="#media">' + esc("写真・動画" if spec["videos"] else "公式写真") + '</a>'
+         '<a href="#specifications">仕様</a>\n'
+         '<a href="#faq">FAQ</a><a href="#related">関連製品</a><a href="#contact-product">導入相談</a>')
+    )
     mapping = {
+        "anchor_navigation": anchor_navigation,
         "hero_actions": hero_actions,
         "related": related,
         "media_button_label": "公式写真・動画を見る" if spec["videos"] else "公式写真を見る",
