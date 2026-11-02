@@ -85,6 +85,12 @@ jobs:
         shell: bash
         run: python scripts/verify_release.py
 
+      - name: Verify Inquiry DEV read-only contract (no external POST)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tests/inquiry-dev-contract.test.cjs
+
       - name: Install Playwright Chromium
         id: browser_setup
         shell: bash
