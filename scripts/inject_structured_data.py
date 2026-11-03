@@ -38,8 +38,13 @@ PAGE_MAP = {
     "products/unitree-g1-d.html": {"name": "Unitree G1-D", "type": "Product", "brand": "Unitree"},
     "products/agibot-g2.html": {"name": "AgiBot G2", "type": "Product", "brand": "AgiBot"},
     "products/unitree-g1.html": {"name": "Unitree G1", "type": "Product", "brand": "Unitree"},
+    "products/unitree-g1-plus.html": {"name": "Unitree G1+", "type": "Product", "brand": "Unitree"},
+    "products/unitree-h2-d.html": {"name": "Unitree H2-D", "type": "Product", "brand": "Unitree"},
+    "products/unitree-h2.html": {"name": "Unitree H2", "type": "Product", "brand": "Unitree"},
+    "products/unitree-h2-x.html": {"name": "Unitree H2-X", "type": "Product", "brand": "Unitree"},
     "products/unitree-go2.html": {"name": "Unitree Go2 EDU", "type": "Product", "brand": "Unitree"},
     "products/agibot-x2-edu.html": {"name": "AgiBot X2 EDU", "type": "Product", "brand": "AgiBot"},
+    "products/agibot-a3-ultra.html": {"name": "AGIBOT A3 Ultra", "type": "Product", "brand": "AGIBOT"},
     "products/limx-oli.html": {"name": "LimX Oli", "type": "Product", "brand": "LimX Dynamics"},
     "products/tianji-marvin.html": {"name": "Tianji Marvin", "type": "Product", "brand": "Tianji"},
     "manufacturers/unitree.html": {"name": "Unitree Robotics", "type": "Brand"},
@@ -59,7 +64,7 @@ CANONICAL_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 MANAGED_SCRIPT_PATTERN = re.compile(
-    r'\s*<script\s+id=["\'](?:organization-schema|page-schema|breadcrumb-schema|faq-schema)["\']\s+type=["\']application/ld\+json["\']>.*?</script>',
+    r'\s*<script\s+id=["\'](?:organization-schema|page-schema|breadcrumb-schema|faq-schema|product-facts-schema)["\']\s+type=["\']application/ld\+json["\']>.*?</script>',
     re.IGNORECASE | re.DOTALL,
 )
 JSON_LD_SCRIPT_PATTERN = re.compile(
@@ -183,10 +188,10 @@ def organization_schema() -> dict[str, object]:
         "email": "airobot@robotics.air-admin8.co.jp",
         "address": {
             "@type": "PostalAddress",
-            "postalCode": "100-0004",
+            "postalCode": "164-0001",
             "addressRegion": "東京都",
-            "addressLocality": "千代田区",
-            "streetAddress": "大手町一丁目9番2号 大手町フィナンシャルシティ グランキューブ18階",
+            "addressLocality": "中野区",
+            "streetAddress": "中野4-10-2 中野セントラルパークサウス2F",
             "addressCountry": "JP",
         },
     }
@@ -229,6 +234,47 @@ def page_schema(config: dict[str, str], canonical: str, description: str) -> dic
         })
 
     return result
+
+
+# Publicly launched product pages only; A3 Ultra included after CEO go-live instruction.
+RECENT_PRODUCT_SLUGS = {
+    "unitree-g1-plus", "unitree-h2-d", "unitree-h2",
+    "unitree-h2-x", "unitree-h2-plus", "agibot-a3-ultra",
+}
+
+
+def recent_product_facts(relative_name: str, canonical: str, description: str,
+                         text: str) -> dict[str, object] | None:
+    slug = Path(relative_name).stem
+    if slug not in RECENT_PRODUCT_SLUGS or not relative_name.startswith("products/"):
+        return None
+    from product_factory import catalog
+    data = {p["id"]: p for p in catalog(ROOT)}
+    product = data.get(slug)
+    if product is None:
+        raise ValueError(f"Recent product not in Master: {slug}")
+    image = str(product.get("image", ""))
+    if not image.startswith("assets/img/") or not (ROOT / image).is_file():
+        raise ValueError(f"Product official image missing: {slug}")
+    if product.get("imageStatus") != "official":
+        raise ValueError(f"Product image not verified as official: {slug}")
+    if f'{PUBLIC_BASE}{relative_name}' != canonical:
+        raise ValueError(f"Product canonical mismatch: {slug}")
+    return {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "@id": f"{canonical}#product",
+        "name": product["name"],
+        "description": description or product["summary"],
+        "url": canonical,
+        "image": [f"{PUBLIC_BASE}{image}"],
+        "brand": {"@type": "Brand", "name": product["manufacturerName"]},
+        "manufacturer": {"@type": "Organization", "name": product["manufacturerName"]},
+        "category": "ヒューマノイドロボット",
+        "mainEntityOfPage": {"@id": f"{canonical}#page"},
+        # Price, availability, SKU, reviews and ratings are deliberately
+        # omitted where no verified Japanese offer evidence exists.
+    }
 
 
 def breadcrumb_schema(text: str, canonical: str, page_name: str) -> dict[str, object]:
@@ -292,7 +338,18 @@ def process_html(text: str, relative: Path) -> str:
     if not canonical:
         canonical = PUBLIC_BASE if relative_name == "index.html" else f"{PUBLIC_BASE}{relative_name}"
 
-    config = PAGE_MAP.get(relative_name, {"name": title, "type": "WebPage"})
+    config = PAGE_MAP.get(relative_name)
+    if config is None and relative_name.startswith("products/"):
+        # Opt-in generated pages take their name and manufacturer from the
+        # existing Product Master, not a second product schema registry.
+        from product_factory import catalog
+        for product in catalog(ROOT):
+            if product.get("pageFactory") and product["detailPage"] == relative_name:
+                config = {"name": product["name"], "type": "Product",
+                          "brand": product["manufacturerName"]}
+                break
+    if config is None:
+        config = {"name": title, "type": "WebPage"}
     text = MANAGED_SCRIPT_PATTERN.sub("", text)
 
     if config["type"] == "Product":
@@ -304,6 +361,9 @@ def process_html(text: str, relative: Path) -> str:
         script_tag("page-schema", page_schema(config, canonical, description)),
         script_tag("breadcrumb-schema", breadcrumb_schema(text, canonical, config["name"])),
     ]
+    product_facts = recent_product_facts(relative_name, canonical, description, text)
+    if product_facts is not None:
+        scripts.append(script_tag("product-facts-schema", product_facts))
     if relative_name == "faq.html":
         scripts.append(script_tag("faq-schema", faq_schema(text)))
 

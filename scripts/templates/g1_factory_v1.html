@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>$title</title><meta name="description" content="$description">
+<link rel="canonical" href="$canonical">
+<meta property="og:type" content="website"><meta property="og:title" content="$title">
+<meta property="og:description" content="$description"><meta property="og:url" content="$canonical">
+<meta property="og:image" content="$og_image">
+$robots
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/shared-layout.css">
+<link rel="stylesheet" href="/assets/css/g1-product.css">
+<link rel="stylesheet" href="/assets/css/g1-factory-v1.css">
+$v3_styles$standard_css
+</head><body>
+<header class="site-header" data-shared-layout="header"><div class="wrap"><a href="/index.html">AirAdmin8 Robotics</a></div></header>
+<main data-aa8-product-standard="3.1" data-product-id="$product_id" data-product-family="$product_family" id="main-content" class="g1-page" data-product-factory="g1-v1">
+<section class="g1-hero" aria-labelledby="product-name"><div class="g1-shell">
+<div class="g1-breadcrumb"><a href="/products.html">製品一覧</a> / $name</div>
+<div class="g1-hero-grid"><div class="g1-hero-copy">
+<p class="g1-kicker">$manufacturer / ROBOTICS</p><h1 id="product-name">$name</h1>
+<p class="g1-hero-lead">$hero_lead</p><p class="g1-hero-description">$summary</p>
+<div class="g1-hero-ctas">
+$hero_actions
+</div><p class="g1-fine">取扱状況：$status ／ 価格：$price_label ／ 納期：$lead_time。SDK・保証・仕様は購入構成に応じて確認します。</p>
+</div><div class="g1-hero-media"><div class="g1-hero-image">
+<img src="$hero_image" alt="$hero_alt" decoding="async" fetchpriority="high">
+</div><p class="g1-image-caption">メーカー製品画像。<a href="$official_source" target="_blank" rel="noopener noreferrer">メーカー公式情報 ↗</a></p>
+</div></div></div></section>
+<nav class="g1-anchor-nav" aria-label="$name のページ内メニュー"><div class="g1-shell">
+$anchor_navigation
+</div></nav>
+<section class="g1-section g1-factory-section" id="capabilities"><div class="g1-shell">
+<p class="g1-kicker">PRODUCT CAPABILITIES</p><h2>$name の特徴</h2>
+<div class="g1-factory-facts">$facts</div></div></section>
+<section class="g1-section g1-factory-section" id="applications"><div class="g1-shell">
+<p class="g1-kicker">RESEARCH / APPLICATIONS</p><h2>研究・活用用途</h2>
+<div class="g1-factory-applications">$applications</div></div></section>
+<section class="g1-section g1-factory-section" id="media"><div class="g1-shell">
+<p class="g1-kicker">OFFICIAL MEDIA</p><h2>$media_title</h2>
+<div class="g1-factory-media-grid">$images</div>
+$video_section
+</div></section>
+$v3_model_section
+<section class="g1-section g1-factory-section" id="specifications"><div class="g1-shell">
+<p class="g1-kicker">SPECIFICATIONS</p><h2>$spec_heading</h2>
+<table class="g1-factory-spec-table"><caption>$name 製品仕様</caption><tbody>$specifications</tbody></table>
+<p class="g1-fine">仕様確認日：$verified_at。出典：
+<a href="$official_source" target="_blank" rel="noopener noreferrer">メーカー公式ページ ↗</a>。</p>
+$spec_origin
+</div></section>
+$v3_sdk_section
+$v3_solutions_section
+$v3_process_section
+<section class="g1-section g1-factory-section g1-faq" id="faq"><div class="g1-shell">
+<p class="g1-kicker">FAQ</p><h2>よくある質問</h2>
+<div class="g1-faq-list">$faq</div></div></section>
+<section class="g1-section g1-factory-section g1-factory-related" id="related"><div class="g1-shell">
+<p class="g1-kicker">RELATED PRODUCTS</p><h2>あわせて比較したい製品</h2>
+<div class="g1-factory-related-grid">$related</div></div></section>
+<section class="g1-section g1-final-cta g1-factory-cta" id="contact-product"><div class="g1-shell">
+<p class="g1-kicker">NEXT STEP / $name</p><h2>$name の可能性を、次の一歩へ。</h2>
+<p>$cta_lead</p>
+<div class="g1-cta-grid">$cards</div>
+<p class="g1-fine">$media_attribution：$manufacturer。価格、納期、導入構成は個別に確認します。</p>
+</div></section>$standard_bridge</main>
+<footer class="footer" data-shared-layout="footer"><div class="wrap">© AirAdmin8 Inc.</div></footer>
+<script src="/assets/js/site.js" defer></script>
+</body></html>

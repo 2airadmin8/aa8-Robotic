@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes"}
+EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "tests", "node_modules", "test-results", "playwright-report"}
 BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
@@ -195,10 +195,9 @@ def build_html(html: str, relative: Path) -> str:
     scripts: list[str] = []
     if "assets/js/mobile-qa.js" not in html:
         scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
-    # X2 EDU is fully prerendered and gets canonical/OG/JSON-LD in the static
-    # release pipeline. The legacy seo.js loader uses the retired /aa8-Robotic/
-    # prefix and triggers five 404s on the production custom domain.
-    if relative.as_posix() == "products/agibot-x2-edu.html":
+    # Contact, X2 EDU and G1 pages use the release-owned canonical/OG/JSON-LD.
+    # Legacy seo.js injects retired /aa8-Robotic/ assets (three 404s on contact).
+    if relative.as_posix() in {"contact.html", "products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html", "products/unitree-h2-d.html", "products/unitree-h2.html", "products/unitree-h2-x.html"} or 'data-product-factory="g1-v1"' in html:
         if "assets/js/analytics-events.js" not in html:
             scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
     elif "assets/js/seo.js" not in html:

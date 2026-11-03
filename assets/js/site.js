@@ -99,7 +99,8 @@
 
       const data = await response.json();
       const limit = Number(root.dataset.limit || 0);
-      const products = data.products.filter((item) => item.visibility === 'public');
+      const excluded = new Set((root.dataset.excludeProducts || '').split(/\s+/).filter(Boolean));
+      const products = data.products.filter((item) => item.visibility === 'public' && !excluded.has(item.id));
       const visibleProducts = limit > 0 ? products.slice(0, limit) : products;
 
       root.innerHTML = visibleProducts.map((item) => {

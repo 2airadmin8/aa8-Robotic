@@ -135,7 +135,24 @@ def verify_source_hygiene(errors: list[str]) -> None:
 
 def main() -> int:
     errors: list[str] = []
+    # Both PR CI and the existing manual-only Pages deploy must pass this
+    # catalog / approved-design gate; no second workflow or runner is created.
+    from product_factory import audit_catalog
+    catalog_errors, catalog_warnings, catalog_stats = audit_catalog(ROOT)
+    errors.extend(f"PRODUCT FACTORY: {e}" for e in catalog_errors)
+    print(f"Product factory gate: {catalog_stats}; {len(catalog_warnings)} declared legacy placeholder(s)")
     verify_source_hygiene(errors)
+
+    # G1 direct-preview HTML must carry an unmodified fallback of the
+    # exact shared shell. The production build replaces both from includes/.
+    g1_source = (ROOT / "products/unitree-g1.html").read_text(encoding="utf-8-sig")
+    for tag, source_name in (("header", "site-header.html"), ("footer", "site-footer.html")):
+        canonical = (ROOT / "includes" / source_name).read_text(encoding="utf-8")
+        pattern = re.compile(rf"<{tag}\b[^>]*>[\s\S]*?</{tag}>", re.I)
+        expected = pattern.search(canonical)
+        actual = pattern.search(g1_source)
+        if expected is None or actual is None or actual.group() != expected.group():
+            errors.append(f"G1 {tag} diverges from includes/{source_name}")
 
     if not OUTPUT.is_dir():
         errors.append("_site does not exist")
@@ -185,6 +202,37 @@ def main() -> int:
         text = path.read_text(encoding="utf-8")
         # A page-specific regression gate: the X2 EDU page must not reload
         # the obsolete GitHub Pages /aa8-Robotic/ SEO runtime.
+        if relative.as_posix() == "contact.html":
+            if "assets/js/seo.js" in text:
+                errors.append("contact: obsolete seo.js runtime reintroduced")
+            if text.count("assets/js/analytics-events.js") != 1:
+                errors.append("contact: expected one direct analytics-events.js")
+            if "/aa8-Robotic/assets/" in text:
+                errors.append("contact: retired GitHub Pages asset prefix reintroduced")
+        if relative.as_posix() == "products/unitree-g1.html":
+            if "assets/js/seo.js" in text:
+                errors.append("G1 still loads the legacy seo.js runtime")
+            if "assets/js/analytics-events.js" not in text:
+                errors.append("G1 direct analytics-events.js script missing")
+            for marker in ('id="g1-title"', 'id="specifications"', 'id="architecture"', 'id="contact-g1"'):
+                if marker not in text:
+                    errors.append(f"G1 required section missing: {marker}")
+        if relative.as_posix() == "products/unitree-h2-d.html":
+            if "assets/js/seo.js" in text:
+                errors.append("H2-D: obsolete seo.js loader reintroduced")
+            if text.count("assets/js/analytics-events.js") != 1:
+                errors.append("H2-D: expected exactly one direct analytics-events.js")
+            for marker in ('id="strengths"', 'id="use-cases"', 'id="models"', 'id="specifications"', 'id="development"', 'id="faq"', 'id="consult"', 'h2d-motion.mp4'):
+                if marker not in text:
+                    errors.append(f"H2-D section/video missing: {marker}")
+        if relative.as_posix() == "products/unitree-g1-plus.html":
+            if "assets/js/seo.js" in text:
+                errors.append("G1+ still loads the legacy seo.js runtime")
+            if "assets/js/analytics-events.js" not in text:
+                errors.append("G1+ direct analytics-events.js script missing")
+            for marker in ('class="g1p-upgrade-grid"', 'id="specifications"', 'id="faq"', 'id="contact-g1plus"'):
+                if marker not in text:
+                    errors.append(f"G1+ required section missing: {marker}")
         if relative.as_posix() == "products/agibot-x2-edu.html":
             if "assets/js/seo.js" in text:
                 errors.append("X2 EDU still loads the legacy seo.js runtime")

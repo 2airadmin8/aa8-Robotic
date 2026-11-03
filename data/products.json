@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "updatedAt": "2026-08-02",
+  "updatedAt": "2026-10-31",
   "products": [
     {
       "id": "agibot-g2",
@@ -9,28 +9,60 @@
       "manufacturerName": "AgiBot",
       "categoryId": "mobile-manipulation",
       "categoryLabel": "移動型ヒューマノイド",
-      "filterGroups": ["mobile-manipulation"],
+      "filterGroups": [
+        "mobile-manipulation"
+      ],
       "status": "active",
       "statusLabel": "比較・見積対応",
       "visibility": "public",
       "salesStatus": "quote_available",
       "supportStatus": "available",
       "summary": "高精度な力制御と移動能力を組み合わせた、産業・研究向けの移動操作ロボット。",
-      "featureLabels": ["車輪移動", "双腕操作", "力制御", "研究・産業向け"],
-      "useCaseIds": ["manipulation", "vla-data-collection", "factory-automation"],
-      "useLabels": ["Manipulation", "VLA", "模倣学習", "データ収集"],
+      "featureLabels": [
+        "車輪移動",
+        "双腕操作",
+        "力制御",
+        "研究・産業向け"
+      ],
+      "useCaseIds": [
+        "manipulation",
+        "vla-data-collection",
+        "factory-automation"
+      ],
+      "useLabels": [
+        "Manipulation",
+        "VLA",
+        "模倣学習",
+        "データ収集"
+      ],
       "detailPage": "products/agibot-g2.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "AgiBot G2 移動型ヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/agibot/g2/official-g2-front.jpg",
+      "imageAlt": "AgiBot G2 車輪移動型ロボットのメーカー公式製品写真",
+      "imageStatus": "official",
       "priceStatus": "inquiry",
       "priceLabel": "価格確認",
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["sdk", "ros2"],
-      "verifiedAt": "2026-07-16"
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "双腕操作・テレオペ・移動操作PoCを、実験条件から設計",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      },
+      "imageSourcePage": "https://store.agibot.com/",
+      "imageAssetSourceUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-g2.webp",
+      "imageSourceNote": "G2本体写真。G2 Air/G2 Maxとは区別。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "unitree-g1-d",
@@ -39,18 +71,34 @@
       "manufacturerName": "Unitree",
       "categoryId": "mobile-manipulation",
       "categoryLabel": "移動操作・データ収集",
-      "filterGroups": ["mobile-manipulation"],
+      "filterGroups": [
+        "mobile-manipulation"
+      ],
       "status": "active",
       "statusLabel": "見積対応",
       "visibility": "public",
       "salesStatus": "quote_available",
       "supportStatus": "available",
       "summary": "データ収集から学習・推論まで、ヒューマノイド操作研究の開発工程を支えるプラットフォーム。",
-      "featureLabels": ["双腕構成", "昇降機構", "移動ベース", "データ収集対応"],
-      "useCaseIds": ["vla-data-collection", "imitation-learning", "teleoperation"],
-      "useLabels": ["データ収集", "模倣学習", "VLA", "遠隔操作"],
+      "featureLabels": [
+        "双腕構成",
+        "昇降機構",
+        "移動ベース",
+        "データ収集対応"
+      ],
+      "useCaseIds": [
+        "vla-data-collection",
+        "imitation-learning",
+        "teleoperation"
+      ],
+      "useLabels": [
+        "データ収集",
+        "模倣学習",
+        "VLA",
+        "遠隔操作"
+      ],
       "detailPage": "products/unitree-g1-d.html",
-      "image": "assets/img/products/unitree/unitree-g1-d/unitree-g1-d-transport.svg",
+      "image": "assets/img/products/unitree/catalog/unitree-g1-d.png",
       "imageAlt": "Unitree G1-D 移動操作・データ収集プラットフォーム",
       "imageStatus": "official",
       "mediaSource": "data/product-media.json",
@@ -59,9 +107,29 @@
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
-      "relatedCaseIds": ["keio-selection"],
-      "relatedResourceIds": ["sdk", "ros2"],
-      "verifiedAt": "2026-08-02"
+      "relatedCaseIds": [
+        "keio-selection"
+      ],
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-08-02",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "データ収集・遠隔操作・学習と実機評価をつなぐ",
+        "preserveSectionIds": [
+          "overview",
+          "features",
+          "use-cases",
+          "workflow",
+          "training"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#vla",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-g1",
@@ -70,28 +138,339 @@
       "manufacturerName": "Unitree",
       "categoryId": "humanoid",
       "categoryLabel": "ヒューマノイド",
-      "filterGroups": ["humanoid", "education"],
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
       "status": "active",
       "statusLabel": "比較対象",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "available",
       "summary": "高い運動性能と開発環境を備えた、ヒューマノイド研究向けプラットフォーム。",
-      "featureLabels": ["全身制御", "歩行研究", "強化学習", "SDK確認"],
-      "useCaseIds": ["locomotion", "reinforcement-learning", "humanoid-research"],
-      "useLabels": ["全身制御", "歩行研究", "強化学習", "模倣学習"],
+      "featureLabels": [
+        "全身制御",
+        "歩行研究",
+        "強化学習",
+        "SDK確認"
+      ],
+      "useCaseIds": [
+        "locomotion",
+        "reinforcement-learning",
+        "humanoid-research"
+      ],
+      "useLabels": [
+        "全身制御",
+        "歩行研究",
+        "強化学習",
+        "模倣学習"
+      ],
       "detailPage": "products/unitree-g1.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "Unitree G1 ヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/unitree/catalog/28_g1.png",
+      "imageAlt": "Unitree G1 宇樹科技公式製品画像",
+      "imageStatus": "official",
       "priceStatus": "inquiry",
       "priceLabel": "構成確認",
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["sdk", "ros2"],
-      "verifiedAt": "2026-07-16"
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "全身運動・模倣学習・力制御ハンド・研究開発を実機で評価",
+        "preserveSectionIds": [
+          "capabilities",
+          "research",
+          "models",
+          "architecture"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
+    },
+    {
+      "id": "unitree-h2-x",
+      "name": "Unitree H2-X",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "全身31自由度・全高約172.5cm・65kg以上。双電池、LED表示、視覚センサーを備えた新型二足ヒューマノイド。",
+      "featureLabels": [
+        "31自由度",
+        "172.5cm・65kg+",
+        "双電池20Ah",
+        "H2-X EDU"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "education",
+        "human-robot-interaction"
+      ],
+      "useLabels": [
+        "全身運動研究",
+        "大学・研究",
+        "ヒューマノイド",
+        "対話・具身AI"
+      ],
+      "detailPage": "products/unitree-h2-x.html",
+      "image": "assets/img/products/unitree/h2x/drive/image_007.webp",
+      "imageAlt": "Unitree H2-X メーカー公式の新型ヒューマノイド",
+      "imageStatus": "official",
+      "designContract": {
+        "template": "g1-approved-v1",
+        "officialSource": "https://www.unitree.com/H2-X/",
+        "ctaBackground": "assets/img/products/unitree/g1/g1-cta-figma-pc.png",
+        "ctaImages": [
+          "assets/img/products/unitree/h2x/drive/image_005.webp",
+          "assets/img/products/unitree/h2x/drive/image_007.webp",
+          "assets/img/products/unitree/h2x/drive/image_013.jpg"
+        ],
+        "videos": [
+          "assets/img/products/unitree/h2x/drive/video_01.mp4",
+          "assets/img/products/unitree/h2x/drive/video_02.mp4",
+          "assets/img/products/unitree/h2x/drive/video_03.mp4"
+        ],
+        "ctaLinks": [
+          "/assets/img/products/unitree/h2x/drive/video_01.mp4",
+          "#specifications",
+          "/contact.html?product=Unitree%20H2-X&service=university-procurement"
+        ]
+      },
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk"
+      ],
+      "note": "H2-X/H2-X EDUは31自由度。二次開発はEDUのみ。H2・H2-Dとは別型番。",
+      "verifiedAt": "2026-10-31",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "歩行制御・双眼視覚・音声対話・具身AIを研究",
+        "preserveSectionIds": [
+          "strengths",
+          "applications",
+          "media-h2x",
+          "specifications",
+          "research"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": false
+      }
+    },
+    {
+      "id": "unitree-h2",
+      "name": "Unitree H2",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "全身31自由度・約182cmのフルサイズ二足ヒューマノイド。H2と二次開発対応H2 EDUを比較。",
+      "featureLabels": [
+        "31自由度",
+        "全高約182cm",
+        "脚関節360N·m",
+        "H2 EDU"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "education",
+        "human-robot-interaction"
+      ],
+      "useLabels": [
+        "全身運動研究",
+        "大学・研究",
+        "ヒューマノイド",
+        "対話・具身AI"
+      ],
+      "detailPage": "products/unitree-h2.html",
+      "image": "assets/img/products/unitree/h2/h2-humanoid-hero.jpg",
+      "imageAlt": "Unitree H2 31自由度の二足ヒューマノイドのメーカー公式製品写真",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk"
+      ],
+      "note": "H2/H2 EDUは31自由度。二次開発はEDUのみ。高性能演算、ハンド、SDK/納入条件は構成ごとに確認。",
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "二足歩行・全身制御・HRIの研究条件を比較",
+        "preserveSectionIds": [
+          "strengths",
+          "applications",
+          "specifications",
+          "research"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
+    },
+    {
+      "id": "unitree-h2-d",
+      "name": "Unitree H2-D",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "mobile-manipulation",
+      "categoryLabel": "移動型ヒューマノイド",
+      "filterGroups": [
+        "mobile-manipulation",
+        "humanoid"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "双腕7自由度・片腕定格約7kgの産業用操作ロボット。19/20自由度の標準版と車輪移動Flagshipを用途別に比較。",
+      "featureLabels": [
+        "片腕定格約7kg",
+        "19/20自由度",
+        "昇降0.5m",
+        "SDK/API"
+      ],
+      "useCaseIds": [
+        "manipulation",
+        "factory-automation",
+        "vla-data-collection"
+      ],
+      "useLabels": [
+        "産業マニピュレーション",
+        "搬送",
+        "組立PoC",
+        "具身AI研究"
+      ],
+      "detailPage": "products/unitree-h2-d.html",
+      "image": "assets/img/products/unitree/h2d/h2d-hero.webp",
+      "imageAlt": "Unitree H2-D 移動型双腕ロボットのメーカー公式写真",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk"
+      ],
+      "note": "H2-D Standard19自由度／Flagship20自由度。末端効果器と開発条件、移動機能はSKU別に確認。",
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "移動・把持・昇降を組み合わせた現場操作PoCを検討",
+        "preserveSectionIds": [
+          "strengths",
+          "use-cases",
+          "models",
+          "specifications",
+          "development",
+          "consider"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      }
+    },
+    {
+      "id": "unitree-g1-plus",
+      "name": "Unitree G1+",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "2自由度ネック、関節駆動、双眼＋広角カメラ、音声・タッチ機能を強化したヒューマノイド。",
+      "featureLabels": [
+        "25自由度",
+        "2自由度ネック",
+        "双眼＋広角",
+        "音声・タッチ"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "education",
+        "human-robot-interaction"
+      ],
+      "useLabels": [
+        "実機評価",
+        "研究・教育",
+        "展示",
+        "インタラクション"
+      ],
+      "detailPage": "products/unitree-g1-plus.html",
+      "image": "assets/img/products/unitree/catalog/29_g1pl.png",
+      "imageAlt": "Unitree G1+ メーカー公式製品画像（標準版）",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [],
+      "note": "G1+標準版は二次開発非対応。G1+ EDUは構成・開発条件が異なります。",
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "双眼視覚・拡張給電・対話・実機評価の用途を検討",
+        "preserveSectionIds": [
+          "evolution",
+          "applications",
+          "specifications",
+          "choose"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
     },
     {
       "id": "agibot-x2-edu",
@@ -100,29 +479,71 @@
       "manufacturerName": "AgiBot",
       "categoryId": "education-humanoid",
       "categoryLabel": "研究教育ヒューマノイド",
-      "filterGroups": ["humanoid", "education"],
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
       "status": "preparing",
       "statusLabel": "取扱準備中",
       "visibility": "public",
       "salesStatus": "not_released",
       "supportStatus": "preparing",
       "summary": "組立、運動制御、ROS2開発まで学べる、研究教育向けの全身ヒューマノイドプラットフォーム。",
-      "featureLabels": ["約130cm", "29自由度", "ROS2 SDK", "DDS・MuJoCo"],
-      "useCaseIds": ["education", "assembly-training", "motion-control"],
-      "useLabels": ["研究教育", "工程実習", "運動制御", "ソフトウェア二次開発"],
+      "featureLabels": [
+        "約130cm",
+        "29自由度",
+        "ROS2 SDK",
+        "DDS・MuJoCo"
+      ],
+      "useCaseIds": [
+        "education",
+        "assembly-training",
+        "motion-control"
+      ],
+      "useLabels": [
+        "研究教育",
+        "工程実習",
+        "運動制御",
+        "ソフトウェア二次開発"
+      ],
       "detailPage": "products/agibot-x2-edu.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "AgiBot X2 EDU 研究教育向けヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/agibot/x2-edu/official-x2-edu-front.jpg",
+      "imageAlt": "AgiBot X2 EDU 黒色組立教育型ロボットのメーカー公式製品写真",
+      "imageStatus": "official",
       "priceStatus": "not_released",
       "priceLabel": "価格未公開",
       "leadTimeStatus": "not_released",
       "leadTimeLabel": "近日公開",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["ros2", "mujoco"],
+      "relatedResourceIds": [
+        "ros2",
+        "mujoco"
+      ],
       "note": "公開前資料に基づくため、仕様は変更される場合があります。",
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "組み立て・ROS2開発・授業と競技の実機教育に活かす",
+        "preserveSectionIds": [
+          "overview",
+          "issues",
+          "use",
+          "assembly",
+          "features",
+          "specs",
+          "development",
+          "purchase-flow"
+        ],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      },
+      "imageSourcePage": "https://store.agibot.com/",
+      "imageAssetSourceUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-x2-edu.webp",
+      "imageSourceNote": "メーカー公式ストアでX2 EDUとして掲載。X2 Neo/Ultraを転用しない。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "limx-oli",
@@ -131,28 +552,59 @@
       "manufacturerName": "LimX Dynamics",
       "categoryId": "humanoid",
       "categoryLabel": "ヒューマノイド",
-      "filterGroups": ["humanoid"],
+      "filterGroups": [
+        "humanoid"
+      ],
       "status": "researching",
       "statusLabel": "条件確認中",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
       "summary": "二足歩行、全身運動、運動知能研究に適した研究開発向けヒューマノイド。",
-      "featureLabels": ["二足歩行", "全身制御", "運動学習", "研究開発"],
-      "useCaseIds": ["locomotion", "reinforcement-learning", "whole-body-control"],
-      "useLabels": ["二足歩行", "全身制御", "運動学習", "強化学習"],
+      "featureLabels": [
+        "二足歩行",
+        "全身制御",
+        "運動学習",
+        "研究開発"
+      ],
+      "useCaseIds": [
+        "locomotion",
+        "reinforcement-learning",
+        "whole-body-control"
+      ],
+      "useLabels": [
+        "二足歩行",
+        "全身制御",
+        "運動学習",
+        "強化学習"
+      ],
       "detailPage": "products/limx-oli.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "LimX Oli ヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/limx/oli/official-oli-portrait.webp",
+      "imageAlt": "LimX Dynamics Oli ヒューマノイドロボットのメーカー公式上半身写真",
+      "imageStatus": "official",
       "priceStatus": "confirmation_required",
       "priceLabel": "取扱条件確認",
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["sdk"],
-      "verifiedAt": "2026-07-16"
+      "relatedResourceIds": [
+        "sdk"
+      ],
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "二足歩行・全身制御・運動学習の研究を比較",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html",
+        "supportHref": "/support.html#university",
+        "showBridge": true
+      },
+      "imageSourcePage": "https://www.limxdynamics.com/en/products/oli",
+      "imageAssetSourceUrl": "https://limx-video-oss.limxdynamics.com/limx-website/products/oli/img-1.webp",
+      "imageSourceNote": "Oli公式ページの機体画像。全身ではなく上半身と腰部の構図。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "unitree-go2-edu",
@@ -161,28 +613,61 @@
       "manufacturerName": "Unitree",
       "categoryId": "quadruped",
       "categoryLabel": "四足・教育研究",
-      "filterGroups": ["quadruped", "education"],
+      "filterGroups": [
+        "quadruped",
+        "education"
+      ],
       "status": "active",
       "statusLabel": "比較・見積対応",
       "visibility": "public",
       "salesStatus": "quote_available",
       "supportStatus": "available",
       "summary": "巡回、移動制御、AI開発を始めやすい研究・教育向け四足ロボット。",
-      "featureLabels": ["四足移動", "教育研究", "SDK", "制御実習"],
-      "useCaseIds": ["inspection", "education", "mobility-research"],
-      "useLabels": ["教育", "研究入門", "SDK", "移動研究"],
+      "featureLabels": [
+        "四足移動",
+        "教育研究",
+        "SDK",
+        "制御実習"
+      ],
+      "useCaseIds": [
+        "inspection",
+        "education",
+        "mobility-research"
+      ],
+      "useLabels": [
+        "教育",
+        "研究入門",
+        "SDK",
+        "移動研究"
+      ],
       "detailPage": "products/unitree-go2.html",
-      "image": "assets/img/robot-quadruped.svg",
-      "imageAlt": "Unitree Go2 EDU 四足ロボットの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/unitree/catalog/22_go2.png",
+      "imageAlt": "Unitree Go2 シリーズのメーカー製品本体写真（EDU仕様は見積で確認）",
+      "imageStatus": "official",
       "priceStatus": "inquiry",
       "priceLabel": "構成確認",
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["sdk", "ros2"],
-      "verifiedAt": "2026-07-16"
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "quadruped",
+        "customerValue": "四足移動・歩容研究・巡回点検PoCを評価",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html?maker=unitree&product=quadruped&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      },
+      "imageSourcePage": "https://www.unitree.com/go2/",
+      "imageAssetSourceUrl": "https://www.unitree.com/go2/",
+      "imageSourceNote": "既存のUnitree公式カタログ写真を再利用。EDUの装備と通常Go2の差は別途確認。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "tianji-marvin",
@@ -191,28 +676,683 @@
       "manufacturerName": "Tianji",
       "categoryId": "mobile-manipulation",
       "categoryLabel": "移動操作・データ収集",
-      "filterGroups": ["mobile-manipulation", "arm"],
+      "filterGroups": [
+        "mobile-manipulation",
+        "arm"
+      ],
       "status": "researching",
       "statusLabel": "構成確認中",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
       "summary": "双腕力制御、全方向移動、遠隔操作、HDF5・RLDS記録を組み合わせたデータ収集構成。",
-      "featureLabels": ["双腕力制御", "全方向移動", "テレオペ", "HDF5・RLDS"],
-      "useCaseIds": ["vla-data-collection", "teleoperation", "manipulation"],
-      "useLabels": ["データ収集", "遠隔操作", "力制御", "模倣学習"],
+      "featureLabels": [
+        "双腕力制御",
+        "全方向移動",
+        "テレオペ",
+        "HDF5・RLDS"
+      ],
+      "useCaseIds": [
+        "vla-data-collection",
+        "teleoperation",
+        "manipulation"
+      ],
+      "useLabels": [
+        "データ収集",
+        "遠隔操作",
+        "力制御",
+        "模倣学習"
+      ],
       "detailPage": "products/tianji-marvin.html",
-      "image": "assets/img/robot-arm.svg",
-      "imageAlt": "Tianji Marvin 双腕移動操作ロボットの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/tianji/marvin/official-marvin-m6.jpg",
+      "imageAlt": "TianJi Marvin M6 シリーズ双腕ロボットのメーカー公式写真",
+      "imageStatus": "official",
       "priceStatus": "confirmation_required",
       "priceLabel": "構成確認",
       "leadTimeStatus": "confirmation_required",
       "leadTimeLabel": "納期確認",
       "replacementIds": [],
       "relatedCaseIds": [],
-      "relatedResourceIds": ["hdf5", "rlds"],
-      "verifiedAt": "2026-07-16"
+      "relatedResourceIds": [
+        "hdf5",
+        "rlds"
+      ],
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "双腕テレオペ・VLA・データ収集の全体構成を評価",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html",
+        "supportHref": "/support.html#vla",
+        "showBridge": true
+      },
+      "imageSourcePage": "https://en.tianjizn.com/products/marvin-series/",
+      "imageAssetSourceUrl": "https://en.tianjizn.com/wp-content/uploads/2026/06/Marvin-M6.jpg",
+      "imageSourceNote": "Marvin M6双腕本体の公式写真。移動台車やハンド等のセット構成は未確認。",
+      "imageVerifiedAt": "2026-11-03"
+    },
+    {
+      "id": "unitree-h2-plus",
+      "name": "Unitree H2 Plus",
+      "manufacturerId": "unitree",
+      "manufacturerName": "Unitree",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "Jetson Thor T5000級の機上演算、広視野の双眼視覚、触覚ハンドの選択肢を備える研究・開発向けフルサイズヒューマノイド。構成ごとの仕様・価格・納期は要確認。",
+      "featureLabels": [
+        "機上演算 2,070 TFLOPS(FP4)",
+        "全身31軸+手部（構成による）",
+        "双眼/手首カメラ",
+        "遠隔非常停止"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "vla-data-collection",
+        "education"
+      ],
+      "useLabels": [
+        "具身AI・模倣学習",
+        "研究開発",
+        "データ収集",
+        "ロボット制御"
+      ],
+      "detailPage": "products/unitree-h2-plus.html",
+      "image": "assets/img/products/unitree/h2plus/drive/h2plus.png",
+      "imageAlt": "Unitree H2 Plus メーカー公式製品写真・白背景の全身ヒューマノイド",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-10-31",
+      "note": "H2 PlusはH2およびH2-Xと別SKU。手首カメラ・触覚ハンド等の構成は購入仕様を確認。",
+      "pageFactory": {
+        "template": "g1-v1",
+        "releaseReady": true,
+        "officialSource": "https://www.unitree.com/H2plus",
+        "title": "Unitree H2 Plus｜全身31関節・Jetson Thor・研究開発向けヒューマノイド｜AirAdmin8 Robotics",
+        "metaDescription": "Unitree H2 PlusはJetson Thor 2,070 TFLOPS(FP4 sparse)、広視野双眼視覚、最大15kg（ピーク）のアーム負荷などを持つ研究開発向けロボット。H2/H2-Xとの違い、仕様、国内導入条件を確認。",
+        "heroLead": "高い演算性能と全身制御を、研究から実機展開へ。",
+        "v3": {
+          "sdk": [
+            {
+              "title": "SDK / 制御API",
+              "description": "二次開発対応はメーカー案内あり。実際に利用できる制御API、SDK配布条件、対象構成は購入前に確認します。"
+            },
+            {
+              "title": "ROS 2・OS・シミュレータ",
+              "description": "ROS 2やLinux、シミュレータの対応版・利用範囲を照会。標準対応や動作保証を断定しません。"
+            },
+            {
+              "title": "VLA・学習データ",
+              "description": "Isaac TeleOpやGR00T等を検討する際はデータ同期、モデルの互換性、ライセンスと安全条件を確認します。"
+            }
+          ],
+          "solutions": [
+            {
+              "title": "模倣学習・VLA評価",
+              "description": "H2 Plus本体＋選択ハンド＋テレオペ/記録環境＋開発PCの参考構成。SDK、データ形式、同期を確認します。",
+              "supportSectionId": "vla"
+            },
+            {
+              "title": "全身制御・歩行研究",
+              "description": "機体＋制御可能なAPI＋安全な実験スペース＋評価ツール。転倒・接触リスクと研究環境を確認します。",
+              "supportSectionId": "poc"
+            },
+            {
+              "title": "把持・HRI・研究教育",
+              "description": "視覚センサーや選択ハンドを使う把持・協調研究の構成例。教材や技術支援の付属を保証しません。",
+              "supportSectionId": "setup"
+            }
+          ],
+          "process": [
+            {
+              "title": "01｜用途・研究条件",
+              "description": "研究課題、対象物、評価方法、運用環境、予算、希望時期を整理します。"
+            },
+            {
+              "title": "02｜本体・オプション",
+              "description": "H2 Plusの正式SKU、ハンド、センサー、同梱品、必要な開発PCを確認します。"
+            },
+            {
+              "title": "03｜開発・安全条件",
+              "description": "SDK/API、OS/ROS 2、ライセンス、ネットワーク、転倒・接触安全、支援範囲を確認します。"
+            },
+            {
+              "title": "04｜正式見積・大学購買",
+              "description": "国内価格、輸送、納期、保証、検収、初期設定の条件を確認してから見積します。"
+            },
+            {
+              "title": "05｜納品・検証開始",
+              "description": "受領、初期設定、SDK接続、研究開始。技術支援の実施範囲は契約条件に従います。"
+            }
+          ],
+          "developerDocsUrl": "https://support.unitree.com/home/en/H2_developer",
+          "resourceSearchUrl": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2",
+          "resourceLinkLabel": "UnitreeのSDK・開発資料一覧",
+          "developerDocsLabel": "Unitree H2 Developer Documentation（公式）",
+          "developerDocsCaution": "この資料はH2向けです。H2 Plusへの適用可否、対象SKU、対応OS、SDK配布条件は購入前にメーカーへ確認してください。",
+          "sdkDownloadNote": "SDK本体・ダウンロードファイルは準備中です。"
+        },
+        "facts": [
+          {
+            "label": "機上FP4 sparse演算性能",
+            "value": "2,070 TFLOPS",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "機体関節モータ",
+            "value": "31自由度",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "アーム定格 / ピーク負荷",
+            "value": "7kg / 約15kg",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "メーカー公表連続動作",
+            "value": "約3時間",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          }
+        ],
+        "applications": [
+          {
+            "title": "模倣学習・VLA研究",
+            "description": "Isaac TeleOpによるデモ収集や、GR00Tモデル・行動学習の評価環境を検討。",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "title": "全身制御・歩行研究",
+            "description": "31関節を活用した歩行、ハンド操作、認識と制御の統合実験。",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "title": "研究教育・R&D",
+            "description": "双眼カメラ、IMU、Jetson Thorを利用する開発演習・研究PoC。",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "title": "実環境での把持・作業",
+            "description": "定格7kg（ピーク約15kg）等のメーカー公表値を条件として評価。",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          }
+        ],
+        "specifications": [
+          {
+            "label": "機体サイズ（立位）",
+            "value": "1820 × 456 × 218 mm",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "重量（バッテリー込）",
+            "value": "約70 kg",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "関節自由度（手部除く）",
+            "value": "31",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "腰・腕・脚・頭の内訳",
+            "value": "腰3 / 各腕7 / 各脚6 / 頭2",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "アーム最大関節ピークトルク",
+            "value": "120 N·m",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "脚最大関節ピークトルク",
+            "value": "360 N·m",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "アーム負荷",
+            "value": "定格約7 kg / ピーク約15 kg",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "演算モジュール",
+            "value": "Jetson Thor / T5000、FP4 sparse 2,070 TFLOPS",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "統合メモリ",
+            "value": "128GB LPDDR5X（機上演算モジュール）",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "知覚センサー",
+            "value": "広視野双眼カメラ、IMU、手首カメラは構成要確認",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "バッテリー",
+            "value": "15Ah、0.972kWh、約3時間",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "通信",
+            "value": "Ethernet / Wi-Fi 6 / Bluetooth 5.2",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "ハンド",
+            "value": "SharpaWave触覚ハンドは選択構成。片手22能動自由度等はオプション仕様",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "label": "二次開発",
+            "value": "メーカーは対応を案内。実際のSDK/開発範囲は構成確認",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          }
+        ],
+        "faq": [
+          {
+            "question": "H2とH2 Plusは同じモデルですか？",
+            "answer": "別の正式型番です。H2 Plusは開発環境や機上演算・ハンド構成等を含むため、購入時には構成差をメーカーに照会します。"
+          },
+          {
+            "question": "75自由度がすべて標準搭載ですか？",
+            "answer": "いいえ。31は本体関節、75は触覚ハンドなどを組み合わせた構成例の合計です。ハンドとセンサーのオプション条件を確認してください。"
+          },
+          {
+            "question": "Jetson ThorのFP4 2,070 TFLOPSは実AI処理性能ですか？",
+            "answer": "メーカーが示すFP4 sparse理論演算性能です。実際のモデル推論速度や消費電力は開発条件で変わります。"
+          },
+          {
+            "question": "日本の大学向けの価格・納期・検収条件は決まっていますか？",
+            "answer": "見積、運送、保守、SDK、輸入・検収条件は確認が必要です。公式海外価格を国内販売価格として表示しません。"
+          },
+          {
+            "question": "研究に使うSDKやROS2のサポートはありますか？",
+            "answer": "メーカーは二次開発対応を案内しています。対応バージョン、開放API、ROS2の範囲は販売構成別に確認します。"
+          }
+        ],
+        "images": [
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_005.webp",
+            "alt": "機体を用いた実験操作シーン",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_008.jpg",
+            "alt": "H2 Plusの頭部・知覚センサー",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_010.jpg",
+            "alt": "H2 Plus全身の動作イメージ",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_012.jpg",
+            "alt": "H2 Plusの視覚系メカニズム",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_013.jpg",
+            "alt": "倉庫内で物を搬送するH2 Plusのイメージ",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_015.jpg",
+            "alt": "触覚・器用なハンド操作",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_016.jpg",
+            "alt": "工場ラインでの作業イメージ",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_017.jpg",
+            "alt": "日常物体の把持・操作シーン",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          },
+          {
+            "src": "assets/img/products/unitree/h2plus/drive/image_023.jpg",
+            "alt": "H2 Plusの公式構成・開発装備図",
+            "sourceUrl": "https://www.unitree.com/H2plus"
+          }
+        ],
+        "videos": [],
+        "videoAvailability": "not_provided_by_manufacturer",
+        "ctaImageIndexes": [
+          0,
+          2,
+          7
+        ],
+        "relatedProductIds": [
+          "unitree-h2",
+          "unitree-h2-x",
+          "unitree-g1-plus",
+          "unitree-g1"
+        ],
+        "contactService": ""
+      },
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "模倣学習・全身制御・把持研究に適した構成を確認",
+        "preserveSectionIds": [
+          "capabilities",
+          "applications",
+          "media",
+          "specifications",
+          "development",
+          "solutions",
+          "introduction",
+          "faq",
+          "related",
+          "contact-product"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2",
+        "supportHref": "/support.html#vla",
+        "showBridge": false
+      }
+    },
+    {
+      "id": "agibot-a3-ultra",
+      "name": "AGIBOT A3 Ultra",
+      "manufacturerId": "agibot",
+      "manufacturerName": "AGIBOT",
+      "categoryId": "humanoid",
+      "categoryLabel": "ヒューマノイド",
+      "filterGroups": [
+        "humanoid",
+        "education"
+      ],
+      "status": "researching",
+      "statusLabel": "取扱条件確認中",
+      "visibility": "public",
+      "salesStatus": "confirmation_required",
+      "supportStatus": "confirmation_required",
+      "summary": "全高174cm・約60kgのフルサイズヒューマノイド。メーカー公表700TOPS演算、360°センシング、8時間のバッテリー運用例、自動充電・多数台運用などに対応。国内供給条件は要確認。",
+      "featureLabels": [
+        "174cm・約60kg",
+        "700 TOPS (メーカー公表)",
+        "全周囲センシング",
+        "A3 Ultra専用仕様"
+      ],
+      "useCaseIds": [
+        "humanoid-research",
+        "education",
+        "human-robot-interaction",
+        "vla-data-collection"
+      ],
+      "useLabels": [
+        "受付・案内",
+        "巡回・点検",
+        "データ収集",
+        "研究教育"
+      ],
+      "detailPage": "products/agibot-a3-ultra.html",
+      "image": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+      "imageAlt": "AGIBOT A3 Ultra 公式のダイナミックな動作イメージ（A3 Ultra専用写真）",
+      "imageStatus": "official",
+      "priceStatus": "confirmation_required",
+      "priceLabel": "見積要確認",
+      "leadTimeStatus": "confirmation_required",
+      "leadTimeLabel": "納期要確認",
+      "replacementIds": [],
+      "relatedCaseIds": [],
+      "relatedResourceIds": [
+        "sdk",
+        "ros2"
+      ],
+      "verifiedAt": "2026-10-31",
+      "note": "A3とA3 Ultraは別型番。旧A3Ultra_assets/image_023.pngは誤保存されたA2 Ultraの画像でありA3 Ultraとして公開不可。メーカー専用画像で代替した候補。",
+      "pageFactory": {
+        "template": "g1-v1",
+        "releaseReady": true,
+        "officialSource": "https://www.agibot.com/products/A3Ultra",
+        "title": "AGIBOT A3 Ultra｜174cm・700 TOPS・自律運用対応ヒューマノイド｜AirAdmin8 Robotics",
+        "metaDescription": "AGIBOT A3 Ultraは174cm・約60kg、700TOPSメーカー公表演算性能、全周囲知覚や自律充電を備えたフルサイズヒューマノイド。研究・受付・巡回活用、仕様、国内調達条件を紹介。",
+        "heroLead": "自律サービスから研究開発まで。24時間運用を見据えるA3 Ultra。",
+        "facts": [
+          {
+            "label": "機体全高",
+            "value": "174cm",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "本体重量",
+            "value": "約60kg",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "機体演算性能",
+            "value": "700 TOPS",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "label": "メーカー公表バッテリー運用",
+            "value": "約8時間",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          }
+        ],
+        "applications": [
+          {
+            "title": "受付・展示施設での案内",
+            "description": "来訪者の案内、説明、施設内移動などの商業施設向け活用。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "巡回・点検",
+            "description": "屋内外の多視点知覚と位置推定による巡回業務への検証。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "大学研究・具身AI",
+            "description": "RGB-D、魚眼カメラ、LiDARとSDKを用いたデータ収集・VLA研究を検討。",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "title": "ショッピング支援・体験",
+            "description": "商品案内、対話、展示イベント等のサービス用途。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "title": "ステージ・パフォーマンス",
+            "description": "全身動作を活かしたイベント・演出用途の検討。",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "specifications": [
+          {
+            "label": "本体サイズ",
+            "value": "174 × 52 × 30 cm (H × W × D)",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "本体重量",
+            "value": "60kg",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "能動自由度",
+            "value": "51（手部の選択により増減・最大71構成）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "頸部/片腕/腰/片脚の自由度",
+            "value": "2 / 7 / 3 / 6",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "ハンド構成",
+            "value": "標準10自由度・オプション最大20自由度",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "演算性能",
+            "value": "700 TOPS（メーカー公表値）",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "label": "環境知覚",
+            "value": "LiDAR、全周囲魚眼、胸部・下半身RGB-D、双眼カメラ",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "位置推定",
+            "value": "UWB・RTK（構成/環境条件を確認）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "バッテリー",
+            "value": "1152Wh、総合約8h（立位/歩行条件別）",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "充電・交換",
+            "value": "充電/交換対応。短時間バッテリー交換はメーカー条件参照",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "通信",
+            "value": "Wi-Fi、4G/5G、Bluetooth",
+            "sourceUrl": "https://www.agibot.com/filepage/319.html"
+          },
+          {
+            "label": "二次開発",
+            "value": "公式ガイド・開発構成に従い可。SDK範囲要確認",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "faq": [
+          {
+            "question": "AGIBOT A3 と A3 Ultra は同じですか？",
+            "answer": "別型番です。A3向けの旧製品ページの55kg・10時間等の数値をA3 Ultraの仕様としてコピーしません。"
+          },
+          {
+            "question": "A3 Ultraの700 TOPSは常時の実効推論速度ですか？",
+            "answer": "いいえ。メーカー公表の演算性能指標です。使用するモデルや構成、消費電力で実効性能は変わります。"
+          },
+          {
+            "question": "24時間動くという意味は8時間バッテリーだけで24時間稼働することですか？",
+            "answer": "いいえ。自律充電やバッテリー交換等を組み合わせた運用コンセプトです。連続稼働の保証条件は別途確認します。"
+          },
+          {
+            "question": "大学向けのSDK/価格/納期は決まっていますか？",
+            "answer": "二次開発ガイドはありますが、日本向けの販売構成・SDK範囲、価格・納期・保証は要確認です。"
+          },
+          {
+            "question": "原厂媒体素材はすべてA3 Ultraのものですか？",
+            "answer": "掲載画像と動画はA3 Ultra公式製品ページの専用パスに由来します。過去のA2 Ultra誤保存画像は使用していません。"
+          }
+        ],
+        "images": [
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+            "alt": "A3 Ultraの全身動作・公式ビジュアル",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra-parms.png",
+            "alt": "A3 Ultra本体・仕様の公式説明図",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img1.png",
+            "alt": "受付・ガイドの公式利用シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img2.png",
+            "alt": "ショッピング支援の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img3.png",
+            "alt": "巡回・点検の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img4.png",
+            "alt": "データ分析・説明の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img5.png",
+            "alt": "研究・データ収集の公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img6.png",
+            "alt": "舞台・パフォーマンスの公式シーン",
+            "sourceUrl": "https://www.agibot.com/products/A3Ultra"
+          }
+        ],
+        "videos": [
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/1.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img1.png",
+            "label": "A3 Ultra 公式シーン映像 01",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/1.mp4"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/2.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_Three-img2.png",
+            "label": "A3 Ultra 公式シーン映像 02",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/2.mp4"
+          },
+          {
+            "src": "assets/img/products/agibot/a3-ultra/drive/A3Ultra-2.mp4",
+            "poster": "assets/img/products/agibot/a3-ultra/drive/A3Ultra_One-bg.jpg",
+            "label": "A3 Ultra 公式デモ映像",
+            "sourceUrl": "https://www.agibot.com/public/static/index/en/video/products/A3Ultra/A3Ultra-2.mp4"
+          }
+        ],
+        "ctaImageIndexes": [
+          0,
+          2,
+          6
+        ],
+        "relatedProductIds": [
+          "unitree-h2-plus",
+          "unitree-h2-x",
+          "unitree-g1-plus",
+          "unitree-g1"
+        ]
+      },
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "受付・巡回・具身AI研究の用途に合わせ運用条件を確認",
+        "preserveSectionIds": [
+          "capabilities",
+          "applications",
+          "media",
+          "specifications",
+          "faq",
+          "related",
+          "contact-product"
+        ],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
+        "supportHref": "/support.html#setup",
+        "showBridge": true
+      }
     }
   ]
 }

@@ -1,0 +1,74 @@
+/* AirAdmin8 Robotics | Product Page Standard V3.1
+ * Scoped Resources/Support gateway for products explicitly opted in by Master.
+ * No changes to G1, X2 EDU or existing approved section/CTA styling.
+ */
+.aa8-product-bridge {
+  background: #ffffff;
+  color: #173547;
+  border-block: 1px solid #e2ebf1;
+  isolation: isolate;
+}
+.aa8-product-bridge *,
+.aa8-product-bridge *::before,
+.aa8-product-bridge *::after { box-sizing: border-box; }
+.aa8-product-bridge__inner {
+  width: min(100% - 44px, 1180px);
+  margin-inline: auto;
+  padding: 44px 0 48px;
+}
+.aa8-product-bridge h2 {
+  margin: 0 0 10px;
+  color: #153c51;
+  font-size: clamp(21px, 2.3vw, 29px);
+  line-height: 1.45;
+  letter-spacing: .01em;
+}
+.aa8-product-bridge p {
+  max-width: 820px;
+  margin: 0 0 20px;
+  color: #4e6775;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.aa8-product-bridge__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.aa8-product-bridge__links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  max-width: 100%;
+  min-height: 52px;
+  padding: 13px 17px;
+  background: #fff;
+  border: 1px solid #c8dce8;
+  border-radius: 9px;
+  color: #066d91;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.aa8-product-bridge__links a:hover,
+.aa8-product-bridge__links a:focus-visible {
+  border-color: #007da7;
+  background: #f4fbfe;
+  text-decoration: underline;
+}
+@media (max-width: 680px) {
+  .aa8-product-bridge__inner {
+    width: min(100% - 32px, 1180px);
+    padding: 30px 0 34px;
+  }
+  .aa8-product-bridge__links {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .aa8-product-bridge__links a { width: 100%; min-height: 50px; }
+}

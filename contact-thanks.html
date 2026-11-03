@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>お問い合わせありがとうございます｜AirAdmin8 Robotics</title>
-  <meta name="description" content="AirAdmin8 Roboticsへのお問い合わせを受け付けました。">
+  <title>お問い合わせ受付状況｜AirAdmin8 Robotics</title>
+  <meta name="description" content="AirAdmin8 Roboticsへのお問い合わせの受付状況を確認するページです。">
   <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://robotics.air-admin8.co.jp/contact-thanks.html">
   <link rel="stylesheet" href="/assets/css/site.css?v=20260802-1">
@@ -39,10 +39,10 @@
 <main>
   <section class="section">
     <div class="wrap" style="max-width:760px;padding-top:72px;padding-bottom:72px;">
-      <p class="eyebrow">INQUIRY RECEIVED</p>
-      <h1>お問い合わせを受け付けました。</h1>
-      <p>内容を確認のうえ、担当よりご連絡します。</p>
-      <p><a class="button primary" href="/">AirAdmin8 Robotics トップへ戻る</a></p>
+      <p class="eyebrow" data-contact-receipt-eyebrow>INQUIRY STATUS</p>
+      <h1 data-contact-receipt-heading>受付結果を確認できません。</h1>
+      <p data-contact-receipt-detail>このページを開いただけでは送信完了を確認できません。フォームからご確認ください。</p>
+      <p><a class="button primary" data-contact-receipt-link href="/contact.html">お問い合わせフォームへ戻る</a></p>
     </div>
   </section>
 </main>
@@ -69,18 +69,46 @@
 <script src="/assets/js/site.js?v=20260716-11" defer></script>
 <script>
   (function () {
+    // Only a successful form response supplies both status and inquiry_id.
+    // A direct visit, or a missing ID, is not proof of an accepted inquiry.
     var params = new URLSearchParams(location.search);
-    if (params.get('status') !== 'success') return;
+    var inquiryId = (params.get('inquiry_id') || '').trim();
+    var freshReceipt = params.get('status') === 'success' && !!inquiryId;
+    var receiptCacheKey = 'airadmin8-confirmed-inquiry-receipt-v1';
+    // Preserve the confirmed-screen experience after a same-tab refresh,
+    // without sending generate_lead a second time.
+    if (freshReceipt) {
+      try {
+        sessionStorage.setItem(receiptCacheKey, JSON.stringify({ id: inquiryId, at: Date.now() }));
+      } catch (error) { /* Storage disabled: current receipt still displays. */ }
+    } else {
+      inquiryId = '';
+      try {
+        var previous = JSON.parse(sessionStorage.getItem(receiptCacheKey) || 'null');
+        if (previous && previous.id && Date.now() - previous.at < 30 * 60 * 1000) {
+          inquiryId = String(previous.id);
+        } else {
+          sessionStorage.removeItem(receiptCacheKey);
+        }
+      } catch (error) { /* No valid stored receipt. */ }
+    }
+    if (!inquiryId) return;
 
-    var inquiryId = params.get('id') || '';
-    if (typeof window.gtag === 'function') {
-      gtag('event', 'generate_lead', {
+    document.title = 'お問い合わせありがとうございます｜AirAdmin8 Robotics';
+    document.querySelector('[data-contact-receipt-eyebrow]').textContent = 'INQUIRY RECEIVED';
+    document.querySelector('[data-contact-receipt-heading]').textContent = 'お問い合わせを受け付けました。';
+    document.querySelector('[data-contact-receipt-detail]').textContent = '内容を確認のうえ、担当よりご連絡します。';
+    var link = document.querySelector('[data-contact-receipt-link]');
+    link.href = '/';
+    link.textContent = 'AirAdmin8 Robotics トップへ戻る';
+
+    if (freshReceipt && typeof window.gtag === 'function') {
+      window.gtag('event', 'generate_lead', {
         form_name: 'robotics_contact',
         inquiry_id: inquiryId
       });
     }
-
-    if (history.replaceState) {
+    if (freshReceipt && history.replaceState) {
       history.replaceState(null, '', '/contact-thanks.html');
     }
   })();

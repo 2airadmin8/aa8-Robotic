@@ -83,11 +83,6 @@
       }
       .theme-card > p:not(.theme-label) { min-height: 3.6em; }
       .theme-tags { min-height: 36px; }
-      .hub-hero h1 {
-        max-width: 760px;
-        font-size: clamp(2.8rem, 5vw, 4.6rem) !important;
-        line-height: 1.12 !important;
-      }
       @media (max-width: 980px) {
         .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
         .theme-card > p:not(.theme-label), .theme-tags, .theme-links { min-height: 0; }
@@ -95,15 +90,10 @@
       @media (max-width: 640px) {
         .theme-grid { grid-template-columns: 1fr !important; }
         .theme-grid .theme-card { height: auto; }
-        .hub-hero h1 { font-size: clamp(2.35rem, 10vw, 3.25rem) !important; }
       }
     `;
     document.head.appendChild(themeFixes);
 
-    const hubTitle = document.querySelector('.hub-hero h1');
-    if (hubTitle instanceof HTMLElement) {
-      hubTitle.innerHTML = '研究目的から、<br>必要な構成を整理する。';
-    }
   }
 
   if (document.querySelector('.resource-hero')) {

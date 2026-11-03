@@ -1,0 +1,212 @@
+/* V3 product content layer; only loaded by V3-enabled product pages.
+ * Does not override approved G1/H2-X CSS or change non-V3 product pages. */
+.g1-page[data-product-factory="g1-v1"] .g1-factory-v3 .g1-factory-applications {
+  align-items: stretch;
+}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-v3 .g1-factory-applications article {
+  border: 1px solid #e3eaf0;
+  border-top: 3px solid #009bd2;
+  border-radius: 10px;
+  padding: 21px 18px;
+  background: #fff;
+  min-width: 0;
+}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-v3 .g1-factory-applications h3 {
+  font-size: clamp(17px, 1.65vw, 21px);
+  line-height: 1.5;
+  margin: 0 0 12px;
+  color: #173d52;
+}
+.g1-page[data-product-factory="g1-v1"] #introduction .g1-factory-applications {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+.g1-page[data-product-factory="g1-v1"] #introduction .g1-factory-applications article {
+  padding: 18px 14px;
+}
+.g1-page[data-product-factory="g1-v1"] .g1-factory-v3 .g1-fine a {
+  color: #007faa;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .g1-page[data-product-factory="g1-v1"] #introduction .g1-factory-applications {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-factory="g1-v1"] #introduction .g1-factory-applications {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .g1-page[data-product-factory="g1-v1"] .g1-factory-v3 .g1-factory-applications article {
+    padding: 19px 16px;
+  }
+}
+
+/* V3-only: keep long anchor navigation usable on mobile.
+ * Do not compress 11 items into one narrow viewport. */
+@media (max-width: 780px) {
+  .g1-anchor-nav .g1-shell {
+    display: flex;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    scroll-snap-type: x proximity;
+    padding-inline: 16px;
+  }
+  .g1-anchor-nav .g1-shell > a {
+    flex: 0 0 auto !important;
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    scroll-snap-align: start;
+    padding: 15px 7px;
+    font-size: 12px;
+  }
+}
+
+/* Approved G1 uses 140px minimum and 44px gap. V3's longer nav must
+ * override those numbers on PC without touching the approved G1 stylesheet. */
+@media (min-width: 781px) {
+  .g1-page[data-product-factory="g1-v1"] .g1-anchor-nav .g1-shell {
+    justify-content: space-between !important;
+    gap: 10px !important;
+    overflow-x: visible;
+  }
+  .g1-page[data-product-factory="g1-v1"] .g1-anchor-nav a {
+    flex: 0 0 auto;
+    min-width: 0 !important;
+    padding: 22px 10px 19px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* H2 Plus / V3 customer screenshot review: balanced information hierarchy.
+   Scoped so previously approved G1/H2-X pages stay unchanged. */
+@media (min-width: 1120px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+  }
+}
+@media (min-width: 781px) and (max-width: 1119px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+.g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts article,
+.g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications article {
+  border: 1px solid #e2eaf0;
+  border-top: 3px solid #009bd2;
+  border-radius: 8px;
+  padding: 20px 17px;
+  min-width: 0;
+  height: 100%;
+}
+.g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts strong {
+  font-size: clamp(21px, 2vw, 28px);
+}
+.g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications h3 {
+  font-size: clamp(17px, 1.55vw, 20px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid {
+  align-items: stretch;
+  column-gap: 18px;
+  row-gap: 28px;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figure {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid img {
+  aspect-ratio: 16 / 10;
+  height: auto;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 8px;
+  border: 1px solid #edf1f4;
+  border-radius: 6px;
+  background: #fff;
+}
+.g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figcaption {
+  margin-top: 9px;
+  line-height: 1.55;
+  min-height: 2.9em;
+  font-size: 13px;
+}
+.g1-page[data-product-factory="g1-v1"] .g1-hero .g1-fine,
+.g1-page[data-product-factory="g1-v1"] .g1-hero .g1-image-caption,
+.g1-page[data-product-factory="g1-v1"] #media .g1-v3-video-note,
+.g1-page[data-product-factory="g1-v1"] #specifications > .g1-shell > .g1-fine,
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-spec-table small,
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-spec-table caption,
+.g1-page[data-product-factory="g1-v1"] #contact-product > .g1-shell > .g1-kicker,
+.g1-page[data-product-factory="g1-v1"] #contact-product > .g1-shell > p:not(.g1-kicker) {
+  display: none;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source {
+  margin: 16px 0 0;
+  color: #516775;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source summary {
+  display: list-item;
+  cursor: pointer;
+  color: #007faa;
+  font-weight: 700;
+}
+.g1-page[data-product-factory="g1-v1"] #specifications .g1-factory-source a {
+  color: #007faa;
+  text-decoration: underline;
+}
+.g1-page[data-product-factory="g1-v1"] #contact-product .g1-cta-grid {
+  margin-top: 20px;
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-factory="g1-v1"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-factory="g1-v1"] #applications .g1-factory-applications {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .g1-page[data-product-factory="g1-v1"] #media .g1-factory-media-grid figcaption {
+    min-height: 0;
+  }
+}
+
+/* V3 responsive guard: on narrow 320px devices the primary consultation CTA
+ * can exceed its half-width label. Stack actions instead of clipping text. */
+@media (max-width: 359px) {
+  .g1-page[data-product-factory="g1-v1"] .g1-hero-copy > .g1-hero-ctas {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .g1-page[data-product-factory="g1-v1"] .g1-hero-copy > .g1-hero-ctas > .g1-button {
+    flex: none;
+    width: 100%;
+    min-height: 50px;
+    height: auto;
+    padding: 11px 8px;
+    font-size: 13px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}

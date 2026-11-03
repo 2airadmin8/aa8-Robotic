@@ -24,6 +24,7 @@ ROOT_PATTERN = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 LIMIT_PATTERN = re.compile(r'\bdata-limit=["\'](?P<limit>\d+)["\']', re.IGNORECASE)
+EXCLUDE_PATTERN = re.compile(r'\bdata-exclude-products=["\'](?P<ids>[^"\']+)["\']', re.IGNORECASE)
 
 
 def esc(value: object) -> str:
@@ -85,7 +86,12 @@ def render_html(source: str, relative: Path, products: list[dict[str, object]]) 
         attrs = match.group("attrs")
         limit_match = LIMIT_PATTERN.search(attrs)
         limit = int(limit_match.group("limit")) if limit_match else 0
-        visible = [item for item in products if item.get("visibility") == "public"]
+        exclude_match = EXCLUDE_PATTERN.search(attrs)
+        excluded = set(exclude_match.group("ids").split()) if exclude_match else set()
+        visible = [
+            item for item in products
+            if item.get("visibility") == "public" and item.get("id") not in excluded
+        ]
         if limit > 0:
             visible = visible[:limit]
         cards = "\n".join(card(item, prefix) for item in visible)

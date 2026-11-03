@@ -28,6 +28,7 @@
     poc: { category: 'PoC設計', label: 'PoC設計' },
     'university-procurement': { category: '見積・大学購買', label: '大学購買支援' },
     'vla-data-collection': { category: 'VLA・模倣学習データ収集', label: 'VLA・模倣学習データ収集' },
+    data: { category: 'VLA・模倣学習データ収集', label: 'データ収集・VLA' },
     'technical-review': { category: 'SDK・ROS・開発環境', label: '技術条件確認' },
     'multi-brand-comparison': { category: '製品比較・選定', label: '複数メーカー比較' },
     'checklist-review': { category: '導入条件整理', label: '導入前チェック結果' },
@@ -327,6 +328,11 @@
 
     const config = sourceConfig[source.service] || sourceConfig[source.theme];
     if (categoryField && config?.category) categoryField.value = config.category;
+    // Product-only consultation links have no service code. Preselect a reversible
+    // default without replacing an existing user-selected draft category.
+    else if (categoryField && !categoryField.value && source.product) {
+      categoryField.value = '導入条件整理';
+    }
 
     if (source.caseId && useCaseField && !useCaseField.value) {
       useCaseField.value = `${caseLabels[source.caseId] || source.caseId}を参考に、同様の条件整理を希望`;

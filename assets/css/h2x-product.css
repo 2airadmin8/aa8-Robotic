@@ -1,0 +1,127 @@
+﻿
+/* H2-X scoped white-base extension of approved G1/H2 template */
+.h2x-page .h2-hero{background:linear-gradient(115deg,#fff,#f6fafc 64%,#eaf4f9)}
+.h2x-page .h2-hero h1 span{color:#0879ad}
+.h2x-page .h2-product-stage{background:radial-gradient(circle at 50% 56%,#fff 30%,#edf6fb 100%)}
+.h2x-page .h2-product-stage img{mix-blend-mode:normal;object-fit:contain;object-position:center;width:94%;height:97%;filter:drop-shadow(0 15px 12px rgba(21,55,72,.10))}
+.h2x-page .h2-research-photo{background:#f5f8fb}
+.h2x-page .h2-research-photo img{object-fit:cover}
+.h2x-page .h2-hero-lead{max-width:580px}
+.h2x-page .h2-stats strong{font-variant-numeric:tabular-nums}
+\n
+/* H2-X: dedicated user-supplied H2-X imagery and actual playable demonstrations */
+main.g1-page.h2x-page>section.g1-section.h2x-media-section{background:#fff!important}
+.h2x-media-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.h2x-media-gallery figure,.h2x-video-grid figure{margin:0;min-width:0;background:#f7fafc;border:1px solid #dae8ee;border-radius:8px;overflow:hidden}
+.h2x-media-gallery img{display:block;width:100%;height:280px;object-fit:cover}
+.h2x-media-gallery figcaption,.h2x-video-grid figcaption{padding:12px 16px;font-size:13px;color:#466577}
+.h2x-video-heading{margin-top:44px}
+.h2x-video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.h2x-video-grid video{display:block;width:100%;aspect-ratio:16/9;object-fit:contain;background:#071523}
+.h2x-media-source{font-size:12px;color:#5c7888;line-height:1.8;margin-top:20px}
+@media(max-width:780px){.h2x-media-gallery,.h2x-video-grid{grid-template-columns:1fr;gap:14px}.h2x-media-gallery img{height:auto;aspect-ratio:16/9}}
+
+
+/* P0: H2-X inherits the CEO-approved G1 white-background SSOT.
+   The H2 CSS has higher-specificity !important pale sections, so scope
+   these overrides to the H2-X product only; no changes to G1 or H2. */
+main.g1-page.h2-page.h2x-page > section.g1-hero.h2-hero {
+  background:#ffffff !important;
+}
+main.g1-page.h2-page.h2x-page > section.g1-section:not(.g1-final-cta) {
+  background:#ffffff !important;
+}
+main.g1-page.h2-page.h2x-page .h2-product-stage,
+main.g1-page.h2-page.h2x-page .h2-research-photo {
+  background:#ffffff !important;
+}
+/* Restore the identical approved G1 Figma image + navy scrims/CTA layout. */
+main.g1-page.h2-page.h2x-page > section.g1-section.g1-final-cta.h2x-final-cta {
+  background:#009bd2 url("../img/products/unitree/g1/g1-cta-figma-pc.png") center center / cover no-repeat !important;
+  color:#ffffff;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta h2 {
+  font-size:31px;
+  line-height:1.4;
+  color:#fff;
+  margin:17px 0 22px;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-kicker {
+  color:#e4faff;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .h2-next-lead {
+  color:#e9f8ff;
+  font-size:15px;
+  line-height:1.83;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:26px;
+  margin-top:44px;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-card {
+  padding:16px;
+  border-radius:4px;
+  background:#fff;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-photo {
+  position:relative;
+  height:175px;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-photo img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-play {
+  position:absolute;
+}
+/* Original approved G1 model comparison: white surfaces and cyan edge. */
+main.g1-page.h2-page.h2x-page .h2-model-grid {
+  gap:48px;
+}
+main.g1-page.h2-page.h2x-page .h2-model-grid article,
+main.g1-page.h2-page.h2x-page .h2-model-grid article:last-child {
+  background:#fff;
+  border:0;
+  border-top:3px solid #e4eaee;
+  border-bottom:1px solid #e4eaee;
+  border-radius:0;
+  padding:30px 0;
+}
+main.g1-page.h2-page.h2x-page .h2-model-grid article:last-child {
+  border-top-color:#009bd2;
+}
+@media(max-width:780px){
+  main.g1-page.h2-page.h2x-page .h2x-final-cta h2 {
+    font-size:26px;
+    line-height:1.38;
+    margin:17px 0 10px;
+  }
+  main.g1-page.h2-page.h2x-page .h2x-final-cta .h2-next-lead {
+    font-size:12.5px;
+    line-height:1.6;
+  }
+  main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-grid {
+    grid-template-columns:1fr;
+    gap:17px;
+    margin-top:37px;
+  }
+  main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-card {
+    height:328px;
+    min-height:328px;
+    padding:14px 15px;
+    border-radius:12px;
+  }
+  main.g1-page.h2-page.h2x-page .h2x-final-cta .g1-cta-photo {
+    height:140px;
+    flex:0 0 140px;
+  }
+  main.g1-page.h2-page.h2x-page .h2-model-grid {
+    gap:25px;
+  }
+  main.g1-page.h2-page.h2x-page .h2-model-grid article,
+  main.g1-page.h2-page.h2x-page .h2-model-grid article:last-child {
+    padding:22px 0;
+  }
+}
