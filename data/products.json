@@ -36,9 +36,9 @@
         "データ収集"
       ],
       "detailPage": "products/agibot-g2.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "AgiBot G2 移動型ヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/agibot/g2/official-g2-front.jpg",
+      "imageAlt": "AgiBot G2 車輪移動型ロボットのメーカー公式製品写真",
+      "imageStatus": "official",
       "priceStatus": "inquiry",
       "priceLabel": "価格確認",
       "leadTimeStatus": "confirmation_required",
@@ -58,7 +58,11 @@
         "resourcesHref": "/resources.html?maker=agibot&product=humanoid",
         "supportHref": "/support.html#poc",
         "showBridge": true
-      }
+      },
+      "imageSourcePage": "https://store.agibot.com/",
+      "imageAssetSourceUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-g2.webp",
+      "imageSourceNote": "G2本体写真。G2 Air/G2 Maxとは区別。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "unitree-g1-d",
@@ -503,9 +507,9 @@
         "ソフトウェア二次開発"
       ],
       "detailPage": "products/agibot-x2-edu.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "AgiBot X2 EDU 研究教育向けヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/agibot/x2-edu/official-x2-edu-front.jpg",
+      "imageAlt": "AgiBot X2 EDU 黒色組立教育型ロボットのメーカー公式製品写真",
+      "imageStatus": "official",
       "priceStatus": "not_released",
       "priceLabel": "価格未公開",
       "leadTimeStatus": "not_released",
@@ -535,7 +539,11 @@
         "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
         "supportHref": "/support.html#university",
         "showBridge": false
-      }
+      },
+      "imageSourcePage": "https://store.agibot.com/",
+      "imageAssetSourceUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-x2-edu.webp",
+      "imageSourceNote": "メーカー公式ストアでX2 EDUとして掲載。X2 Neo/Ultraを転用しない。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "limx-oli",
@@ -571,9 +579,9 @@
         "強化学習"
       ],
       "detailPage": "products/limx-oli.html",
-      "image": "assets/img/robot-humanoid.svg",
-      "imageAlt": "LimX Oli ヒューマノイドの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/limx/oli/official-oli-portrait.webp",
+      "imageAlt": "LimX Dynamics Oli ヒューマノイドロボットのメーカー公式上半身写真",
+      "imageStatus": "official",
       "priceStatus": "confirmation_required",
       "priceLabel": "取扱条件確認",
       "leadTimeStatus": "confirmation_required",
@@ -592,7 +600,11 @@
         "resourcesHref": "/resources.html",
         "supportHref": "/support.html#university",
         "showBridge": true
-      }
+      },
+      "imageSourcePage": "https://www.limxdynamics.com/en/products/oli",
+      "imageAssetSourceUrl": "https://limx-video-oss.limxdynamics.com/limx-website/products/oli/img-1.webp",
+      "imageSourceNote": "Oli公式ページの機体画像。全身ではなく上半身と腰部の構図。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "unitree-go2-edu",
@@ -629,9 +641,9 @@
         "移動研究"
       ],
       "detailPage": "products/unitree-go2.html",
-      "image": "assets/img/robot-quadruped.svg",
-      "imageAlt": "Unitree Go2 EDU 四足ロボットの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/unitree/catalog/22_go2.png",
+      "imageAlt": "Unitree Go2 シリーズのメーカー製品本体写真（EDU仕様は見積で確認）",
+      "imageStatus": "official",
       "priceStatus": "inquiry",
       "priceLabel": "構成確認",
       "leadTimeStatus": "confirmation_required",
@@ -651,7 +663,11 @@
         "resourcesHref": "/resources.html?maker=unitree&product=quadruped&type=sdk",
         "supportHref": "/support.html#poc",
         "showBridge": true
-      }
+      },
+      "imageSourcePage": "https://www.unitree.com/go2/",
+      "imageAssetSourceUrl": "https://www.unitree.com/go2/",
+      "imageSourceNote": "既存のUnitree公式カタログ写真を再利用。EDUの装備と通常Go2の差は別途確認。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "tianji-marvin",
@@ -688,9 +704,9 @@
         "模倣学習"
       ],
       "detailPage": "products/tianji-marvin.html",
-      "image": "assets/img/robot-arm.svg",
-      "imageAlt": "Tianji Marvin 双腕移動操作ロボットの参考イメージ",
-      "imageStatus": "placeholder",
+      "image": "assets/img/products/tianji/marvin/official-marvin-m6.jpg",
+      "imageAlt": "TianJi Marvin M6 シリーズ双腕ロボットのメーカー公式写真",
+      "imageStatus": "official",
       "priceStatus": "confirmation_required",
       "priceLabel": "構成確認",
       "leadTimeStatus": "confirmation_required",
@@ -710,7 +726,11 @@
         "resourcesHref": "/resources.html",
         "supportHref": "/support.html#vla",
         "showBridge": true
-      }
+      },
+      "imageSourcePage": "https://en.tianjizn.com/products/marvin-series/",
+      "imageAssetSourceUrl": "https://en.tianjizn.com/wp-content/uploads/2026/06/Marvin-M6.jpg",
+      "imageSourceNote": "Marvin M6双腕本体の公式写真。移動台車やハンド等のセット構成は未確認。",
+      "imageVerifiedAt": "2026-11-03"
     },
     {
       "id": "unitree-h2-plus",
