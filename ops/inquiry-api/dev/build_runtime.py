@@ -67,7 +67,7 @@ function devInquiryForm_(e) {
   const data = devFixture_(kind);
   if (kind === 'CONFLICT_A') data.message = 'Changed payload must not overwrite A';
   if (kind === 'EXTERNAL') data.email = 'blocked@example.invalid';
-  const action = ScriptApp.getService().getUrl();
+  const action = 'https://script.google.com/macros/s/AKfycby56N_DdpwQRPRmQmZA9I6Dt5Sk4sME5vApJUYOTTTG2NG9qIMGfKGygvoPoavsW5Tv8A/exec';
   if (!action || !/^https:\/\/script.google.com\/macros\/s\//.test(action)) throw new Error('DEV_SERVICE_URL_UNAVAILABLE');
   const fields = Object.keys(data).map(k => '<input type="hidden" name="'+devHtml_(k)+'" value="'+devHtml_(data[k])+'">').join('');
   const nav = ['A','B','CONFLICT_A','EXTERNAL'].map(c => '<a href="'+devHtml_(action)+'?case='+c+'" target="_top">'+c+'</a>').join(' | ');
@@ -89,7 +89,7 @@ function devInquiryResponse_(payload) {
       result.matchingTokenRows = data.slice(1).filter(r => r[26] === row[26]).length;
     } catch (err) { result.persisted = false; result.readbackError = 'DEV_READBACK_FAILED'; }
   }
-  const u = ScriptApp.getService().getUrl();
+  const u = 'https://script.google.com/macros/s/AKfycby56N_DdpwQRPRmQmZA9I6Dt5Sk4sME5vApJUYOTTTG2NG9qIMGfKGygvoPoavsW5Tv8A/exec';
   const links = ['A','B','CONFLICT_A','EXTERNAL'].map(c=>'<a target="_top" href="'+devHtml_(u)+'?case='+c+'">'+c+'</a>').join(' | ');
   return HtmlService.createHtmlOutput('<!doctype html><html><head><base target="_top"></head><body><h1>DEV RECEIPT</h1><pre id="result">'+devHtml_(JSON.stringify(result,null,2))+'</pre><p>'+links+'</p></body></html>');
 }
