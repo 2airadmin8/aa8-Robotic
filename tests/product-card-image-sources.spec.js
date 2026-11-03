@@ -17,7 +17,21 @@ test('G1-D and G1 source images match approved Drive SHA256',async ({request})=>
    expect(image.status()).toBe(200);
    expect(createHash('sha256').update(await image.body()).digest('hex')).toBe(expected.sha);
  }
- expect(data.products.find(p=>p.id==='agibot-g2').image).toBe('assets/img/robot-humanoid.svg');
+ // Five product photos now come from manufacturer sources, not generic SVG placeholders.
+ const provenanceResponse=await request.get(base+'/data/official-media-provenance.json');
+ expect(provenanceResponse.status()).toBe(200);
+ const provenance=await provenanceResponse.json();
+ expect(provenance.products).toHaveLength(5);
+ for (const record of provenance.products){
+   const product=data.products.find(p=>p.id===record.id);
+   expect(product,record.id+' exists').toBeTruthy();
+   expect(product.imageStatus).toBe('official');
+   expect(product.image).toBe(record.localPath);
+   expect(product.imageAssetSourceUrl).toBe(record.sourceAssetUrl);
+   const image=await request.get(base+'/'+record.localPath);
+   expect(image.status()).toBe(200);
+   expect(createHash('sha256').update(await image.body()).digest('hex')).toBe(record.sha256);
+ }
 });
 for (const path of ['/index.html','/products.html']){
  for (const width of [1440,390]){
@@ -39,8 +53,22 @@ for (const path of ['/index.html','/products.html']){
        expect(details.width).toBeGreaterThan(70);
        expect(details.height).toBeGreaterThan(80);
      }
-     await expect(page.locator('[data-product-list] #agibot-g2 .product-visual img'))
-       .toHaveAttribute('src','assets/img/robot-humanoid.svg');
+     // Product cards must switch to authoritative Product Master photos.
+     const result=await page.request.get(base+'/data/products.json');
+     expect(result.status()).toBe(200);
+     const products=(await result.json()).products;
+     for(const id of ['agibot-g2','agibot-x2-edu','unitree-go2-edu','tianji-marvin']){
+       const p=products.find(x=>x.id===id);
+       expect(p.imageStatus).toBe('official');
+       const img=page.locator('[data-product-list] #'+id+' .product-visual img');
+       await expect(img).toHaveCount(1);
+       await expect(img).toHaveAttribute('src',p.image);
+       await img.scrollIntoViewIfNeeded();
+       await expect.poll(()=>img.evaluate(x=>x.naturalWidth),{timeout:15000}).toBeGreaterThan(0);
+     }
+     // Oli is intentionally excluded from the two product grids; its own detail
+     // page and official image are checked by separate provenance/visual tests.
+     await expect(page.locator('[data-product-list] #limx-oli')).toHaveCount(0);
      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
    });
  }
