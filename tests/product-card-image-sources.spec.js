@@ -57,7 +57,9 @@ for (const path of ['/index.html','/products.html']){
      const result=await page.request.get(base+'/data/products.json');
      expect(result.status()).toBe(200);
      const products=(await result.json()).products;
-     for(const id of ['agibot-g2','agibot-x2-edu','unitree-go2-edu','tianji-marvin']){
+     // Home deliberately limits the public list to the first three products.
+     const visibleIds=path==='/index.html'?['agibot-g2']:['agibot-g2','agibot-x2-edu','unitree-go2-edu','tianji-marvin'];
+     for(const id of visibleIds){
        const p=products.find(x=>x.id===id);
        expect(p.imageStatus).toBe('official');
        const img=page.locator('[data-product-list] #'+id+' .product-visual img');
