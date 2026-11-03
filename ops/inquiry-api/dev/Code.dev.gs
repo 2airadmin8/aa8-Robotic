@@ -6,7 +6,12 @@ const INQUIRY_CONFIG = {
   timezone: 'Asia/Tokyo'
 };
 
-function doGet(e) { return devInquiryForm_(e); }
+function doGet(e) {
+  const kind = String((e && e.parameter && e.parameter.case) || '');
+  if (kind === 'IDENTITY_A' || kind === 'IDENTITY_B')
+    return devCrmReadOnlyResponse_(kind.slice(-1));
+  return devInquiryForm_(e);
+}
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
