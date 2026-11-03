@@ -97,3 +97,26 @@ Blocking prerequisites:
 `CRM_Handoff_Contract.gs` is **pure** and returns `writesPerformed:0`, `emailsSent:0`, `universityIntake.committed:false` and an explicit gate status. It cannot create customers or cases without integration to the verified existing Writer. The prior Inquiry mock/Identity contracts remain; the two live E2E/real email/CRM tasks are deliberately not marked PASS.
 
 **DO NOT** merge this Draft PR into Production or deploy GAS without explicit CEO authorization and all environment gates above. Do not create a second GAS/Sheet/CRM/Runner/Automation.
+
+
+## Continuation of 「剩余工作调查」 — 2026-11-03 JST
+
+The existing V128/V129 design, T006 identity ownership, 27-to-17 column mapping, corporate HOLD route, explicit Case event gate, separate notification evidence, and CEO exact-SHA release boundary remain unchanged. Continue existing Draft PR #127 and Issue #166; do not create another CRM, Master, GAS project, Runner or Automation. Product Page V3.1 and official-media work remain separate; this increment changes no product page, CTA, `Code.gs`, workflow or production setting. PR #163 marketing attribution is a separate unfinished workstream, not implicitly released here.
+
+### CRM-V129-DATE-20261103-01 — receipt-date projection defect
+
+Reproduced at baseline `9f30f5c2db783a595caeebaf2a1be367cfcd1774`: serialized `2026-11-03T16:30:00Z` incorrectly projected to `2026-11-03` instead of JST `2026-11-04`; invalid `2026-02-30` and `2026-11-03junk` were accepted by the prefix-only date parser. `evaluateCrmHandoffV129_` did not reject an invalid receipt timestamp before preparing an intake/case candidate.
+
+The pure date projection now converts true Date objects and explicit UTC/offset timestamps to JST. Existing timezone-free `yyyy-MM-dd` and `yyyy-MM-dd HH:mm:ss[.SSS]` Sheet values retain their existing JST meaning. Full-string/calendar validation rejects impossible dates, trailing content, invalid times/offsets, non-date types and out-of-range Date objects. Invalid receipt time produces `INVALID_INQUIRY`, no proposed intake and no CaseEvent candidate; no record is changed or discarded in the existing source ledger.
+
+Permanent regression cases S25–S30 cover equivalent timestamps, JST midnight/year/leap-day boundaries, invalid input, extreme/spoofed Date values and Case gate fail-closed behavior. Run the existing suite:
+
+```text
+node --test tests/inquiry-dev-contract.test.cjs tests/identity-dedup-contract.test.cjs tests/inquiry-to-crm-v129-contract.test.cjs
+```
+
+AA8-N-012 isolated result: **52 total / 50 PASS / 0 FAIL / 2 TODO**. The two real email / CRM integration evidence tasks remain TODO; this is not live DEV or Production acceptance. Independent exact-commit QA and GitHub CI must be recorded on PR #127 after verification.
+
+### Deployment evidence boundary
+
+Existing DEV Sheet metadata and the historical Drive `inquiry-api/Code.gs` source file do not establish an active DEV deployment. This continuation's bounded search of AA8-N-018 Documents found no reference to the DEV Sheet ID; that is not proof that the deployment does not exist. Script ID, deployment/version, bound DEV Sheet and internal-only recipients must still be proven as one consistent existing deployment before any real POST. No replacement environment or Production test is authorized.

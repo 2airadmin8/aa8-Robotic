@@ -33,17 +33,47 @@ function crmV129Email_(value) {
   return crmV129Clean_(value, 254).toLowerCase();
 }
 
-/** Date is stored as a true Date in Inquiry Sheet, while 00_新規受付
- * takes only 受付日. Japan has UTC+09 without DST; this pure function
- * intentionally does not depend on a GAS token or production clock. */
+/** Inquiry Date/explicit-offset timestamps are instants, converted to JST.
+ * Existing yyyy-MM-dd[ HH:mm:ss] Sheet display strings are already JST.
+ * Reject rollover/partial dates; never depend on the machine's local timezone.
+ * This is a pure projection, not a Sheet write or an environment probe. */
 function crmV129JstDate_(value) {
-  if (Object.prototype.toString.call(value) === '[object Date]') {
-    const n = value.getTime();
+  const jstMs = 9 * 60 * 60 * 1000;
+  const fromInstant = function (n) {
     if (!Number.isFinite(n)) return '';
-    return new Date(n + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const shifted = new Date(n + jstMs);
+    if (!Number.isFinite(shifted.getTime())) return '';
+    const iso = shifted.toISOString();
+    return /^\d{4}-/.test(iso) && shifted.getUTCFullYear() > 0 ? iso.slice(0, 10) : '';
+  };
+  if (Object.prototype.toString.call(value) === '[object Date]') {
+    try { return fromInstant(Date.prototype.getTime.call(value)); }
+    catch (_) { return ''; }
   }
-  const s = crmV129Clean_(value, 40);
-  return /^\d{4}-\d{2}-\d{2}(?:\D|$)/.test(s) ? s.slice(0, 10) : '';
+  if (typeof value !== 'string') return '';
+  // Do not truncate: an otherwise valid prefix followed by junk is not a date.
+  const s = value.trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|[+-]\d{2}:\d{2})?)?$/.exec(s);
+  if (!m) return '';
+  const year = Number(m[1]), month = Number(m[2]), day = Number(m[3]);
+  const hour = Number(m[4] || 0), minute = Number(m[5] || 0), second = Number(m[6] || 0);
+  if (year < 1 || month < 1 || month > 12 || day < 1 || day > 31 ||
+      hour > 23 || minute > 59 || second > 59) return '';
+  const calendar = new Date(0);
+  // setUTCFullYear avoids Date.UTC's special treatment of years 00 through 99.
+  calendar.setUTCFullYear(year, month - 1, day);
+  calendar.setUTCHours(hour, minute, second, Number((m[7] || '').padEnd(3, '0')));
+  if (calendar.getUTCFullYear() !== year || calendar.getUTCMonth() !== month - 1 ||
+      calendar.getUTCDate() !== day) return '';
+  const zone = m[8];
+  if (!zone) return s.slice(0, 10); // Validated, existing JST Sheet representation.
+  let offsetMinutes = 0;
+  if (zone !== 'Z') {
+    const zoneHour = Number(zone.slice(1, 3)), zoneMinute = Number(zone.slice(4, 6));
+    if (zoneHour > 23 || zoneMinute > 59) return '';
+    offsetMinutes = (zone[0] === '+' ? 1 : -1) * (zoneHour * 60 + zoneMinute);
+  }
+  return fromInstant(calendar.getTime() - offsetMinutes * 60 * 1000);
 }
 
 /** Sheet writer must set TEXT number format; these pre-sanitized cell proposals
@@ -191,6 +221,7 @@ function evaluateCrmHandoffV129_(inquiry, personCandidates, trustedContext) {
   const context = trustedContext || {};
   const inquiryId = crmV129Clean_(x.inquiry_id, 128);
   const invalid = !/^INQ-[A-Za-z0-9-]{8,122}$/.test(inquiryId) ||
+    !crmV129JstDate_(x.received_at) ||
     !crmV129Clean_(x.organization, 300) || !crmV129Clean_(x.name, 200) ||
     !crmV129Clean_(x.category, 120) ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(crmV129Email_(x.email));

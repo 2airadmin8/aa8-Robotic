@@ -361,3 +361,57 @@ test('V129 S24: missing physical columns or duplicate field names fail closed',(
  assert.equal(x.identity.reason,'PERSON_SSOT_ROW_INVALID');
  assert.equal(x.gate,'HOLD_IDENTITY_GATE');
 });
+
+
+test('V129 S25: Date, UTC and explicit-offset representations of one instant have identical JST date',()=>{
+ const values=[new Date('2026-11-03T16:30:00Z'),'2026-11-03T16:30:00Z','2026-11-04T01:30:00+09:00','2026-11-03T11:30:00-05:00'];
+ for(const received_at of values){
+  assert.equal(prepare(inbox({received_at}),[],trusted).universityIntake.values[0],'2026-11-04');
+ }
+ assert.equal(context.crmV129JstDate_('2026-12-31T15:00:00.001Z'),'2027-01-01');
+ assert.equal(context.crmV129JstDate_('2026-11-04T00:30:00+14:00'),'2026-11-03');
+});
+
+test('V129 S26: rollover dates, invalid times, offsets and trailing data fail closed',()=>{
+ const invalid=['2026-02-30','2026-02-29','1900-02-29','2026-04-31','2026-00-03','2026-13-03','2026-11-00','0000-01-01','2026-11-03junk','2026-11-03 24:00:00','2026-11-03T23:60:00Z','2026-11-03T23:00:60Z','2026-11-03T20:45:00+24:00','2026-11-03T20:45:00+09:60','2026-11-03T20:45:00Z-extra','2026-11-03'+(' '.repeat(80))+'junk'];
+ for(const received_at of invalid){
+  assert.equal(context.crmV129JstDate_(received_at),'',received_at);
+  const out=prepare(inbox({received_at}),[existing()],trusted);
+  assert.equal(out.gate,'INVALID_INQUIRY',received_at);
+  assert.equal(out.universityIntake,null);
+  assert.equal(out.opportunity.state,'NO_CASE');
+ }
+});
+
+test('V129 S27: existing JST Sheet display values and real leap dates remain compatible',()=>{
+ for(const [received_at,want] of [['2026-11-03','2026-11-03'],['2026-11-03 20:45:00','2026-11-03'],['2026-11-03T20:45:00','2026-11-03'],['2026-11-03 20:45:00.12','2026-11-03'],['2000-02-29','2000-02-29'],['2028-02-29','2028-02-29'],['0001-01-01','0001-01-01']]){
+  assert.equal(context.crmV129JstDate_(received_at),want,received_at);
+ }
+});
+
+test('V129 S28: invalid, extreme and spoofed Date inputs never throw or yield an intake row',()=>{
+ const invalid=[new Date(NaN),new Date(8640000000000000),new Date(-8640000000000000),null,undefined,0,{},'',{[Symbol.toStringTag]:'Date',getTime:()=>0}];
+ for(const received_at of invalid){
+  assert.doesNotThrow(()=>context.crmV129JstDate_(received_at));
+  assert.equal(context.crmV129JstDate_(received_at),'');
+  const out=prepare(inbox({received_at,category:'PoC設計'}),[existing()],trusted);
+  assert.equal(out.gate,'INVALID_INQUIRY');
+  assert.equal(out.universityIntake,null);
+  assert.equal(out.opportunity.state,'NO_CASE');
+  assert.equal(out.writesPerformed,0);
+ }
+});
+
+test('V129 S29: JST midnight boundary and leap-year UTC rollover are exact',()=>{
+ for(const [received_at,want] of [['2026-11-03T14:59:59.999Z','2026-11-03'],['2026-11-03T15:00:00Z','2026-11-04'],['2028-02-28T15:00:00Z','2028-02-29'],['2028-02-29T15:00:00Z','2028-03-01']]){
+  assert.equal(context.crmV129JstDate_(received_at),want);
+ }
+});
+
+test('V129 S30: invalid receipt time cannot emit even a quote CaseEvent candidate',()=>{
+ const out=prepare(inbox({received_at:'2026-02-30',category:'見積・大学購買'}),[existing()],trusted);
+ assert.equal(out.identity.customerId,null);
+ assert.equal(out.opportunity.caseEventId,null);
+ assert.equal(out.followUp.state,'BLOCKED_INVALID_INQUIRY');
+ assert.equal(out.emailsSent,0);
+});
