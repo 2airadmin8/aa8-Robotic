@@ -10,11 +10,13 @@ function doGet(e) {
   const kind = String((e && e.parameter && e.parameter.case) || '');
   if (kind === 'IDENTITY_A' || kind === 'IDENTITY_B')
     return devCrmReadOnlyResponse_(kind.slice(-1));
+  if (kind === 'QA_PANEL') return qaActions_(kind);
   return devInquiryForm_(e);
 }
 
 function doPost(e) {
   const p = (e && e.parameter) || {};
+  if (p.qa_action) return qaRealPost_(e);
   const responseToken = clean_(p.response_token);
 
   try {
