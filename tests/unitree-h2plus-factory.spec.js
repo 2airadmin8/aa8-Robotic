@@ -2,7 +2,7 @@ const {test,expect} = require('@playwright/test');
 const base=process.env.AA8_TEST_BASE||'http://127.0.0.1:4173';
 const target='/products/unitree-h2-plus.html';
 const hero='/assets/img/products/unitree/h2plus/drive/h2plus.png';
-for (const width of [1440,390,360]) {
+for (const width of [1440,390,360,320]) {
  test('H2 Plus G1 approved contract / '+width+'px',async({page})=>{
   await page.setViewportSize({width,height:900});
   const errors=[],bad=[];
@@ -19,6 +19,68 @@ for (const width of [1440,390,360]) {
   await expect(page.locator('.g1-hero-image img')).toHaveAttribute('src',hero);
   await expect(page.locator('.g1-factory-media-grid figure')).toHaveCount(9);
   await expect(page.locator('.g1-factory-related-grid a')).toHaveCount(4);
+  // V3: model choice, verified SDK conditions, solution examples and delivery process.
+  for (const selector of ['#development','#solutions','#introduction']) {
+    await expect(page.locator(selector)).toBeVisible();
+  }
+  await expect(page.locator('#model-selection')).toHaveCount(0);
+  // CEO annotated screenshot: four balanced cards per row on PC, no orphan last row.
+  const density=await page.evaluate(()=>{
+    const f=document.querySelector('#capabilities .g1-factory-facts');
+    const a=document.querySelector('#applications .g1-factory-applications');
+    const cols=el=>getComputedStyle(el).gridTemplateColumns.split(' ').filter(Boolean).length;
+    return {facts:cols(f),apps:cols(a)};
+  });
+  expect(density.facts).toBe(width >= 1120?4:1);
+  expect(density.apps).toBe(width >= 1120?4:1);
+  await expect(page.locator('#media h2')).toHaveText('製品画像・構造');
+  await expect(page.locator('#specifications h2')).toHaveText('製品スペック');
+  await expect(page.locator('#specifications .g1-factory-source')).toHaveCount(1);
+  await expect(page.locator('#specifications .g1-factory-source summary')).toBeVisible();
+  await expect(page.locator('#specifications .g1-factory-spec-table caption')).toBeHidden();
+  await expect(page.locator('#contact-product > .g1-shell > .g1-kicker')).toBeHidden();
+  await expect(page.locator('#media .g1-v3-video-note')).toBeHidden();
+  await expect(page.locator('#development article')).toHaveCount(3);
+  await expect(page.locator('#solutions article')).toHaveCount(3);
+  await expect(page.locator('#introduction article')).toHaveCount(5);
+  await expect(page.locator('#development')).toContainText('対応版');
+  await expect(page.locator('#development a[href^="/resources.html?"]')).toBeVisible();
+  await expect(page.locator('#development a[href="https://support.unitree.com/home/en/H2_developer"]')).toBeVisible();
+  await expect(page.locator('#solutions a[href^="/support.html#"]')).toHaveCount(3);
+  await expect(page.locator('#development')).toContainText('H2 Plusへの適用可否');
+  await expect(page.locator('link[href="/assets/css/g1-factory-v3.css"]')).toHaveCount(1);
+  await expect(page.locator('.g1-hero-ctas .g1-button.primary')).toHaveAttribute('href', /maker=Unitree/);
+  await expect(page.locator('.g1-hero-ctas .g1-button.secondary')).toHaveAttribute('href', '#media');
+  // 320px regression: no CTA text clipping on narrow devices.
+  const ctaFit=await page.locator('.g1-hero-ctas').evaluate(el=>{
+    const actions=[...el.querySelectorAll('a')];
+    const rectangles=actions.map(a=>a.getBoundingClientRect());
+    return {
+      fits:actions.every(a=>a.scrollWidth<=a.clientWidth+1),
+      stacked:rectangles.length===2&&rectangles[1].top>=rectangles[0].bottom-1
+    };
+  });
+  expect(ctaFit.fits).toBeTruthy();
+  if(width===320) expect(ctaFit.stacked).toBeTruthy();
+
+  await expect(page.locator('#solutions')).toContainText('参考構成');
+  await expect(page.locator('#introduction')).toContainText('正式見積');
+  await expect(page.locator('a[href="#development"]')).toHaveCount(1);
+  {
+    const nav = await page.locator('.g1-anchor-nav .g1-shell').evaluate(el => {
+      const nodes=[...el.querySelectorAll(':scope > a')];
+      const boxes=nodes.map(n=>n.getBoundingClientRect());
+      return {
+        canScroll: el.scrollWidth>el.clientWidth,
+        noOverlap: boxes.every((b,i)=>i===0 || b.left>=boxes[i-1].right-1),
+        allFocusable: nodes.every(n=>n.getAttribute('href')?.startsWith('#'))
+      };
+    });
+    if (width <= 390) expect(nav.canScroll).toBeTruthy();
+    else expect(nav.canScroll).toBeFalsy();
+    expect(nav.noOverlap).toBeTruthy();
+    expect(nav.allFocusable).toBeTruthy();
+  }
   await expect(page.locator('.g1-final-cta .g1-cta-card')).toHaveCount(3);
   await expect(page.locator('.g1-factory-videos video')).toHaveCount(0);
   await expect(page.locator('main')).toContainText('検証可能な動画がありません');
@@ -71,9 +133,14 @@ for (const width of [1440,390,360]) {
   expect(m.links[0]).toBe('https://www.unitree.com/H2plus');
   expect(m.links[1]).toBe('#specifications');
   expect(m.links[2]).toContain('product=Unitree%20H2%20Plus');
+  expect(m.links[2]).toContain('maker=Unitree');
+  expect(m.links[2]).not.toContain('service=university-procurement');
   await page.locator('.g1-final-cta .g1-cta-card').nth(2).click();
   await page.waitForURL(/\/contact\.html\?product=/);
   await expect(page.locator('input[name="product"]')).toHaveValue('Unitree H2 Plus');
+  await expect(page.locator('input[name="source_maker"]')).toHaveValue('Unitree');
+  await expect(page.locator('input[name="source_product"]')).toHaveValue('Unitree H2 Plus');
+  await expect(page.locator('select[name="category"]')).toHaveValue('導入条件整理');
   expect(errors).toEqual([]);
   expect(bad).toEqual([]);
  });
@@ -86,6 +153,10 @@ test('H2 Plus SEO manufacturer / Master status / model isolation',async({page,re
  expect(source).toContain('h2plus.png');
  expect(source).toContain('2,070');
  expect(source).toContain('SharpaWave');
+ expect(source).not.toContain('id="model-selection"');
+ expect(source).toContain('id="development"');
+ expect(source).toContain('id="solutions"');
+ expect(source).toContain('id="introduction"');
  expect(source).not.toContain('name="robots" content="noindex');
  const cat=await request.get(base+'/data/products.json');
  const products=(await cat.json()).products;
@@ -94,9 +165,30 @@ test('H2 Plus SEO manufacturer / Master status / model isolation',async({page,re
  expect(model.image).toContain('/h2plus.png');
  expect(model.pageFactory.releaseReady).toBe(true);
  expect(model.pageFactory.videos).toHaveLength(0);
+ expect(model.pageFactory.v3.models).toBeUndefined();
+ expect(model.pageFactory.v3.sdk).toHaveLength(3);
+ expect(model.pageFactory.v3.solutions).toHaveLength(3);
+ expect(model.pageFactory.v3.process).toHaveLength(5);
  expect(model.pageFactory.relatedProductIds).toHaveLength(4);
  await page.goto(base+'/products.html',{waitUntil:'networkidle'});
  await expect(page.locator('[data-product-list] #unitree-h2-plus')).toHaveCount(1);
  await page.locator('[data-product-list] #unitree-h2-plus a').first().click();
  await expect(page).toHaveURL(/products\/unitree-h2-plus\.html/);
+});
+
+test('V3 factory generated candidate equals committed H2 Plus HTML (SSOT)',async()=>{
+ const {execFileSync}=require('node:child_process');
+ const output=execFileSync('python',['-c',
+ "import sys,pathlib;sys.path.insert(0,'scripts');import product_factory as p;r=pathlib.Path('.').resolve();x=next(x for x in p.catalog(r) if x['id']=='unitree-h2-plus');assert p.render(r,x,'candidate')==(r/x['detailPage']).read_text(encoding='utf-8'),'generated V3 HTML drift';print('H2PLUS_V3_PARITY_OK')"
+ ],{cwd:require('node:path').resolve(__dirname,'..'),encoding:'utf8'});
+ expect(output).toContain('H2PLUS_V3_PARITY_OK');
+});
+
+test('Unitree H2 official developer documentation is discoverable in Resources',async({page})=>{
+ await page.goto(base+'/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2',{waitUntil:'networkidle'});
+ const card=page.locator('.resource-card').filter({hasText:'Unitree H2 Developer Documentation'});
+ await expect(card).toBeVisible();
+ await expect(card.locator('a.resource-open-link')).toHaveAttribute('href','https://support.unitree.com/home/en/H2_developer');
+ await expect(card).toContainText('H2 Plusへの適用可否');
+ await expect(card).toContainText('後日追加予定');
 });

@@ -3,11 +3,47 @@
   "updatedAt": "2026-07-16",
   "resources": [
     {
+      "id": "unitree-h2-developer",
+      "makerId": "unitree",
+      "makerName": "Unitree",
+      "productGroups": [
+        "humanoid"
+      ],
+      "types": [
+        "official",
+        "sdk"
+      ],
+      "title": "Unitree H2 Developer Documentation",
+      "description": "Unitree公式のH2向け開発者ドキュメントです。H2 Plusへの適用可否、対象SKU、SDK配布条件、ファームウェアおよび対応環境はメーカーへ個別確認してください。SDK本体・ダウンロードファイルは後日追加予定です。",
+      "url": "https://support.unitree.com/home/en/H2_developer",
+      "sourceLabel": "Unitree公式 Support",
+      "reviewStatus": "official",
+      "reviewLabel": "メーカー公式",
+      "language": "英語",
+      "keywords": [
+        "Unitree",
+        "H2",
+        "H2 Plus",
+        "Developer",
+        "SDK",
+        "公式開発資料"
+      ]
+    },
+    {
       "id": "unitree-open-source",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["platform", "humanoid", "quadruped", "arm", "components"],
-      "types": ["official", "sdk"],
+      "productGroups": [
+        "platform",
+        "humanoid",
+        "quadruped",
+        "arm",
+        "components"
+      ],
+      "types": [
+        "official",
+        "sdk"
+      ],
       "title": "Unitree Open Source",
       "description": "Unitree公式のオープンソース・開発資料入口。製品別Repositoryと公開情報を確認できます。",
       "url": "https://www.unitree.com/cn/opensource",
@@ -15,14 +51,25 @@
       "reviewStatus": "official",
       "reviewLabel": "公式入口",
       "language": "中国語・英語",
-      "keywords": ["Unitree", "Open Source", "SDK", "GitHub", "公式"]
+      "keywords": [
+        "Unitree",
+        "Open Source",
+        "SDK",
+        "GitHub",
+        "公式"
+      ]
     },
     {
       "id": "unitree-unifolm-vla",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid"],
-      "types": ["vla", "sdk"],
+      "productGroups": [
+        "humanoid"
+      ],
+      "types": [
+        "vla",
+        "sdk"
+      ],
       "title": "UnifoLM-VLA",
       "description": "Unitree公式のVLA関連Repository。対象機体、利用条件、依存環境はRepository内で個別確認が必要です。",
       "url": "https://github.com/unitreerobotics/unifolm-vla",
@@ -30,14 +77,26 @@
       "reviewStatus": "reviewed",
       "reviewLabel": "用途整理済み",
       "language": "英語",
-      "keywords": ["VLA", "UnifoLM", "Humanoid", "模倣学習", "学習"]
+      "keywords": [
+        "VLA",
+        "UnifoLM",
+        "Humanoid",
+        "模倣学習",
+        "学習"
+      ]
     },
     {
       "id": "unitree-huggingface",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["platform", "humanoid"],
-      "types": ["vla", "dataset"],
+      "productGroups": [
+        "platform",
+        "humanoid"
+      ],
+      "types": [
+        "vla",
+        "dataset"
+      ],
       "title": "Unitree Robotics on Hugging Face",
       "description": "Unitree公式のモデル・データセット公開ページ。公開物ごとにライセンスと利用条件を確認します。",
       "url": "https://huggingface.co/unitreerobotics",
@@ -45,14 +104,25 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語",
-      "keywords": ["Hugging Face", "Model", "Dataset", "VLA", "Unitree"]
+      "keywords": [
+        "Hugging Face",
+        "Model",
+        "Dataset",
+        "VLA",
+        "Unitree"
+      ]
     },
     {
       "id": "unitree-wbt-dataset",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid"],
-      "types": ["dataset", "vla"],
+      "productGroups": [
+        "humanoid"
+      ],
+      "types": [
+        "dataset",
+        "vla"
+      ],
       "title": "UnifoLM-WBT Dataset Collection",
       "description": "Unitree公式のデータセットCollection。収録内容、形式、用途、ライセンスを個別に確認します。",
       "url": "https://huggingface.co/collections/unitreerobotics/unifolm-wbt-dataset",
@@ -60,14 +130,27 @@
       "reviewStatus": "reviewed",
       "reviewLabel": "用途整理済み",
       "language": "英語",
-      "keywords": ["WBT", "Dataset", "VLA", "Training", "Humanoid"]
+      "keywords": [
+        "WBT",
+        "Dataset",
+        "VLA",
+        "Training",
+        "Humanoid"
+      ]
     },
     {
       "id": "unitree-il-lerobot",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "arm"],
-      "types": ["vla", "dataset", "teleoperation"],
+      "productGroups": [
+        "humanoid",
+        "arm"
+      ],
+      "types": [
+        "vla",
+        "dataset",
+        "teleoperation"
+      ],
       "title": "unitree_il_lerobot",
       "description": "LeRobotを利用した模倣学習・データ収集関連の公式Repository。対応機体と実行環境は追加確認が必要です。",
       "url": "https://github.com/unitreerobotics/unitree_il_lerobot",
@@ -75,14 +158,25 @@
       "reviewStatus": "unverified",
       "reviewLabel": "実機未検証",
       "language": "英語",
-      "keywords": ["LeRobot", "Imitation Learning", "Data Collection", "VLA"]
+      "keywords": [
+        "LeRobot",
+        "Imitation Learning",
+        "Data Collection",
+        "VLA"
+      ]
     },
     {
       "id": "unitree-kinect-teleoperate",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "arm"],
-      "types": ["teleoperation", "sdk"],
+      "productGroups": [
+        "humanoid",
+        "arm"
+      ],
+      "types": [
+        "teleoperation",
+        "sdk"
+      ],
       "title": "kinect_teleoperate",
       "description": "Kinectを利用した遠隔操作関連の公式Repository。対応機体、センサー、制御範囲を確認します。",
       "url": "https://github.com/unitreerobotics/kinect_teleoperate",
@@ -90,14 +184,25 @@
       "reviewStatus": "unverified",
       "reviewLabel": "実機未検証",
       "language": "英語",
-      "keywords": ["Kinect", "Teleoperation", "Remote Control", "Humanoid"]
+      "keywords": [
+        "Kinect",
+        "Teleoperation",
+        "Remote Control",
+        "Humanoid"
+      ]
     },
     {
       "id": "unitree-avp-teleoperate",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "arm"],
-      "types": ["teleoperation", "sdk"],
+      "productGroups": [
+        "humanoid",
+        "arm"
+      ],
+      "types": [
+        "teleoperation",
+        "sdk"
+      ],
       "title": "avp_teleoperate",
       "description": "Apple Vision Pro等の空間入力を想定した遠隔操作関連の公式Repository。対象構成は個別確認が必要です。",
       "url": "https://github.com/unitreerobotics/avp_teleoperate",
@@ -105,14 +210,25 @@
       "reviewStatus": "unverified",
       "reviewLabel": "実機未検証",
       "language": "英語",
-      "keywords": ["AVP", "Apple Vision Pro", "Teleoperation", "Remote Control"]
+      "keywords": [
+        "AVP",
+        "Apple Vision Pro",
+        "Teleoperation",
+        "Remote Control"
+      ]
     },
     {
       "id": "unitree-mujoco",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "quadruped"],
-      "types": ["simulation", "sdk"],
+      "productGroups": [
+        "humanoid",
+        "quadruped"
+      ],
+      "types": [
+        "simulation",
+        "sdk"
+      ],
       "title": "unitree_mujoco",
       "description": "MuJoCo上でUnitree機体を扱う公式Repository。モデル、制御例、対象製品を確認できます。",
       "url": "https://github.com/unitreerobotics/unitree_mujoco",
@@ -120,14 +236,25 @@
       "reviewStatus": "reviewed",
       "reviewLabel": "用途整理済み",
       "language": "英語",
-      "keywords": ["MuJoCo", "Simulation", "Humanoid", "Quadruped"]
+      "keywords": [
+        "MuJoCo",
+        "Simulation",
+        "Humanoid",
+        "Quadruped"
+      ]
     },
     {
       "id": "unitree-rl-gym",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "quadruped"],
-      "types": ["simulation", "vla"],
+      "productGroups": [
+        "humanoid",
+        "quadruped"
+      ],
+      "types": [
+        "simulation",
+        "vla"
+      ],
       "title": "unitree_rl_gym",
       "description": "強化学習・運動制御関連の公式Repository。対象機体、学習環境、依存バージョンを確認します。",
       "url": "https://github.com/unitreerobotics/unitree_rl_gym",
@@ -135,14 +262,26 @@
       "reviewStatus": "reviewed",
       "reviewLabel": "用途整理済み",
       "language": "英語",
-      "keywords": ["Reinforcement Learning", "RL", "Gym", "Motion Control"]
+      "keywords": [
+        "Reinforcement Learning",
+        "RL",
+        "Gym",
+        "Motion Control"
+      ]
     },
     {
       "id": "unitree-ros",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "quadruped", "arm"],
-      "types": ["ros", "sdk"],
+      "productGroups": [
+        "humanoid",
+        "quadruped",
+        "arm"
+      ],
+      "types": [
+        "ros",
+        "sdk"
+      ],
       "title": "unitree_ros",
       "description": "Unitree公式のROS関連Repository。ROS1環境、対象機体、Message、Driverを個別に確認します。",
       "url": "https://github.com/unitreerobotics/unitree_ros",
@@ -150,14 +289,26 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語",
-      "keywords": ["ROS", "ROS1", "Driver", "Unitree"]
+      "keywords": [
+        "ROS",
+        "ROS1",
+        "Driver",
+        "Unitree"
+      ]
     },
     {
       "id": "unitree-ros2",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["humanoid", "quadruped", "arm"],
-      "types": ["ros", "sdk"],
+      "productGroups": [
+        "humanoid",
+        "quadruped",
+        "arm"
+      ],
+      "types": [
+        "ros",
+        "sdk"
+      ],
       "title": "unitree_ros2",
       "description": "Unitree公式のROS2関連Repository。対象機体、DDS、Message、対応Distributionを確認します。",
       "url": "https://github.com/unitreerobotics/unitree_ros2",
@@ -165,14 +316,28 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語",
-      "keywords": ["ROS2", "DDS", "Driver", "Humble", "Unitree"]
+      "keywords": [
+        "ROS2",
+        "DDS",
+        "Driver",
+        "Humble",
+        "Unitree"
+      ]
     },
     {
       "id": "unitree-guide",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["platform", "humanoid", "quadruped", "arm"],
-      "types": ["official", "sdk"],
+      "productGroups": [
+        "platform",
+        "humanoid",
+        "quadruped",
+        "arm"
+      ],
+      "types": [
+        "official",
+        "sdk"
+      ],
       "title": "unitree_guide",
       "description": "Unitree公式の開発Guide Repository。製品別の導入資料と開発例を確認します。",
       "url": "https://github.com/unitreerobotics/unitree_guide",
@@ -180,14 +345,25 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語・中国語",
-      "keywords": ["Guide", "Documentation", "SDK", "Development"]
+      "keywords": [
+        "Guide",
+        "Documentation",
+        "SDK",
+        "Development"
+      ]
     },
     {
       "id": "unitree-point-lio",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["quadruped", "components"],
-      "types": ["ros", "sdk"],
+      "productGroups": [
+        "quadruped",
+        "components"
+      ],
+      "types": [
+        "ros",
+        "sdk"
+      ],
       "title": "point_lio_unilidar",
       "description": "Unitree LiDARを利用したPoint-LIO関連の公式Repository。センサー型番と環境条件を確認します。",
       "url": "https://github.com/unitreerobotics/point_lio_unilidar",
@@ -195,14 +371,24 @@
       "reviewStatus": "unverified",
       "reviewLabel": "実機未検証",
       "language": "英語",
-      "keywords": ["LiDAR", "Point-LIO", "SLAM", "Perception"]
+      "keywords": [
+        "LiDAR",
+        "Point-LIO",
+        "SLAM",
+        "Perception"
+      ]
     },
     {
       "id": "unitree-z1-ros",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["arm"],
-      "types": ["ros", "sdk"],
+      "productGroups": [
+        "arm"
+      ],
+      "types": [
+        "ros",
+        "sdk"
+      ],
       "title": "z1_ros",
       "description": "Unitree Z1アーム向けの公式ROS Repository。対象SDKとROS環境を確認します。",
       "url": "https://github.com/unitreerobotics/z1_ros",
@@ -210,14 +396,24 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語",
-      "keywords": ["Z1", "Robot Arm", "ROS", "Manipulation"]
+      "keywords": [
+        "Z1",
+        "Robot Arm",
+        "ROS",
+        "Manipulation"
+      ]
     },
     {
       "id": "unitree-z1-joystick",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["arm"],
-      "types": ["teleoperation", "sdk"],
+      "productGroups": [
+        "arm"
+      ],
+      "types": [
+        "teleoperation",
+        "sdk"
+      ],
       "title": "z1_joystick",
       "description": "Unitree Z1アーム向けジョイスティック操作の公式Repository。制御モードと安全条件を確認します。",
       "url": "https://github.com/unitreerobotics/z1_joystick",
@@ -225,14 +421,24 @@
       "reviewStatus": "unverified",
       "reviewLabel": "実機未検証",
       "language": "英語",
-      "keywords": ["Z1", "Joystick", "Teleoperation", "Robot Arm"]
+      "keywords": [
+        "Z1",
+        "Joystick",
+        "Teleoperation",
+        "Robot Arm"
+      ]
     },
     {
       "id": "unitree-app-templates",
       "makerId": "unitree",
       "makerName": "Unitree",
-      "productGroups": ["platform", "quadruped"],
-      "types": ["sdk"],
+      "productGroups": [
+        "platform",
+        "quadruped"
+      ],
+      "types": [
+        "sdk"
+      ],
       "title": "unitree-app-templates",
       "description": "Unitree製品向けの公式アプリケーションTemplate。対象製品と実行環境を確認します。",
       "url": "https://github.com/unitreerobotics/unitree-app-templates",
@@ -240,14 +446,25 @@
       "reviewStatus": "official",
       "reviewLabel": "公式公開",
       "language": "英語",
-      "keywords": ["App", "Template", "SDK", "Application"]
+      "keywords": [
+        "App",
+        "Template",
+        "SDK",
+        "Application"
+      ]
     },
     {
       "id": "agibot-link-u-os",
       "makerId": "agibot",
       "makerName": "AgiBot",
-      "productGroups": ["platform", "humanoid"],
-      "types": ["official", "sdk"],
+      "productGroups": [
+        "platform",
+        "humanoid"
+      ],
+      "types": [
+        "official",
+        "sdk"
+      ],
       "title": "Link-U OS",
       "description": "AgiBotのロボット具身知能OS。公式公開入口と対象製品の確認を進めています。",
       "url": null,
@@ -255,14 +472,23 @@
       "reviewStatus": "unverified",
       "reviewLabel": "公式URL確認中",
       "language": "未確認",
-      "keywords": ["Link-U OS", "AgiBot", "Embodied AI", "Operating System"]
+      "keywords": [
+        "Link-U OS",
+        "AgiBot",
+        "Embodied AI",
+        "Operating System"
+      ]
     },
     {
       "id": "agibot-aimrt",
       "makerId": "agibot",
       "makerName": "AgiBot",
-      "productGroups": ["platform"],
-      "types": ["sdk"],
+      "productGroups": [
+        "platform"
+      ],
+      "types": [
+        "sdk"
+      ],
       "title": "AimRT",
       "description": "モダンなロボットRuntime Framework。公式公開入口、ライセンス、対象環境を確認中です。",
       "url": null,
@@ -270,14 +496,25 @@
       "reviewStatus": "unverified",
       "reviewLabel": "公式URL確認中",
       "language": "未確認",
-      "keywords": ["AimRT", "Runtime", "Framework", "AgiBot"]
+      "keywords": [
+        "AimRT",
+        "Runtime",
+        "Framework",
+        "AgiBot"
+      ]
     },
     {
       "id": "agibot-world",
       "makerId": "agibot",
       "makerName": "AgiBot",
-      "productGroups": ["platform", "humanoid"],
-      "types": ["dataset", "vla"],
+      "productGroups": [
+        "platform",
+        "humanoid"
+      ],
+      "types": [
+        "dataset",
+        "vla"
+      ],
       "title": "AgiBot World",
       "description": "AgiBotのオープンデータセット・基盤モデル関連資産。公式公開入口と利用条件を確認中です。",
       "url": null,
@@ -285,7 +522,12 @@
       "reviewStatus": "unverified",
       "reviewLabel": "公式URL確認中",
       "language": "未確認",
-      "keywords": ["AgiBot World", "Dataset", "Foundation Model", "VLA"]
+      "keywords": [
+        "AgiBot World",
+        "Dataset",
+        "Foundation Model",
+        "VLA"
+      ]
     }
   ]
 }
