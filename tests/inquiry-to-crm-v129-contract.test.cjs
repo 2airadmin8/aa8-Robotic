@@ -57,7 +57,7 @@ test('V129 S01: physical 17-column target matches existing university 00_新規�
 
 test('V129 S02: source attribution kept but website URL NEVER treated as evidence URL',()=>{
  const p=prepare(inbox(),[],trusted),v=p.universityIntake.values;
- assert.equal(v[0],'2026-11-03 20:45:00');
+ assert.equal(v[0],'2026-11-03');
  assert.equal(v[1],'Robotics_Web_Inquiry');
  assert.equal(v[2],'架空テスト大学');
  assert.equal(v[4],'テスト研究者');
@@ -188,9 +188,8 @@ test('V129 S15: proposal prevents spreadsheet formula injection on person/organi
 });
 
 test('V129 S16: no hidden Sheets/API/email/writer side effects in contract',()=>{
- for(const x of ['SpreadsheetApp','MailApp','GmailApp','UrlFetchApp','DriveApp','ScriptApp','fetch(','doPost(']){
-  assert(!source.includes(x+'?'),x);
- }
+ assert(!/\b(?:SpreadsheetApp|MailApp|GmailApp|UrlFetchApp|DriveApp|ScriptApp)\s*\./.test(source));
+ assert(!/\b(?:doPost|fetch|appendRow|setValue|sendEmail)\s*\(/.test(source));
  const out=prepare(inbox({category:'見積・大学購買'}),[existing()],trusted);
  assert.equal(out.writesPerformed,0);
  assert.equal(out.emailsSent,0);
@@ -213,4 +212,74 @@ test('V129 S18: entire object declares a pure proposal, not a CRM implementation
  assert.equal(p.opportunity.state,'CASE_EVENT_CANDIDATE_ONLY');
  assert.equal(p.gate,'READY_FOR_EXISTING_WRITER_REVIEW');
  assert.equal(p.writesPerformed,0);
+});
+
+test('V129 S19: real Inquiry Date object yields JST 受付日, not a browser locale string',()=>{
+ const date=new Date('2026-11-03T16:30:00Z');
+ const out=prepare(inbox({received_at:date}),[],trusted);
+ assert.equal(out.universityIntake.values[0],'2026-11-04');
+});
+
+test('V129 S20: existing Code.gs 27-column mocked Intake receipt joins V129 by its real InquiryID',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'..','ops','inquiry-api','Code.gs'),'utf8');
+ const ledger=[];
+ const sent=[];
+ let seq=0;
+ const sheet={
+   appendRow:items=>{assert.equal(items.length,27);ledger.push(Array.from(items))},
+   getLastRow:()=>ledger.length+1,
+   getRange:(row,col,count=1,width=1)=>({
+     getValues:()=>Array.from({length:count},(_,i)=>Array.from({length:width},(_,j)=>ledger[row+i-2][col+j-1])),
+     getValue:()=>ledger[row-2][col-1],
+     setValue:v=>{ledger[row-2][col-1]=v}
+   })
+ };
+ const ctx=vm.createContext({
+  SpreadsheetApp:{openById:id=>{
+   assert.equal(id,'1PzfHiB50jFDHCosMGTb7MUvbQ9nC3UD5pHjgHbpY9Qk');
+   return{getSheetByName:name=>{assert.equal(name,'01_Inquiry');return sheet}}
+  }},
+  Utilities:{getUuid:()=>('ABCD1234-'+String(++seq).padStart(8,'0')),formatDate:()=> '20261103-204500'},
+  LockService:{getScriptLock:()=>({waitLock:()=>{},releaseLock:()=>{}})},
+  HtmlService:{createHtmlOutput:html=>({html})},
+  MailApp:{sendEmail:msg=>sent.push(msg)},
+  console:{error:()=>{}},
+  Date, JSON, String, Object, Array, Error
+ });
+ // Replace PROD settings only in a memory-only snapshot. No clasp, no HTTP or actual Sheet.
+ const devCode=code.replace('1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI',
+  '1PzfHiB50jFDHCosMGTb7MUvbQ9nC3UD5pHjgHbpY9Qk');
+ assert(!devCode.includes('1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI'));
+ vm.runInContext(devCode,ctx);
+ vm.runInContext(source,ctx);
+ const p={
+   category:'PoC設計',organization:'架空テスト大学',name:'テスト研究者',
+   email:'researcher@example.test',product:'Unitree H2 Plus',use_case:'LAB QA only',
+   source_product:'Unitree H2 Plus',source_maker:'Unitree',
+   source_page:'https://robotics.air-admin8.co.jp/products/unitree-h2-plus.html',
+   submission_token:'synthetic-submission-129',response_token:'synthetic-response',website:''
+ };
+ const answer=html=>JSON.parse(html.match(/window\.top\.postMessage\((\{.*?\}),/s)[1]);
+ const ack1=answer(ctx.doPost({parameter:p}).html);
+ assert.equal(ack1.ok,true);
+ assert.equal(ledger.length,1);
+ const headers=[
+  'inquiry_id','received_at','status','category','organization','name','email','phone',
+  'product','use_case','budget','schedule','development','message','source_page','source_product',
+  'source_maker','source_service','source_theme','source_case','utm_source','utm_medium',
+  'utm_campaign','ga_client_id','server_result','notified_at','submission_token'
+ ];
+ const intake=Object.fromEntries(headers.map((h,i)=>[h,ledger[0][i]]));
+ const proposal=ctx.evaluateCrmHandoffV129_(intake,[],{personSsoTReadOnlySnapshotVerified:true});
+ assert.equal(proposal.inquiryId,ack1.inquiryId);
+ assert.equal(proposal.universityIntake.values[15],ack1.inquiryId);
+ assert.equal(proposal.universityIntake.values[10],'');
+ assert.equal(proposal.identity.decision,'NEW_PENDING_VERIFICATION');
+ assert.equal(proposal.opportunity.state,'HOLD_CUSTOMER_ID');
+ assert.equal(proposal.writesPerformed,0);
+ const ack2=answer(ctx.doPost({parameter:p}).html);
+ assert.equal(ack2.inquiryId,ack1.inquiryId);
+ assert.equal(ack2.duplicate,true);
+ assert.equal(ledger.length,1);
+ assert.equal(sent.length,2); // Only mocked internal/ACK; not an external email.
 });
