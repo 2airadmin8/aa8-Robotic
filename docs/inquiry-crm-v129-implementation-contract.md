@@ -50,7 +50,7 @@ Destination **existing** `00_新規受付` physical 17 columns:
 | 重複確認 | existing Dedup Writer | `未確認` |
 | 顧客ID | existing Person SSOT Writer | Empty until verified |
 | 処理状態 | existing intake/identity writer | `HOLD_EVIDENCE` |
-| 備考 | InquiryID, product, maker, source page | Truncated; no extra unrelated PII |
+| 備考 | InquiryID, product, maker, same-origin source path only | Strip query/hash/unknown hosts; never copy private URL tokens |
 | SourceID | inquiry_id | Unique event idempotency/ref |
 | ImportBatchID | existing import writer | Empty |
 
@@ -62,6 +62,7 @@ This is a **proposed row**, not a committed entry. The existing inbound writer m
 2. Exact matching normalized email can suggest an existing record, but must also match verified name, affiliation and canonical CustomerID.
 3. Multiple email hits, renamed affiliation, conflicting name, unverified Primary status/source, or stale/non-verified snapshot => HOLD.
 4. New public-form email is **self-declared**, not university-verified: route to existing `00_新規受付` and hold pending evidence. Never auto-enable T055 marketing or overwrite the existing Primary email.
+   - Live read-only physical `02_顧客Master` Q-column `メール状態` values include `確認済`, `確認済み`, `有効`, `要再調査`, `未確認`. `有効` by itself is **not** G02 evidence or verified Person identity; require the existing T006 Evidence and Dedup Gate to pass explicitly, plus an official source URL.
 5. No PAI/ERP reverse write into Person name/affiliation/Primary.
 6. A client-supplied CustomerID is never trusted; only the official Master candidate can provide a CustomerID.
 
