@@ -111,9 +111,40 @@ function crmV129IntakeProposal_(inquiry) {
   ];
 }
 
+/** Strict adapter for EXISTING 02_顧客Master physical columns. This is
+ * read-only projection, not a Customer Master writer. The actual T006 evidence
+ * and duplicate Gates must provide independent trusted approvals; a physical
+ * status cell or even a matching URL is not that approval by itself. */
+function crmV129PersonFromMasterPhysicalRow_(headers, row, t006GateEvidence) {
+  if (!Array.isArray(headers) || !Array.isArray(row) || headers.length !== row.length) return null;
+  const required = [
+    '顧客ID', '大学・所属', '研究者名', 'Primaryメール',
+    'メール状態', 'メール情報源URL', '氏名一致', '所属一致',
+    '営業利用可否', 'ID状態', 'メール重複'
+  ];
+  if (required.some(key => headers.filter(h => h === key).length !== 1)) return null;
+  const get = key => crmV129Clean_(row[headers.indexOf(key)], key === 'メール情報源URL' ? 1024 : 500);
+  const gate = t006GateEvidence || {};
+  return {
+    customerId: get('顧客ID'),
+    primaryEmail: get('Primaryメール'),
+    name: get('研究者名'),
+    affiliation: get('大学・所属'),
+    emailStatus: get('メール状態'),
+    emailEvidenceUrl: get('メール情報源URL'),
+    evidenceGatePassed: gate.officialEmailEvidencePassed === true,
+    duplicateGatePassed: gate.identityAndDedupPassed === true,
+    salesUseAllowed: get('営業利用可否') === '可',
+    conflict: gate.conflict === true || /重複|CONFLICT|衝突/i.test(get('メール重複'))
+  };
+}
+
 function crmV129Identity_(inquiry, candidates, authoritativeSnapshot) {
   if (!authoritativeSnapshot || !Array.isArray(candidates)) {
     return { decision: 'HOLD', reason: 'PERSON_SSOT_NOT_READ', customerId: null };
+  }
+  if (candidates.some(c => !c || typeof c !== 'object')) {
+    return { decision: 'HOLD', reason: 'PERSON_SSOT_ROW_INVALID', customerId: null };
   }
   const email = crmV129Email_(inquiry.email);
   const matches = candidates.filter(c => crmV129Email_(c.primaryEmail || c.email) === email);
