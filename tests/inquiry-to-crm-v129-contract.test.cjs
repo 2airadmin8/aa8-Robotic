@@ -38,6 +38,8 @@ const existing=(overrides={})=>({
  affiliation:'架空テスト大学',
  emailStatus:'CONFIRMED',
  emailEvidenceUrl:'https://example.test/official-evidence',
+ evidenceGatePassed:true,
+ duplicateGatePassed:true,
  conflict:false,
  ...overrides
 });
@@ -67,7 +69,7 @@ test('V129 S02: source attribution kept but website URL NEVER treated as evidenc
  assert.equal(v[12],'');
  assert.equal(v[13],'HOLD_EVIDENCE');
  assert(v[14].includes('Product=Unitree H2 Plus'));
- assert(v[14].includes('Source=https://robotics.air-admin8.co.jp/'));
+ assert(v[14].includes('Source=/products/unitree-h2-plus.html'));
  assert.equal(v[15],inbox().inquiry_id);
  assert.equal(v[16],'');
  assert.equal(p.universityIntake.committed,false);
@@ -282,4 +284,31 @@ test('V129 S20: existing Code.gs 27-column mocked Intake receipt joins V129 by i
  assert.equal(ack2.duplicate,true);
  assert.equal(ledger.length,1);
  assert.equal(sent.length,2); // Only mocked internal/ACK; not an external email.
+});
+
+test('V129 S21: Japanese confirmed email status with T006 evidence+dedup passes; 有効 alone does not',()=>{
+ for(const state of ['確認済','確認済み','CONFIRMED']){
+  const out=prepare(inbox(),[existing({emailStatus:state})],trusted);
+  assert.equal(out.identity.decision,'EXISTING_VERIFIED',state);
+ }
+ for(const state of ['有効','要再調査','未確認','']){
+  const out=prepare(inbox(),[existing({emailStatus:state})],trusted);
+  assert.equal(out.identity.decision,'HOLD',state);
+ }
+ for(const x of [existing({evidenceGatePassed:false}),existing({duplicateGatePassed:false})]){
+  const out=prepare(inbox(),[x],trusted);
+  assert.equal(out.identity.decision,'HOLD');
+ }
+});
+
+test('V129 S22: source_page is a same-origin path; no attacker query/external referrer is copied into Master note',()=>{
+ const a=prepare(inbox({source_page:'https://robotics.air-admin8.co.jp/products/unitree-h2-plus.html?email=secret%40example.test&token=abc'}),[],trusted);
+ const note=a.universityIntake.values[14];
+ assert(note.includes('Source=/products/unitree-h2-plus.html'));
+ assert(!note.includes('secret'));
+ assert(!note.includes('?'));
+ const b=prepare(inbox({source_page:'https://evil.example.test/?password=sensitive'}),[],trusted);
+ const other=b.universityIntake.values[14];
+ assert(!other.includes('evil.example'));
+ assert(!other.includes('sensitive'));
 });
