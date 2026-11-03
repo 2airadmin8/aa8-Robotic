@@ -33,6 +33,19 @@ function crmV129Email_(value) {
   return crmV129Clean_(value, 254).toLowerCase();
 }
 
+/** Date is stored as a true Date in Inquiry Sheet, while 00_新規受付
+ * takes only 受付日. Japan has UTC+09 without DST; this pure function
+ * intentionally does not depend on a GAS token or production clock. */
+function crmV129JstDate_(value) {
+  if (Object.prototype.toString.call(value) === '[object Date]') {
+    const n = value.getTime();
+    if (!Number.isFinite(n)) return '';
+    return new Date(n + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  }
+  const s = crmV129Clean_(value, 40);
+  return /^\d{4}-\d{2}-\d{2}(?:\D|$)/.test(s) ? s.slice(0, 10) : '';
+}
+
 /** Sheet writer must set TEXT number format; these pre-sanitized cell proposals
  * also guard against formula injection until a trusted writer is verified. */
 function crmV129TextCell_(value, limit) {
@@ -61,7 +74,7 @@ function crmV129EventType_(category) {
 /** Return the proposed 17 physical columns. Never put a website URL in
  * 根拠URL: it is a lead source, not identity or email-verification evidence. */
 function crmV129IntakeProposal_(inquiry) {
-  const date = crmV129Clean_(inquiry.received_at, 40);
+  const date = crmV129JstDate_(inquiry.received_at);
   const inquiryId = crmV129Clean_(inquiry.inquiry_id, 128);
   const notes = [
     'InquiryID=' + inquiryId,
