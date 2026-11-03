@@ -47,8 +47,13 @@ function devCrmReadOnlyCase_(key) {
   if (required.some(h => headers.filter(k => k === h).length !== 1)) throw new Error('SSOT_SCHEMA_MISMATCH');
   // Existing SSOT columns A:R include identity and email status/evidence.
   const evidence = master.getRange(2, 1, n - 1, 18).getValues();
-  const matches = evidence.filter(r => String(r[14] || '').trim().toLowerCase() ===
+  const norm = v => String(v == null ? '' : v).normalize('NFKC')
+    .replace(/[\s　]+/g, '').toLowerCase();
+  const emailMatches = evidence.filter(r => String(r[14] || '').trim().toLowerCase() ===
     String(x.email).trim().toLowerCase());
+  const identityMatches = evidence.filter(r => norm(r[3]) === norm(x.organization) &&
+    norm(r[5]) === norm(x.name));
+  const matches = [...new Set([...emailMatches, ...identityMatches])];
   // Do not copy unverified Person records or data to another spreadsheet.
   // Even a matching email must pass T006's separate evidence & conflict writer.
   const candidates = matches.map(r => ({
@@ -71,10 +76,11 @@ function devCrmReadOnlyCase_(key) {
     inquiryId: inquiryId,
     sourceRowUnique: true,
     ssotRowsRead: evidence.length,
-    matchedEmailCandidates: matches.length,
+    matchedEmailCandidates: emailMatches.length,
+    matchedNameOrgCandidates: identityMatches.length,
     classification: evaluation.route,
-    identityDecision: evaluation.identity.decision,
-    identityReason: evaluation.identity.reason,
+    identityDecision: identityMatches.length ? 'HOLD' : evaluation.identity.decision,
+    identityReason: identityMatches.length ? 'EXISTING_IDENTITY_REQUIRES_T006_GATES' : evaluation.identity.reason,
     proposedIntakeSourceId: evaluation.universityIntake ? evaluation.universityIntake.idempotencyKey : null,
     personWriter: 'NOT_CALLED',
     customerId: null,
