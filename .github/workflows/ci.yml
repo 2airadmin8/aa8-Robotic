@@ -105,7 +105,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node --test tests/inquiry-dev-contract.test.cjs tests/identity-dedup-contract.test.cjs tests/inquiry-to-crm-v129-contract.test.cjs
+          node --test tests/inquiry-dev-contract.test.cjs tests/identity-dedup-contract.test.cjs tests/inquiry-to-crm-v129-contract.test.cjs tests/t006-robotics-customerid-gate.test.cjs
 
       - name: Install Playwright Chromium
         id: browser_setup
