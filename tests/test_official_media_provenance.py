@@ -54,6 +54,8 @@ class OfficialMediaTests(unittest.TestCase):
     p=self.master[pid]
     content=(ROOT / p['detailPage']).read_text(encoding='utf8')
     self.assertIn('../'+p['image'],content)
+    self.assertIn('alt="'+p['imageAlt']+'"',content)
+    self.assertNotIn('の参考イメージ',content.split('../'+p['image'],1)[1].split('</figure>',1)[0])
     self.assertIn('メーカー公式写真',content)
     self.assertIn(p['imageSourcePage'],content)
     self.assertNotIn('src="../assets/img/robot-',content)
