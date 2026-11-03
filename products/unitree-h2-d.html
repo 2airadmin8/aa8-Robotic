@@ -13,10 +13,11 @@
 <link rel="stylesheet" href="/assets/css/shared-layout.css">
 <link rel="stylesheet" href="/assets/css/g1-product.css">
 <link rel="stylesheet" href="/assets/css/h2d-product.css">
+<link rel="stylesheet" href="/assets/css/product-standard-v31.css">
 </head><body>
 <!-- Shared header/footer SSOT is injected by scripts/build_site.py. -->
 <header class="site-header" data-shared-layout="header"><div class="wrap"><a href="/index.html">AirAdmin8 Robotics</a></div></header>
-<main class="g1-page h2d-page" id="main-content">
+<main data-aa8-product-standard="3.1" data-product-id="unitree-h2-d" data-product-family="mobile-manipulation" class="g1-page h2d-page" id="main-content">
 <section class="g1-hero h2d-hero" id="top"><div class="g1-shell">
 <div class="g1-breadcrumb"><a href="/products.html">製品一覧</a> / Unitree H2-D</div>
 <div class="h2d-hero-grid">
@@ -26,7 +27,7 @@
 <p class="h2d-hero-headline">産業現場で、<br>「運ぶ」と「扱う」を一台に。</p>
 <p class="h2d-hero-lead">7自由度の双腕、昇降する上体、開発に開かれたプラットフォーム。固定式の精密作業から移動型のピッキング・搬送まで、用途に合わせて構成を選べる産業向けH2-D。</p>
 <div class="h2d-hero-buttons">
-<a class="g1-button primary" href="/contact.html?product=Unitree%20H2-D&amp;theme=use-case-review">H2-D の導入・PoCを相談する <span aria-hidden="true">↗</span></a>
+<a class="g1-button primary" href="/contact.html?product=Unitree%20H2-D&amp;theme=use-case-review&amp;maker=Unitree">H2-D の導入・PoCを相談する <span aria-hidden="true">↗</span></a>
 <a class="g1-button secondary" href="#models">標準版／Flagshipを比較 <span aria-hidden="true">↓</span></a>
 </div>
 <p class="h2d-hero-note">実機構成・対応機能・納期・国内サポートは、用途と選択した型番により個別確認となります。</p>
@@ -124,11 +125,15 @@
 <div class="h2d-cta-grid">
 <a href="#specifications"><span>01 / COMPARE</span><strong>まず、モデルを比較する。</strong><small>標準版・Flagshipの19/20自由度、ベース、電源と操作条件。</small><em>仕様比較へ ↓</em></a>
 <a href="https://www.unitree.com/H2-D/" target="_blank" rel="noopener noreferrer"><span>02 / VERIFY</span><strong>メーカー原本を確認する。</strong><small>正式な最新仕様、オプション、注意事項を参照。</small><em>Unitree公式 ↗</em></a>
-<a href="/contact.html?product=Unitree%20H2-D&amp;theme=use-case-review"><span>03 / CONSULT</span><strong>導入・PoCを相談する。</strong><small>把持対象・現場図・研究テーマから選定条件を整理。</small><em>お問い合わせへ ↗</em></a>
+<a href="/contact.html?product=Unitree%20H2-D&amp;theme=use-case-review&amp;maker=Unitree"><span>03 / CONSULT</span><strong>導入・PoCを相談する。</strong><small>把持対象・現場図・研究テーマから選定条件を整理。</small><em>お問い合わせへ ↗</em></a>
 </div>
 <p class="h2d-cta-note">安全距離や運用環境の確認が必要な産業用機体です。価格・納期・SDK・保証は正式な個別条件で確定します。</p>
 </div></section>
 <section class="g1-section h2d-related"><div class="g1-shell"><div class="g1-heading"><p class="g1-kicker">RELATED PRODUCTS</p><h2>他のプラットフォームとも比較する。</h2></div><div class="h2d-related-links"><a href="/products/unitree-g1-plus.html">Unitree G1+｜ヒューマノイド研究・展示 ↗</a><a href="/products/unitree-g1.html">Unitree G1｜研究用プラットフォーム ↗</a><a href="/products/agibot-g2.html">AgiBot G2｜移動操作ロボット ↗</a><a href="/products.html">製品一覧を見る ↗</a></div></div></section>
+
+<!-- AA8_PRODUCT_STANDARD_BRIDGE_START -->
+<section class="aa8-product-bridge" aria-label="この製品の技術資料・導入支援"><div class="aa8-product-bridge__inner"><h2>研究・導入の次に確認すること</h2><p>移動・把持・昇降を組み合わせた現場操作PoCを検討。機体構成・SDK対応・見積・納期・支援範囲は、用途に合わせて確認します。</p><div class="aa8-product-bridge__links"><a href="/resources.html?maker=unitree&amp;product=humanoid&amp;type=sdk">技術資料・SDK情報を確認する →</a><a href="/support.html#poc">研究・PoC・導入支援を見る →</a></div></div></section>
+<!-- AA8_PRODUCT_STANDARD_BRIDGE_END -->
 </main>
 <footer class="footer" data-shared-layout="footer"><div class="wrap">© AirAdmin8 Inc.</div></footer>
 <script src="/assets/js/site.js" defer></script>

@@ -49,7 +49,16 @@
         "sdk",
         "ros2"
       ],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "双腕操作・テレオペ・移動操作PoCを、実験条件から設計",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-g1-d",
@@ -101,7 +110,22 @@
         "sdk",
         "ros2"
       ],
-      "verifiedAt": "2026-08-02"
+      "verifiedAt": "2026-08-02",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "データ収集・遠隔操作・学習と実機評価をつなぐ",
+        "preserveSectionIds": [
+          "overview",
+          "features",
+          "use-cases",
+          "workflow",
+          "training"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#vla",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-g1",
@@ -151,7 +175,21 @@
         "sdk",
         "ros2"
       ],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "全身運動・模倣学習・力制御ハンド・研究開発を実機で評価",
+        "preserveSectionIds": [
+          "capabilities",
+          "research",
+          "models",
+          "architecture"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
     },
     {
       "id": "unitree-h2-x",
@@ -221,7 +259,22 @@
         "sdk"
       ],
       "note": "H2-X/H2-X EDUは31自由度。二次開発はEDUのみ。H2・H2-Dとは別型番。",
-      "verifiedAt": "2026-10-31"
+      "verifiedAt": "2026-10-31",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "歩行制御・双眼視覚・音声対話・具身AIを研究",
+        "preserveSectionIds": [
+          "strengths",
+          "applications",
+          "media-h2x",
+          "specifications",
+          "research"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": false
+      }
     },
     {
       "id": "unitree-h2",
@@ -271,7 +324,21 @@
         "sdk"
       ],
       "note": "H2/H2 EDUは31自由度。二次開発はEDUのみ。高性能演算、ハンド、SDK/納入条件は構成ごとに確認。",
-      "verifiedAt": "2026-10-30"
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "二足歩行・全身制御・HRIの研究条件を比較",
+        "preserveSectionIds": [
+          "strengths",
+          "applications",
+          "specifications",
+          "research"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
     },
     {
       "id": "unitree-h2-d",
@@ -321,7 +388,23 @@
         "sdk"
       ],
       "note": "H2-D Standard19自由度／Flagship20自由度。末端効果器と開発条件、移動機能はSKU別に確認。",
-      "verifiedAt": "2026-10-30"
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "移動・把持・昇降を組み合わせた現場操作PoCを検討",
+        "preserveSectionIds": [
+          "strengths",
+          "use-cases",
+          "models",
+          "specifications",
+          "development",
+          "consider"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-g1-plus",
@@ -369,7 +452,21 @@
       "relatedCaseIds": [],
       "relatedResourceIds": [],
       "note": "G1+標準版は二次開発非対応。G1+ EDUは構成・開発条件が異なります。",
-      "verifiedAt": "2026-10-30"
+      "verifiedAt": "2026-10-30",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "双眼視覚・拡張給電・対話・実機評価の用途を検討",
+        "preserveSectionIds": [
+          "evolution",
+          "applications",
+          "specifications",
+          "choose"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
     },
     {
       "id": "agibot-x2-edu",
@@ -420,7 +517,25 @@
         "mujoco"
       ],
       "note": "公開前資料に基づくため、仕様は変更される場合があります。",
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "組み立て・ROS2開発・授業と競技の実機教育に活かす",
+        "preserveSectionIds": [
+          "overview",
+          "issues",
+          "use",
+          "assembly",
+          "features",
+          "specs",
+          "development",
+          "purchase-flow"
+        ],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
+        "supportHref": "/support.html#university",
+        "showBridge": false
+      }
     },
     {
       "id": "limx-oli",
@@ -468,7 +583,16 @@
       "relatedResourceIds": [
         "sdk"
       ],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "二足歩行・全身制御・運動学習の研究を比較",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html",
+        "supportHref": "/support.html#university",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-go2-edu",
@@ -518,7 +642,16 @@
         "sdk",
         "ros2"
       ],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "quadruped",
+        "customerValue": "四足移動・歩容研究・巡回点検PoCを評価",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html?maker=unitree&product=quadruped&type=sdk",
+        "supportHref": "/support.html#poc",
+        "showBridge": true
+      }
     },
     {
       "id": "tianji-marvin",
@@ -568,7 +701,16 @@
         "hdf5",
         "rlds"
       ],
-      "verifiedAt": "2026-07-16"
+      "verifiedAt": "2026-07-16",
+      "pageStandard": {
+        "version": "3.1",
+        "family": "mobile-manipulation",
+        "customerValue": "双腕テレオペ・VLA・データ収集の全体構成を評価",
+        "preserveSectionIds": [],
+        "resourcesHref": "/resources.html",
+        "supportHref": "/support.html#vla",
+        "showBridge": true
+      }
     },
     {
       "id": "unitree-h2-plus",
@@ -883,6 +1025,26 @@
           "unitree-g1"
         ],
         "contactService": ""
+      },
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "模倣学習・全身制御・把持研究に適した構成を確認",
+        "preserveSectionIds": [
+          "capabilities",
+          "applications",
+          "media",
+          "specifications",
+          "development",
+          "solutions",
+          "introduction",
+          "faq",
+          "related",
+          "contact-product"
+        ],
+        "resourcesHref": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2",
+        "supportHref": "/support.html#vla",
+        "showBridge": false
       }
     },
     {
@@ -1149,6 +1311,23 @@
           "unitree-g1-plus",
           "unitree-g1"
         ]
+      },
+      "pageStandard": {
+        "version": "3.1",
+        "family": "humanoid",
+        "customerValue": "受付・巡回・具身AI研究の用途に合わせ運用条件を確認",
+        "preserveSectionIds": [
+          "capabilities",
+          "applications",
+          "media",
+          "specifications",
+          "faq",
+          "related",
+          "contact-product"
+        ],
+        "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
+        "supportHref": "/support.html#setup",
+        "showBridge": true
       }
     }
   ]

@@ -358,7 +358,9 @@ def render(root: Path, product: dict, mode: str) -> str:
     contact_service = spec.get("contactService", "university-procurement")
     contact = ("/contact.html?product=" + quote(product["name"], safe="")
                + ("&maker=" + quote(product["manufacturerName"], safe="") if spec.get("v3") else "")
-               + ("&service=" + quote(contact_service, safe="") if contact_service else ""))
+               + ("&service=" + quote(contact_service, safe="") if contact_service else "")
+               + ("&maker=" + quote(product["manufacturerName"], safe="")
+                  if product.get("pageStandard") and not spec.get("v3") else ""))
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
@@ -468,6 +470,12 @@ def render(root: Path, product: dict, mode: str) -> str:
         "product_id": esc(slug),
         "verified_at": esc(product["verifiedAt"]),
     }
+    from product_page_standard_v31 import bridge as render_standard_bridge
+    standard = product.get("pageStandard", {})
+    mapping["product_family"] = esc(standard.get("family", "humanoid"))
+    mapping["standard_bridge"] = render_standard_bridge(product) if standard else ""
+    mapping["standard_css"] = ('<link rel="stylesheet" href="/assets/css/product-standard-v31.css">'
+        if standard.get("showBridge") else "")
     mapping.update(render_v3_sections(spec, product))
     mapping["v3_styles"] = (
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
