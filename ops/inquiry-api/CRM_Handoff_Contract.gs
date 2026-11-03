@@ -53,6 +53,14 @@ function crmV129TextCell_(value, limit) {
   return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
 }
 
+/** Retain a same-origin product path only. Never leak query tokens, email
+ * addresses or external referrers into the university Master notes. */
+function crmV129SafeSourcePath_(value) {
+  const raw = crmV129Clean_(value, 1024);
+  const m = /^https:\/\/robotics\.air-admin8\.co\.jp(\/[a-z0-9._/-]*)/i.exec(raw);
+  return m ? m[1].slice(0, 200) : '';
+}
+
 function crmV129OrgType_(organization) {
   const value = crmV129Clean_(organization, 500);
   const university = /大学|大學|\buniversity\b/i.test(value);
@@ -80,7 +88,7 @@ function crmV129IntakeProposal_(inquiry) {
     'InquiryID=' + inquiryId,
     'Product=' + crmV129Clean_(inquiry.source_product || inquiry.product, 120),
     'Maker=' + crmV129Clean_(inquiry.source_maker, 100),
-    'Source=' + crmV129Clean_(inquiry.source_page, 220)
+    'Source=' + crmV129SafeSourcePath_(inquiry.source_page)
   ].join('; ').slice(0, 800);
   return [
     crmV129TextCell_(date, 40),
@@ -123,8 +131,14 @@ function crmV129Identity_(inquiry, candidates, authoritativeSnapshot) {
   if (!sameName || !sameOrg) {
     return { decision: 'HOLD', reason: 'PERSON_NAME_OR_AFFILIATION_CONFLICT', customerId: null };
   }
-  const verifiedEmail = person.emailStatus === 'CONFIRMED' &&
-    /^https:\/\//i.test(crmV129Clean_(person.emailEvidenceUrl, 1024));
+  // Physically observed 02_顧客Master Q-column values include:
+  // 確認済 / 確認済み / 有効 / 要再調査 / 未確認.
+  // 有効 is NOT sufficient to prove Person identity or verified Primary.
+  const confirmedStatuses = ['確認済', '確認済み', 'CONFIRMED'];
+  const verifiedEmail = confirmedStatuses.includes(crmV129Clean_(person.emailStatus, 40)) &&
+    /^https:\/\//i.test(crmV129Clean_(person.emailEvidenceUrl, 1024)) &&
+    person.evidenceGatePassed === true &&
+    person.duplicateGatePassed === true;
   if (!verifiedEmail || !crmV129Clean_(person.customerId, 128)) {
     return { decision: 'HOLD', reason: 'CANONICAL_EMAIL_OR_CUSTOMER_ID_UNVERIFIED', customerId: null };
   }
