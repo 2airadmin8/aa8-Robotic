@@ -66,6 +66,12 @@ This is a **proposed row**, not a committed entry. The existing inbound writer m
 5. No PAI/ERP reverse write into Person name/affiliation/Primary.
 6. A client-supplied CustomerID is never trusted; only the official Master candidate can provide a CustomerID.
 
+## Existing 02_顧客Master physical 71-column projection (read-only)
+
+The adapter `crmV129PersonFromMasterPhysicalRow_(headers, row, trustedT006Gates)` validates unique Japanese column headers and returns a read-only Person snapshot. Observed columns (zero-based physical positions): `顧客ID` A/0, `大学・所属` D/3, `研究者名` F/5, `Primaryメール` O/14, `メール状態` Q/16, `メール情報源URL` R/17, `氏名一致` AC/28, `所属一致` AD/29, `営業利用可否` AH/33, `ID状態` BO/66, `メール重複` BQ/68.
+
+Physical `メール状態` includes `確認済`, `確認済み`, `有効`, `要再調査`, `未確認`. Even when `確認済` appears, **trusted T006 official-email-evidence and identity/dedup approvals are independent mandatory flags**. `有効` alone is not Person verification. The PAI/ERP reverse writer must not change these identity columns. The adapter reads no live data itself and performs no API requests.
+
 ## Corporate / Opportunity Gate
 
 - `PAI_ORGANIZATION` is isolated from the university Person Master. The corporate Customer/Organization Writer's actual API and physical fields must be read and verified before enabling this route.
