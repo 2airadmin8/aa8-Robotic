@@ -38,6 +38,7 @@ jobs:
           python -m unittest discover -s tests -p test_release_trigger.py -v
           python scripts/verify_release_trigger.py --runtime-event
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
+          python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python scripts/product_page_standard_v31.py --check
 
       - name: Build release artifact
