@@ -312,3 +312,52 @@ test('V129 S22: source_page is a same-origin path; no attacker query/external re
  assert(!other.includes('evil.example'));
  assert(!other.includes('sensitive'));
 });
+
+test('V129 S23: project actual 71-column 02_顧客Master physical row through trusted T006 gates',()=>{
+ const h=Array.from({length:71},(_,i)=>'RESERVED_'+i),row=Array(71).fill('');
+ const cols={
+  0:'顧客ID',3:'大学・所属',5:'研究者名',14:'Primaryメール',
+  16:'メール状態',17:'メール情報源URL',28:'氏名一致',
+  29:'所属一致',33:'営業利用可否',66:'ID状態',68:'メール重複'
+ };
+ for(const [i,label] of Object.entries(cols))h[Number(i)]=label;
+ const set=(key,value)=>{row[h.indexOf(key)]=value};
+ set('顧客ID','L-TEST-0001');
+ set('大学・所属','架空テスト大学');
+ set('研究者名','テスト研究者');
+ set('Primaryメール','researcher@example.test');
+ set('メール状態','確認済み');
+ set('メール情報源URL','https://example.test/evidence');
+ set('氏名一致','一致');
+ set('所属一致','一致');
+ set('営業利用可否','要確認'); // incoming consult != automatic outbound permission
+ set('ID状態','OK');
+ set('メール重複','OK');
+ const fields=context.crmV129PersonFromMasterPhysicalRow_(h,row,{
+  officialEmailEvidencePassed:true,identityAndDedupPassed:true
+ });
+ assert.equal(fields.customerId,'L-TEST-0001');
+ assert.equal(fields.emailStatus,'確認済み');
+ assert.equal(fields.salesUseAllowed,false);
+ assert.equal(fields.duplicateGatePassed,true);
+ const out=prepare(inbox(),[fields],trusted);
+ assert.equal(out.identity.decision,'EXISTING_VERIFIED');
+ assert.equal(out.identity.customerId,'L-TEST-0001');
+ assert.equal(out.emailsSent,0);
+ assert.equal(out.opportunity.state,'NO_CASE');
+ // If physical status changes to 有効, even trusted T006 approvals cannot
+ // silently elevate it into a verified Primary for this conservative gate.
+ set('メール状態','有効');
+ const downgraded=context.crmV129PersonFromMasterPhysicalRow_(h,row,{officialEmailEvidencePassed:true,identityAndDedupPassed:true});
+ assert.equal(prepare(inbox(),[downgraded],trusted).identity.decision,'HOLD');
+});
+
+test('V129 S24: missing physical columns or duplicate field names fail closed',()=>{
+ const h=Array.from({length:71},(_,i)=>'RESERVED_'+i);
+ const row=Array(71).fill('');
+ assert.equal(context.crmV129PersonFromMasterPhysicalRow_(h,row,{}),null);
+ assert.equal(context.crmV129PersonFromMasterPhysicalRow_(['顧客ID'],['L-TEST-0001'],{}),null);
+ const x=prepare(inbox(),[null],trusted);
+ assert.equal(x.identity.reason,'PERSON_SSOT_ROW_INVALID');
+ assert.equal(x.gate,'HOLD_IDENTITY_GATE');
+});
