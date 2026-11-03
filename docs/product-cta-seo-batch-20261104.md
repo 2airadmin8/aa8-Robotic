@@ -24,3 +24,15 @@ Extend the existing `scripts/inject_structured_data.py` publish-time injector to
 
 ### CI regression root-cause reconciliation
 The initial PR run #41701300790 failed two **old contract** tests: (1) A3 Ultra Factory generated its default university-procurement URL even though the manually edited HTML used general consultation; (2) V3.1 expected the older H2-X URL to have no maker. Both were fixed at their roots by declaring "contactService": "" in A3's existing Product Master pageFactory configuration (the Factory already handles empty services) and updating the exact V3.1 expected H2-X maker provenance. Original 8 V3.1 and 20 Factory regression tests now pass; no CI gate was disabled.
+
+
+### Live-browser regression contract reconciliation
+PR CI #41702235906 reached Playwright and proved 182 tests PASS, but five pre-existing
+assertions still expected the old H2-X service URL (3 viewport cases) or the
+old G1+ hero's university-purchase default (2 cases). The **existing tests**
+are updated to assert the new approved source and attribution, not removed,
+skipped or weakened: H2-X CTA 3-card sequence with `maker=Unitree`; G1+
+actual product->contact page with `source_service=""`,
+`source_maker="Unitree"` and category `導入条件整理`.
+The new 15 real CTA click regressions and 33 PC/SP product checks already pass
+independently on AA8-N-015 with exact HEAD 12ce8877849f8f00a5db91ef621584467606a719.

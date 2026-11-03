@@ -117,8 +117,10 @@ for (const width of [1440, 390]) {
     await page.waitForLoadState('networkidle');
     await expect(page.locator('[name="source_product"]')).toHaveValue('Unitree G1+');
     await expect(page.locator('[name="product"]')).toHaveValue('Unitree G1+');
-    await expect(page.locator('[name="source_service"]')).toHaveValue('university-procurement');
-    await expect(page.locator('[name="category"]')).toHaveValue('見積・大学購買');
+    // A general research/implementation inquiry must not be misclassified as a purchase.
+    await expect(page.locator('[name="source_service"]')).toHaveValue('');
+    await expect(page.locator('[name="source_maker"]')).toHaveValue('Unitree');
+    await expect(page.locator('[name="category"]')).toHaveValue('導入条件整理');
     await expect(page.locator('#contact-form')).toBeVisible();
     await expect(page.locator('script[src*="analytics-events.js"]')).toHaveCount(1);
     await expect(page.locator('script[src*="/seo.js"]')).toHaveCount(0);
