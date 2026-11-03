@@ -236,23 +236,31 @@ def page_schema(config: dict[str, str], canonical: str, description: str) -> dic
     return result
 
 
-# Publicly launched product pages only; A3 Ultra included after CEO go-live instruction.
-RECENT_PRODUCT_SLUGS = {
+# Existing publicly reachable product pages only. All use the original approved
+# Product Master and provenance-gated official images. Not an Offer/price feed.
+# Earlier six were present; the five older pages now receive the same treatment.
+PUBLISHED_PRODUCT_FACT_SLUGS = {
     "unitree-g1-plus", "unitree-h2-d", "unitree-h2",
     "unitree-h2-x", "unitree-h2-plus", "agibot-a3-ultra",
+    "unitree-g1", "unitree-g1-d", "unitree-go2",
+    "agibot-x2-edu", "agibot-g2",
 }
 
 
 def recent_product_facts(relative_name: str, canonical: str, description: str,
                          text: str) -> dict[str, object] | None:
     slug = Path(relative_name).stem
-    if slug not in RECENT_PRODUCT_SLUGS or not relative_name.startswith("products/"):
+    if slug not in PUBLISHED_PRODUCT_FACT_SLUGS or not relative_name.startswith("products/"):
         return None
     from product_factory import catalog
-    data = {p["id"]: p for p in catalog(ROOT)}
-    product = data.get(slug)
+    # Product IDs need not match page slugs (e.g. Go2 EDU).
+    # detailPage is the SSOT key for the public Product URL.
+    products = [p for p in catalog(ROOT) if p.get("detailPage") == relative_name]
+    if len(products) != 1:
+        raise ValueError(f"Product Master detailPage must be unique: {slug}")
+    product = products[0]
     if product is None:
-        raise ValueError(f"Recent product not in Master: {slug}")
+        raise ValueError(f"Published product not in Master: {slug}")
     image = str(product.get("image", ""))
     if not image.startswith("assets/img/") or not (ROOT / image).is_file():
         raise ValueError(f"Product official image missing: {slug}")
@@ -270,7 +278,11 @@ def recent_product_facts(relative_name: str, canonical: str, description: str,
         "image": [f"{PUBLIC_BASE}{image}"],
         "brand": {"@type": "Brand", "name": product["manufacturerName"]},
         "manufacturer": {"@type": "Organization", "name": product["manufacturerName"]},
-        "category": "ヒューマノイドロボット",
+        "category": (
+            "四足歩行ロボット" if slug == "unitree-go2"
+            else "移動マニピュレーションロボット" if slug == "agibot-g2"
+            else "ヒューマノイドロボット"
+        ),
         "mainEntityOfPage": {"@id": f"{canonical}#page"},
         # Price, availability, SKU, reviews and ratings are deliberately
         # omitted where no verified Japanese offer evidence exists.
