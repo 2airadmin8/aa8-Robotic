@@ -39,7 +39,6 @@ for(const product of products){
           expect(new URL(href,ORIGIN).searchParams.get('maker')).toBe(product.manufacturerName);
         }
       }
-      expect(badLinks>=0).toBeTruthy();
       await page.close();
     });
   }

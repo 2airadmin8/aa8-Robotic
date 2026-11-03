@@ -824,7 +824,11 @@
             }
           ],
           "developerDocsUrl": "https://support.unitree.com/home/en/H2_developer",
-          "resourceSearchUrl": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2"
+          "resourceSearchUrl": "/resources.html?maker=unitree&product=humanoid&type=sdk&keyword=H2",
+          "resourceLinkLabel": "UnitreeのSDK・開発資料一覧",
+          "developerDocsLabel": "Unitree H2 Developer Documentation（公式）",
+          "developerDocsCaution": "この資料はH2向けです。H2 Plusへの適用可否、対象SKU、対応OS、SDK配布条件は購入前にメーカーへ確認してください。",
+          "sdkDownloadNote": "SDK本体・ダウンロードファイルは準備中です。"
         },
         "facts": [
           {

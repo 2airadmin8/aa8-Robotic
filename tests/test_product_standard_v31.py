@@ -91,6 +91,16 @@ class ProductStandardV31Tests(unittest.TestCase):
                         # Frozen H2-X CTA links must remain byte compatible.
                         self.assertNotIn("maker",query)
 
+    def test_v3_sdk_copy_comes_from_product_master_not_hardcoded_vendor(self):
+        factory_source=(ROOT / "scripts/product_factory.py").read_text(encoding="utf-8")
+        self.assertIn('developerDocsLabel',factory_source)
+        self.assertIn('developerDocsCaution',factory_source)
+        self.assertIn('resourceLinkLabel',factory_source)
+        self.assertNotIn('Unitree H2 Developer Documentation（公式）',factory_source)
+        self.assertNotIn('この資料はH2向けです。',factory_source)
+        h2=self.by_id["unitree-h2-plus"]["pageFactory"]["v3"]
+        self.assertEqual(h2["developerDocsLabel"],"Unitree H2 Developer Documentation（公式）")
+
     def test_factory_products_generated_source_parity(self):
         import product_factory
         for product in self.products:

@@ -313,17 +313,20 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
     if not resource_href.startswith("/resources.html"):
         raise ContractError(f"{product['id']}.v3.resourceSearchUrl: unsafe local path")
     developer_url = v3.get("developerDocsUrl")
+    resource_label = esc(str(v3.get("resourceLinkLabel") or "SDK・開発資料一覧"))
+    developer_label = esc(str(v3.get("developerDocsLabel") or "メーカー公式開発資料"))
+    developer_caution = esc(str(v3.get("developerDocsCaution") or
+                               "対応SKU・OS・SDK配布条件は購入前にメーカーへ確認してください。"))
+    sdk_download_note = esc(str(v3.get("sdkDownloadNote") or ""))
     developer_link = (
         '<a href="' + esc(official_url(developer_url, "developerDocsUrl")) +
-        '" target="_blank" rel="noopener noreferrer">Unitree H2 Developer Documentation（公式）</a>。'
+        '" target="_blank" rel="noopener noreferrer">' + developer_label + '</a>。'
         if developer_url else
         '<a href="' + source + '" target="_blank" rel="noopener noreferrer">メーカー公式情報</a>。'
     )
     sdk_foot = (
-        '技術資料：<a href="' + esc(resource_href) + '">UnitreeのSDK・開発資料一覧</a>／'
-        + developer_link +
-        'この資料はH2向けです。H2 Plusへの適用可否、対象SKU、対応OS、SDK配布条件は購入前にメーカーへ確認してください。'
-        'SDK本体・ダウンロードファイルは準備中です。'
+        '技術資料：<a href="' + esc(resource_href) + '">' + resource_label + '</a>／'
+        + developer_link + developer_caution + sdk_download_note
     )
     return {
         "v3_navigation": "",
@@ -426,7 +429,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         "spec_heading": "製品スペック" if spec.get("v3") else "メーカー公開仕様",
         "spec_origin": (
             '<details class="g1-factory-source"><summary>仕様の出典・確認情報</summary>'
-            '<p>Unitree公式の公表値を参照。確認日：' + esc(product["verifiedAt"]) +
+            '<p>' + esc(product["manufacturerName"]) + '公式の公表値を参照。確認日：' + esc(product["verifiedAt"]) +
             '。掲載値は購入するSKU・オプション構成で異なる場合があります。 '
             '<a href="' + source + '" target="_blank" rel="noopener noreferrer">'
             'メーカー公式仕様を見る ↗</a></p></details>'
