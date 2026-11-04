@@ -36,3 +36,11 @@ actual product->contact page with `source_service=""`,
 `source_maker="Unitree"` and category `導入条件整理`.
 The new 15 real CTA click regressions and 33 PC/SP product checks already pass
 independently on AA8-N-015 with exact HEAD 12ce8877849f8f00a5db91ef621584467606a719.
+
+### 2026-11-04｜Related Products heading design contract alignment
+- CEO requested exactly: `RELATED PRODUCTS` / `あわせて比較したい製品` in related-product sections aligned with the existing approved product-page template.
+- `scripts/templates/g1_factory_v1.html` is the canonical factory layout and **already** contains this exact two-line heading; generated A3 Ultra and H2 Plus already match, therefore no redundant template rewrite.
+- The five older product pages containing actual comparison sections (G1, G1+, H2, H2-D and H2-X) now use the same text while retaining their existing cards/images/links and PC/SP-specific wrappers.
+- Four products without an existing related-products section (G1-D, Go2 EDU, X2 EDU and AgiBot G2) are not given an empty heading or fabricated comparison cards. Existing X2 EDU design master remains frozen.
+- Add `test_related_products_heading_20261104.py` and Playwright `related-products-alignment-20261104.spec.js` to existing CI to assert exact heading, no duplicate, PC1440/SP390/SP360 and grid/title left alignment; no changes to external emailing/CRM, design assets or public release.
+- Previously approved PR #168 SHA `6ffae331be04853216c74b460b6d8c163cf4b241` is superseded by the new candidate SHA when committed; old production approval cannot be reused. No merge/pages dispatch until new full exact-SHA Preview/QA and CEO consent.
