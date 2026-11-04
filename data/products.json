@@ -1048,7 +1048,10 @@
           "unitree-g1-plus",
           "unitree-g1"
         ],
-        "contactService": ""
+        "contactService": "",
+        "catalogDownload": {
+          "status": "internal_review"
+        }
       },
       "pageStandard": {
         "version": "3.1",
@@ -1335,7 +1338,10 @@
           "unitree-h2-x",
           "unitree-g1-plus",
           "unitree-g1"
-        ]
+        ],
+        "catalogDownload": {
+          "status": "internal_review"
+        }
       },
       "pageStandard": {
         "version": "3.1",

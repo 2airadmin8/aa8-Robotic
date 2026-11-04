@@ -68,3 +68,10 @@ main.g1-page[data-product-factory="g1-v1"] > .g1-section:not(.g1-final-cta) {
     min-height: 328px; border-radius: 12px;
   }
 }
+
+/* Catalog CTA: gated product PDF, with preview-only pending state */
+.aa8-catalog-after-specs{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:22px 0 0;padding:20px;border:1px solid #dce3e7;border-radius:12px;background:#fff}
+.aa8-catalog-after-specs p{margin:0;font-weight:700}
+.aa8-catalog-after-specs small{width:100%;color:#59656d}
+.aa8-catalog-pending{cursor:default;opacity:.75;pointer-events:none;border-style:dashed!important}
+@media(max-width:600px){.aa8-catalog-after-specs{display:grid;padding:16px}.aa8-catalog-after-specs .g1-button{width:100%;text-align:center}.g1-hero-ctas .aa8-catalog-pending{width:100%;text-align:center}}
