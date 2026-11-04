@@ -88,8 +88,8 @@ class ProductStandardV31Tests(unittest.TestCase):
                     if not product.get("designContract"):
                         self.assertEqual(query.get("maker"), [product["manufacturerName"]])
                     else:
-                        # Frozen H2-X CTA links must remain byte compatible.
-                        self.assertNotIn("maker",query)
+                        # CEO-approved H2-X generic CTA must retain its maker provenance.
+                        self.assertEqual(query.get("maker"), [product["manufacturerName"]])
 
     def test_v3_sdk_copy_comes_from_product_master_not_hardcoded_vendor(self):
         factory_source=(ROOT / "scripts/product_factory.py").read_text(encoding="utf-8")

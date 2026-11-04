@@ -250,7 +250,7 @@
         "ctaLinks": [
           "/assets/img/products/unitree/h2x/drive/video_01.mp4",
           "#specifications",
-          "/contact.html?product=Unitree%20H2-X&service=university-procurement"
+          "/contact.html?product=Unitree%20H2-X&maker=Unitree"
         ]
       },
       "priceStatus": "confirmation_required",
@@ -1125,6 +1125,7 @@
       "pageFactory": {
         "template": "g1-v1",
         "releaseReady": true,
+        "contactService": "",
         "officialSource": "https://www.agibot.com/products/A3Ultra",
         "title": "AGIBOT A3 Ultra｜174cm・700 TOPS・自律運用対応ヒューマノイド｜AirAdmin8 Robotics",
         "metaDescription": "AGIBOT A3 Ultraは174cm・約60kg、700TOPSメーカー公表演算性能、全周囲知覚や自律充電を備えたフルサイズヒューマノイド。研究・受付・巡回活用、仕様、国内調達条件を紹介。",
