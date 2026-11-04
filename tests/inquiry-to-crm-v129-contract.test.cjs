@@ -415,3 +415,50 @@ test('V129 S30: invalid receipt time cannot emit even a quote CaseEvent candidat
  assert.equal(out.followUp.state,'BLOCKED_INVALID_INQUIRY');
  assert.equal(out.emailsSent,0);
 });
+
+
+// P0: Corporate PAI accepts InboundIntakeRef before SalesCaseID and does
+// NOT require a university researcher L-xxxx CustomerID.
+test('V129 S31: corporate quote/PoC must not require university Person CustomerID',()=>{
+  for(const [category,eventType] of [['見積・大学購買','QUOTE_REQUEST'],['PoC設計','POC_CONSULTATION']]){
+    const i=inbox({organization:'株式会社テスト企業',email:'contact@example.test',category});
+    const out=prepare(i,[],trusted);
+    assert.equal(out.route,'PAI_ORGANIZATION');
+    assert.equal(out.inboundIntakeRef,i.inquiry_id);
+    assert.equal(out.gate,'HOLD_ORGANIZATION_ROUTE');
+    assert.equal(out.universityIntake,null);
+    assert.equal(out.identity.customerId,null);
+    assert.equal(out.opportunity.customerId,null);
+    assert.equal(out.opportunity.eventType,eventType);
+    assert.equal(out.opportunity.caseEventId,i.inquiry_id+':'+eventType);
+    assert.equal(out.opportunity.state,'HOLD_PAI_CORPORATE_EVIDENCE_AND_WRITER');
+    assert.equal(out.writesPerformed,0);
+    assert.equal(out.emailsSent,0);
+  }
+});
+test('V129 S32: ordinary corporate web inquiries never create Case or university Person',()=>{
+  for(const [org,category] of [
+    ['株式会社ユニキャスト','製品比較・選定'],
+    ['株式会社みどりホールディングス','会社・協業相談']
+  ]){
+    const i=inbox({organization:org,category,email:'safe-synthetic@example.test'});
+    const first=prepare(i,[],trusted),retry=prepare(i,[],trusted);
+    assert.equal(first.route,'PAI_ORGANIZATION');
+    assert.equal(first.universityIntake,null);
+    assert.equal(first.opportunity.state,'NO_CASE');
+    assert.equal(first.opportunity.caseEventId,null);
+    assert.equal(first.inboundIntakeRef,retry.inboundIntakeRef);
+    assert.equal(first.writesPerformed,0);
+    assert.equal(retry.writesPerformed,0);
+  }
+});
+test('V129 S33: ambiguous entity quote holds without any Person/Case writer',()=>{
+  const i=inbox({organization:'株式会社大学サンプル',category:'PoC設計'});
+  const out=prepare(i,[],trusted);
+  assert.equal(out.route,'HOLD_UNKNOWN_ENTITY');
+  assert.equal(out.gate,'HOLD_ENTITY_CLASSIFICATION');
+  assert.equal(out.universityIntake,null);
+  assert.equal(out.opportunity.state,'HOLD_ENTITY_CLASSIFICATION');
+  assert.equal(out.opportunity.customerId,null);
+  assert.equal(out.writesPerformed,0);
+});

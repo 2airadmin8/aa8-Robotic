@@ -120,3 +120,34 @@ AA8-N-012 isolated result: **52 total / 50 PASS / 0 FAIL / 2 TODO**. The two rea
 ### Deployment evidence boundary
 
 Existing DEV Sheet metadata and the historical Drive `inquiry-api/Code.gs` source file do not establish an active DEV deployment. This continuation's bounded search of AA8-N-018 Documents found no reference to the DEV Sheet ID; that is not proof that the deployment does not exist. Script ID, deployment/version, bound DEV Sheet and internal-only recipients must still be proven as one consistent existing deployment before any real POST. No replacement environment or Production test is authorized.
+
+
+### 2026-11-04 | Corporate PAI route and QA CustomerID collision hardening
+
+Read-only production sources confirm two real external corporate Inquiry records.
+Unicast's original InquiryID is already recorded under existing PAI SalesCaseID
+017; Midori is not found in the inspected PAI case range. No matching enterprise
+organizations or domains are in the university Person Master.
+Do not duplicate the Unicast case, create a fabricated corporate CustomerID, or
+write a corporate visitor into the university Person Master.
+
+V129 previously assigned HOLD_CUSTOMER_ID to a corporate quote/PoC event,
+which could be misinterpreted as requiring a university L-xxxx Person ID.
+PAI ERP v2.6 instead accepts InboundIntakeRef before SalesCaseID, without
+a university Person ID. Corporate strong events now retain the deterministic
+candidate CaseEventID but remain HOLD_PAI_CORPORATE_EVIDENCE_AND_WRITER.
+The PAI organization writer is unverified; no Case is created and all
+writesPerformed/emailsSent remain zero. Unknown entity strong events are
+HOLD_ENTITY_CLASSIFICATION, not university ID allocation.
+
+The isolated QA workbook contains noncanonical L-0001/L-0002 test strings
+which also exist independently in the official Person Master. Their raw string
+equality is NOT authority, and no QA ID may be imported, linked or promoted to
+a production ID. The existing T006 admission gate rejects preset Intake IDs,
+even when supplied alongside apparently valid Evidence.
+
+New deterministic regressions use synthetic emails and no production records,
+test the corporate/ambiguous strong-event boundary and QA ID collision, and
+must not be presented as a real corporate PAI writer integration. Actual
+Production CRM/Case E2E remains blocked until the authorized PAI writer and
+formal identity evidence are verified in a separate approved change set.

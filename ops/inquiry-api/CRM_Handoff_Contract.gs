@@ -258,11 +258,16 @@ function evaluateCrmHandoffV129_(inquiry, personCandidates, trustedContext) {
   if (route === 'PAI_ORGANIZATION') {
     base.identity.reason = 'EXISTING_PAI_ORGANIZATION_WRITER_NOT_VERIFIED';
     base.gate = 'HOLD_ORGANIZATION_ROUTE';
+    // Corporate PAI does NOT require a university Person CustomerID (L-xxxx).
+    // InboundIntakeRef is valid before SalesCaseID, but creating a Case requires
+    // the authorized PAI writer, verified corporate identity and unique event.
+    if (eventType) base.opportunity.state = 'HOLD_PAI_CORPORATE_EVIDENCE_AND_WRITER';
     return base;
   }
   if (route !== 'UNIVERSITY_PERSON') {
     base.identity.reason = 'ENTITY_TYPE_AMBIGUOUS';
     base.gate = 'HOLD_ENTITY_CLASSIFICATION';
+    if (eventType) base.opportunity.state = 'HOLD_ENTITY_CLASSIFICATION';
     return base;
   }
   base.universityIntake = {

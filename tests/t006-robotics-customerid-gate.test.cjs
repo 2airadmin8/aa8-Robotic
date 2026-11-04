@@ -51,3 +51,15 @@ test('Form-provided evidence URL without T006 proof is insufficient',()=>{
   assert.equal(r.decision,'HOLD');
   assert.equal(r.reason,'T006_EVIDENCE_IDENTITY_GATE_REQUIRED');
 });
+
+
+test('QA namespace collision L-0001/L-0002 is not an approved official ID',()=>{
+  for(const testId of ['L-0001','L-0002','QA_NONCANONICAL:L-0001']){
+    const out=decide(i,[{...row,customerId:testId}],[],proof);
+    assert.equal(out.decision,'HOLD');
+    assert.equal(out.reason,'CUSTOMER_ID_ALREADY_PRESET_RECONCILE');
+    assert.equal(out.existingCustomerId,null);
+    assert.equal(out.newCustomerId,null);
+    assert.equal(out.writesPerformed,0);
+  }
+});
