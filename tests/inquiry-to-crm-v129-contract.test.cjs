@@ -462,3 +462,71 @@ test('V129 S33: ambiguous entity quote holds without any Person/Case writer',()=
   assert.equal(out.opportunity.customerId,null);
   assert.equal(out.writesPerformed,0);
 });
+
+
+test('V129 S35: no authoritative PAI snapshot means HOLD',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'見積・大学購買'}),[],trusted);
+ for(const snap of [undefined,{}, {origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true}]) {
+  const x=context.crmV129PaiCaseAdmission_(h,snap);
+  assert.equal(x.decision,'HOLD');assert.equal(x.writerCalled,false);
+  assert.equal(x.writesPerformed,0);assert.equal(x.emailsSent,0);
+ }
+});
+test('V129 S36: existing CaseEvent retry never creates another Case',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'PoC設計'}),[],trusted);
+ const snap={origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[{
+  caseEventId:h.opportunity.caseEventId,inboundIntakeRef:h.inboundIntakeRef,salesCaseId:'017'}]};
+ for(let i=0;i<2;i++){
+  const x=context.crmV129PaiCaseAdmission_(h,snap);
+  assert.equal(x.decision,'EXISTING_CASE_REVIEW_ONLY');
+  assert.equal(x.existingSalesCaseId,'017');
+  assert.equal(x.writerCalled,false);assert.equal(x.writesPerformed,0);
+ }
+});
+test('V129 S37: duplicate or conflicting PAI events HOLD',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'PoC設計'}),[],trusted);
+ const e={caseEventId:h.opportunity.caseEventId,inboundIntakeRef:h.inboundIntakeRef,salesCaseId:'017'};
+ const s={origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[
+  e,{...e,salesCaseId:'018'}]};
+ const x=context.crmV129PaiCaseAdmission_(h,s);
+ assert.equal(x.reason,'PAI_DUPLICATE_OR_CONFLICTING_EVENT');
+});
+test('V129 S38: mismatched CaseEvent and Inquiry SourceID HOLD',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'PoC設計'}),[],trusted);
+ for(const event of [
+  {caseEventId:h.opportunity.caseEventId,inboundIntakeRef:'INQ-20261103-204500-DEADBEEF',salesCaseId:'017'},
+  {caseEventId:'INQ-20261103-204500-DEADBEEF:POC_CONSULTATION',inboundIntakeRef:h.inboundIntakeRef,salesCaseId:'017'}]){
+  const x=context.crmV129PaiCaseAdmission_(h,{
+   origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[event]});
+  assert.equal(x.decision,'HOLD');
+ }
+});
+test('V129 S39: corporate identity and Writer authority independently required',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'見積・大学購買'}),[],trusted);
+ for(const prop of ['corporateIdentityVerified','existingWriterBindingVerified','isolatedWriterTargetVerified']){
+  const s={origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[],
+   corporateIdentityVerified:true,existingWriterBindingVerified:true,isolatedWriterTargetVerified:true};
+  delete s[prop];
+  assert.equal(context.crmV129PaiCaseAdmission_(h,s).decision,'HOLD');
+ }
+});
+test('V129 S40: even verified synthetic snapshot never calls Writer',()=>{
+ const h=prepare(inbox({organization:'株式会社テスト企業',category:'見積・大学購買'}),[],trusted);
+ const s={origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[],
+  corporateIdentityVerified:true,existingWriterBindingVerified:true,isolatedWriterTargetVerified:true};
+ const out=context.crmV129PaiCaseAdmission_(h,s);
+ assert.equal(out.decision,'READY_FOR_EXISTING_WRITER_REVIEW_ONLY');
+ assert.equal(out.writerCalled,false);assert.equal(out.writesPerformed,0);
+});
+test('V129 S41: ordinary or ambiguous inquiries cannot become cases',()=>{
+ const gate=context.crmV129PaiCaseAdmission_;
+ for(const i of [
+  inbox({organization:'株式会社テスト企業',category:'導入条件整理'}),
+  inbox({organization:'架空テスト大学',category:'PoC設計'}),
+  inbox({organization:'合同大学株式会社',category:'見積・大学購買'})]){
+  const h=prepare(i,[],trusted);
+  const x=gate(h,{origin:'ORIGINAL_PAI_CASE_SSOT',readOnlyVerified:true,caseEvents:[]});
+  assert.equal(x.reason,'NOT_ELIGIBLE_CORPORATE_OPPORTUNITY');
+  assert.equal(x.writesPerformed,0);
+ }
+});

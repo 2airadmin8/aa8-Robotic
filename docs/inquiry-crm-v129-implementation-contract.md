@@ -151,3 +151,18 @@ test the corporate/ambiguous strong-event boundary and QA ID collision, and
 must not be presented as a real corporate PAI writer integration. Actual
 Production CRM/Case E2E remains blocked until the authorized PAI writer and
 formal identity evidence are verified in a separate approved change set.
+
+
+## 2026-11-06 | Corporate CaseEvent fail-closed admission in existing PR
+
+The crmV129PaiCaseAdmission_ function is pure and read-only, not a second
+PAI Writer. It checks stable InquiryID/CaseEventID, authoritative event
+snapshot, duplicate/conflict, corporate evidence, and existing original
+Writer/sandbox binding. Existing Case results are reconciliation proposals.
+Even a complete synthetic positive path does NOT call a Writer, allocate
+a CaseID, send mail, or write production data.
+
+True PAI Writer E2E remains HOLD until authenticated existing Writer entry,
+execute-as identity, isolated destination and physical readback are verified.
+T006 isolated QA Writer tests cannot certify official CustomerID allocation.
+Never derive authorization from website-submitted fields or these test flags.

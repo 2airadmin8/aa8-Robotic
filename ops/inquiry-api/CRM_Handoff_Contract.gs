@@ -290,3 +290,51 @@ function evaluateCrmHandoffV129_(inquiry, personCandidates, trustedContext) {
   }
   return base;
 }
+
+
+/** PAI admission proposal only, NEVER the PAI Writer.
+ * Snapshot evidence is only accepted if independently obtained by a trusted
+ * server adapter. Browser-supplied fields/flags never confer authority.
+ */
+function crmV129PaiCaseAdmission_(handoff, writerReadOnlySnapshot) {
+  const result = (decision, reason, ref) => Object.freeze({
+    decision, reason, existingSalesCaseId: ref || null,
+    caseEventId: handoff && handoff.opportunity ? handoff.opportunity.caseEventId : null,
+    writesPerformed: 0, emailsSent: 0, writerCalled: false
+  });
+  if (!handoff || handoff.route !== 'PAI_ORGANIZATION' ||
+      handoff.gate !== 'HOLD_ORGANIZATION_ROUTE' ||
+      handoff.writesPerformed !== 0 || !handoff.opportunity ||
+      !['QUOTE_REQUEST','POC_CONSULTATION'].includes(handoff.opportunity.eventType))
+    return result('HOLD', 'NOT_ELIGIBLE_CORPORATE_OPPORTUNITY');
+  const id = crmV129Clean_(handoff.inboundIntakeRef, 128);
+  const eventId = crmV129Clean_(handoff.opportunity.caseEventId, 180);
+  if (!/^INQ-[0-9]{8}-[0-9]{6}-[A-F0-9]{8}$/.test(id) ||
+      eventId !== id + ':' + handoff.opportunity.eventType)
+    return result('HOLD', 'CASE_EVENT_SOURCE_MISMATCH');
+  const ssot = writerReadOnlySnapshot;
+  if (!ssot || ssot.origin !== 'ORIGINAL_PAI_CASE_SSOT' ||
+      ssot.readOnlyVerified !== true || !Array.isArray(ssot.caseEvents))
+    return result('HOLD', 'PAI_AUTHORITATIVE_SSOT_NOT_READ');
+  if (ssot.caseEvents.some(e => !e || typeof e.caseEventId !== 'string' ||
+      typeof e.inboundIntakeRef !== 'string'))
+    return result('HOLD', 'PAI_EVENT_SNAPSHOT_INVALID');
+  const records = ssot.caseEvents.filter(e => e.caseEventId === eventId ||
+    e.inboundIntakeRef === id);
+  const exact = records.filter(e => e.caseEventId === eventId &&
+    e.inboundIntakeRef === id);
+  if (records.length > 1 || (records.length === 1 && exact.length !== 1))
+    return result('HOLD', 'PAI_DUPLICATE_OR_CONFLICTING_EVENT');
+  if (exact.length === 1) {
+    const existing = crmV129Clean_(exact[0].salesCaseId, 128);
+    if (!existing || exact[0].identityConflict === true)
+      return result('HOLD', 'PAI_EXISTING_CASE_REQUIRES_RECONCILIATION');
+    return result('EXISTING_CASE_REVIEW_ONLY', 'MATCHED_EXISTING_CASE_EVENT', existing);
+  }
+  if (ssot.corporateIdentityVerified !== true ||
+      ssot.existingWriterBindingVerified !== true ||
+      ssot.isolatedWriterTargetVerified !== true)
+    return result('HOLD', 'PAI_CORPORATE_IDENTITY_OR_WRITER_NOT_VERIFIED');
+  return result('READY_FOR_EXISTING_WRITER_REVIEW_ONLY',
+    'NO_EVENT_IN_VERIFIED_SNAPSHOT');
+}
