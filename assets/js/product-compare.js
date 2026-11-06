@@ -163,7 +163,7 @@
   function buildComparisonTable(items) {
     const rows = [
       ['製品カテゴリ', (item) => escapeHtml(item.categoryLabel)],
-      ['取扱・確認状態', (item) => escapeHtml(item.statusLabel)],
+      ['製品情報・ご相談', (item) => escapeHtml(item.statusLabel)],
       ['概要', (item) => escapeHtml(item.summary)],
       ['主な構成・特徴', (item) => tags(item.featureLabels)],
       ['適した研究・用途', (item) => tags(item.useLabels)],

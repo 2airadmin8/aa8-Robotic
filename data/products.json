@@ -207,7 +207,7 @@
         "education"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -292,7 +292,7 @@
         "education"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -356,7 +356,7 @@
         "humanoid"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -422,7 +422,7 @@
         "education"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -484,7 +484,7 @@
         "education"
       ],
       "status": "preparing",
-      "statusLabel": "取扱準備中",
+      "statusLabel": "製品・研究用途をご紹介",
       "visibility": "public",
       "salesStatus": "not_released",
       "supportStatus": "preparing",
@@ -556,7 +556,7 @@
         "humanoid"
       ],
       "status": "researching",
-      "statusLabel": "条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -681,7 +681,7 @@
         "arm"
       ],
       "status": "researching",
-      "statusLabel": "構成確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -744,7 +744,7 @@
         "education"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
@@ -1083,7 +1083,7 @@
         "education"
       ],
       "status": "researching",
-      "statusLabel": "取扱条件確認中",
+      "statusLabel": "研究・導入のご相談",
       "visibility": "public",
       "salesStatus": "confirmation_required",
       "supportStatus": "confirmation_required",
