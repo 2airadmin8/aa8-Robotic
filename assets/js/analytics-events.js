@@ -148,6 +148,18 @@
     const target = event.target.closest('button, a');
     if (!target) return;
 
+    const catalog = target.closest('[data-document-type="product-catalog"]');
+    if (catalog && catalog.tagName === 'A') {
+      send('catalog_download', {
+        product_id: catalog.getAttribute('data-product-id') || productId,
+        document_name: 'product_catalog',
+        document_revision: catalog.getAttribute('data-catalog-revision') || undefined,
+        document_path: new URL(catalog.href, window.location.href).pathname,
+      });
+      // This is GA/dataLayer event only. PR #163 owns validated backend attribution.
+      return;
+    }
+
     if (target.tagName === 'A' && deliveryId) {
       try {
         const url = new URL(target.href, window.location.href);

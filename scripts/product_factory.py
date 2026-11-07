@@ -23,6 +23,7 @@ TEMPLATE = Path(__file__).parent / "templates" / "g1_factory_v1.html"
 SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".avif", ".svg"}
 VIDEO_EXT = {".mp4", ".webm"}
+PDF_EXT = {".pdf"}
 CANONICAL_RE = re.compile(r'<link\s+rel=["\x27]canonical["\x27]\s+href=["\x27]([^"\x27]+)', re.I)
 PLACEHOLDER_STATUSES = {"placeholder", "unverified"}
 
@@ -156,6 +157,28 @@ def validate_page_factory(root: Path, product: dict) -> dict:
                 if field == "solutions" and item.get("supportSectionId") is not None:
                     if item.get("supportSectionId") not in {"university", "poc", "vla", "procurement", "setup", "maintenance"}:
                         raise ContractError(f"{pid}.v3.solutions[{i}]: unsafe supportSectionId")
+    brochure = spec.get("catalogDownload")
+    if brochure is not None:
+        if not isinstance(brochure, dict):
+            raise ContractError(f"{pid}.catalogDownload: object required")
+        status = required(brochure.get("status"), f"{pid}.catalogDownload.status")
+        if status not in {"internal_review", "approved_public"}:
+            raise ContractError(f"{pid}: unsupported catalogDownload.status")
+        if status == "approved_public":
+            local_asset(root, brochure.get("path"), f"{pid}.catalogDownload.path", PDF_EXT)
+            required(brochure.get("revision"), f"{pid}.catalogDownload.revision")
+            required(brochure.get("approvalRef"), f"{pid}.catalogDownload.approvalRef")
+            required(brochure.get("pdfSha256"), f"{pid}.catalogDownload.pdfSha256")
+            if not re.fullmatch(r"[0-9a-fA-F]{64}", brochure["pdfSha256"]):
+                raise ContractError(f"{pid}: catalogDownload.pdfSha256 invalid")
+            import hashlib
+            file_path = root / brochure["path"]
+            digest = hashlib.sha256(file_path.read_bytes()).hexdigest()
+            if digest.lower() != brochure["pdfSha256"].lower():
+                raise ContractError(f"{pid}: catalog PDF SHA256 mismatch")
+        elif brochure.get("path"):
+            # Internal-review files must not be placed in the public site tree.
+            raise ContractError(f"{pid}: internal_review must not define public PDF path")
     related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds", 3)
     related_ids = {p.get("id") for p in catalog(root)}
     if (len(related) != len(set(related)) or len(related)>6 or pid in related
@@ -395,6 +418,31 @@ def render(root: Path, product: dict, mode: str) -> str:
         f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(by_id[rid]["summary"])}</small>'
         f'<em>製品詳細へ →</em></a>' for rid in spec["relatedProductIds"]
     )
+    brochure = spec.get("catalogDownload")
+    is_public_brochure = isinstance(brochure, dict) and brochure.get("status") == "approved_public"
+    if is_public_brochure:
+        brochure_url = esc(local_asset(root, brochure["path"], "catalogDownload", PDF_EXT))
+        brochure_button = (
+            '<a class="g1-button secondary aa8-catalog-download" href="' + brochure_url +
+            '" download data-document-type="product-catalog" data-product-id="' + esc(slug) +
+            '" data-catalog-revision="' + esc(brochure["revision"]) +
+            '" aria-label="' + name + 'の製品カタログPDFをダウンロード">カタログをダウンロード（PDF） ↓</a>'
+        )
+        brochure_after_specs = (
+            '<div class="aa8-catalog-after-specs"><p>製品仕様を検討・比較される方へ</p>' +
+            brochure_button + '</div>'
+        )
+    else:
+        brochure_button = ""
+        brochure_after_specs = ""
+    if (mode == "preview" and isinstance(brochure, dict) and brochure.get("status") == "internal_review"):
+        pending = ('<span class="g1-button secondary aa8-catalog-pending" aria-disabled="true" '
+                   'data-catalog-status="internal_review">カタログ準備中・社外公開前</span>')
+        brochure_button = pending
+        brochure_after_specs = (
+            '<div class="aa8-catalog-after-specs"><p>製品カタログ（PDF）</p>' +
+            pending + '<small>メーカー仕様・素材・営業承認を確認中です。公開できるPDFはありません。</small></div>'
+        )
     hero_actions = (
         '<a class="g1-button primary" href="' + esc(contact) +
         '" data-factory-cta="hero">研究・導入を相談する ↗</a>\n'
@@ -406,6 +454,8 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<a class="g1-button secondary" href="' + esc(contact) +
         '" data-factory-cta="hero">研究・導入を相談する ↗</a>'
     )
+    if brochure_button:
+        hero_actions += "\n" + brochure_button
     anchor_navigation = (
         "<a href=\"#capabilities\">特長</a><a href=\"#applications\">用途</a><a href=\"#media\">写真</a>"
         + ("<a href=\"#model-selection\">モデル</a>" if spec.get("v3", {}).get("models") else "")
@@ -419,6 +469,7 @@ def render(root: Path, product: dict, mode: str) -> str:
     mapping = {
         "anchor_navigation": anchor_navigation,
         "hero_actions": hero_actions,
+        "catalog_after_specs": brochure_after_specs,
         "related": related,
         "media_button_label": "公式写真・動画を見る" if spec["videos"] else "公式写真を見る",
         "media_nav_label": "写真・動画" if spec["videos"] else "公式写真",
