@@ -26,6 +26,7 @@
 
   const sourceConfig = {
     poc: { category: 'PoC設計', label: 'PoC設計' },
+    catalog: { category: 'その他', label: 'メーカー製品カタログ請求' },
     'university-procurement': { category: '見積・大学購買', label: '大学購買支援' },
     'vla-data-collection': { category: 'VLA・模倣学習データ収集', label: 'VLA・模倣学習データ収集' },
     data: { category: 'VLA・模倣学習データ収集', label: 'データ収集・VLA' },
@@ -325,6 +326,9 @@
     if (productField && source.maker && !productField.value) productField.value = source.maker;
     if (useCaseField && source.useCase) useCaseField.value = source.useCase;
     if (messageField && source.message) messageField.value = source.message;
+    if (source.service === 'catalog' && messageField && !messageField.value) {
+      messageField.value = `${source.product || '対象製品'}のメーカー製品カタログを希望します。公開版と提供条件をご案内ください。`;
+    }
 
     const config = sourceConfig[source.service] || sourceConfig[source.theme];
     if (categoryField && config?.category) categoryField.value = config.category;
