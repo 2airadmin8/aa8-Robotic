@@ -79,7 +79,10 @@ class ProductCtaSchema20261104(unittest.TestCase):
     self.assertEqual(params.get("product"),[name])
     self.assertEqual(params.get("maker"),[maker])
     self.assertNotEqual(params.get("service"),["university-procurement"])
-    self.assertNotIn("source_page",params)
+    if slug=="unitree-g1":
+     self.assertEqual(params.get("source_page"),["https://robotics.air-admin8.co.jp/products/unitree-g1.html"])
+    else:
+     self.assertNotIn("source_page",params)
   h2x=(ROOT/"products/unitree-h2-x.html").read_text(encoding="utf-8")
   self.assertNotIn("何を検証するかから、H2を選ぶ。",h2x)
   self.assertIn("何を検証するかから、H2-Xを選ぶ。",h2x)
@@ -87,6 +90,21 @@ class ProductCtaSchema20261104(unittest.TestCase):
   all_h2x=[a["href"] for a in x.anchors if a.get("href","").startswith("/contact.html?product=Unitree%20H2-X")]
   self.assertEqual(len(all_h2x),2)
   self.assertTrue(all("maker=Unitree" in href for href in all_h2x))
+
+ def test_catalog_service_is_identified_without_fake_download(self):
+  js=(ROOT/"assets/js/contact-v2.js").read_text(encoding="utf-8")
+  self.assertIn("catalog: { category: 'その他', label: 'メーカー製品カタログ請求' }",js)
+  self.assertIn("source.service === 'catalog'",js)
+  self.assertIn("!messageField.value",js)
+  self.assertIn("公開版と提供条件",js)
+  self.assertIn("source_service: source.service",js)
+  self.assertIn("function resolveSourcePage()",js)
+  self.assertIn("url.origin === window.location.origin",js)
+  self.assertIn("source_page: resolveSourcePage()",js)
+  g1=(ROOT/"products/unitree-g1.html").read_text(encoding="utf-8")
+  self.assertIn("source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Funitree-g1.html",g1)
+  self.assertIn("service=catalog&amp;maker=Unitree",g1)
+  self.assertIn("未確認の資料ダウンロードを約束するものではありません",g1)
 
  def test_intentional_procurement_and_catalog_are_unchanged(self):
   g1p=(ROOT/"products/unitree-g1-plus.html").read_text(encoding="utf-8")
