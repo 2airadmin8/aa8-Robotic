@@ -21,8 +21,10 @@
       if (!candidate) continue;
       try {
         const url = new URL(candidate, window.location.origin);
-        if (url.origin === window.location.origin &&
-            /^\\/products\\/[a-z0-9-]+\\.html$/.test(url.pathname)) {
+        const path = url.pathname;
+        const slug = path.startsWith('/products/') && path.endsWith('.html')
+          ? path.slice('/products/'.length, -'.html'.length) : '';
+        if (url.origin === window.location.origin && /^[a-z0-9-]+$/.test(slug)) {
           return url.origin + url.pathname;
         }
       } catch (_) { /* Reject invalid input and continue. */ }
