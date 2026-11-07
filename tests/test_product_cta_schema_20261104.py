@@ -79,7 +79,10 @@ class ProductCtaSchema20261104(unittest.TestCase):
     self.assertEqual(params.get("product"),[name])
     self.assertEqual(params.get("maker"),[maker])
     self.assertNotEqual(params.get("service"),["university-procurement"])
-    self.assertNotIn("source_page",params)
+    if slug=="unitree-g1":
+     self.assertEqual(params.get("source_page"),["https://robotics.air-admin8.co.jp/products/unitree-g1.html"])
+    else:
+     self.assertNotIn("source_page",params)
   h2x=(ROOT/"products/unitree-h2-x.html").read_text(encoding="utf-8")
   self.assertNotIn("何を検証するかから、H2を選ぶ。",h2x)
   self.assertIn("何を検証するかから、H2-Xを選ぶ。",h2x)
@@ -95,6 +98,10 @@ class ProductCtaSchema20261104(unittest.TestCase):
   self.assertIn("!messageField.value",js)
   self.assertIn("公開版と提供条件",js)
   self.assertIn("source_service: source.service",js)
+  self.assertIn("function resolveSourcePage()",js)
+  self.assertIn("url.origin === window.location.origin",js)
+  self.assertIn("source_page: resolveSourcePage()",js)
+  self.assertIn("source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Funitree-g1.html",g1)
   g1=(ROOT/"products/unitree-g1.html").read_text(encoding="utf-8")
   self.assertIn("service=catalog&amp;maker=Unitree",g1)
   self.assertIn("未確認の資料ダウンロードを約束するものではありません",g1)
