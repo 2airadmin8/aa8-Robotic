@@ -88,6 +88,17 @@ class ProductCtaSchema20261104(unittest.TestCase):
   self.assertEqual(len(all_h2x),2)
   self.assertTrue(all("maker=Unitree" in href for href in all_h2x))
 
+ def test_catalog_service_is_identified_without_fake_download(self):
+  js=(ROOT/"assets/js/contact-v2.js").read_text(encoding="utf-8")
+  self.assertIn("catalog: { category: 'その他', label: 'メーカー製品カタログ請求' }",js)
+  self.assertIn("source.service === 'catalog'",js)
+  self.assertIn("!messageField.value",js)
+  self.assertIn("公開版と提供条件",js)
+  self.assertIn("source_service: source.service",js)
+  g1=(ROOT/"products/unitree-g1.html").read_text(encoding="utf-8")
+  self.assertIn("service=catalog&amp;maker=Unitree",g1)
+  self.assertIn("未確認の資料ダウンロードを約束するものではありません",g1)
+
  def test_intentional_procurement_and_catalog_are_unchanged(self):
   g1p=(ROOT/"products/unitree-g1-plus.html").read_text(encoding="utf-8")
   self.assertIn("product=Unitree%20G1%2B%20EDU&amp;service=university-procurement&amp;maker=Unitree",g1p)
