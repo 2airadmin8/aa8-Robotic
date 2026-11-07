@@ -101,8 +101,8 @@ class ProductCtaSchema20261104(unittest.TestCase):
   self.assertIn("function resolveSourcePage()",js)
   self.assertIn("url.origin === window.location.origin",js)
   self.assertIn("source_page: resolveSourcePage()",js)
-  self.assertIn("source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Funitree-g1.html",g1)
   g1=(ROOT/"products/unitree-g1.html").read_text(encoding="utf-8")
+  self.assertIn("source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Funitree-g1.html",g1)
   self.assertIn("service=catalog&amp;maker=Unitree",g1)
   self.assertIn("未確認の資料ダウンロードを約束するものではありません",g1)
 
