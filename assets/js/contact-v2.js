@@ -14,6 +14,22 @@
   const submissionKey = 'airadmin8-contact-submission-v1';
   const params = new URLSearchParams(window.location.search);
 
+  // Accept only canonical same-origin product pages; never trust arbitrary source_page.
+  function resolveSourcePage() {
+    const candidates = [params.get('source_page'), document.referrer];
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      try {
+        const url = new URL(candidate, window.location.origin);
+        if (url.origin === window.location.origin &&
+            /^\\/products\\/[a-z0-9-]+\\.html$/.test(url.pathname)) {
+          return url.origin + url.pathname;
+        }
+      } catch (_) { /* Reject invalid input and continue. */ }
+    }
+    return window.location.href;
+  }
+
   const source = {
     product: params.get('product') || '',
     maker: params.get('maker') || '',
@@ -314,7 +330,7 @@
       source_service: source.service,
       source_theme: source.theme,
       source_case: source.caseId,
-      source_page: document.referrer || window.location.href,
+      source_page: resolveSourcePage(),
     };
 
     Object.entries(sourceMap).forEach(([name, value]) => {
