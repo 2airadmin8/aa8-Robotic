@@ -89,14 +89,23 @@ def _strings(value: object, label: str, min_count: int) -> list:
     return value
 
 
-def validate_page_factory(root: Path, product: dict) -> dict:
+def validate_page_factory(root: Path, product: dict, *, allow_original_preview: bool = False) -> dict:
     pid = product["id"]
     page_path(root, product.get("detailPage"), pid, generated=True)
     spec = product.get("pageFactory")
     if not isinstance(spec, dict) or spec.get("template") != "g1-v1":
         raise ContractError(f"{pid}: pageFactory.template must be g1-v1")
     if product.get("imageStatus") != "official":
-        raise ContractError(f"{pid}: hero source image must be confirmed official")
+        # An owner-confirmed series-generic derived hero may be previewed, never released,
+        # and must not be mistaken for a manufacturer-approved SKU photograph.
+        allowed = (
+            allow_original_preview
+            and product.get("imageStatus") == "original"
+            and product.get("imageApproval") == "user_confirmed_x2_series_generic"
+            and spec.get("releaseReady") is False
+        )
+        if not allowed:
+            raise ContractError(f"{pid}: hero source image must be confirmed official for release")
     local_asset(root, product.get("image", ""), f"{pid}.image", IMAGE_EXT)
     official_url(spec.get("officialSource"), f"{pid}.officialSource")
     for field in ("title", "metaDescription", "heroLead"):
@@ -112,6 +121,8 @@ def validate_page_factory(root: Path, product: dict) -> dict:
         local_asset(root, item.get("src", ""), f"{pid}.images[{i}].src", IMAGE_EXT)
         required(item.get("alt"), f"{pid}.images[{i}].alt")
         official_url(item.get("sourceUrl"), f"{pid}.images[{i}].sourceUrl")
+    if "inheritSourcePage" in spec and type(spec["inheritSourcePage"]) is not bool:
+        raise ContractError(f"{pid}: inheritSourcePage must be boolean")
     vids = _strings(spec.get("videos"), f"{pid}.videos", 0)
     if not vids and spec.get("videoAvailability") != "not_provided_by_manufacturer":
         raise ContractError(f"{pid}: no verified videos; mark manufacturer media absence explicitly")
@@ -343,7 +354,7 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
 
 
 def render(root: Path, product: dict, mode: str) -> str:
-    spec = validate_page_factory(root, product)
+    spec = validate_page_factory(root, product, allow_original_preview=(mode == "preview"))
     if mode == "candidate" and not spec["releaseReady"]:
         raise ContractError("release candidate blocked: pageFactory.releaseReady must be true")
     slug = product["id"]
@@ -364,6 +375,10 @@ def render(root: Path, product: dict, mode: str) -> str:
                + ("&service=" + quote(contact_service, safe="") if contact_service else "")
                + ("&maker=" + quote(product["manufacturerName"], safe="")
                   if product.get("pageStandard") and not spec.get("v3") else ""))
+    if spec.get("inheritSourcePage"):
+        contact += "&source_page=" + quote(
+            f'{PUBLIC_ORIGIN}/{product["detailPage"]}', safe=""
+        )
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
@@ -491,6 +506,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("audit", "generate"))
     parser.add_argument("--id", help="Product ID from data/products.json")
+    parser.add_argument("--draft-product", type=Path,
+                        help="isolated preview-only single product JSON under tests/fixtures; never updates Product Master")
     parser.add_argument("--mode", choices=("preview", "candidate"), default="preview")
     parser.add_argument("--output", type=Path, help="Output file; never overwrites")
     parser.add_argument("--root", type=Path, default=ROOT, help=argparse.SUPPRESS)
@@ -500,10 +517,22 @@ def main() -> int:
         errors, warnings, stats = audit_catalog(root)
         print(json.dumps({"pass": not errors, "stats": stats, "errors": errors, "warnings": warnings}, ensure_ascii=False, indent=2))
         return 1 if errors else 0
-    if not args.id or not args.output:
-        parser.error("generate requires --id and --output")
+    if not args.output or (not args.id and not args.draft_product):
+        parser.error("generate requires --output and either --id or --draft-product")
+    if args.draft_product and (args.id or args.mode != "preview"):
+        parser.error("--draft-product is preview-only and cannot be combined with --id")
     try:
-        product = next(p for p in catalog(root) if p["id"] == args.id)
+        if args.draft_product:
+            draft_path = args.draft_product.resolve()
+            if not draft_path.is_relative_to((root / "tests" / "fixtures").resolve()):
+                raise ContractError("draft-product must reside under tests/fixtures")
+            product = json.loads(draft_path.read_text(encoding="utf-8"))
+            if product.get("id") in {p["id"] for p in catalog(root)}:
+                raise ContractError("draft-product ID conflicts with existing Product Master")
+            if product.get("pageFactory", {}).get("releaseReady") is not False:
+                raise ContractError("draft-product releaseReady must be false")
+        else:
+            product = next(p for p in catalog(root) if p["id"] == args.id)
         result = render(root, product, args.mode)
         output = args.output.resolve()
         if output.suffix.lower() != ".html":
@@ -515,7 +544,7 @@ def main() -> int:
         output.parent.mkdir(parents=True, exist_ok=True)
         with output.open("x", encoding="utf-8", newline="\n") as f:
             f.write(result)
-        print(f"GENERATED {args.mode}: {output} from Product Master {args.id}")
+        print(f"GENERATED {args.mode}: {output} from "+("isolated pilot fixture" if args.draft_product else f"Product Master {args.id}"))
         return 0
     except (ContractError, StopIteration, FileExistsError, OSError) as exc:
         print(f"PRODUCT FACTORY STOP: {exc}", file=sys.stderr)
