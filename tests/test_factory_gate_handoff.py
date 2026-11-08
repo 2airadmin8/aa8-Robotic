@@ -51,6 +51,19 @@ class HandoffTest(unittest.TestCase):
         self.assertEqual(len(self.source["parameter_groups"]),9)
         self.assertFalse(self.source["image_is_version_specific"])
         self.assertTrue(self.source["source_reconciliation"]["legacy_cn_preserved"])
+    def test_existing_ci_workflow_uses_valid_github_expression_syntax(self):
+        workflow=(ROOT/".github/workflows/ci.yml").read_text("utf-8")
+        open_tag="$"+"{{"
+        self.assertIn("if: "+open_tag+" always()",workflow)
+        self.assertIn("PR_HEAD: "+open_tag+" github.event.pull_request.head.sha }}",workflow)
+        self.assertIn("RESULT_REGRESSION: "+open_tag+" steps.regression.outcome }}",workflow)
+        self.assertIn("x2-gate-handoff-"+open_tag+" github.event.pull_request.head.sha }}",workflow)
+        # Check specifically that no malformed single-brace expression is present.
+        import re
+        self.assertNotRegex(workflow,r"\$\{(?!\{)\s*(?:github|steps|always)")
+        self.assertIn("actions/upload-artifact@v4",workflow)
+        self.assertIn("GITHUB_STEP_SUMMARY",workflow)
+
     def test_summary_has_safe_handoff(self):
         m=markdown(self.check(browser="failure"))
         self.assertIn("RETURN_TO_DEV",m)
