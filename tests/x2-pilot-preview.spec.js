@@ -10,7 +10,7 @@ for(const width of [1440,390,320]){
   expect(response.status()).toBe(200);
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content','noindex,nofollow');
   await expect(page.locator('main[data-product-id="agibot-x2-series"]')).toHaveCount(1);
-  await expect(page.locator('#specifications tbody tr')).toHaveCount(35);
+  await expect(page.locator('#specifications tbody tr')).toHaveCount(36);
   await expect(page.locator('.g1-factory-media-grid img')).toHaveCount(3);
   const gallery=page.locator('.g1-factory-media-grid img');
   for(let i=0;i<3;i++){

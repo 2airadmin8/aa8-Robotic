@@ -21,17 +21,31 @@ class X2PilotContractTest(unittest.TestCase):
         cls.item=json.loads(PRODUCT_PATH.read_text(encoding='utf8'))
         cls.source=json.loads(SOURCE_PATH.read_text(encoding='utf8'))
 
+    def test_current_japanese_official_is_ssot_not_old_chinese(self):
+        self.assertEqual(self.source['parameter_count'],36)
+        self.assertEqual(self.source['legacy_cn_20261028_parameter_count'],35)
+        self.assertEqual(self.source['official_source'],'https://agibot.com/jp/products/X2')
+        self.assertEqual(len(self.source['legacy_cn_source_parameter_entries']),35)
+        self.assertEqual(self.source['source_parameter_entries'][3]['youth_raw'],'27')
+        self.assertEqual(self.source['source_parameter_entries'][4]['youth_raw'],'2')
+        self.assertIn('437mm',self.source['source_parameter_entries'][8]['youth_raw'])
+        self.assertEqual(self.source['source_parameter_entries'][18]['youth_raw'].startswith('最大: 1.5 m/s'),True)
+        self.assertEqual(self.source['source_parameter_entries'][30]['label_ja'],'映像出力')
+        generated=render(ROOT,self.item,'preview')
+        self.assertIn('X2 27 ／ X2 Ultra 30 自由度',generated)
+        self.assertNotIn('X2: 25 ／ X2 Ultra: 30',generated)
+
     def test_existing_product_master_unchanged_and_no_id_collision(self):
         self.assertEqual(len(catalog(ROOT)),13)
         self.assertNotIn(self.item['id'],[x['id'] for x in catalog(ROOT)])
         self.assertNotEqual(self.item['id'],'agibot-x2-edu')
 
-    def test_exact_35_parameters_and_9_groups(self):
+    def test_exact_36_jp_parameters_and_9_groups(self):
         rows=self.source['source_parameter_entries']
-        self.assertEqual(len(rows),35)
+        self.assertEqual(len(rows),36)
         self.assertEqual(len(self.source['parameter_groups']),9)
-        self.assertEqual(sum(self.source['parameter_groups'].values()),35)
-        self.assertEqual(len(self.item['pageFactory']['specifications']),35)
+        self.assertEqual(sum(self.source['parameter_groups'].values()),36)
+        self.assertEqual(len(self.item['pageFactory']['specifications']),36)
         for raw,mapped in zip(rows,self.item['pageFactory']['specifications']):
             self.assertIn(raw['youth_raw'],mapped['value'])
             self.assertIn(raw['flagship_raw'],mapped['value'])
@@ -65,7 +79,7 @@ class X2PilotContractTest(unittest.TestCase):
         self.assertIn('service=use-case-review',content)
         self.assertIn('source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Fagibot-x2-series.html',content)
         self.assertEqual(content.count('class="g1-cta-card"'),3)
-        self.assertEqual(content.count('<tr><th scope="row">'),35)
+        self.assertEqual(content.count('<tr><th scope="row">'),36)
 
     def test_cli_draft_preview_only_and_refuses_conflicting_master(self):
         with tempfile.TemporaryDirectory() as temp:

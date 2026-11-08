@@ -1,6 +1,6 @@
 {
   "id": "agibot-x2-series",
-  "name": "AGIBOT 灵犀 X2",
+  "name": "AGIBOT LINGXI X2",
   "manufacturerId": "agibot",
   "manufacturerName": "AGIBOT",
   "categoryId": "humanoid",
@@ -8,267 +8,272 @@
   "status": "preparing",
   "statusLabel": "導入構成確認中",
   "visibility": "hidden",
-  "summary": "青春版・旗舰版の2構成をメーカー35項目で比較し、研究・教育・展示・PoCの条件を整理する人型ロボット。",
+  "summary": "X2とX2 Ultraの2モデルをメーカー日本語公式36項目で比較する人型ロボット。",
   "detailPage": "products/agibot-x2-series.html",
   "image": "assets/img/products/agibot/x2-series/x2-series-hero.png",
-  "imageAlt": "AGIBOT 灵犀X2シリーズ共通宣伝画像。青春版・旗舰版の専用SKU画像ではありません",
+  "imageAlt": "AGIBOT LINGXI X2シリーズ共通宣伝画像（特定SKUの写真ではありません）",
   "imageStatus": "original",
   "imageApproval": "user_confirmed_x2_series_generic",
   "priceLabel": "要見積",
   "leadTimeLabel": "要確認",
-  "verifiedAt": "2026-10-28",
+  "verifiedAt": "2026-11-09",
   "pageFactory": {
     "template": "g1-v1",
     "releaseReady": false,
-    "officialSource": "https://www.agibot.com.cn/products/X2",
-    "title": "AGIBOT 灵犀X2｜青春版・旗舰版 35項目比較｜AirAdmin8 Robotics",
-    "metaDescription": "AGIBOT 灵犀X2の青春版・旗舰版をメーカー公開35項目で比較。自由度、重量、LiDAR、RGB-D、電池、開発環境を確認し、大学研究・企業PoCの選定を支援します。",
-    "heroLead": "動き、対話し、研究できる。青春版・旗舰版の違いを、メーカー根拠で判断する。",
+    "officialSource": "https://agibot.com/jp/products/X2",
+    "title": "AGIBOT LINGXI X2｜X2とX2 Ultra・公式36仕様比較｜AirAdmin8 Robotics",
+    "metaDescription": "AGIBOT LINGXI X2のX2 / X2 Ultraをメーカー日本語公式の36仕様で比較。自由度・重量・LiDAR・RGB-D・バッテリー・開発環境の差異を確認。",
+    "heroLead": "人と対話し、柔軟に動く。X2とX2 Ultraの違いを公式36項目で比較する。",
     "facts": [
       {
         "label": "機種構成",
-        "value": "青春版／旗舰版の2モデル",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2 ／ X2 Ultra",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "自由度",
-        "value": "青春版 25 ／ 旗舰版 30 DOF",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2 27 ／ X2 Ultra 30 自由度",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "本体重量",
-        "value": "青春版 約35kg ／ 旗舰版 約39kg",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2 約35kg ／ X2 Ultra 約39kg",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "カスタマイズ条件",
-        "value": "自律ナビ・障害物回避は旗舰版で要個別確認",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "自律ナビ・障害物回避はX2 Ultraでカスタマイズ条件を確認",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       }
     ],
     "applications": [
       {
         "title": "大学・研究室",
         "description": "HRI・歩行・センサー制御の評価。SDK/研究権限を個別確認。",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "title": "企業・施設PoC",
         "description": "受付、展示、案内。安全運用とシナリオを確認。",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "title": "開発構成の比較",
         "description": "LiDAR/RGB-Dや二次開発ボード、別売ハンドを構成別に評価。",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       }
     ],
     "specifications": [
       {
-        "label": "本体・基本仕様｜本体寸法",
-        "value": "青春版: 1310mm（H） 460mm（W） 210mm（L） ／ 旗舰版: 1310mm（H） 460mm（W） 210mm（L）",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜サイズ",
+        "value": "X2: 1310mm（H） 460mm（W） 210mm（L） ／ X2 Ultra: 1310mm（H） 460mm（W） 210mm（L）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜全高",
-        "value": "青春版: 约1.31m ／ 旗舰版: 约1.31m",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜身長",
+        "value": "X2: 約1.31m ／ X2 Ultra: 約1.31m",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "本体・基本仕様｜重量",
-        "value": "青春版: 约35kg ／ 旗舰版: 约39kg",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 約35kg ／ X2 Ultra: 約39kg",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜アクティブ自由度",
-        "value": "青春版: 25 ／ 旗舰版: 30",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜全自由度",
+        "value": "X2: 27 ／ X2 Ultra: 30",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜首の自由度",
-        "value": "青春版: 0 ／ 旗舰版: 1",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜首部自由度",
+        "value": "X2: 2 ／ X2 Ultra: 1",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "本体・基本仕様｜片腕自由度",
-        "value": "青春版: 5 ／ 旗舰版: 7",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 5 ／ X2 Ultra: 7",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜腰自由度",
-        "value": "青春版: 3 ／ 旗舰版: 3",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜腰部自由度",
+        "value": "X2: 3 ／ X2 Ultra: 3",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "本体・基本仕様｜片脚自由度",
-        "value": "青春版: 6 ／ 旗舰版: 6",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 6 ／ X2 Ultra: 6",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜片腕リーチ",
-        "value": "青春版: 558mm 不含末端执行器 ／ 旗舰版: 558mm 不含末端执行器",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜腕のリーチ",
+        "value": "X2: 437mm エンドエフェクタ除く ／ X2 Ultra: 558mm エンドエフェクタ除く",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "本体・基本仕様｜動作環境温度",
-        "value": "青春版: -10℃~40℃ ／ 旗舰版: -10℃~40℃",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "本体・基本仕様｜動作温度範囲",
+        "value": "X2: -10℃~40℃ ／ X2 Ultra: -10℃~40℃",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "認識・センサー｜3D LiDAR",
-        "value": "青春版: / ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 搭載なし ／ X2 Ultra: 搭載",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "認識・センサー｜RGB-Dカメラ",
-        "value": "青春版: / ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 搭載なし ／ X2 Ultra: 搭載",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "認識・センサー｜RGBカメラ",
-        "value": "青春版: 交互RGB摄像头 ／ 旗舰版: 交互RGB摄像头 前视双目RGB摄像头 后视RGB摄像头",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: インタラクティブRGBカメラ ／ X2 Ultra: インタラクティブRGBカメラ 前方デュアルRGB 後方RGB",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "認識・センサー｜頭部タッチセンサー",
-        "value": "青春版: 具备 ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 搭載 ／ X2 Ultra: 搭載",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "通信｜通信方式",
-        "value": "青春版: wifi、蓝牙 ／ 旗舰版: wifi、蓝牙 4G/5G模块",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: Wi-Fi、Bluetooth ／ X2 Ultra: Wi-Fi、Bluetooth 4G/5Gモジュール",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "対話・表示｜音声",
-        "value": "青春版: 麦克风阵列、 迷你无线麦克风、 扬声器 ／ 旗舰版: 麦克风阵列、 迷你无线麦克风、 扬声器",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "対話・表示｜音声入出力",
+        "value": "X2: マイクアレイ、 ワイヤレスマイク、 スピーカー ／ X2 Ultra: マイクアレイ、 ワイヤレスマイク、 スピーカー",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "対話・表示｜表示",
-        "value": "青春版: 交互屏、灯效 ／ 旗舰版: 交互屏、灯效",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: インタラクションディスプレイ、ライトエフェクト ／ X2 Ultra: インタラクションディスプレイ、ライトエフェクト",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "運動・性能｜関節ピークトルク",
-        "value": "青春版: 120N·m ／ 旗舰版: 120N·m",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "運動・性能｜最大関節トルク",
+        "value": "X2: 120N·m ／ X2 Ultra: 120N·m",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "運動・性能｜歩行速度",
-        "value": "青春版: 日常行走最大速度：1.8 m/s 日常行走速度≤0.8 m/s 实验室最大速度：2 m/s ／ 旗舰版: 日常行走最大速度：1.8 m/s 日常行走速度≤0.8 m/s 实验室最大速度：2 m/s",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "運動・性能｜移動速度",
+        "value": "X2: 最大: 1.5 m/s 通常 ≤0.8 m/s ／ X2 Ultra: 最大: 1.5 m/s 通常 ≤0.8 m/s",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "運動・性能｜積載荷重",
-        "value": "青春版: 最大负载（特定姿态）： 3kg 不含末端执行器 全空间负载： ≤1kg 不含末端执行器 ／ 旗舰版: 最大负载（特定姿态）： 3kg 不含末端执行器 全空间负载： ≤1kg 不含末端执行器",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "運動・性能｜最大可搬重量",
+        "value": "X2: 最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く） ／ X2 Ultra: 最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "電源・電池｜バッテリー容量",
-        "value": "青春版: 约500Wh ／ 旗舰版: 约500Wh",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 約500Wh ／ X2 Ultra: 約500Wh",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "電源・電池｜連続歩行時間",
-        "value": "青春版: 0.5m/s连续 行走约2h ／ 旗舰版: 0.5m/s连续 行走约2h",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "電源・電池｜連続稼働時間",
+        "value": "X2: 約2時間 （0.5m/s歩行時） ／ X2 Ultra: 約2時間 （0.5m/s歩行時）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "電源・電池｜充電・交換方式",
-        "value": "青春版: 支持直充、换电 ／ 旗舰版: 支持直充、换电",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "電源・電池｜エネルギー補給方式",
+        "value": "X2: 直充電・バッテリー交換 ／ X2 Ultra: 直充電・バッテリー交換",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "電源・電池｜充電時間",
-        "value": "青春版: ≤1.5h ／ 旗舰版: ≤1.5h",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: ≤1.5時間 ／ X2 Ultra: ≤1.5時間",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "電源・電池｜充電電圧",
-        "value": "青春版: 100~220V ／ 旗舰版: 100~220V",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "電源・電池｜入力電圧",
+        "value": "X2: 100~220V ／ X2 Ultra: 100~220V",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "電源・電池｜充電器出力",
-        "value": "青春版: 54.6V 10A ／ 旗舰版: 54.6V 10A",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: 54.6V 10A ／ X2 Ultra: 54.6V 10A",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "演算・制御｜基本計算ボード",
-        "value": "青春版: RK3588*2 ／ 旗舰版: RK3588*2",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "演算・制御｜計算基板",
+        "value": "X2: RK3588*2 ／ X2 Ultra: RK3588*2",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "演算・制御｜高性能・二次開発ボード",
-        "value": "青春版: / ／ 旗舰版: Orin NX 157 TOPS",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "演算・制御｜高性能計算基板",
+        "value": "X2: 搭載なし ／ X2 Ultra: Orin NX（157TOPS）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "拡張インターフェース｜USB Host",
-        "value": "青春版: USB Type-A*1 USB Type-C*1 ／ 旗舰版: USB Type-A*2 USB Type-C*2",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "拡張インターフェース｜USBポート",
+        "value": "X2: Type-A *1 Type-C *1 ／ X2 Ultra: Type-A *2 Type-C *2",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "拡張インターフェース｜イーサネット",
-        "value": "青春版: / ／ 旗舰版: RJ45*2",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "拡張インターフェース｜LANポート",
+        "value": "X2: RJ45 *2 ／ X2 Ultra: RJ45 *2",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "拡張インターフェース｜電源出力端子",
-        "value": "青春版: 12V/3A*1 48V/5A*1 ／ 旗舰版: 12V/3A*1 48V/5A*1",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "拡張インターフェース｜映像出力",
+        "value": "X2: なし ／ X2 Ultra: Mini DP *1",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "その他｜手持ちリモコン",
-        "value": "青春版: 具备 ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "拡張インターフェース｜電源出力",
+        "value": "X2: なし ／ X2 Ultra: 12V/3V*1 48V/5A*1",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
+      },
+      {
+        "label": "その他｜ハンドヘルドコントローラ",
+        "value": "X2: あり ／ X2 Ultra: あり",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "label": "その他｜OTAアップデート",
-        "value": "青春版: 具备 ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "value": "X2: あり ／ X2 Ultra: あり",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "その他｜スマートフォンアプリ",
-        "value": "青春版: 具备 ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "その他｜モバイルアプリ",
+        "value": "X2: あり ／ X2 Ultra: あり",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
-        "label": "その他｜二次開発",
-        "value": "青春版: / ／ 旗舰版: 具备",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "label": "その他｜セカンダリ開発対応",
+        "value": "X2: なし ／ X2 Ultra: あり",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       }
     ],
     "faq": [
       {
-        "question": "青春版と旗舰版はどう違いますか？",
-        "answer": "メーカー公開表で25/30自由度、約35/39kg、センサーや開発ボードなどが異なります。"
+        "question": "X2とX2 Ultraはどう違いますか？",
+        "answer": "メーカー日本語公式表で自由度27/30、約35/39kg、センサーや開発ボード等が異なります。"
       },
       {
         "question": "自律ナビゲーションは標準搭載ですか？",
-        "answer": "青春版非対応、旗舰版はカスタマイズでの対応可能性があり、メーカー確認が必要です。"
+        "answer": "X2非対応、X2 Ultraはカスタマイズでの対応可能性があり、メーカー確認が必要です。"
       },
       {
         "question": "OmniHandやOmniPickerは標準装備ですか？",
-        "answer": "旗舰版のみ対応、標準付属ではなく別途購入が必要とされています。"
+        "answer": "X2 Ultraのみ対応、標準付属ではなく別途購入が必要とされています。"
       }
     ],
     "images": [
       {
         "src": "assets/img/products/agibot/x2-series/x2-series-hero.png",
-        "alt": "AGIBOT 灵犀X2シリーズ共通宣伝画像。青春版・旗舰版の専用SKU画像ではありません",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "alt": "AGIBOT X2シリーズ共通宣伝画像（特定SKU専用ではありません）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "src": "assets/img/products/agibot/x2-series/x2-series-official-2.jpg",
-        "alt": "AGIBOT X2公式製品ページ掲載画像。バージョン固有の内容は未確認",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "alt": "AGIBOT X2シリーズ関連画像（モデル固有仕様は未確認）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       },
       {
         "src": "assets/img/products/agibot/x2-series/x2-series-official-3.jpg",
-        "alt": "AGIBOT X2公式製品ページ掲載画像。バージョン固有の内容は未確認",
-        "sourceUrl": "https://www.agibot.com.cn/products/X2"
+        "alt": "AGIBOT X2シリーズ関連画像（モデル固有仕様は未確認）",
+        "sourceUrl": "https://agibot.com/jp/products/X2"
       }
     ],
     "videos": [],
