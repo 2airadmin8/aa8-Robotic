@@ -37,6 +37,12 @@ class UniversalGateTest(unittest.TestCase):
   self.assertEqual(x["ids"],["agibot-x2-series"])
   self.assertTrue(x["global_factory_change"])
   self.assertEqual(route(173,SHA,self.outcomes(),x,"date")["state"],"WAIT_FACTORY_QA")
+ def test_shared_css_and_site_js_require_full_factory_qa(self):
+  for path in ("assets/css/g1-factory-v1.css","assets/css/shared-layout.css","assets/js/site.js"):
+   with self.subTest(path=path):
+    x=discover(ROOT,[path])
+    self.assertTrue(x["global_factory_change"])
+    self.assertEqual(route(173,SHA,self.outcomes(),x,"date")["state"],"WAIT_FACTORY_QA")
  def test_no_product_change_never_fabricates_agent(self):
   x=discover(ROOT,["README.md"])
   self.assertEqual(x["work_scope"],"NO_PRODUCT_SCOPE")

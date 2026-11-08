@@ -32,7 +32,11 @@ def discover(root, paths):
         if filename == "data/products.json":
             ambiguous.append(filename)
         if filename in {"scripts/product_factory.py", "scripts/product_page_standard_v31.py",
-                        "scripts/templates/g1_factory_v1.html"}:
+                        "scripts/templates/g1_factory_v1.html",
+                        "assets/css/site.css", "assets/css/shared-layout.css",
+                        "assets/css/g1-product.css", "assets/css/g1-factory-v1.css",
+                        "assets/css/g1-factory-v3.css", "assets/css/product-standard-v31.css",
+                        "assets/js/site.js"}:
             global_change = True
         for pid, obj in official.items():
             refs = [obj.get("detailPage"), obj.get("image")]
