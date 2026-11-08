@@ -155,15 +155,15 @@ jobs:
           RESULT_SOURCE_CLEAN: ${{ steps.source_clean.outcome }}
         run: |
           set -euo pipefail
-          python scripts/factory_gate_handoff.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out .gate-handoff
-          cat .gate-handoff/gate-handoff.md >> "$GITHUB_STEP_SUMMARY"
+          python scripts/factory_gate_handoff.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out gate-handoff
+          cat gate-handoff/gate-handoff.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Preserve X2 gate handoff evidence
         if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
         uses: actions/upload-artifact@v4
         with:
           name: x2-gate-handoff-${{ github.event.pull_request.head.sha }}
-          path: .gate-handoff/
+          path: gate-handoff/
           if-no-files-found: error
           retention-days: 30
 

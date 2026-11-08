@@ -62,6 +62,9 @@ class HandoffTest(unittest.TestCase):
         import re
         self.assertNotRegex(workflow,r"\$\{(?!\{)\s*(?:github|steps|always)")
         self.assertIn("actions/upload-artifact@v4",workflow)
+        self.assertIn("path: gate-handoff/",workflow)
+        self.assertNotIn("path: .gate-handoff/",workflow)
+        self.assertIn("if-no-files-found: error",workflow)
         self.assertIn("GITHUB_STEP_SUMMARY",workflow)
 
     def test_summary_has_safe_handoff(self):
