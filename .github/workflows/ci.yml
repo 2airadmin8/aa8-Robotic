@@ -29,6 +29,7 @@ jobs:
           python-version: "3.12"
 
       - name: Regression gate for manual-only production release
+        id: regression
         shell: bash
         run: |
           set -euo pipefail
@@ -37,6 +38,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_h2x_social_meta.py' -v
           python -m unittest discover -s tests -p 'test_product_factory.py' -v
           python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -137,6 +139,33 @@ jobs:
         id: source_clean
         shell: bash
         run: git diff --exit-code
+
+      # Event-driven on the existing PR CI: exact HEAD and fail-closed handoff.
+      - name: X2 Factory gate handoff (same PR / exact HEAD)
+        if: ${ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
+        id: gate_handoff
+        shell: bash
+        env:
+          PR_HEAD: ${ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${ github.event.pull_request.number }}
+          RESULT_REGRESSION: ${ steps.regression.outcome }}
+          RESULT_BUILD: ${ steps.build.outcome }}
+          RESULT_BROWSER: ${ steps.browser.outcome }}
+          RESULT_RELEASE: ${ steps.release.outcome }}
+          RESULT_SOURCE_CLEAN: ${ steps.source_clean.outcome }}
+        run: |
+          set -euo pipefail
+          python scripts/factory_gate_handoff.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out .gate-handoff
+          cat .gate-handoff/gate-handoff.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Preserve X2 gate handoff evidence
+        if: ${ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: x2-gate-handoff-${ github.event.pull_request.head.sha }}
+          path: .gate-handoff/
+          if-no-files-found: error
+          retention-days: 30
 
       - name: 表示チェックリスト
         if: always()
