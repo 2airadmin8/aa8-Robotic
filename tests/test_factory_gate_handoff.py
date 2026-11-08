@@ -18,8 +18,8 @@ class HandoffTest(unittest.TestCase):
         return evaluate(head_sha=SHA,pr=173,outcomes=states,source=self.source,checked_at="2026-11-09T00:00:00+00:00")
     def test_success_still_holds_qa_and_release(self):
         d=self.check()
-        self.assertEqual(d["state"],"WAIT_INDEPENDENT_QA")
-        self.assertEqual(d["blocking_gate"],"INDEPENDENT_QA")
+        self.assertEqual(d["state"],"WAIT_DESIGN_QA")
+        self.assertEqual(d["blocking_gate"],"G2")
         self.assertTrue(all(x is False for x in d["authorization"].values()))
         self.assertEqual(d["strict_release_status"],"HOLD")
         self.assertFalse(d["automatic_worker_started"])

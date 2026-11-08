@@ -53,8 +53,9 @@ def evaluate(*, head_sha: str, pr: int, outcomes: dict, source: dict, checked_at
         state, gate, owner = "HOLD_EVIDENCE", "CI", "Original PR developer"
         next_action = "Provide missing CI evidence for: " + ", ".join(pending) + "; do not treat SKIP as PASS"
     else:
-        state, gate, owner = "WAIT_INDEPENDENT_QA", "INDEPENDENT_QA", "Independent QA owner"
-        next_action = "Review this exact HEAD, 1440/390 PC/SP, 36 official specs, source and CTA; record independent evidence"
+        state, gate, owner = "WAIT_DESIGN_QA", "G2", "Design / Independent QA owner"
+        next_action = ("Validate actual X2 PC/SP against CEO-approved existing Figma template "
+                       "on this exact SHA; record the design diff, then independent QA")
     gates = [
         {"id": "G0", "label": "X2 identity / series generic image", "status": "PASS", "evidence": "tests/fixtures/x2-pilot/source-contract.json"},
         {"id": "G1", "label": "36 Japanese specs / 9 categories", "status": "PASS", "evidence": "tests/fixtures/x2-pilot/source-contract.json"},
