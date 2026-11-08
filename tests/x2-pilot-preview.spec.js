@@ -12,7 +12,12 @@ for(const width of [1440,390,320]){
   await expect(page.locator('main[data-product-id="agibot-x2-series"]')).toHaveCount(1);
   await expect(page.locator('#specifications tbody tr')).toHaveCount(35);
   await expect(page.locator('.g1-factory-media-grid img')).toHaveCount(3);
-  const attrs=await page.locator('.g1-factory-media-grid img').evaluateAll(all=>all.map(n=>({complete:n.complete,width:n.naturalWidth})));
+  const gallery=page.locator('.g1-factory-media-grid img');
+  for(let i=0;i<3;i++){
+    await gallery.nth(i).scrollIntoViewIfNeeded();
+    await expect.poll(()=>gallery.nth(i).evaluate(img=>img.complete&&img.naturalWidth>0),{timeout:12000}).toBe(true);
+  }
+  const attrs=await gallery.evaluateAll(all=>all.map(n=>({complete:n.complete,width:n.naturalWidth})));
   expect(attrs.every(x=>x.complete&&x.width>0)).toBeTruthy();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
   const hero=page.locator('a[data-factory-cta=hero]');
