@@ -44,6 +44,8 @@ class X2PilotContractTest(unittest.TestCase):
         preview=render(ROOT,self.item,'preview')
         self.assertIn('noindex,nofollow',preview)
         self.assertIn('x2-series-hero.png',preview)
+        self.assertNotIn('src="/assets/js/site.js"',preview,
+                         "isolated Preview must not send GA4 production page_view")
         with self.assertRaises(ContractError):
             render(ROOT,dict(self.item,pageFactory=dict(self.item['pageFactory'],releaseReady=True)),'candidate')
 

@@ -499,7 +499,12 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
-    return Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
+    page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
+    if mode == "preview":
+        # CI/local preview is not a public page: never emit production
+        # analytics page_view from site.js (GA4) or other site bootstrap.
+        page = page.replace('<script src="/assets/js/site.js" defer></script>', '')
+    return page
 
 
 def main() -> int:
