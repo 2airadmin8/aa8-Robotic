@@ -19,6 +19,8 @@ jobs:
   build-and-verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    outputs:
+      factory_scope: ${{ steps.gate_handoff.outputs.factory_scope }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -39,6 +41,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_product_factory.py' -v
           python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -v
           python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_router.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -140,13 +143,14 @@ jobs:
         shell: bash
         run: git diff --exit-code
 
-      # Event-driven on the existing PR CI: exact HEAD and fail-closed handoff.
-      - name: X2 Factory gate handoff (same PR / exact HEAD)
-        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
+      # Same existing PR CI; no polling, second Factory, or production permission.
+      - name: Factory gate handoff (all internal product PRs)
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
         id: gate_handoff
         shell: bash
         env:
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RESULT_REGRESSION: ${{ steps.regression.outcome }}
           RESULT_BUILD: ${{ steps.build.outcome }}
@@ -155,14 +159,18 @@ jobs:
           RESULT_SOURCE_CLEAN: ${{ steps.source_clean.outcome }}
         run: |
           set -euo pipefail
-          python scripts/factory_gate_handoff.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out gate-handoff
+          git fetch --no-tags --depth=1 origin "$PR_BASE" "$PR_HEAD"
+          git diff --name-only "$PR_BASE" "$PR_HEAD" > changed-product-paths.txt
+          python scripts/factory_gate_router.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --changed-paths changed-product-paths.txt             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out gate-handoff
           cat gate-handoff/gate-handoff.md >> "$GITHUB_STEP_SUMMARY"
+          factory_scope="$(python -c "import json;print(json.load(open('gate-handoff/gate-handoff.json'))['scope']['work_scope'])")"
+          echo "factory_scope=$factory_scope" >> "$GITHUB_OUTPUT"
 
-      - name: Preserve X2 gate handoff evidence
-        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
+      - name: Preserve Factory gate handoff evidence
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
         uses: actions/upload-artifact@v4
         with:
-          name: x2-gate-handoff-${{ github.event.pull_request.head.sha }}
+          name: factory-gate-handoff-${{ github.event.pull_request.head.sha }}
           path: gate-handoff/
           if-no-files-found: error
           retention-days: 30
@@ -195,3 +203,66 @@ jobs:
             echo ""
             echo "Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # Separate hosted runner on the same exact PR head: technical cross-check only.
+  # It does NOT constitute independent Figma, business, or CEO QA approval.
+  separate-technical-qa:
+    needs: build-and-verify
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && needs.build-and-verify.result == 'success' && needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' && needs.build-and-verify.outputs.factory_scope != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact PR HEAD on separate runner
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Separate technical QA / regress all existing products
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_product_factory.py' -v
+          python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_router.py' -v
+          python scripts/product_factory.py audit
+      - name: Record separate technical QA evidence
+        shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          mkdir -p separate-qa-evidence
+          python - <<'PY'
+          import json,os,pathlib,datetime
+          sha=os.environ['PR_HEAD']
+          if len(sha)!=40:
+              raise SystemExit('invalid PR head SHA')
+          result={
+             'schema_version':'factory-separate-technical-qa-v1',
+             'checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+             'pr':int(os.environ['PR_NUMBER']),
+             'head_sha':sha,
+             'runner':'fresh github-hosted ubuntu-24.04',
+             'scope':'Technical regression of existing Product Master and pilot; not visual signoff',
+             'technical_regression':'PASS',
+             'design_visual_approval':'HOLD',
+             'business_e2e':'HOLD',
+             'human_independent_qa':'HOLD',
+             'ceo_approval':'HOLD',
+             'auto_ai_developer_wakeup':'NOT_CONNECTED',
+             'production_release':'HOLD'}
+          pathlib.Path('separate-qa-evidence/report.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+      - name: Preserve separate technical QA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-separate-qa-${{ github.event.pull_request.head.sha }}
+          path: separate-qa-evidence/
+          if-no-files-found: error
+          retention-days: 30

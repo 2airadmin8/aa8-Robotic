@@ -57,12 +57,15 @@ class HandoffTest(unittest.TestCase):
         self.assertIn("if: "+open_tag+" always()",workflow)
         self.assertIn("PR_HEAD: "+open_tag+" github.event.pull_request.head.sha }}",workflow)
         self.assertIn("RESULT_REGRESSION: "+open_tag+" steps.regression.outcome }}",workflow)
-        self.assertIn("x2-gate-handoff-"+open_tag+" github.event.pull_request.head.sha }}",workflow)
+        self.assertIn("factory-gate-handoff-"+open_tag+" github.event.pull_request.head.sha }}",workflow)
         # Check specifically that no malformed single-brace expression is present.
         import re
         self.assertNotRegex(workflow,r"\$\{(?!\{)\s*(?:github|steps|always)")
         self.assertIn("actions/upload-artifact@v4",workflow)
         self.assertIn("path: gate-handoff/",workflow)
+        self.assertIn("factory_scope: "+open_tag+" steps.gate_handoff.outputs.factory_scope }}",workflow)
+        self.assertIn("separate-technical-qa:",workflow)
+        self.assertIn("factory-separate-qa-"+open_tag+" github.event.pull_request.head.sha }}",workflow)
         self.assertNotIn("path: .gate-handoff/",workflow)
         self.assertIn("if-no-files-found: error",workflow)
         self.assertIn("GITHUB_STEP_SUMMARY",workflow)
