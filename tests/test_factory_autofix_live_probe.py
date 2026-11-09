@@ -2,7 +2,7 @@
 import unittest
 
 def add_for_autofix_pilot(a: int, b: int) -> int:
-    return a - b  # deliberate isolated failing line for AI repair
+    return a + b  # deliberate isolated failing line for AI repair
 
 class TestAutofixPilot(unittest.TestCase):
     def test_add_two_numbers(self):
