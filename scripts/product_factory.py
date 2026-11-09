@@ -284,6 +284,49 @@ def _item_html(items: list[dict], kind: str) -> str:
 
 
 
+def render_variant_compare_specs(product: dict, spec: dict) -> str:
+    """X2 series: readable native comparison from the same 36 manufacturer facts."""
+    rows = spec["specifications"]
+    if product["id"] != "agibot-x2-series":
+        return _item_html(rows, "specifications")
+    if len(rows) != 36:
+        raise ContractError("X2 JP current source must have exactly 36 compared specs")
+    categories = set()
+    group = None
+    html_rows = [
+        '<tr class="x2-compare-head"><th scope="col">比較項目</th>'
+        '<th scope="col">X2</th><th scope="col">X2 Ultra</th></tr>'
+    ]
+    for item in rows:
+        category = required(item.get("category"), "X2 comparison category")
+        label = required(item.get("parameter"), "X2 comparison parameter")
+        models = item.get("models")
+        if not isinstance(models, dict) or set(models) != {"X2", "X2 Ultra"}:
+            raise ContractError("X2 comparison must preserve two official model values")
+        if category != group:
+            if category in categories:
+                raise ContractError("X2 categories must stay contiguous")
+            categories.add(category)
+            group = category
+            html_rows.append(
+                '<tr class="x2-category-row"><th scope="colgroup" colspan="3">'
+                + esc(category) + '</th></tr>'
+            )
+        x2 = required(models["X2"], "X2 model spec")
+        ultra = required(models["X2 Ultra"], "X2 Ultra model spec")
+        html_rows.append(
+            '<tr class="x2-spec-row" data-spec-row="true">'
+            '<th scope="row">' + esc(label) +
+            ' <small><a href="' + esc(item["sourceUrl"]) +
+            '" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></th>'
+            '<td data-model="X2">' + esc(x2) + '</td>'
+            '<td data-model="X2 Ultra">' + esc(ultra) + '</td></tr>'
+        )
+    if len(categories) != 9:
+        raise ContractError("X2 JP comparison must preserve 9 categories")
+    return "\n".join(html_rows)
+
+
 def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
     """Optional, validated V3 content from Product Master, without changing legacy pages."""
     empty = {"v3_navigation": "", "v3_model_section": "", "v3_sdk_section": "",
@@ -467,7 +510,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         "contact": esc(contact),
         "facts": _item_html(spec["facts"], "facts"),
         "applications": _item_html(spec["applications"], "applications"),
-        "specifications": _item_html(spec["specifications"], "specifications"),
+        "specifications": render_variant_compare_specs(product, spec),
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
         "videos": videos,

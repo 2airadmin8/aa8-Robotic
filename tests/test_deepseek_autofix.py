@@ -80,6 +80,20 @@ class TestDeepSeekAutofix(unittest.TestCase):
     def test_guard_denies_editing_own_engine(self):
         with self.assertRaises(ValueError):
             validate_path("scripts/deepseek_factory_autofix.py")
+    def test_many_changed_files_need_a_specific_failing_filename(self):
+        from unittest.mock import patch
+        class R:
+            returncode=0
+            stdout="".join("tests/test_probe_%s.py\n" % i for i in range(12))
+        class F:
+            def is_file(self): return True
+        with patch("subprocess.run",return_value=R()), patch.object(Path,"is_file",return_value=True):
+            with patch.dict("os.environ",{"AA8_AUTOFIX_FAILURE_LOG":"FAIL: test in test_probe_7.py"}):
+                files=get_changed_files(ROOT,"f"*40)
+                self.assertEqual(files,["tests/test_probe_7.py"])
+            with patch.dict("os.environ",{"AA8_AUTOFIX_FAILURE_LOG":""}):
+                with self.assertRaises(ValueError):get_changed_files(ROOT,"f"*40)
+
     def test_bad_gate_prevents_api_call(self):
         with patch("deepseek_factory_autofix.request_deepseek") as called:
             with self.assertRaises(ValueError):

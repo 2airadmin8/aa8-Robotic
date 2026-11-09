@@ -79,7 +79,10 @@ class X2PilotContractTest(unittest.TestCase):
         self.assertIn('service=use-case-review',content)
         self.assertIn('source_page=https%3A%2F%2Frobotics.air-admin8.co.jp%2Fproducts%2Fagibot-x2-series.html',content)
         self.assertEqual(content.count('class="g1-cta-card"'),3)
-        self.assertEqual(content.count('<tr><th scope="row">'),36)
+        self.assertEqual(content.count('data-spec-row="true"'),36)
+        self.assertEqual(content.count('class="x2-category-row"'),9)
+        self.assertIn('class="x2-compare-head"',content)
+        self.assertIn('data-model="X2 Ultra"',content)
 
     def test_cli_draft_preview_only_and_refuses_conflicting_master(self):
         with tempfile.TemporaryDirectory() as temp:

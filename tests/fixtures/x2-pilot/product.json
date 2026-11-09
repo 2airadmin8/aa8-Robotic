@@ -67,182 +67,398 @@
       {
         "label": "本体・基本仕様｜サイズ",
         "value": "X2: 1310mm（H） 460mm（W） 210mm（L） ／ X2 Ultra: 1310mm（H） 460mm（W） 210mm（L）",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "サイズ",
+        "models": {
+          "X2": "1310mm（H） 460mm（W） 210mm（L）",
+          "X2 Ultra": "1310mm（H） 460mm（W） 210mm（L）"
+        }
       },
       {
         "label": "本体・基本仕様｜身長",
         "value": "X2: 約1.31m ／ X2 Ultra: 約1.31m",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "身長",
+        "models": {
+          "X2": "約1.31m",
+          "X2 Ultra": "約1.31m"
+        }
       },
       {
         "label": "本体・基本仕様｜重量",
         "value": "X2: 約35kg ／ X2 Ultra: 約39kg",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "重量",
+        "models": {
+          "X2": "約35kg",
+          "X2 Ultra": "約39kg"
+        }
       },
       {
         "label": "本体・基本仕様｜全自由度",
         "value": "X2: 27 ／ X2 Ultra: 30",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "全自由度",
+        "models": {
+          "X2": "27",
+          "X2 Ultra": "30"
+        }
       },
       {
         "label": "本体・基本仕様｜首部自由度",
         "value": "X2: 2 ／ X2 Ultra: 1",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "首部自由度",
+        "models": {
+          "X2": "2",
+          "X2 Ultra": "1"
+        }
       },
       {
         "label": "本体・基本仕様｜片腕自由度",
         "value": "X2: 5 ／ X2 Ultra: 7",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "片腕自由度",
+        "models": {
+          "X2": "5",
+          "X2 Ultra": "7"
+        }
       },
       {
         "label": "本体・基本仕様｜腰部自由度",
         "value": "X2: 3 ／ X2 Ultra: 3",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "腰部自由度",
+        "models": {
+          "X2": "3",
+          "X2 Ultra": "3"
+        }
       },
       {
         "label": "本体・基本仕様｜片脚自由度",
         "value": "X2: 6 ／ X2 Ultra: 6",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "片脚自由度",
+        "models": {
+          "X2": "6",
+          "X2 Ultra": "6"
+        }
       },
       {
         "label": "本体・基本仕様｜腕のリーチ",
         "value": "X2: 437mm エンドエフェクタ除く ／ X2 Ultra: 558mm エンドエフェクタ除く",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "腕のリーチ",
+        "models": {
+          "X2": "437mm エンドエフェクタ除く",
+          "X2 Ultra": "558mm エンドエフェクタ除く"
+        }
       },
       {
         "label": "本体・基本仕様｜動作温度範囲",
         "value": "X2: -10℃~40℃ ／ X2 Ultra: -10℃~40℃",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "本体・基本仕様",
+        "parameter": "動作温度範囲",
+        "models": {
+          "X2": "-10℃~40℃",
+          "X2 Ultra": "-10℃~40℃"
+        }
       },
       {
         "label": "認識・センサー｜3D LiDAR",
         "value": "X2: 搭載なし ／ X2 Ultra: 搭載",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "認識・センサー",
+        "parameter": "3D LiDAR",
+        "models": {
+          "X2": "搭載なし",
+          "X2 Ultra": "搭載"
+        }
       },
       {
         "label": "認識・センサー｜RGB-Dカメラ",
         "value": "X2: 搭載なし ／ X2 Ultra: 搭載",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "認識・センサー",
+        "parameter": "RGB-Dカメラ",
+        "models": {
+          "X2": "搭載なし",
+          "X2 Ultra": "搭載"
+        }
       },
       {
         "label": "認識・センサー｜RGBカメラ",
         "value": "X2: インタラクティブRGBカメラ ／ X2 Ultra: インタラクティブRGBカメラ 前方デュアルRGB 後方RGB",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "認識・センサー",
+        "parameter": "RGBカメラ",
+        "models": {
+          "X2": "インタラクティブRGBカメラ",
+          "X2 Ultra": "インタラクティブRGBカメラ 前方デュアルRGB 後方RGB"
+        }
       },
       {
         "label": "認識・センサー｜頭部タッチセンサー",
         "value": "X2: 搭載 ／ X2 Ultra: 搭載",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "認識・センサー",
+        "parameter": "頭部タッチセンサー",
+        "models": {
+          "X2": "搭載",
+          "X2 Ultra": "搭載"
+        }
       },
       {
         "label": "通信｜通信方式",
         "value": "X2: Wi-Fi、Bluetooth ／ X2 Ultra: Wi-Fi、Bluetooth 4G/5Gモジュール",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "通信",
+        "parameter": "通信方式",
+        "models": {
+          "X2": "Wi-Fi、Bluetooth",
+          "X2 Ultra": "Wi-Fi、Bluetooth 4G/5Gモジュール"
+        }
       },
       {
         "label": "対話・表示｜音声入出力",
         "value": "X2: マイクアレイ、 ワイヤレスマイク、 スピーカー ／ X2 Ultra: マイクアレイ、 ワイヤレスマイク、 スピーカー",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "対話・表示",
+        "parameter": "音声入出力",
+        "models": {
+          "X2": "マイクアレイ、 ワイヤレスマイク、 スピーカー",
+          "X2 Ultra": "マイクアレイ、 ワイヤレスマイク、 スピーカー"
+        }
       },
       {
         "label": "対話・表示｜表示",
         "value": "X2: インタラクションディスプレイ、ライトエフェクト ／ X2 Ultra: インタラクションディスプレイ、ライトエフェクト",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "対話・表示",
+        "parameter": "表示",
+        "models": {
+          "X2": "インタラクションディスプレイ、ライトエフェクト",
+          "X2 Ultra": "インタラクションディスプレイ、ライトエフェクト"
+        }
       },
       {
         "label": "運動・性能｜最大関節トルク",
         "value": "X2: 120N·m ／ X2 Ultra: 120N·m",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "運動・性能",
+        "parameter": "最大関節トルク",
+        "models": {
+          "X2": "120N·m",
+          "X2 Ultra": "120N·m"
+        }
       },
       {
         "label": "運動・性能｜移動速度",
         "value": "X2: 最大: 1.5 m/s 通常 ≤0.8 m/s ／ X2 Ultra: 最大: 1.5 m/s 通常 ≤0.8 m/s",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "運動・性能",
+        "parameter": "移動速度",
+        "models": {
+          "X2": "最大: 1.5 m/s 通常 ≤0.8 m/s",
+          "X2 Ultra": "最大: 1.5 m/s 通常 ≤0.8 m/s"
+        }
       },
       {
         "label": "運動・性能｜最大可搬重量",
         "value": "X2: 最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く） ／ X2 Ultra: 最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "運動・性能",
+        "parameter": "最大可搬重量",
+        "models": {
+          "X2": "最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）",
+          "X2 Ultra": "最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）"
+        }
       },
       {
         "label": "電源・電池｜バッテリー容量",
         "value": "X2: 約500Wh ／ X2 Ultra: 約500Wh",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "バッテリー容量",
+        "models": {
+          "X2": "約500Wh",
+          "X2 Ultra": "約500Wh"
+        }
       },
       {
         "label": "電源・電池｜連続稼働時間",
         "value": "X2: 約2時間 （0.5m/s歩行時） ／ X2 Ultra: 約2時間 （0.5m/s歩行時）",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "連続稼働時間",
+        "models": {
+          "X2": "約2時間 （0.5m/s歩行時）",
+          "X2 Ultra": "約2時間 （0.5m/s歩行時）"
+        }
       },
       {
         "label": "電源・電池｜エネルギー補給方式",
         "value": "X2: 直充電・バッテリー交換 ／ X2 Ultra: 直充電・バッテリー交換",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "エネルギー補給方式",
+        "models": {
+          "X2": "直充電・バッテリー交換",
+          "X2 Ultra": "直充電・バッテリー交換"
+        }
       },
       {
         "label": "電源・電池｜充電時間",
         "value": "X2: ≤1.5時間 ／ X2 Ultra: ≤1.5時間",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "充電時間",
+        "models": {
+          "X2": "≤1.5時間",
+          "X2 Ultra": "≤1.5時間"
+        }
       },
       {
         "label": "電源・電池｜入力電圧",
         "value": "X2: 100~220V ／ X2 Ultra: 100~220V",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "入力電圧",
+        "models": {
+          "X2": "100~220V",
+          "X2 Ultra": "100~220V"
+        }
       },
       {
         "label": "電源・電池｜充電器出力",
         "value": "X2: 54.6V 10A ／ X2 Ultra: 54.6V 10A",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "電源・電池",
+        "parameter": "充電器出力",
+        "models": {
+          "X2": "54.6V 10A",
+          "X2 Ultra": "54.6V 10A"
+        }
       },
       {
         "label": "演算・制御｜計算基板",
         "value": "X2: RK3588*2 ／ X2 Ultra: RK3588*2",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "演算・制御",
+        "parameter": "計算基板",
+        "models": {
+          "X2": "RK3588*2",
+          "X2 Ultra": "RK3588*2"
+        }
       },
       {
         "label": "演算・制御｜高性能計算基板",
         "value": "X2: 搭載なし ／ X2 Ultra: Orin NX（157TOPS）",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "演算・制御",
+        "parameter": "高性能計算基板",
+        "models": {
+          "X2": "搭載なし",
+          "X2 Ultra": "Orin NX（157TOPS）"
+        }
       },
       {
         "label": "拡張インターフェース｜USBポート",
         "value": "X2: Type-A *1 Type-C *1 ／ X2 Ultra: Type-A *2 Type-C *2",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "拡張インターフェース",
+        "parameter": "USBポート",
+        "models": {
+          "X2": "Type-A *1 Type-C *1",
+          "X2 Ultra": "Type-A *2 Type-C *2"
+        }
       },
       {
         "label": "拡張インターフェース｜LANポート",
         "value": "X2: RJ45 *2 ／ X2 Ultra: RJ45 *2",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "拡張インターフェース",
+        "parameter": "LANポート",
+        "models": {
+          "X2": "RJ45 *2",
+          "X2 Ultra": "RJ45 *2"
+        }
       },
       {
         "label": "拡張インターフェース｜映像出力",
         "value": "X2: なし ／ X2 Ultra: Mini DP *1",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "拡張インターフェース",
+        "parameter": "映像出力",
+        "models": {
+          "X2": "なし",
+          "X2 Ultra": "Mini DP *1"
+        }
       },
       {
         "label": "拡張インターフェース｜電源出力",
         "value": "X2: なし ／ X2 Ultra: 12V/3V*1 48V/5A*1",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "拡張インターフェース",
+        "parameter": "電源出力",
+        "models": {
+          "X2": "なし",
+          "X2 Ultra": "12V/3V*1 48V/5A*1"
+        }
       },
       {
         "label": "その他｜ハンドヘルドコントローラ",
         "value": "X2: あり ／ X2 Ultra: あり",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "その他",
+        "parameter": "ハンドヘルドコントローラ",
+        "models": {
+          "X2": "あり",
+          "X2 Ultra": "あり"
+        }
       },
       {
         "label": "その他｜OTAアップデート",
         "value": "X2: あり ／ X2 Ultra: あり",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "その他",
+        "parameter": "OTAアップデート",
+        "models": {
+          "X2": "あり",
+          "X2 Ultra": "あり"
+        }
       },
       {
         "label": "その他｜モバイルアプリ",
         "value": "X2: あり ／ X2 Ultra: あり",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "その他",
+        "parameter": "モバイルアプリ",
+        "models": {
+          "X2": "あり",
+          "X2 Ultra": "あり"
+        }
       },
       {
         "label": "その他｜セカンダリ開発対応",
         "value": "X2: なし ／ X2 Ultra: あり",
-        "sourceUrl": "https://agibot.com/jp/products/X2"
+        "sourceUrl": "https://agibot.com/jp/products/X2",
+        "category": "その他",
+        "parameter": "セカンダリ開発対応",
+        "models": {
+          "X2": "なし",
+          "X2 Ultra": "あり"
+        }
       }
     ],
     "faq": [

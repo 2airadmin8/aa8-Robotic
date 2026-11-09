@@ -94,3 +94,95 @@ main.g1-page[data-product-factory="g1-v1"] > .g1-section:not(.g1-final-cta) {
     line-height: 1.6;
   }
 }
+
+/* X2 series official JP 2-model parameter comparison — scoped to X2 preview.
+ * PC keeps 3 readable aligned columns; SP uses two clearly labelled value cards.
+ * Does not alter the existing 13 product pages. */
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table th {
+  width: auto;
+}
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table .x2-compare-head th {
+  background: #e8f5fa;
+  font-size: 15px;
+  font-weight: 700;
+}
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table .x2-category-row th {
+  background: #f0f7fb;
+  color: #087eaa;
+  font-size: 14px;
+  padding: 12px 16px;
+}
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table .x2-spec-row th {
+  width: 32%;
+}
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table .x2-spec-row td {
+  width: 34%;
+  line-height: 1.7;
+  vertical-align: top;
+}
+.g1-page[data-product-id="agibot-x2-series"] .g1-factory-spec-table .x2-spec-row small {
+  display:block;
+  font-weight:400;
+  font-size: 11px;
+  margin-top: 6px;
+}
+@media(min-width:781px) {
+ .g1-page[data-product-id="agibot-x2-series"] > .g1-hero { min-height: 555px; }
+}
+@media(max-width:780px) {
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .g1-factory-spec-table {
+    display:block;
+    width:100%;
+    table-layout:auto;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .g1-factory-spec-table tbody {
+    display:block;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-compare-head {
+    display:none;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-category-row {
+    display:block;
+    margin-top:20px;
+    border-bottom:2px solid #008ac4;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-category-row th {
+    display:block;
+    width:100%;
+    padding:12px;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-spec-row {
+    display:grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    gap:10px;
+    padding:14px 0;
+    border-bottom:1px solid #dce9ef;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-spec-row th {
+    display:block;
+    grid-column:1/-1;
+    width:100%;
+    padding:0;
+    border:0;
+    font-size:14px;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-spec-row td {
+    display:block;
+    width:100%;
+    min-width:0;
+    padding:10px;
+    background:#f3f9fc;
+    border:0;
+    border-radius:6px;
+    overflow-wrap:anywhere;
+    font-size:13px;
+  }
+  .g1-page[data-product-id="agibot-x2-series"] #specifications .x2-spec-row td::before {
+    content:attr(data-model);
+    display:block;
+    color:#057ea9;
+    font-size:12px;
+    font-weight:800;
+    margin-bottom:8px;
+  }
+}

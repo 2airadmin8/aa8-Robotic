@@ -51,6 +51,17 @@ def get_changed_files(root: Path, base_sha: str) -> list[str]:
                 allow.append(path)
         except ValueError:
             continue
+    # Only a source explicitly named in the trusted failing test output can be
+    # offered to DeepSeek when an older long-running PR contains many files.
+    # Do not send unrelated code merely because it belongs to the PR.
+    failure = os.environ.get("AA8_AUTOFIX_FAILURE_LOG", "")
+    if len(allow) > MAX_FILES:
+        matches = [name for name in allow
+                   if re.search(r"(?<![a-zA-Z0-9_.])" + re.escape(Path(name).name) +
+                                r"(?![a-zA-Z0-9_.])", failure)]
+        require(0 < len(matches) <= MAX_FILES,
+                "Too many PR files and no uniquely attributable failing source")
+        return matches
     require(0 < len(allow) <= MAX_FILES, "No small allowed source change to repair")
     return allow
 
@@ -151,7 +162,15 @@ def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model
             "No failing CI evidence")
     require("FAIL" in failure or "ERROR" in failure,
             "NO_REPRODUCED_ERROR_FOR_AI - fail closed rather than guess")
-    files = get_changed_files(root, base_sha)
+    previous = os.environ.get("AA8_AUTOFIX_FAILURE_LOG")
+    try:
+        os.environ["AA8_AUTOFIX_FAILURE_LOG"] = failure
+        files = get_changed_files(root, base_sha)
+    finally:
+        if previous is None:
+            os.environ.pop("AA8_AUTOFIX_FAILURE_LOG", None)
+        else:
+            os.environ["AA8_AUTOFIX_FAILURE_LOG"] = previous
     source = collect_source(root, files)
     system = (
         "You are a bounded Python/JS/CSS code repair assistant. Respond with a JSON object "
