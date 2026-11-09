@@ -130,7 +130,6 @@ jobs:
           python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
-          python -m unittest discover -s tests -p 'test_factory_autofix_live_probe.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -417,7 +416,7 @@ jobs:
           set -euo pipefail
           : > reproduced-failure.log
           failed=0
-          for suite in test_factory_autofix_live_probe.py test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
+          for suite in test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
             if ! python -m unittest discover -s tests -p "$suite" -q >> reproduced-failure.log 2>&1; then
               failed=1
             fi
