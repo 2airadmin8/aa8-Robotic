@@ -8,7 +8,7 @@
   "status": "preparing",
   "statusLabel": "導入構成確認中",
   "visibility": "hidden",
-  "summary": "X2とX2 Ultraの2モデルをメーカー日本語公式36項目で比較する人型ロボット。",
+  "summary": "X2とX2 Ultraをメーカー日本語公式36項目で比較。研究・PoCに必要な構成条件を整理します。",
   "detailPage": "products/agibot-x2-series.html",
   "image": "assets/img/products/agibot/x2-series/x2-series-hero.png",
   "imageAlt": "AGIBOT LINGXI X2シリーズ共通宣伝画像（特定SKUの写真ではありません）",
@@ -23,7 +23,7 @@
     "officialSource": "https://agibot.com/jp/products/X2",
     "title": "AGIBOT LINGXI X2｜X2とX2 Ultra・公式36仕様比較｜AirAdmin8 Robotics",
     "metaDescription": "AGIBOT LINGXI X2のX2 / X2 Ultraをメーカー日本語公式の36仕様で比較。自由度・重量・LiDAR・RGB-D・バッテリー・開発環境の差異を確認。",
-    "heroLead": "人と対話し、柔軟に動く。X2とX2 Ultraの違いを公式36項目で比較する。",
+    "heroLead": "人と対話し、柔軟に動く。研究・PoCの可能性を広げる。",
     "facts": [
       {
         "label": "機種構成",
