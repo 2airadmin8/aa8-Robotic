@@ -586,3 +586,37 @@ jobs:
           pr_base="$(python -c "import json;print(json.load(open('/tmp/aa8_live_pr.json'))['base']['sha'])")"
           gh workflow run ci.yml --ref "$branch"             -f autofix_pr="$PR_NUMBER" -f autofix_head="$new_head" -f autofix_base="$pr_base"
           echo "Autofix attempt $attempt; original PR #$PR_NUMBER updated to $new_head. Production HOLD." >> "$GITHUB_STEP_SUMMARY"
+
+  # One-off evidence only: actual DeepSeek source fix in disposable Git repo.
+  # No PR push token, no production data, not the global autofix entrypoint.
+  deepseek-isolated-repair-proof:
+    needs: build-and-verify
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 173 && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository && needs.build-and-verify.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact Draft PR SHA without write credentials
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: AI finds and fixes isolated broken Python test
+        shell: bash
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
+        run: |
+          set -euo pipefail
+          python tests/deepseek_real_isolated_pilot.py deepseek-isolated-evidence
+      - name: Save real AI repair evidence, no Github writes
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-real-repair-pilot-${{ github.event.pull_request.head.sha }}
+          path: deepseek-isolated-evidence/
+          if-no-files-found: error
+          retention-days: 14

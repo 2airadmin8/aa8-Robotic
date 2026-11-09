@@ -25,7 +25,7 @@ class TestAutofixWorkflow(unittest.TestCase):
   propose=job('ai-autofix-propose')
   val=job('ai-autofix-validate')
   writer=job('ai-autofix-commit')
-  self.assertEqual(WF.count('secrets.DEEPSEEK_API_KEY_PAIHP'),2)  # read-only auth probe + read-only proposer
+  self.assertEqual(WF.count('secrets.DEEPSEEK_API_KEY_PAIHP'),3)  # probe, read-only proposer, isolated pilot
   self.assertNotIn('secrets.DEEPSEEK_API_KEY }}',WF)
   self.assertNotIn('secrets.OPENAI_API_KEY',WF)
   self.assertNotIn('openai/codex-action@',WF)
@@ -41,16 +41,30 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertNotIn('contents: write',val)
   self.assertIn('contents: write',writer)
  def test_deepseek_api_smoke_is_limited_to_same_repo_draft_pr(self):
-  import yaml
-  wf=yaml.safe_load(WF)
-  step=next(x for x in wf['jobs']['build-and-verify']['steps'] if x.get('name')=='DeepSeek PAIHP secret real API smoke')
-  self.assertIn('github.event.pull_request.number == 173',step['if'])
-  self.assertIn('github.event.pull_request.draft == true',step['if'])
-  self.assertIn('head.repo.full_name == github.repository',step['if'])
-  self.assertEqual(step['env']['DEEPSEEK_API_KEY'],chr(36)+'{{ secrets.DEEPSEEK_API_KEY_PAIHP }}')
-  self.assertIn('https://api.deepseek.com/models',step['run'])
-  self.assertIn('https://api.deepseek.com/chat/completions',step['run'])
-  self.assertNotIn('api.openai.com',step['run'])
+  # Pure standard-library check: GitHub's Python runner has no PyYAML.
+  start=WF.index('      - name: DeepSeek PAIHP secret real API smoke')
+  end=WF.index('      - name: Regression gate for manual-only production release',start)
+  step=WF[start:end]
+  self.assertIn('github.event.pull_request.number == 173',step)
+  self.assertIn('github.event.pull_request.draft == true',step)
+  self.assertIn('head.repo.full_name == github.repository',step)
+  self.assertIn('DEEPSEEK_API_KEY: '+chr(36)+'{{ secrets.DEEPSEEK_API_KEY_PAIHP }}',step)
+  self.assertIn('https://api.deepseek.com/models',step)
+  self.assertIn('https://api.deepseek.com/chat/completions',step)
+  self.assertNotIn('api.openai.com',step)
+
+ def test_real_deepseek_repair_proof_is_separate_readonly_runner(self):
+  proof=job('deepseek-isolated-repair-proof')
+  self.assertIn('github.event.pull_request.number == 173',proof)
+  self.assertIn('github.event.pull_request.draft == true',proof)
+  self.assertIn('needs.build-and-verify.result == ',proof)
+  self.assertIn('contents: read',proof)
+  self.assertIn('persist-credentials: false',proof)
+  self.assertIn('tests/deepseek_real_isolated_pilot.py',proof)
+  self.assertIn('secrets.DEEPSEEK_API_KEY_PAIHP',proof)
+  self.assertNotIn('contents: write',proof)
+  self.assertNotIn('git push',proof)
+  self.assertNotIn('pages.yml',proof)
 
  def test_original_pr_sha_guard_and_bounded_writer(self):
   writer=job('ai-autofix-commit')
