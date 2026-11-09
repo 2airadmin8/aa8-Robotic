@@ -10,3 +10,5 @@ class TestAutofixPilot(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+# AA8_AUTO_FIX_ENABLED_VERIFIED: isolated PR173-only retry
