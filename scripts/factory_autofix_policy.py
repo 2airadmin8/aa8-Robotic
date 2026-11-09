@@ -16,7 +16,7 @@ MAX_FILES=8
 MAX_LINES=300
 MAX_PATCH_BYTES=120000
 PREFIXES=("scripts/","tests/","products/","assets/css/","assets/js/")
-PROTECTED=("scripts/factory_autofix_policy.py",".github/","data/","secrets/","assets/js/analytics-events.js")
+PROTECTED=("scripts/factory_autofix_policy.py","scripts/deepseek_factory_autofix.py",".github/","data/","secrets/","assets/js/analytics-events.js")
 SUFFIXES=(".py",".js",".css",".html",".json",".md",".txt")
 def check(condition:bool,message:str):
     if not condition: raise ValueError(message)

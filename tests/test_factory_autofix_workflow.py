@@ -1,4 +1,4 @@
-"""Guard that the opt-in Codex Action cannot bypass PR/QA/production gates."""
+"""Guard that DeepSeek-only patch proposal cannot bypass PR/QA/production gates."""
 import unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
@@ -21,18 +21,21 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertIn("needs.build-and-verify.result == 'failure'",propose)
   self.assertIn("github.event.pull_request.draft == true",propose)
   self.assertIn("github.event.pull_request.head.repo.full_name == github.repository",propose)
- def test_codex_key_is_only_in_unprivileged_proposal(self):
+ def test_deepseek_key_only_in_unprivileged_proposal(self):
   propose=job('ai-autofix-propose')
   val=job('ai-autofix-validate')
   writer=job('ai-autofix-commit')
-  self.assertEqual(WF.count('secrets.OPENAI_API_KEY'),1)
-  self.assertIn("openai/codex-action@bdf19a4a223ec2549a3e2274a0cf61556bc07675",propose)
-  self.assertIn("permission-profile: ':workspace'",propose)
-  self.assertIn('safety-strategy: drop-sudo',propose)
+  self.assertEqual(WF.count('secrets.DEEPSEEK_API_KEY'),1)
+  self.assertNotIn('secrets.OPENAI_API_KEY',WF)
+  self.assertNotIn('openai/codex-action@',WF)
+  self.assertIn("DeepSeek API - propose minimal source repair",propose)
+  self.assertIn("scripts/deepseek_factory_autofix.py",propose)
+  self.assertIn("DEEPSEEK_AUTOFIX_MODEL: deepseek-v4-pro",propose)
+  self.assertIn("DEEPSEEK_API_KEY:",propose)
   self.assertIn('contents: read',propose)
   self.assertNotIn('contents: write',propose)
   self.assertIn('persist-credentials: false',propose)
-  self.assertNotIn('secrets.OPENAI_API_KEY',val+writer)
+  self.assertNotIn('secrets.DEEPSEEK_API_KEY',val+writer)
   self.assertIn('contents: read',val)
   self.assertNotIn('contents: write',val)
   self.assertIn('contents: write',writer)
