@@ -130,6 +130,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_live_probe.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -371,7 +372,7 @@ jobs:
   # and explicit repo variable AA8_FACTORY_AUTOFIX_ENABLED=true.
   ai-autofix-propose:
     needs: build-and-verify
-    if: ${{ always() && vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' && needs.build-and-verify.result == 'failure' && needs.build-and-verify.outputs.factory_scope != '' && needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' && (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) && ((github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
+    if: ${{ always() && vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' && (github.event.pull_request.number == 173 || inputs.autofix_pr == '173') && needs.build-and-verify.result == 'failure' && needs.build-and-verify.outputs.factory_scope != '' && needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' && (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) && ((github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -416,7 +417,7 @@ jobs:
           set -euo pipefail
           : > reproduced-failure.log
           failed=0
-          for suite in test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
+          for suite in test_factory_autofix_live_probe.py test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
             if ! python -m unittest discover -s tests -p "$suite" -q >> reproduced-failure.log 2>&1; then
               failed=1
             fi
@@ -431,7 +432,7 @@ jobs:
         shell: bash
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
-          DEEPSEEK_AUTOFIX_MODEL: deepseek-v4-pro
+          DEEPSEEK_AUTOFIX_MODEL: deepseek-flash
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
           set -euo pipefail

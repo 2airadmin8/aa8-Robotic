@@ -21,6 +21,7 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertIn("needs.build-and-verify.result == 'failure'",propose)
   self.assertIn("github.event.pull_request.draft == true",propose)
   self.assertIn("github.event.pull_request.head.repo.full_name == github.repository",propose)
+  self.assertIn('github.event.pull_request.number == 173',propose)
  def test_deepseek_key_only_in_unprivileged_proposal(self):
   propose=job('ai-autofix-propose')
   val=job('ai-autofix-validate')
@@ -31,7 +32,7 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertNotIn('openai/codex-action@',WF)
   self.assertIn("DeepSeek API - propose minimal source repair",propose)
   self.assertIn("scripts/deepseek_factory_autofix.py",propose)
-  self.assertIn("DEEPSEEK_AUTOFIX_MODEL: deepseek-v4-pro",propose)
+  self.assertIn("DEEPSEEK_AUTOFIX_MODEL: deepseek-flash",propose)
   self.assertIn("DEEPSEEK_API_KEY:",propose)
   self.assertIn('contents: read',propose)
   self.assertNotIn('contents: write',propose)
