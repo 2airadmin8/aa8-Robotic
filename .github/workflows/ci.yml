@@ -316,7 +316,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # Disabled by default. Enable only with valid DEEPSEEK_API_KEY Actions secret
+  # Disabled by default. Enable only with valid DEEPSEEK_API_KEY_PAIHP Actions secret
   # and explicit repo variable AA8_FACTORY_AUTOFIX_ENABLED=true.
   ai-autofix-propose:
     needs: build-and-verify
@@ -379,7 +379,7 @@ jobs:
       - name: DeepSeek API - propose minimal source repair
         shell: bash
         env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
           DEEPSEEK_AUTOFIX_MODEL: deepseek-v4-pro
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
