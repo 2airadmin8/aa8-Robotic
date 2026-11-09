@@ -46,7 +46,9 @@ test('X2 actual CTA -> contact -> signed acknowledgement (browser-only, NO produ
   });
   expect(payload.submission_token).toBeTruthy();
   expect(payload.response_token).toBeTruthy();
-  expect(page.url()).toContain('INQ-QA-SIMULATED-NOT-STORED');
+  // contact-thanks intentionally scrubs inquiry_id from browser URL after receipt.
+  await expect(page.locator('[data-contact-receipt-heading]')).toHaveText('お問い合わせを受け付けました。');
+  expect(page.url()).not.toContain('INQ-QA-SIMULATED-NOT-STORED');
 });
 
 test('X2 source_page rejects external/altered URLs before form submission',async({page})=>{
