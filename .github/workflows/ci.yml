@@ -71,6 +71,49 @@ jobs:
           PY
 
 
+      # Isolated real authentication check: no source/customer data, no logging keys.
+      - name: DeepSeek PAIHP secret real API smoke
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 173 && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: bash
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,urllib.request,urllib.error
+          key=os.environ.get('DEEPSEEK_API_KEY','')
+          if not key:
+              raise SystemExit('HOLD: DEEPSEEK_API_KEY_PAIHP not supplied to Actions')
+          def call(url,payload=None):
+              req=urllib.request.Request(
+                  url,
+                  data=json.dumps(payload).encode('utf-8') if payload is not None else None,
+                  headers={'Authorization':'Bearer '+key,
+                           'Content-Type':'application/json',
+                           'User-Agent':'AirAdmin8-Factory-DeepSeek-Probe'},
+                  method='POST' if payload is not None else 'GET')
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as response:
+                      if response.status!=200:
+                          raise SystemExit('HOLD: DeepSeek unexpected HTTP '+str(response.status))
+                      return json.loads(response.read(120000).decode('utf-8'))
+              except urllib.error.HTTPError as e:
+                  raise SystemExit('HOLD: DeepSeek HTTP '+str(e.code)) from None
+              except urllib.error.URLError:
+                  raise SystemExit('HOLD: DeepSeek connection failure') from None
+          models=call('https://api.deepseek.com/models')
+          if 'deepseek-flash' not in [x.get('id') for x in models.get('data',[])]:
+              raise SystemExit('HOLD: deepseek-flash not listed for credential')
+          result=call('https://api.deepseek.com/chat/completions',
+              {'model':'deepseek-flash',
+               'messages':[{'role':'user','content':'Reply with OK only.'}],
+               'thinking':{'type':'disabled'},'max_tokens':16,'stream':False})
+          choices=result.get('choices') or []
+          if not choices or not isinstance(choices[0].get('message',{}).get('content'),str):
+              raise SystemExit('HOLD: DeepSeek chat response malformed')
+          print('DEEPSEEK_PAIHP_REAL_AUTH_PASS model=deepseek-flash; no secret or response printed')
+          PY
+
       - name: Regression gate for manual-only production release
         id: regression
         shell: bash

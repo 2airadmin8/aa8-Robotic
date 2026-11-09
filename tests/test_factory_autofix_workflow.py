@@ -25,7 +25,7 @@ class TestAutofixWorkflow(unittest.TestCase):
   propose=job('ai-autofix-propose')
   val=job('ai-autofix-validate')
   writer=job('ai-autofix-commit')
-  self.assertEqual(WF.count('secrets.DEEPSEEK_API_KEY_PAIHP'),1)
+  self.assertEqual(WF.count('secrets.DEEPSEEK_API_KEY_PAIHP'),2)  # read-only auth probe + read-only proposer
   self.assertNotIn('secrets.DEEPSEEK_API_KEY }}',WF)
   self.assertNotIn('secrets.OPENAI_API_KEY',WF)
   self.assertNotIn('openai/codex-action@',WF)
@@ -40,6 +40,18 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertIn('contents: read',val)
   self.assertNotIn('contents: write',val)
   self.assertIn('contents: write',writer)
+ def test_deepseek_api_smoke_is_limited_to_same_repo_draft_pr(self):
+  import yaml
+  wf=yaml.safe_load(WF)
+  step=next(x for x in wf['jobs']['build-and-verify']['steps'] if x.get('name')=='DeepSeek PAIHP secret real API smoke')
+  self.assertIn('github.event.pull_request.number == 173',step['if'])
+  self.assertIn('github.event.pull_request.draft == true',step['if'])
+  self.assertIn('head.repo.full_name == github.repository',step['if'])
+  self.assertEqual(step['env']['DEEPSEEK_API_KEY'],chr(36)+'{{ secrets.DEEPSEEK_API_KEY_PAIHP }}')
+  self.assertIn('https://api.deepseek.com/models',step['run'])
+  self.assertIn('https://api.deepseek.com/chat/completions',step['run'])
+  self.assertNotIn('api.openai.com',step['run'])
+
  def test_original_pr_sha_guard_and_bounded_writer(self):
   writer=job('ai-autofix-commit')
   self.assertIn("p['head']['sha'] != os.environ['EXPECTED_SHA']",writer)
