@@ -154,7 +154,7 @@ def request_deepseek(messages: list[dict], key: str, model: str, endpoint=ENDPOI
     require(isinstance(content, str) and bool(content.strip()), "Empty DeepSeek proposal")
     return content
 
-def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model: str) -> dict:
+def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model: str, patch_out: Path | None = None) -> dict:
     require(gate.get("state") == "RETURN_TO_DEV", "Gate must explicitly return to developer")
     require(gate.get("release") == "HOLD", "Release Gate must be HOLD")
     require(gate.get("blocking_gate") == "CI", "Only failed CI may invoke AI")
@@ -200,6 +200,12 @@ def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model
     require(diff.returncode == 0, "Cannot form generated patch")
     guard = validate_patch(diff.stdout)
     require(sorted(guard["files"]) == changed, "Diff files differ from DeepSeek edits")
+    if patch_out is not None:
+        # Single SSOT: exact diff validated during AI generation is persisted
+        # atomically for the separate read-only QA job. Do not regenerate later.
+        patch_out.write_bytes(diff.stdout)
+        require(patch_out.is_file() and patch_out.stat().st_size == len(diff.stdout),
+                "Could not persist validated AI patch artifact")
     return {"status": "PROPOSED_FOR_INDEPENDENT_QA", "provider": "deepseek",
             "model": model, "files": changed, "release": "HOLD"}
 
@@ -210,6 +216,7 @@ def main() -> int:
     a.add_argument("--gate-json", type=Path, required=True)
     a.add_argument("--failure-log", type=Path, required=True)
     a.add_argument("--out", type=Path, required=True)
+    a.add_argument("--patch-out", type=Path, required=False)
     args = a.parse_args()
     try:
         key = os.environ.get("DEEPSEEK_API_KEY", "")
@@ -217,7 +224,7 @@ def main() -> int:
         model = os.environ.get("DEEPSEEK_AUTOFIX_MODEL", "deepseek-v4-pro")
         gate = json.loads(args.gate_json.read_text("utf-8"))
         failure = args.failure_log.read_text("utf-8", errors="replace")
-        output = propose(args.root.resolve(), args.base_sha, gate, failure, key, model)
+        output = propose(args.root.resolve(), args.base_sha, gate, failure, key, model, patch_out=args.patch_out)
         args.out.write_text(json.dumps(output, indent=2) + "\n", "utf-8")
         print(json.dumps(output))
         return 0

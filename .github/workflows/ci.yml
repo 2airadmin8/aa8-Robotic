@@ -437,15 +437,16 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$DEEPSEEK_API_KEY" || { echo 'HOLD: DEEPSEEK_API_KEY missing'; exit 2; }
-          python scripts/deepseek_factory_autofix.py             --root .             --base-sha "$PR_BASE"             --gate-json failed-gate/gate-handoff.json             --failure-log reproduced-failure.log             --out deepseek-proposal.json
+          python scripts/deepseek_factory_autofix.py             --root .             --base-sha "$PR_BASE"             --gate-json failed-gate/gate-handoff.json             --failure-log reproduced-failure.log             --out deepseek-proposal.json --patch-out candidate-fix.patch
 
       - name: Check proposed patch with immutable pre-AI guard
         id: patch
         shell: bash
         run: |
           set -euo pipefail
-          git add -N -- scripts tests products assets/css assets/js
-          git diff --binary HEAD > candidate-fix.patch
+          # Consume the exact patch already validated and saved by the
+          # unprivileged DeepSeek proposer; do NOT reconstruct a git diff.
+          test -s candidate-fix.patch
           python /tmp/aa8_autofix_policy.py patch-check             --patch candidate-fix.patch --out candidate-policy.json
           echo 'has_patch=true' >> "$GITHUB_OUTPUT"
       - name: Preserve DeepSeek proposal as non-executable patch

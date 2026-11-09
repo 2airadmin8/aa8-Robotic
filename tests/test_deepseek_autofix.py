@@ -74,6 +74,41 @@ class TestDeepSeekAutofix(unittest.TestCase):
             changed=apply_validated_edits(root,src,edits)
             self.assertEqual(changed,["tests/example.py"])
             self.assertIn("return a+b",file.read_text("utf8"))
+    def test_real_git_patch_is_persisted_before_separate_job(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            (root/"tests").mkdir()
+            target=root/"tests/test_factory_autofix_live_probe.py"
+            target.write_bytes(b"def add(a,b):\n    return a+b\n")
+            def git(*args):
+                return subprocess.check_output(["git","-C",str(root),*args],text=True).strip()
+            git("init","-q")
+            git("config","user.name","QA")
+            git("config","user.email","qa@example.invalid")
+            git("add","tests/test_factory_autofix_live_probe.py")
+            git("commit","-qm","passing baseline")
+            base=git("rev-parse","HEAD")
+            target.write_bytes(b"def add(a,b):\n    return a-b\n")
+            git("add","tests/test_factory_autofix_live_probe.py")
+            git("commit","-qm","controlled failing code")
+            gate={"state":"RETURN_TO_DEV","release":"HOLD","blocking_gate":"CI",
+                  "pr":173,"head_sha":git("rev-parse","HEAD"),
+                  "ci_outcomes":{"regression":"failure"}}
+            fixed=json.dumps({'edits':[{'path':'tests/test_factory_autofix_live_probe.py','find':'return a-b','replace':'return a+b'}]})
+            dest=root/"proposal.patch"
+            with patch("deepseek_factory_autofix.request_deepseek",return_value=fixed):
+                result=propose(root,base,gate,
+                               "FAIL: test in test_factory_autofix_live_probe.py",
+                               "mock-not-used","deepseek-flash",patch_out=dest)
+            self.assertEqual(result["status"],"PROPOSED_FOR_INDEPENDENT_QA")
+            self.assertTrue(dest.is_file())
+            patch_bytes=dest.read_bytes()
+            self.assertIn(b"+    return a+b",patch_bytes)
+            from factory_autofix_policy import validate_patch
+            self.assertEqual(validate_patch(patch_bytes)["files"],
+                             ["tests/test_factory_autofix_live_probe.py"])
+            self.assertIn("return a+b",target.read_text("utf8"))
     def test_no_deepseek_key_fails_closed(self):
         with self.assertRaises(ValueError):
             request_deepseek([],"","deepseek-v4-pro")
