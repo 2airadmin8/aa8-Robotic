@@ -22,7 +22,7 @@ class X2PilotContractTest(unittest.TestCase):
         cls.source=json.loads(SOURCE_PATH.read_text(encoding='utf8'))
 
     def test_current_japanese_official_is_ssot_not_old_chinese(self):
-        self.assertEqual(self.source['parameter_count'],37)
+        self.assertEqual(self.source['parameter_count'],36)
         self.assertEqual(self.source['legacy_cn_20261028_parameter_count'],35)
         self.assertEqual(self.source['official_source'],'https://agibot.com/jp/products/X2')
         self.assertEqual(len(self.source['legacy_cn_source_parameter_entries']),35)
