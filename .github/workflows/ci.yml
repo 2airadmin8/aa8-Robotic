@@ -17,6 +17,10 @@ on:
         description: 'Exact PR base SHA'
         type: string
         required: false
+      feedback_comment_id:
+        description: 'One-shot CEO reject comment ID (X2 pilot only)'
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -130,6 +134,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -329,6 +334,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python scripts/product_factory.py audit
       - name: Record separate technical QA evidence
         shell: bash
@@ -371,12 +377,42 @@ jobs:
   # and explicit repo variable AA8_FACTORY_AUTOFIX_ENABLED=true.
   ai-autofix-propose:
     needs: build-and-verify
-    if: ${{ always() && vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' && (github.event.pull_request.number == 173 || inputs.autofix_pr == '173') && needs.build-and-verify.result == 'failure' && needs.build-and-verify.outputs.factory_scope != '' && needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' && (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) && ((github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
+    if: >-
+      ${{
+        always() &&
+        (
+          (
+            vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' &&
+            (github.event.pull_request.number == 173 || inputs.autofix_pr == '173') &&
+            needs.build-and-verify.result == 'failure' &&
+            needs.build-and-verify.outputs.factory_scope != '' &&
+            needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) &&
+            (
+              (github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) ||
+              (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')
+            )
+          ) ||
+          (
+            github.event_name == 'workflow_dispatch' &&
+            inputs.autofix_pr == '173' &&
+            inputs.feedback_comment_id != '' &&
+            inputs.autofix_head != '' &&
+            inputs.autofix_base != '' &&
+            needs.build-and-verify.result == 'success' &&
+            needs.build-and-verify.outputs.factory_scope != '' &&
+            needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            github.actor == '2airadmin8'
+          )
+        )
+      }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
       contents: read
       actions: read
+      issues: read
+      pull-requests: read
     outputs:
       has_patch: ${{ steps.patch.outputs.has_patch }}
     steps:
@@ -410,7 +446,22 @@ jobs:
           test -s failed-gate/gate-handoff.json
           # Immutable for the remainder of this third-party AI request.
           cp scripts/factory_autofix_policy.py /tmp/aa8_autofix_policy.py
+      - name: Verify CEO rework comment and exact PR SHA
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.feedback_comment_id != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
+          EXPECTED_SHA: ${{ inputs.autofix_head }}
+        run: |
+          set -euo pipefail
+          [[ "$FEEDBACK_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'HOLD: invalid feedback id'; exit 2; }
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$FEEDBACK_ID" > feedback-comment.json
+          python scripts/factory_feedback_rework.py verify --comment-file feedback-comment.json \
+            --comment-id "$FEEDBACK_ID" --sha "$EXPECTED_SHA" --out verified-feedback.json
+          test -s verified-feedback.json
       - name: Reproduce CI failure without AI credentials
+        if: ${{ inputs.feedback_comment_id == '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -433,10 +484,20 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
           DEEPSEEK_AUTOFIX_MODEL: deepseek-flash
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
         run: |
           set -euo pipefail
           test -n "$DEEPSEEK_API_KEY" || { echo 'HOLD: DEEPSEEK_API_KEY missing'; exit 2; }
-          python scripts/deepseek_factory_autofix.py             --root .             --base-sha "$PR_BASE"             --gate-json failed-gate/gate-handoff.json             --failure-log reproduced-failure.log             --out deepseek-proposal.json --patch-out candidate-fix.patch
+          if test -n "${FEEDBACK_ID:-}"; then
+            python scripts/factory_feedback_rework.py propose --root . \
+              --base-sha "$PR_BASE" --feedback-json verified-feedback.json \
+              --out deepseek-proposal.json --patch-out candidate-fix.patch
+          else
+            python scripts/deepseek_factory_autofix.py --root . \
+              --base-sha "$PR_BASE" --gate-json failed-gate/gate-handoff.json \
+              --failure-log reproduced-failure.log --out deepseek-proposal.json \
+              --patch-out candidate-fix.patch
+          fi
 
       - name: Check proposed patch with immutable pre-AI guard
         id: patch
@@ -494,6 +555,8 @@ jobs:
           git apply --check proposed-fix/candidate-fix.patch
           git apply --index proposed-fix/candidate-fix.patch
           python -m unittest discover -s tests -p 'test_product_factory.py' -q
+          python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -q
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -q
           python -m unittest discover -s tests -p 'test_factory_gate_router.py' -q
           python -m unittest discover -s tests -p 'test_factory_autofix_policy.py' -q
           python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -q
