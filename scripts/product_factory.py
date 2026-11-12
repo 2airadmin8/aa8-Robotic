@@ -542,11 +542,19 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
-    # One exact shared header SSOT; do not invent a second logo/menu system.
-    header_file = root / "includes/site-header.html"
-    if not header_file.is_file():
-        raise ContractError("Official shared header template is missing")
-    mapping["shared_header"] = header_file.read_text(encoding="utf-8")
+    # X2 preview alone opts into the live shared header. Existing committed
+    # H2 Plus / A3 Ultra generated pages must remain byte-for-byte identical.
+    original_factory_header = (
+        '<header class="site-header" data-shared-layout="header"><div class="wrap">'
+        '<a href="/index.html">AirAdmin8 Robotics</a></div></header>'
+    )
+    if slug == "agibot-x2-series":
+        header_file = root / "includes/site-header.html"
+        if not header_file.is_file():
+            raise ContractError("Official shared header template is missing")
+        mapping["shared_header"] = header_file.read_text(encoding="utf-8")
+    else:
+        mapping["shared_header"] = original_factory_header
     # The normal site.js initializes GA4, so preview uses a strictly local
     # nav toggle without analytics, network calls or production writers.
     mapping["factory_nav_script"] = (
@@ -558,7 +566,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         'b.setAttribute("aria-expanded",String(o))});'
         'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
         '})();</script>'
-        if mode == "preview" else ""
+        if mode == "preview" and slug == "agibot-x2-series" else ""
     )
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
     if mode == "preview":
