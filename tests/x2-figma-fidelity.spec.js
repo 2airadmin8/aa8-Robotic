@@ -30,6 +30,20 @@ for(const [mode,target] of Object.entries(figma)){
       expect(labels[1]).toContain('X2 Ultra');
     }
     expect(pageErrors).toEqual([]);expect(failedAssets).toEqual([]);
+    // A full-page screenshot does not reliably trigger below-the-fold
+    // loading="lazy" images. Actually scroll and confirm all 3 related
+    // media (and 3 CTA photos) before capturing Figma visual evidence.
+    for(const selector of ['.g1-factory-related-photo img','.g1-factory-cta img']){
+      const images=page.locator(selector);
+      await expect(images).toHaveCount(3);
+      for(let i=0;i<3;i++){
+        await images.nth(i).scrollIntoViewIfNeeded();
+        await expect.poll(()=>images.nth(i).evaluate(img=>
+          img.complete&&img.naturalWidth>0&&img.naturalHeight>0
+        ),{timeout:12000}).toBe(true);
+      }
+    }
+    await page.evaluate(()=>window.scrollTo(0,0));
     fs.mkdirSync('x2-qa-artifacts',{recursive:true});
     await page.screenshot({path:path.join('x2-qa-artifacts','X2_'+mode+'_figma_V32.png'),fullPage:true});
     fs.writeFileSync(path.join('x2-qa-artifacts','X2_'+mode+'_geometry.json'),JSON.stringify({mode,figma:target,observed:g,sha:process.env.GITHUB_SHA||'LOCAL'},null,2));
