@@ -84,6 +84,20 @@ class X2PilotContractTest(unittest.TestCase):
         self.assertIn('class="x2-compare-head"',content)
         self.assertIn('data-model="X2 Ultra"',content)
 
+    def test_factory_preview_reuses_real_logo_header_and_has_no_ga4(self):
+        markup=render(ROOT,self.item,"preview")
+        self.assertIn('class="brand-logo brand-logo-pc"',markup)
+        self.assertIn('class="brand-logo brand-logo-sp"',markup)
+        self.assertIn('aria-controls="nav"',markup)
+        self.assertIn('data-shared-layout="header"',markup)
+        self.assertIn('class="nav"',markup)
+        self.assertNotIn('src="/assets/js/site.js"',markup)
+        self.assertNotIn('gtag.js',markup)
+        self.assertIn('b.addEventListener("click"',markup)
+        self.assertEqual(markup.count('g1-factory-related-photo'),3)
+        for rid in self.item["pageFactory"]["relatedProductIds"]:
+            self.assertIn('src="/'+next(x["image"] for x in catalog(ROOT) if x["id"]==rid)+'"',markup)
+
     def test_cli_draft_preview_only_and_refuses_conflicting_master(self):
         with tempfile.TemporaryDirectory() as temp:
             out=Path(temp)/'x2-preview.html'

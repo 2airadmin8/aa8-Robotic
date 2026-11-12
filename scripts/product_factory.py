@@ -542,6 +542,24 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
+    # One exact shared header SSOT; do not invent a second logo/menu system.
+    header_file = root / "includes/site-header.html"
+    if not header_file.is_file():
+        raise ContractError("Official shared header template is missing")
+    mapping["shared_header"] = header_file.read_text(encoding="utf-8")
+    # The normal site.js initializes GA4, so preview uses a strictly local
+    # nav toggle without analytics, network calls or production writers.
+    mapping["factory_nav_script"] = (
+        '<script>(function(){var b=document.querySelector(".site-header .menu"),'
+        'n=document.querySelector(".site-header .nav");'
+        'if(!b||!n)return;'
+        'function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false")}'
+        'b.addEventListener("click",function(){var o=n.classList.toggle("open");'
+        'b.setAttribute("aria-expanded",String(o))});'
+        'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
+        '})();</script>'
+        if mode == "preview" else ""
+    )
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
     if mode == "preview":
         # CI/local preview is not a public page: never emit production

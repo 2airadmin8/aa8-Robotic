@@ -8,6 +8,27 @@ for(const width of [1440,390,320]){
   page.on('response',r=>{if(r.url().startsWith(base)&&r.status()>=400)failures.push(r.status()+' '+r.url());});
   const response=await page.goto(base+'/x2-pilot-preview.html',{waitUntil:'networkidle'});
   expect(response.status()).toBe(200);
+  const header=page.locator('header.site-header[data-shared-layout="header"]');
+  await expect(header).toHaveCount(1);
+  const visibleLogo=page.locator(width<=980?'.brand-logo-sp':'.brand-logo-pc');
+  await expect(visibleLogo).toBeVisible();
+  await expect.poll(()=>visibleLogo.evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
+  if(width<=980){
+    const btn=page.locator('.site-header .menu');
+    await expect(btn).toBeVisible();
+    await btn.click();
+    await expect(btn).toHaveAttribute('aria-expanded','true');
+    await expect(page.locator('.site-header .nav')).toHaveClass(/open/);
+    await btn.click();
+    await expect(btn).toHaveAttribute('aria-expanded','false');
+  }
+  const relatedImages=page.locator('.g1-factory-related-card img');
+  await expect(relatedImages).toHaveCount(3);
+  for(let i=0;i<3;i++){
+    await relatedImages.nth(i).scrollIntoViewIfNeeded();
+    await expect.poll(()=>relatedImages.nth(i).evaluate(img=>img.complete&&img.naturalWidth>0),{timeout:10000}).toBe(true);
+  }
+
   await expect(page.locator('meta[name=robots]')).toHaveAttribute('content','noindex,nofollow');
   await expect(page.locator('main[data-product-id="agibot-x2-series"]')).toHaveCount(1);
   await expect(page.locator('#specifications tr[data-spec-row]')).toHaveCount(36);
