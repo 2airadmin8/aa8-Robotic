@@ -43,9 +43,17 @@ for(const [mode,target] of Object.entries(figma)){
         ),{timeout:12000}).toBe(true);
       }
     }
-    await page.evaluate(()=>window.scrollTo(0,0));
+    // html{scroll-behavior:smooth} previously kept the sticky header at
+    // a scrolled position when Chromium captured the full-page proof.
+    // Disable only the scroll animation for evidence, never change site CSS.
+    await page.evaluate(()=>{
+      document.documentElement.style.scrollBehavior='auto';
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+    });
+    await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:5000}).toBe(0);
     fs.mkdirSync('x2-qa-artifacts',{recursive:true});
     await page.screenshot({path:path.join('x2-qa-artifacts','X2_'+mode+'_figma_V32.png'),fullPage:true});
+    await page.evaluate(()=>document.documentElement.style.removeProperty('scroll-behavior'));
     fs.writeFileSync(path.join('x2-qa-artifacts','X2_'+mode+'_geometry.json'),JSON.stringify({mode,figma:target,observed:g,sha:process.env.GITHUB_SHA||'LOCAL'},null,2));
   });
 }
