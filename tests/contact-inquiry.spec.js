@@ -108,6 +108,30 @@ for (const entry of [
     await expect(page.locator('[data-contact-confirm]')).not.toHaveJSProperty('open',true);
   });
 }
+// SOURCE_PAGE is untrusted attribution (not verified customer identity).
+// Only a canonical first-party product URL may be inherited from product CTA.
+for(const tc of [
+ {label:'valid X2 CTA',value:'https://robotics.air-admin8.co.jp/products/agibot-x2-series.html',accepted:true},
+ {label:'external spoof rejected',value:'https://attacker.example/products/unitree-g1.html',accepted:false},
+ {label:'untrusted query rejected',value:'https://robotics.air-admin8.co.jp/products/unitree-g1.html?token=secret',accepted:false},
+ {label:'invalid first-party path rejected',value:'https://robotics.air-admin8.co.jp/admin/secret',accepted:false},
+ {label:'lookalike hostname rejected',value:'https://robotics.air-admin8.co.jp.evil.example/products/unitree-g1.html',accepted:false}
+]){
+ test('PM_SOURCE_PAGE preserve only safe same-site product provenance: '+tc.label,async({page})=>{
+   const url=pmPrefillBase+'/contact.html?product=AGIBOT%20LINGXI%20X2&source_page='+encodeURIComponent(tc.value);
+   const response=await page.goto(url,{waitUntil:'domcontentloaded'});
+   expect(response.status()).toBe(200);
+   const sourcePage=await page.locator('[data-contact-form] [name="source_page"]').inputValue();
+   expect(sourcePage).toBe(tc.accepted?tc.value:pmPrefillBase+'/contact.html');
+   await expect(page.locator('[data-contact-form] [name="source_product"]')).toHaveValue('AGIBOT LINGXI X2');
+   await expect(page.locator('[data-contact-confirm]')).not.toHaveJSProperty('open',true);
+ });
+}
+test('PM_SOURCE_PAGE no product query and no referrer preserves clean local contact provenance',async({page})=>{
+ await page.goto(pmPrefillBase+'/contact.html?utm_source=local-qa',{waitUntil:'domcontentloaded'});
+ await expect(page.locator('[name="source_page"]')).toHaveValue(pmPrefillBase+'/contact.html');
+});
+
 test('PM_PREFILL product-only context retains prior draft category',async({page})=>{
   await page.addInitScript(()=>{
     if(!window.localStorage.getItem('airadmin8-contact-draft-v1')) {
