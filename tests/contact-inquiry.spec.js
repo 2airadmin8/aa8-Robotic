@@ -115,7 +115,8 @@ for(const tc of [
  {label:'external spoof rejected',value:'https://attacker.example/products/unitree-g1.html',accepted:false},
  {label:'untrusted query rejected',value:'https://robotics.air-admin8.co.jp/products/unitree-g1.html?token=secret',accepted:false},
  {label:'invalid first-party path rejected',value:'https://robotics.air-admin8.co.jp/admin/secret',accepted:false},
- {label:'lookalike hostname rejected',value:'https://robotics.air-admin8.co.jp.evil.example/products/unitree-g1.html',accepted:false}
+ {label:'lookalike hostname rejected',value:'https://robotics.air-admin8.co.jp.evil.example/products/unitree-g1.html',accepted:false},
+ {label:'localhost query spoof rejected',value:'http://127.0.0.1:4173/products/unitree-g1.html',accepted:false}
 ]){
  test('PM_SOURCE_PAGE preserve only safe same-site product provenance: '+tc.label,async({page})=>{
    const url=pmPrefillBase+'/contact.html?product=AGIBOT%20LINGXI%20X2&source_page='+encodeURIComponent(tc.value);

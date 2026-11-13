@@ -310,12 +310,18 @@
     // First-party product CTA provenance is attribution, never identity proof.
     // A plain URL query value can be spoofed; accept only a canonical product
     // path from our own domain, stripping no unchecked hosts or URL parameters.
-    function verifiedProductSource(raw) {
+    function verifiedProductSource(raw, fromReferrer = false) {
       try {
         const u = new URL(raw);
-        if (u.origin !== 'https://robotics.air-admin8.co.jp' ||
-            u.protocol !== 'https:' || u.username || u.password ||
-            u.search || u.hash || u.port ||
+        const official = u.origin === 'https://robotics.air-admin8.co.jp';
+        // The local Playwright server is not authoritative, but a genuine
+        // same-origin document.referrer may be retained as QA-only attribution.
+        // Never accept localhost/source_page query injection or external hosts.
+        const qaReferrer = fromReferrer &&
+          ['http://127.0.0.1:4173', 'http://localhost:4173'].includes(window.location.origin) &&
+          u.origin === window.location.origin;
+        if ((!official && !qaReferrer) ||
+            u.username || u.password || u.search || u.hash ||
             !/^\/products\/[a-z0-9]+(?:-[a-z0-9]+)*\.html$/.test(u.pathname)) return '';
         return u.origin + u.pathname;
       } catch {
@@ -323,7 +329,7 @@
       }
     }
     const originalProductPage = verifiedProductSource(params.get('source_page')) ||
-      verifiedProductSource(document.referrer) ||
+      verifiedProductSource(document.referrer, true) ||
       (window.location.origin + window.location.pathname);
     const sourceMap = {
       source_product: source.product,
