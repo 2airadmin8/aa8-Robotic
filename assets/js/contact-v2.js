@@ -307,13 +307,37 @@
     const categoryField = form.elements.namedItem('category');
     const useCaseField = form.elements.namedItem('use_case');
     const messageField = form.elements.namedItem('message');
+    // First-party product CTA provenance is attribution, never identity proof.
+    // A plain URL query value can be spoofed; accept only a canonical product
+    // path from our own domain, stripping no unchecked hosts or URL parameters.
+    function verifiedProductSource(raw, fromReferrer = false) {
+      try {
+        const u = new URL(raw);
+        const official = u.origin === 'https://robotics.air-admin8.co.jp';
+        // The local Playwright server is not authoritative, but a genuine
+        // same-origin document.referrer may be retained as QA-only attribution.
+        // Never accept localhost/source_page query injection or external hosts.
+        const qaReferrer = fromReferrer &&
+          ['http://127.0.0.1:4173', 'http://localhost:4173'].includes(window.location.origin) &&
+          u.origin === window.location.origin;
+        if ((!official && !qaReferrer) ||
+            u.username || u.password || u.search || u.hash ||
+            !/^\/products\/[a-z0-9]+(?:-[a-z0-9]+)*\.html$/.test(u.pathname)) return '';
+        return u.origin + u.pathname;
+      } catch {
+        return '';
+      }
+    }
+    const originalProductPage = verifiedProductSource(params.get('source_page')) ||
+      verifiedProductSource(document.referrer, true) ||
+      (window.location.origin + window.location.pathname);
     const sourceMap = {
       source_product: source.product,
       source_maker: source.maker,
       source_service: source.service,
       source_theme: source.theme,
       source_case: source.caseId,
-      source_page: document.referrer || window.location.href,
+      source_page: originalProductPage,
     };
 
     Object.entries(sourceMap).forEach(([name, value]) => {
