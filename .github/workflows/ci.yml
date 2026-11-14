@@ -20,7 +20,11 @@ on:
         type: string
         required: false
       feedback_comment_id:
-        description: 'One-shot CEO reject comment ID (X2 pilot only)'
+        description: 'Authenticated CEO rejection comment ID for any eligible Draft product PR'
+        type: string
+        required: false
+      review_source_comment_id:
+        description: 'Original CEO rejection ID for post-repair SHA/QA/Preview handoff only'
         type: string
         required: false
 
@@ -196,6 +200,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -396,6 +401,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
           python scripts/product_factory.py audit
       - name: Record separate technical QA evidence
         shell: bash
@@ -684,6 +690,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
           EXPECTED_SHA: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
           FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
         run: |
           set -euo pipefail
@@ -736,9 +743,53 @@ jobs:
           # GITHUB_TOKEN pushes do not trigger PR CI; explicitly dispatch CI.
           new_head="$(git rev-parse HEAD)"
           pr_base="$(python -c "import json;print(json.load(open('/tmp/aa8_live_pr.json'))['base']['sha'])")"
-          gh workflow run ci.yml --ref main             -f autofix_pr="$PR_NUMBER" -f autofix_head="$new_head" -f autofix_base="$pr_base"
+          if test -n "${FEEDBACK_ID:-}"; then
+            gh workflow run ci.yml --ref main -f autofix_pr="$PR_NUMBER" \
+              -f autofix_head="$new_head" -f autofix_base="$pr_base" \
+              -f review_source_comment_id="$FEEDBACK_ID"
+          else
+            gh workflow run ci.yml --ref main -f autofix_pr="$PR_NUMBER" \
+              -f autofix_head="$new_head" -f autofix_base="$pr_base"
+          fi
           echo "Autofix attempt $attempt; original PR #$PR_NUMBER updated to $new_head. Production HOLD." >> "$GITHUB_STEP_SUMMARY"
 
+  # Fresh SHA -> exact CI + separate QA -> VERIFIED public Vercel Preview -> CEO.
+  # Runs on trusted main after a real authenticated feedback-driven bot commit.
+  ceo-feedback-preview-handoff:
+    needs: [build-and-verify, separate-technical-qa]
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' && inputs.review_source_comment_id != '' &&
+          needs.build-and-verify.result == 'success' && needs.separate-technical-qa.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    permissions:
+      contents: read
+      deployments: read
+      pull-requests: read
+      issues: write
+    steps:
+      - name: Checkout trusted main handoff implementation
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify new bot SHA and Preview, notify CEO in the original PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_PR: ${{ inputs.autofix_pr }}
+          TARGET_SHA: ${{ inputs.autofix_head }}
+          SOURCE_COMMENT_ID: ${{ inputs.review_source_comment_id }}
+        run: |
+          set -euo pipefail
+          python scripts/factory_feedback_preview.py \
+            --repo "$GITHUB_REPOSITORY" --pr "$TARGET_PR" \
+            --sha "$TARGET_SHA" --comment-id "$SOURCE_COMMENT_ID" \
+            --run-id "$GITHUB_RUN_ID"
   # One-off evidence only: actual DeepSeek source fix in disposable Git repo.
   # No PR push token, no production data, not the global autofix entrypoint.
   deepseek-isolated-repair-proof:
