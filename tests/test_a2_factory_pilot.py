@@ -71,6 +71,25 @@ class A2RealFactoryPilot(unittest.TestCase):
         self.assertNotIn("Google Analytics",original)
         self.assertEqual(original.count("unitree-a2-maker-0"),8)  # 5 media + 3 CTA
 
+    def test_a2_repeatable_and_footer_build_parity(self):
+        from build_site import build_html
+        one=factory.render(ROOT,self.product,"preview")
+        two=factory.render(ROOT,self.product,"preview")
+        self.assertEqual(one, (PILOT/"preview.html").read_text(encoding="utf-8"))
+        self.assertEqual(one,two)
+        self.assertEqual(one,self.preview)
+        built=build_html(one,Path("products/unitree-a2.html"))
+        for text in (one,built):
+            self.assertEqual(text.count('data-aa8-menu-runtime="true"'),1)
+            self.assertEqual(text.count('data-aa8-footer-layout="true"'),1)
+            self.assertIn('class="aa8-main-logo"',text)
+            self.assertIn('class="footer-links"',text)
+            self.assertIn('class="footer-utility-links"',text)
+            self.assertIn('© AirAdmin8 Inc. All rights reserved.',text)
+            self.assertIn('noindex,nofollow',text)
+            self.assertNotIn('analytics-events.js',text)
+            self.assertNotIn('assets/js/site.js',text)
+
     def test_standard_model_excludes_pro_only_specs(self):
         p=self.product
         specs=" ".join(x["value"] for x in p["pageFactory"]["specifications"])

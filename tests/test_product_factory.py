@@ -68,6 +68,28 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn('aria-expanded', text)
         self.assertNotIn("¥", text)
 
+    def test_shared_footer_raw_and_build_parity_no_tracking(self):
+        from build_site import build_html
+        from pathlib import Path
+        preview = render(ROOT, self.item, "preview")
+        built = build_html(preview, Path("products/qa-factory-preview.html"))
+        for html in (preview, built):
+            self.assertEqual(html.count('data-shared-layout="header"'), 1)
+            self.assertEqual(html.count('<footer class="footer" data-shared-layout="footer">'), 1)
+            self.assertEqual(html.count('data-aa8-menu-runtime="true"'), 1)
+            self.assertEqual(html.count('data-aa8-footer-layout="true"'), 1)
+            self.assertIn('class="aa8-main-logo"', html)
+            self.assertIn('class="footer-links"', html)
+            self.assertIn('class="footer-utility-links"', html)
+            self.assertIn('aria-label="フッターナビゲーション"', html)
+            self.assertIn('© AirAdmin8 Inc. All rights reserved.', html)
+            self.assertIn('name="robots" content="noindex,nofollow"', html)
+            self.assertNotIn('assets/js/site.js', html)
+            self.assertNotIn('analytics-events.js', html)
+            self.assertNotIn('seo.js', html)
+        self.assertIn('href="/contact.html"', preview)
+        self.assertIn('href="../contact.html"', built)
+
     def test_release_candidate_requires_explicit_ready(self):
         with self.assertRaises(ContractError):
             render(ROOT, self.item, "candidate")
@@ -122,12 +144,16 @@ class ProductFactoryContractTests(unittest.TestCase):
 
     def test_generated_page_uses_existing_analytics_not_legacy_seo(self):
         from build_site import build_html
-        generated = render(ROOT, self.item, "preview")
-        rebuilt = build_html(generated, Path("products/factory-qa.html"))
-        self.assertIn("analytics-events.js", rebuilt)
-        self.assertNotIn('src="../assets/js/seo.js', rebuilt)
-        self.assertIn('content="noindex,nofollow"', rebuilt)
-        self.assertIn('data-shared-layout="footer"', rebuilt)
+        preview = build_html(render(ROOT, self.item, "preview"), Path("products/factory-qa.html"))
+        self.assertNotIn("analytics-events.js", preview)
+        self.assertNotIn("seo.js", preview)
+        self.assertIn('content="noindex,nofollow"', preview)
+        self.assertIn('data-shared-layout="footer"', preview)
+        self.item["pageFactory"]["releaseReady"] = True
+        candidate = build_html(render(ROOT, self.item, "candidate"), Path("products/factory-qa.html"))
+        self.assertIn("analytics-events.js", candidate)
+        self.assertNotIn('src="../assets/js/seo.js', candidate)
+        self.assertNotIn('content="noindex,nofollow"', candidate)
 
     def test_structured_page_name_from_existing_master(self):
         from unittest.mock import patch
