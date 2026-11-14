@@ -3,6 +3,8 @@ name: PR CI
 on:
   pull_request:
     branches: [main]
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       autofix_pr:
@@ -29,11 +31,56 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
-  group: pr-ci-${{ github.event.pull_request.number || github.ref }}
+  group: pr-ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Trusted default-branch router; never check out untrusted PR code with a write token.
+  feedback-router:
+    if: >-
+      ${{ github.event_name == 'issue_comment' && github.event.action == 'created' &&
+          github.event.issue.pull_request && github.actor == '2airadmin8' &&
+          github.event.comment.user.id == 211299962 &&
+          startsWith(github.event.comment.body, '<!-- AA8-CEO-RETURNED sha=') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      actions: write
+    steps:
+      - name: Checkout trusted default branch only
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify live CEO comment and Draft PR, dispatch existing CI once
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NO: ${{ github.event.issue.number }}
+          FEEDBACK_ID: ${{ github.event.comment.id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$ISSUE_NO" > /tmp/aa8_live_feedback_pr.json
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$FEEDBACK_ID" > /tmp/aa8_live_feedback_comment.json
+          python scripts/factory_feedback_rework.py route \
+            --event-file "$GITHUB_EVENT_PATH" --pr-file /tmp/aa8_live_feedback_pr.json \
+            --comment-file /tmp/aa8_live_feedback_comment.json \
+            --out /tmp/aa8_trusted_feedback_route.json
+          pr="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['pr'])")"
+          head="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['sha'])")"
+          base="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['base'])")"
+          gh workflow run ci.yml --ref main -f autofix_pr="$pr" \
+            -f autofix_head="$head" -f autofix_base="$base" \
+            -f feedback_comment_id="$FEEDBACK_ID"
+          echo "CEO feedback #$FEEDBACK_ID routed once: Draft PR #$pr HEAD $head; main/Production HOLD." >> "$GITHUB_STEP_SUMMARY"
   build-and-verify:
+    if: ${{ github.event_name != 'issue_comment' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     outputs:
@@ -41,6 +88,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.autofix_head || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -57,7 +106,7 @@ jobs:
           EXPECTED_BASE: ${{ inputs.autofix_base }}
         run: |
           set -euo pipefail
-          test "$GITHUB_SHA" = "$EXPECTED_HEAD"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > /tmp/aa8_original_pr.json
           python - <<'PY'
           import json,os,re
@@ -69,7 +118,7 @@ jobs:
               or p['head']['sha']!=expected
               or p['base']['sha']!=os.environ['EXPECTED_BASE']
               or p['head']['repo']['full_name']!=os.environ['GITHUB_REPOSITORY']
-              or p['head']['ref']!=os.environ['GITHUB_REF_NAME']):
+              or p['base']['ref']!='main'):
               raise SystemExit('HOLD: original PR ref, HEAD or base changed')
           print('Verified same Draft PR and exact new HEAD')
           PY
@@ -383,7 +432,7 @@ jobs:
         (
           (
             vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' &&
-            (github.event.pull_request.number == 173 || inputs.autofix_pr == '173') &&
+            (github.event.pull_request.number || inputs.autofix_pr != '') &&
             needs.build-and-verify.result == 'failure' &&
             needs.build-and-verify.outputs.factory_scope != '' &&
             needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
@@ -395,14 +444,14 @@ jobs:
           ) ||
           (
             github.event_name == 'workflow_dispatch' &&
-            inputs.autofix_pr == '173' &&
+            inputs.autofix_pr != '' &&
             inputs.feedback_comment_id != '' &&
             inputs.autofix_head != '' &&
             inputs.autofix_base != '' &&
             needs.build-and-verify.result == 'success' &&
             needs.build-and-verify.outputs.factory_scope != '' &&
             needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
-            github.actor == '2airadmin8'
+            (github.actor == '2airadmin8' || github.actor == 'github-actions[bot]')
           )
         )
       }}
@@ -437,15 +486,29 @@ jobs:
           PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
           PR_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          GH_TOKEN: ${{ github.token }}
           FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
           SOURCE_ACTOR: ${{ github.actor }}
         run: |
           set -euo pipefail
+          # Get policy/model scripts from trusted main, not untrusted PR code.
+          test "$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.base.sha')" = "$PR_BASE"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_BRANCH="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.ref')"
+          fi
+          mkdir -p /tmp/aa8_trusted_factory
+          for name in factory_autofix_policy.py deepseek_factory_autofix.py factory_feedback_rework.py; do
+            git show "${PR_BASE}:scripts/$name" > "/tmp/aa8_trusted_factory/$name"
+          done
           git log -n 30 --format=%B > repair-history.txt
-          python scripts/factory_autofix_policy.py preflight             --pr "$PR_NUMBER" --sha "$PR_HEAD" --branch "$PR_BRANCH"             --actor "$SOURCE_ACTOR" --repo "$GITHUB_REPOSITORY"             --scope "$FACTORY_SCOPE" --history-file repair-history.txt             --out repair-preflight.json
+          python /tmp/aa8_trusted_factory/factory_autofix_policy.py preflight \
+            --pr "$PR_NUMBER" --sha "$PR_HEAD" --branch "$PR_BRANCH" \
+            --actor "$SOURCE_ACTOR" --repo "$GITHUB_REPOSITORY" \
+            --scope "$FACTORY_SCOPE" --history-file repair-history.txt \
+            --out repair-preflight.json
           test -s failed-gate/gate-handoff.json
-          # Immutable for the remainder of this third-party AI request.
-          cp scripts/factory_autofix_policy.py /tmp/aa8_autofix_policy.py
+          cp /tmp/aa8_trusted_factory/factory_autofix_policy.py /tmp/aa8_autofix_policy.py
       - name: Verify CEO rework comment and exact PR SHA
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.feedback_comment_id != '' }}
         shell: bash
@@ -453,12 +516,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
           EXPECTED_SHA: ${{ inputs.autofix_head }}
+          PR_NUMBER: ${{ inputs.autofix_pr }}
         run: |
           set -euo pipefail
           [[ "$FEEDBACK_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'HOLD: invalid feedback id'; exit 2; }
           gh api "repos/$GITHUB_REPOSITORY/issues/comments/$FEEDBACK_ID" > feedback-comment.json
-          python scripts/factory_feedback_rework.py verify --comment-file feedback-comment.json \
-            --comment-id "$FEEDBACK_ID" --sha "$EXPECTED_SHA" --out verified-feedback.json
+          python /tmp/aa8_trusted_factory/factory_feedback_rework.py verify --comment-file feedback-comment.json \
+            --comment-id "$FEEDBACK_ID" --sha "$EXPECTED_SHA" --pr "$PR_NUMBER" --out verified-feedback.json
           test -s verified-feedback.json
       - name: Reproduce CI failure without AI credentials
         if: ${{ inputs.feedback_comment_id == '' }}
@@ -489,11 +553,11 @@ jobs:
           set -euo pipefail
           test -n "$DEEPSEEK_API_KEY" || { echo 'HOLD: DEEPSEEK_API_KEY missing'; exit 2; }
           if test -n "${FEEDBACK_ID:-}"; then
-            python scripts/factory_feedback_rework.py propose --root . \
+            python /tmp/aa8_trusted_factory/factory_feedback_rework.py propose --root . \
               --base-sha "$PR_BASE" --feedback-json verified-feedback.json \
               --out deepseek-proposal.json --patch-out candidate-fix.patch
           else
-            python scripts/deepseek_factory_autofix.py --root . \
+            python /tmp/aa8_trusted_factory/deepseek_factory_autofix.py --root . \
               --base-sha "$PR_BASE" --gate-json failed-gate/gate-handoff.json \
               --failure-log reproduced-failure.log --out deepseek-proposal.json \
               --patch-out candidate-fix.patch
@@ -549,9 +613,13 @@ jobs:
       - name: Validate patch and rerun source regressions without write token
         id: validate
         shell: bash
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
           set -euo pipefail
-          python scripts/factory_autofix_policy.py patch-check             --patch proposed-fix/candidate-fix.patch --out validated-policy.json
+          git show "${PR_BASE}:scripts/factory_autofix_policy.py" > /tmp/aa8_trusted_patch_policy.py
+          python /tmp/aa8_trusted_patch_policy.py patch-check \
+            --patch proposed-fix/candidate-fix.patch --out validated-policy.json
           git apply --check proposed-fix/candidate-fix.patch
           git apply --index proposed-fix/candidate-fix.patch
           python -m unittest discover -s tests -p 'test_product_factory.py' -q
@@ -656,7 +724,7 @@ jobs:
           # GITHUB_TOKEN pushes do not trigger PR CI; explicitly dispatch CI.
           new_head="$(git rev-parse HEAD)"
           pr_base="$(python -c "import json;print(json.load(open('/tmp/aa8_live_pr.json'))['base']['sha'])")"
-          gh workflow run ci.yml --ref "$branch"             -f autofix_pr="$PR_NUMBER" -f autofix_head="$new_head" -f autofix_base="$pr_base"
+          gh workflow run ci.yml --ref main             -f autofix_pr="$PR_NUMBER" -f autofix_head="$new_head" -f autofix_base="$pr_base"
           echo "Autofix attempt $attempt; original PR #$PR_NUMBER updated to $new_head. Production HOLD." >> "$GITHUB_STEP_SUMMARY"
 
   # One-off evidence only: actual DeepSeek source fix in disposable Git repo.
