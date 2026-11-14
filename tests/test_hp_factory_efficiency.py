@@ -30,6 +30,8 @@ class FactoryKPIContract(unittest.TestCase):
         self.assertEqual(result["comparable"], 0)
         self.assertTrue(result["insufficientEvidence"])
         self.assertFalse(result["efficiencyImprovementProven"])
+        self.assertEqual({x["sku_id"]: x["pr_number"] for x in records},
+                         {"unitree-h2-plus": "158", "agibot-a3-ultra": "164"})
 
     def test_verified_example_calculates_duration(self):
         x = k.normalized(self.valid())
@@ -41,6 +43,10 @@ class FactoryKPIContract(unittest.TestCase):
         x = self.valid()
         x["source_ready_at"] = ""
         with self.assertRaisesRegex(ValueError, "actual timestamp"):
+            k.normalized(x)
+        x = self.valid()
+        x["first_qa_at"] = ""
+        with self.assertRaisesRegex(ValueError, "first QA evidence"):
             k.normalized(x)
         x = self.valid()
         x["rework_iterations"] = "4"

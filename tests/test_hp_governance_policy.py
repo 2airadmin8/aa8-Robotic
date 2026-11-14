@@ -38,6 +38,9 @@ class PolicyV1(unittest.TestCase):
         self.assertEqual(template.count("required: true"), 6)
         self.assertNotIn("workflow_dispatch", template)
         self.assertNotIn("pages.yml", template)
+        security=(DOCS/"01_HP_ADAPTER_V1.md").read_text("utf-8")
+        self.assertIn("data/hp-page-family-contract-v1.json",security)
+        self.assertIn("public _site/",security)
 
 
 if __name__ == "__main__":

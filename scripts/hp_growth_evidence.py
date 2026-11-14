@@ -6,7 +6,7 @@ Products/HTML, deploys, or creates GitHub issues.
 """
 from __future__ import annotations
 import argparse
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 import json
 from pathlib import Path
 import re
@@ -28,7 +28,7 @@ def integer(value, what: str) -> int:
     return value
 
 
-def inspect(snapshot: dict) -> dict:
+def inspect(snapshot: dict, *, as_of: date | None = None) -> dict:
     require(snapshot.get("schema") == "aa8-hp-gsc-inquiry-aggregate-v1",
             "unknown aggregate schema")
     s = snapshot.get("sources") or {}
@@ -37,7 +37,11 @@ def inspect(snapshot: dict) -> dict:
     require(s.get("gscSyncStatus") == "SUCCESS", "GSC sync failed")
     date_end = date.fromisoformat(s["gscLastEndDate"])
     collected = date.fromisoformat(snapshot["collectedAt"])
-    require(0 <= (collected - date_end).days <= 7, "stale or future GSC period")
+    actual_today = as_of or datetime.now(timezone(timedelta(hours=9))).date()
+    require(0 <= (actual_today - collected).days <= 1,
+            "aggregate snapshot is not fresh for the actual JST execution date")
+    require(0 <= (collected - date_end).days <= 7,
+            "stale or future GSC period at collection")
     periods = snapshot["periods"]
     require(len(periods) == 2 and periods[0]["name"] == "current"
             and periods[1]["name"] == "previous", "two 7-day windows required")
@@ -56,7 +60,20 @@ def inspect(snapshot: dict) -> dict:
         for col in ("clicks", "impressions"):
             integer(weekly[period][col], period + col)
     lead = snapshot["inquiry"]
+    allowed_inquiry_fields = {
+        "total", "withSourceProduct", "withSourceService",
+        "withUtmSource", "withProduct", "withNotifiedAt", "statusCounts",
+    }
+    require(set(lead) == allowed_inquiry_fields,
+            "PII or unapproved raw inquiry field in aggregate")
+    require(isinstance(lead["statusCounts"], dict)
+            and all(isinstance(k, str) and len(k) < 40
+                    and type(v) is int and v >= 0
+                    for k, v in lead["statusCounts"].items()),
+            "unsafe inquiry status aggregation")
     total = integer(lead["total"], "inquiries")
+    require(sum(lead["statusCounts"].values()) == total,
+            "inquiry statuses do not sum to total")
     for key in ("withSourceProduct", "withSourceService",
                 "withUtmSource", "withProduct", "withNotifiedAt"):
         require(integer(lead[key], key) <= total, "bad coverage count: " + key)
@@ -75,7 +92,7 @@ def inspect(snapshot: dict) -> dict:
     forbidden = ("email", "phone", "organization", "customerName", "message",
                  "submission_token", "ga_client_id", "client_id")
     serialized = json.dumps(snapshot, ensure_ascii=False).lower()
-    require(not any('"' + key + '"' in serialized for key in forbidden),
+    require(not any('"' + key.lower() + '"' in serialized for key in forbidden),
             "PII fields in aggregate snapshot")
     return snapshot
 
@@ -88,8 +105,8 @@ def candidate(kind: str, priority: str, title: str, facts: dict,
             "status": "PROPOSAL_ONLY_NO_PRODUCTION_WRITE"}
 
 
-def propose(snapshot: dict) -> dict:
-    snap = inspect(snapshot)
+def propose(snapshot: dict, *, as_of: date | None = None) -> dict:
+    snap = inspect(snapshot, as_of=as_of)
     source = snap["sources"]
     current, previous = snap["weekly"]["current"], snap["weekly"]["previous"]
     inquiries = snap["inquiry"]

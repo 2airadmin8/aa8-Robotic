@@ -18,7 +18,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
-EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "tests", "node_modules", "test-results", "playwright-report"}
+EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "tests", "docs", "ops", "node_modules", "test-results", "playwright-report"}
+# Internal contract stays out of public /data; website product catalog remains public.
+EXCLUDED_INTERNAL_FILES = {Path("data/hp-page-family-contract-v1.json")}
 BUILD_VERSION = os.environ.get("GITHUB_SHA", "local-dev")[:12]
 PRODUCTION_ORIGIN = "https://robotics.air-admin8.co.jp"
 HEADER_SOURCE = ROOT / "includes" / "site-header.html"
@@ -93,7 +95,7 @@ def iter_source_files() -> list[Path]:
         if not path.is_file():
             continue
         relative = path.relative_to(ROOT)
-        if any(part in EXCLUDED_DIRS for part in relative.parts):
+        if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
         files.append(path)
     return files
@@ -108,7 +110,7 @@ def parse_document(path: Path) -> DocumentParser:
 def validate_json(fatal_errors: list[str]) -> None:
     for path in ROOT.rglob("*.json"):
         relative = path.relative_to(ROOT)
-        if any(part in EXCLUDED_DIRS for part in relative.parts):
+        if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
         try:
             json.loads(path.read_text(encoding="utf-8"))
@@ -120,7 +122,7 @@ def validate_html(findings: list[str]) -> list[PageResult]:
     results: list[PageResult] = []
     for path in ROOT.rglob("*.html"):
         relative = path.relative_to(ROOT)
-        if any(part in EXCLUDED_DIRS for part in relative.parts):
+        if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
         try:
             parser = parse_document(path)

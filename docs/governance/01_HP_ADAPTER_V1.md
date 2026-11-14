@@ -27,6 +27,9 @@ Maintain manufacturer claims and customer value separately from shared design as
 - Manufacturer facts/price/source: explicit manual fact gate; cannot auto-amend from GSC or generated copy.
 - Full HTML redesign: out of scope; no mass migration of 13 existing pages.
 
+## Public artifact boundary (P0 release gate)
+Internal docs/ and ops/ contain governance and business reporting, not website assets. They must never be copied into public _site/. data/hp-page-family-contract-v1.json is an internal contract; data/products.json stays public because the existing catalog uses it. A real build must prove exclusion, and verify_release.py must reject any _site copy of these items before a manual release.
+
 ## P2 Data-driven business signals
 Read-only: AirAdmin8_Robotics_GSC_Master spreadsheet 1VTLnGjyld_pNWBad-gJcPNqGy0jUnrDKiiU18S6OgbM, tabs 99_Config/01_Daily/02_Query/03_Page; Inquiry Master 1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI, tab 01_Inquiry.
 Use successful synchronized last 7 complete days vs previous 7, JST; verify source freshness and page/query coverage. Google property-wide Daily differs from Page/Query totals due to reporting. Do not treat masked queries or omitted rows as zero.

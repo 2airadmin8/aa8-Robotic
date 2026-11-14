@@ -30,6 +30,9 @@ Every genuine BUG: original reproduction, root cause, minimal patch, repeat-prev
 Every new SKU: source-ready and Preview timestamps, intervention/repair counts and traceable exact-SHA evidence. Unknown is blank, never zero.
 Every weekly business improvement: authoritative data, date window, max 3 proposals, hypothesis, success metric and no-go facts. No auto production edit.
 
+## No internal-data publication
+The static site artifact is public. Governance documents, Factory efficiency and inquiry/GSC aggregates, and internal product-type contracts are non-publishable even when version-controlled. The build must exclude docs/, ops/, and data/hp-page-family-contract-v1.json while preserving public data/products.json. Both PR CI and existing manual-only Pages verification must FAIL CLOSED if an internal artifact reappears in _site.
+
 ## No bypass
 No duplicate Factory/Runner/SSOT, autonomous main merge, unapproved Production deploy, CRM writes while paused, invented maker facts, false CEO approval or new scheduler if existing authorized task can be extended.
 Changing this common policy requires semantic version change, a GitHub PR and auditable review.

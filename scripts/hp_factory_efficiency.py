@@ -54,9 +54,9 @@ def normalized(record: dict) -> dict:
         if raw not in ("", None):
             require(str(raw).isdigit(), field + " must be nonnegative integer")
     if record["record_status"] == "VERIFIED":
-        require(times["source_ready_at"] is not None
-                and times["preview_ready_at"] is not None,
-                "verified speed needs actual timestamp evidence")
+        require(all(times[key] is not None for key in
+                    ("source_ready_at", "preview_ready_at", "first_qa_at")),
+                "verified speed needs actual timestamp and first QA evidence")
         require(all(record[k] not in ("", None) for k in (
             "manual_code_edits", "rework_iterations",
             "ceo_interventions", "repeated_bug_count")), "verified counts missing")

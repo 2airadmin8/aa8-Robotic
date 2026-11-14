@@ -205,6 +205,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
@@ -411,6 +412,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
       - name: Record separate technical QA evidence
