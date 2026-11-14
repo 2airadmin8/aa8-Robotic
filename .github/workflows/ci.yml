@@ -519,7 +519,7 @@ jobs:
           for name in factory_autofix_policy.py deepseek_factory_autofix.py factory_feedback_rework.py; do
             git show "${PR_BASE}:scripts/$name" > "/tmp/aa8_trusted_factory/$name"
           done
-          git log -n 30 --format=%B > repair-history.txt
+          git log --format=%B "$PR_BASE..HEAD" > repair-history.txt
           python /tmp/aa8_trusted_factory/factory_autofix_policy.py preflight \
             --pr "$PR_NUMBER" --sha "$PR_HEAD" --branch "$PR_BRANCH" \
             --actor "$SOURCE_ACTOR" --repo "$GITHUB_REPOSITORY" \
@@ -726,7 +726,8 @@ jobs:
           staged=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
           if not expected or sorted(staged)!=expected or len(expected)>8:
               raise SystemExit('HOLD: staged files differ from validated artifact')
-          history=subprocess.check_output(['git','log','-n','30','--format=%B'],text=True)
+          base_sha=json.load(open('/tmp/aa8_live_pr.json'))['base']['sha']
+          history=subprocess.check_output(['git','log','--format=%B',base_sha+'..HEAD'],text=True)
           matches=[int(v) for v in re.findall(r'(?im)^AA8-AUTOFIX-ATTEMPT:\s*(\d+)\s*$',history)]
           if any(n<1 or n>3 for n in matches):
               raise SystemExit('HOLD: invalid previous repair marker')
