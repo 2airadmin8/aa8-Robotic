@@ -41,13 +41,22 @@ class InternalArtifactSafety(unittest.TestCase):
                 self.assertEqual(len(errors), 3)
 
     def test_real_build_excludes_private_directories(self):
-        site = ROOT / "_site"
-        if not site.is_dir():
-            self.skipTest("build artifact not generated yet")
-        for path in ("docs", "ops", "data/hp-page-family-contract-v1.json"):
-            with self.subTest(path=path):
-                self.assertFalse((site / path).exists())
-        self.assertTrue((site / "data/products.json").exists())
+        # Build in a fresh isolated destination, not a potentially stale _site.
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp) / "_site"
+            public_pdf = site / "assets/pdf/AirAdmin8_AI_Robotics_Support_for_University_Labs.pdf"
+            with patch.object(build, "OUTPUT", site), patch.object(
+                build, "PUBLIC_GUIDE_PDF", public_pdf
+            ):
+                build.build_output([], [])
+            with patch.object(release, "OUTPUT", site):
+                errors = []
+                release.verify_private_artifacts_absent(errors)
+                self.assertEqual(errors, [])
+            for path in ("docs", "ops", "data/hp-page-family-contract-v1.json"):
+                with self.subTest(path=path):
+                    self.assertFalse((site / path).exists())
+            self.assertTrue((site / "data/products.json").exists())
 
 
 if __name__ == "__main__":
