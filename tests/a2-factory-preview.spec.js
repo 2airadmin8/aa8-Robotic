@@ -15,6 +15,35 @@ for (const width of [1440,390,360]) {
     await expect(page.locator('main[data-product-family="quadruped"]')).toHaveCount(1);
     await expect(page.locator('main h1')).toHaveText('Unitree A2');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex,nofollow');
+    // P0 design contract: preview must use the existing ONE shared logo/menu,
+    // not the old hard-coded text-only Factory Header.
+    await expect(page.locator('header.site-header[data-shared-layout="header"]')).toHaveCount(1);
+    const brand=page.locator('header.site-header a.brand[href="/index.html"]');
+    await expect(brand).toHaveCount(1);
+    await expect(page.locator('header .brand-logo-pc')).toHaveCount(1);
+    await expect(page.locator('header .brand-logo-sp')).toHaveCount(1);
+    await expect(page.locator('header nav#nav[aria-label="グローバルナビゲーション"]')).toHaveCount(1);
+    await expect(page.locator('header nav#nav a[href="/contact.html"]')).toHaveCount(1);
+    if(width<=390){
+      const menu=page.locator('header button.menu[aria-controls="nav"]');
+      await expect(menu).toBeVisible();
+      await expect(menu).toHaveAttribute('aria-expanded','false');
+      await menu.click();
+      await expect(menu).toHaveAttribute('aria-expanded','true');
+      await expect(page.locator('header nav#nav a[href="/products.html"]')).toBeVisible();
+      await menu.click();
+      await expect(menu).toHaveAttribute('aria-expanded','false');
+      // All chapter links remain reachable by horizontal swipe AND keyboard.
+      const nav=page.locator('.g1-anchor-nav .g1-shell');
+      const last=nav.locator('a[href="#contact-product"]');
+      const before=await nav.evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
+      expect(before.scrollWidth).toBeGreaterThan(before.width);
+      await last.focus();
+      await expect(last).toBeInViewport();
+      expect(await nav.evaluate(el=>el.scrollLeft)).toBeGreaterThan(0);
+    }else{
+      await expect(page.locator('header nav#nav a[href="/products.html"]')).toBeVisible();
+    }
     const text=await page.locator('main').innerText();
     expect(text).toContain('A2-PRO');
     expect(text).toContain('LiDAR 1基');

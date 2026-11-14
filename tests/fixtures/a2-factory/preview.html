@@ -13,7 +13,25 @@
 <link rel="stylesheet" href="/assets/css/g1-factory-v1.css">
 <link rel="stylesheet" href="/assets/css/g1-factory-v3.css"><link rel="stylesheet" href="/assets/css/product-standard-v31.css">
 </head><body>
-<header class="site-header" data-shared-layout="header"><div class="wrap"><a href="/index.html">AirAdmin8 Robotics</a></div></header>
+<!-- 共通ヘッダー：PC/SP共通の唯一の管理元 -->
+<header class="site-header" data-shared-layout="header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/index.html" aria-label="AirAdmin8 Robotics ホームへ戻る">
+      <img class="brand-logo brand-logo-pc" src="/assets/img/airadmin8-robotics-logo-pc.svg?v=20260805-1" alt="AirAdmin8 Robotics" width="193" height="40">
+      <img class="brand-logo brand-logo-sp" src="/assets/img/airadmin8-robotics-logo-sp.svg?v=20260805-1" alt="AirAdmin8 Robotics" width="154" height="32">
+    </a>
+    <button class="menu" type="button" aria-expanded="false" aria-controls="nav">メニュー</button>
+    <nav id="nav" class="nav" aria-label="グローバルナビゲーション">
+      <a href="/products.html" data-nav-key="products">製品を探す</a>
+      <a href="/use-cases.html" data-nav-key="use-cases">用途から探す</a>
+      <a href="/support.html" data-nav-key="support">ソリューション</a>
+      <a href="/cases.html" data-nav-key="cases">導入事例</a>
+      <a href="/resources.html" data-nav-key="resources">資料・SDK</a>
+      <a class="nav-cta" href="/contact.html" data-nav-key="contact">導入を相談する</a>
+    </nav>
+  </div>
+</header>
+
 <main data-aa8-product-standard="3.1" data-product-id="unitree-a2" data-product-family="quadruped" id="main-content" class="g1-page" data-product-factory="g1-v1">
 <section class="g1-hero" aria-labelledby="product-name"><div class="g1-shell">
 <div class="g1-breadcrumb"><a href="/products.html">製品一覧</a> / Unitree A2</div>
@@ -123,5 +141,5 @@
 <!-- AA8_PRODUCT_STANDARD_BRIDGE_END -->
 </main>
 <footer class="footer" data-shared-layout="footer"><div class="wrap">© AirAdmin8 Inc.</div></footer>
-
+<script>(function(){var b=document.querySelector(".site-header .menu"),n=document.querySelector(".site-header .nav");if(!b||!n)return;function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false")}b.addEventListener("click",function(){var o=n.classList.toggle("open");b.setAttribute("aria-expanded",String(o))});n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})})();</script>
 </body></html>

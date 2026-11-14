@@ -542,13 +542,14 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
-    # X2 preview alone opts into the live shared header. Existing committed
-    # H2 Plus / A3 Ultra generated pages must remain byte-for-byte identical.
+    # Every isolated preview uses the ONE approved site Header/Menu.
+    # Committed H2 Plus/A3 Ultra candidates remain byte-identical;
+    # X2 remains on its existing shared Header path even for candidate mode.
     original_factory_header = (
         '<header class="site-header" data-shared-layout="header"><div class="wrap">'
         '<a href="/index.html">AirAdmin8 Robotics</a></div></header>'
     )
-    if slug == "agibot-x2-series":
+    if mode == "preview" or slug == "agibot-x2-series":
         header_file = root / "includes/site-header.html"
         if not header_file.is_file():
             raise ContractError("Official shared header template is missing")
@@ -566,7 +567,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         'b.setAttribute("aria-expanded",String(o))});'
         'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
         '})();</script>'
-        if mode == "preview" and slug == "agibot-x2-series" else ""
+        if mode == "preview" else ""
     )
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
     if mode == "preview":
