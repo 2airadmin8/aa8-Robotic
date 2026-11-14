@@ -1,4 +1,4 @@
-# AirAdmin8 Robotics HP｜Governance Adapter V1.0
+# AirAdmin8 Robotics HP｜Governance Adapter V1.1
 
 ## Authorities
 Visual: CEO-approved Figma Product Page Standard V3.2.
@@ -8,6 +8,14 @@ HP SSOT: data/products.json (13 public entries). RobotFDE business Product Maste
 Shared Header/Footer: includes/site-header.html, includes/site-footer.html.
 Shared layout owner: assets/css/shared-layout.css.
 Production: existing main, manual-only pages.yml. CRM remains PAUSED.
+
+## PM/CTO design-to-code traceability
+- Visual reference: Figma Product Page Standard V3.2, reference https://www.figma.com/design/uo56l51NgUqit4976LV6P2. Repo-only audit cannot prove full Figma pixel parity; real PC/SP comparison remains separate.
+- Semantic: docs/product-page-standard-v3.1.md. Existing opted-in renderer: docs/product-factory-v1.md, scripts/product_factory.py. Version numbers have distinct scopes; do not force them to match.
+- Machine-readable map: docs/governance/hp-design-code-trace-v1.json. Six modules: SHELL, PRODUCT_FACTS, CTA, PRIVACY, GROWTH, GOVERNANCE. Each maps one design authority to actual implementation and CI-registered regression tests.
+- New applicable PRs use the existing GitHub PR template: evidence/value, affected design/code IDs, 13-product PC/SP impact for shared shell, negative QA, safety exclusions, HOLD, exact-SHA rollback.
+- scripts/hp_governance_quality_gate.py runs in the existing ci.yml. The read-only policy-independent-gate uses trusted base SHA on pull_request_target. Its status is not a required branch-protection check until separately verified and configured.
+- Audit gate is structural traceability, not live CEO approval, Figma visual parity or proof of sales ROI.
 
 ## P1 Four content profiles
 - Biped robot: research capability, motion safety, controller, verified SDK interface, use cases.

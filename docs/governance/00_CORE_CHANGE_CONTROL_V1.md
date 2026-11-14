@@ -1,7 +1,23 @@
-# AA8 Common AI Development Change Control V1.0
+# AA8 Common AI Development Change Control V1.1
 
 ## Why
 Reduce repeat defects, per-product rework, CEO interruptions and marginal development cost. Technical QA alone is not product or business success.
+
+## Highest operational principle: minimal cost, quality first, then STOP
+- "**80 points and close**" is a management shorthand for **approved optional visual/content quality**, not a numerical software safety score.
+- **100% of applicable mandatory gates**: security, privacy, manufacturer facts, functional acceptance, independent QA and release safety must pass. Missing evidence = HOLD regardless of aesthetic score.
+- Once the approved baseline is met, close the scoped task; P2/P3 polishing needs actual customer/business evidence, a measurable baseline, time budget and observable success metric.
+- Max 3 bounded AI repairs; overrun = HOLD, not additional CEO prompts.
+- The CEO decides product/business exceptions and controlled Production release, not repeated unit-test/CSS review.
+- We do NOT claim efficiency gains until ≥2 comparable real product runs have evidenced source-ready/Preview times and human interventions.
+
+## Independent enforcement versus documents
+- Policy source is the shared-drive AA8 Common Governance Core; version-pinned repository adapter includes docs/governance, docs/governance/hp-design-code-trace-v1.json and scripts/hp_governance_quality_gate.py.
+- **Trusted-main pull_request_target check** reads PR metadata and changed-file list using read-only permissions; it never checks out untrusted PR HEAD, never uses secrets/writes, and never approves or deploys.
+- Required PR inputs use the **existing** .github/PULL_REQUEST_TEMPLATE.md. No second approval form, Factory, scheduler or Runner.
+- This is a technical status, NOT a separate human reviewer. Independent AA8-N-015 source/browser QA remains a distinct real QA process.
+- On adoption, GitHub branch protection must require the trusted policy-independent-gate status **after the first verified live run**; until then, its result is advisory rather than an enforced merge block. Never claim this status required if not configured.
+- Prior open PRs are exempt from new intake fields only. CI, privacy/security, actual QA and precise-SHA merge gates always remain mandatory.
 
 ## Intake gate (required before implementation)
 Every new Issue/PR records: why/evidence, P0-P3 class, business value, source, accountable owner, impacted products/components and excluded files, objective acceptance, negative tests, rollback, max time/repairs and stop condition.
