@@ -48,3 +48,11 @@ Use existing AirAdmin8 Robotics V3 SEO/GEO recurring task; no new GSC pipeline o
 ## P3 Factory KPI
 source_ready_at, preview_ready_at, first_qa_at, manual_code_edits, rework_iterations, ceo_interventions, repeated_bug_count, exact evidence_url.
 Unknown source ready dates for historic H2 Plus/A3 Ultra are UNKNOWN, so initial efficiency gain is unproven. Require >=2 genuinely comparable verified SKUs before any claim of improvement.
+
+
+## V1.1 implementation audit: shared CSS owner, strict on new rules only
+- Canonical CSS owner remains `assets/css/shared-layout.css`. `scripts/verify_shared_css_ownership.py` audits the external CSS and publishable HTML `<style>` blocks, including old X2 EDU, G1 fallback and the canonical Footer include inline CSS. These are legacy declarations, not a second renderer.
+- Historical non-owner declarations remain visible warnings, compared with the **exact PR base SHA**. New or modified declarations targeting Header/Footer/Menu in non-owner CSS/inline style sources **fail existing CI**. Changed responsive media or property declarations also fail. Missing/invalid base SHA fails closed.
+- Against main base `c42f19c90f9165101369205d71931f4886ab75ae`, the known legacy baseline contains 32 declarations in three HTML files (X2 EDU 8, G1 12, site-footer include 12). This is not a zero-warning claim. X2 EDU's actual SP menu problem is separate P0.
+- `tests/test_shared_css_owner_delta.py` covers negative new CSS/inline overrides, changed legacy rules, invalid base, plus positive canonical-owner edits. Existing `ci.yml` applies the delta gate to PR or scoped repair events without additional jobs, reviewers, runners, schedulers, or Production permissions.
+- This gate does not establish GitHub Branch Protection Required Check configuration. Existing `pages.yml` stays manual-only and no historical CSS sweep is authorized.

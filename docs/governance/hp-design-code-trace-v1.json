@@ -39,11 +39,13 @@
         "includes/site-header.html",
         "includes/site-footer.html",
         "assets/css/shared-layout.css",
-        "scripts/build_site.py"
+        "scripts/build_site.py",
+        "scripts/verify_shared_css_ownership.py"
       ],
       "tests": [
         "tests/test_hp_design_contract.py",
-        "tests/hp-shared-governance.spec.js"
+        "tests/hp-shared-governance.spec.js",
+        "tests/test_shared_css_owner_delta.py"
       ]
     },
     {
