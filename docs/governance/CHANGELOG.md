@@ -14,3 +14,10 @@
 - Enforce a negative gate at CI and manual Pages release, preserving public data/products.json.
 - Validate actual JST run date to reject stale GSC snapshots; require first QA evidence for verified Factory speed.
 - Correct initial H2 Plus / A3 Ultra provenance to PR #158 / #164, not X2 pilot PR #173.
+
+2026-11-14 — PM/CTO governed quality V1.1 candidate (not activated on main):
+- Clarify approved optional-quality stop vs mandatory safety/functional/data/QA 100% gates.
+- Bind design standards to code and existing automated regression through a machine-readable six-module trace.
+- Reuse the existing PR template, adding minimal scope/impact/stop fields rather than introducing a second process.
+- Add candidate CI intake check and trusted-base read-only pull_request_target check, with no untrusted PR checkout, writer token, new Runner or Production deployment.
+- Preserve prior open PRs; branch-protection independent check must not be falsely claimed required until real live evidence and authorized configuration.

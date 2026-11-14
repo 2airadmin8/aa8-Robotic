@@ -17,7 +17,7 @@ class PolicyV1(unittest.TestCase):
                 self.assertTrue(p.is_file())
                 self.assertGreater(p.stat().st_size, 100)
         contents = (DOCS / "README.md").read_text("utf-8")
-        self.assertIn("AA8-HP-GOV-v1.0", contents)
+        self.assertIn("AA8-HP-GOV-v1.1", contents)
 
     def test_existing_canonical_owner_not_replaced(self):
         files = ("includes/site-header.html", "includes/site-footer.html",

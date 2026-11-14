@@ -3,6 +3,10 @@ name: PR CI
 on:
   pull_request:
     branches: [main]
+  # Independent policy runs from trusted main, never candidate PR source.
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+    branches: [main]
   issue_comment:
     types: [created]
   workflow_dispatch:
@@ -40,6 +44,38 @@ concurrency:
   cancel-in-progress: ${{ github.event_name != 'issue_comment' }}
 
 jobs:
+  # POLICY-TRUSTED: BASE branch only, never untrusted candidate code.
+  # Require this status in branch protection after its first live execution.
+  policy-independent-gate:
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout approved main policy ONLY
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check live PR metadata, design documents and changed files
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py audit
+          python -m unittest discover -s tests -p 'test_hp_governance_quality_gate.py' -q
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" > /tmp/aa8_policy_changed_files.json
+          python scripts/hp_governance_quality_gate.py pr --event "$GITHUB_EVENT_PATH" --files /tmp/aa8_policy_changed_files.json
+          echo "Trusted main policy passed; technical QA and release approval remain separate." >> "$GITHUB_STEP_SUMMARY"
+
   # Trusted default-branch router; never check out untrusted PR code with a write token.
   feedback-router:
     if: >-
@@ -96,9 +132,12 @@ jobs:
             -f feedback_comment_id="$FEEDBACK_ID"
           echo "CEO feedback #$FEEDBACK_ID routed once: Draft PR #$pr HEAD $head; main/Production HOLD." >> "$GITHUB_STEP_SUMMARY"
   build-and-verify:
-    if: ${{ github.event_name != 'issue_comment' }}
+    if: ${{ github.event_name != 'issue_comment' && github.event_name != 'pull_request_target' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       factory_scope: ${{ steps.gate_handoff.outputs.factory_scope }}
     steps:
@@ -111,6 +150,23 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      # Existing CI: no new Runner or workflow. Scoped PRs need a traceable
+      # business need -> frozen design -> implementation/tests -> stop rule.
+      - name: PM/CTO design-to-code governance and bounded change intake
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py audit
+          python -m unittest discover -s tests -p 'test_hp_governance_quality_gate.py' -q
+          if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+            test -n "$PR_NUMBER"
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" > /tmp/aa8_policy_changed_files.json
+            python scripts/hp_governance_quality_gate.py pr --event "$GITHUB_EVENT_PATH" --files /tmp/aa8_policy_changed_files.json
+          fi
 
       - name: Verify exact repair CI dispatch, same PR and Draft
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' }}
