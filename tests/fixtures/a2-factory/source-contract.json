@@ -1,0 +1,75 @@
+{
+  "schema": "aa8-real-sku-source-contract-v1",
+  "sku_id": "unitree-a2",
+  "maker": "Unitree",
+  "family": "quadruped",
+  "source_ready_at": "2026-11-14T23:03:22+09:00",
+  "official_source": "https://www.unitree.com/A2/",
+  "official_snapshot": {
+    "file_name": "Unitree_A2_20261028.html",
+    "source_url": "https://www.unitree.com/A2",
+    "saved_date": "2026-10-28",
+    "sha256": "d4cf2b9fb04a3cb3ae6c5e22253566dabdf491331b5711ff0f57fb6a3d949a27",
+    "drive_file": "https://drive.google.com/file/d/1reZR6ITCYq1n9Ct2T9pKYHWO8oR9uJp6/view"
+  },
+  "rechecked_official_live": "2026-11-14",
+  "hero": {
+    "file": "assets/img/products/unitree/catalog/24_a2.png",
+    "sha256": "a23bf74444db86dacfc01192dee7144a6cfcc01b8b7523cb6d8bd0795bb03096",
+    "source": "data/unitree-product-image-sources.json",
+    "status": "official catalog photo"
+  },
+  "media": [
+    {
+      "file": "unitree-a2-maker-01.jpg",
+      "source": "https://www.unitree.com/images/b8f82abe4aa34240b0e72438869c3ca4_1920x1080.jpg",
+      "sha256": "79eeeef02a91b49f0c46c3da216d63ff84047445265bc127cb71716865b0e2dc",
+      "bytes": 166585
+    },
+    {
+      "file": "unitree-a2-maker-02.jpg",
+      "source": "https://www.unitree.com/images/9124f2efd3c04a16a2846bd1d516e757_1920x1080.jpg",
+      "sha256": "689b3ae9d824f7132adaf25dda60986b2086da31bcfa0cc80143946bbaeebc97",
+      "bytes": 108197
+    },
+    {
+      "file": "unitree-a2-maker-03.jpg",
+      "source": "https://www.unitree.com/images/c2943dab465043558d8521970d6d0851_1920x1080.jpg",
+      "sha256": "c799841a8016ab9dcb719a1e06a41df1edcc31db2e56edeeec5c66b3c5f0af89",
+      "bytes": 207369
+    },
+    {
+      "file": "unitree-a2-maker-04.jpg",
+      "source": "https://www.unitree.com/images/c1c651cb2725425f9af606fc481eff83_1920x1080.jpg",
+      "sha256": "961be8799d9931f8a0196b51d45f16468b3dfdd05f874e37d3a02635241b22aa",
+      "bytes": 39665
+    },
+    {
+      "file": "unitree-a2-maker-05.jpg",
+      "source": "https://www.unitree.com/images/1cd5245e9671450f81cd159cf3923817_1920x1080.jpg",
+      "sha256": "39960a16dc2218570d3d3d0d62abf31204d67cce419a815802592ef57f13f44b",
+      "bytes": 65095
+    }
+  ],
+  "qualification": {
+    "family": "quadruped",
+    "candidate": {
+      "officialSource": "https://www.unitree.com/A2/",
+      "payload": "A2 連続歩行積載約25 kg（メーカー参考、静荷重約100 kgとは区別）",
+      "terrain": "坂道約45度・段差約30cm、条件依存。安全評価に使用。",
+      "autonomy": "LiDARとHDカメラの搭載は確認。完成済みの自律巡検ソフト/ROS 2動作保証は未確認。",
+      "communication": "Wi-Fi 6/Bluetooth5.2・RS485×2/CAN×2/GbE×2/USB-C（メーカー表）",
+      "safety": "人とロボット間の安全距離を確保。危険な改造禁止。公表性能は環境・構成差あり。",
+      "sourceVerified": true,
+      "releaseReady": false
+    }
+  },
+  "scope": "preview-only; never public SKU / Product Master / CRM / Pages",
+  "unknowns": [
+    "Japan official price and lead time",
+    "SDK/ROS 2 specific compatibility",
+    "service and warranty in Japan",
+    "manufacturer official A2 vs A2-PRO selection"
+  ],
+  "status": "SOURCE_QUALIFIED_FOR_ISOLATED_PREVIEW_ONLY"
+}
