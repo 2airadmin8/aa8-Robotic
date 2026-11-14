@@ -183,9 +183,14 @@ def rewrite_canonical(html: str, relative: Path) -> str:
 
 def build_html(html: str, relative: Path) -> str:
     prefix = page_prefix(relative)
+    isolated_preview = '<meta name="robots" content="noindex,nofollow">' in html and 'data-product-factory="g1-v1"' in html
+    # Original previews may already contain the official footer runtime;
+    # replace it together with the footer instead of installing it twice.
+    html = re.sub(r'\s*<script\b(?=[^>]*\bdata-aa8-menu-runtime=["\']true["\'])[^>]*>[\s\S]*?</script>', "", html, flags=re.I)
     html = replace_required_block(html, "header", "site-header", shared_markup(HEADER_SOURCE, prefix), relative)
     html = replace_required_block(html, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix), relative)
-    html = rewrite_canonical(html, relative)
+    if not isolated_preview:
+        html = rewrite_canonical(html, relative)
 
     html = re.sub(r'assets/css/site\.css(?:\?v=[^"\']+)?', f'assets/css/site.css?v={BUILD_VERSION}', html)
     html = re.sub(r'assets/js/site\.js(?:\?v=[^"\']+)?', f'assets/js/site.js?v={BUILD_VERSION}', html)
@@ -195,15 +200,15 @@ def build_html(html: str, relative: Path) -> str:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
 
     scripts: list[str] = []
-    if "assets/js/mobile-qa.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
-    # Contact, X2 EDU and G1 pages use the release-owned canonical/OG/JSON-LD.
-    # Legacy seo.js injects retired /aa8-Robotic/ assets (three 404s on contact).
-    if relative.as_posix() in {"contact.html", "products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html", "products/unitree-h2-d.html", "products/unitree-h2.html", "products/unitree-h2-x.html"} or 'data-product-factory="g1-v1"' in html:
-        if "assets/js/analytics-events.js" not in html:
-            scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
-    elif "assets/js/seo.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
+    if not isolated_preview:
+        if "assets/js/mobile-qa.js" not in html:
+            scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
+        # Production-only analytics/SEO scripts never enter isolated Preview.
+        if relative.as_posix() in {"contact.html", "products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html", "products/unitree-h2-d.html", "products/unitree-h2.html", "products/unitree-h2-x.html"} or 'data-product-factory="g1-v1"' in html:
+            if "assets/js/analytics-events.js" not in html:
+                scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
+        elif "assets/js/seo.js" not in html:
+            scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
     if scripts and "</body>" in html:
         html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
     return html

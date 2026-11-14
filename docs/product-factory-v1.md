@@ -3,7 +3,7 @@
 ## 1. Existing single sources of truth
 - Product facts / product catalog: data/products.json schemaVersion 5. Do not create another Product Master.
 - Visual baseline: CEO-approved G1 HTML and assets/css/g1-product.css; new opt-in pages use scoped assets/css/g1-factory-v1.css.
-- Shared header/footer: existing includes/ only. Never duplicate a new header system.
+- Shared header/footer: existing includes/ only. Isolated Factory Preview must use both canonical includes; existing approved candidate-mode output remains frozen; build_site.py replaces both in release artifacts. No duplicate menu listeners or second renderer.
 - Legacy SEO overrides: data/product-seo-v1.json remains for legacy pages. New opt-in pages obtain metadata directly from Product Master.
 - Deployment: same main, existing PR CI, original manual-only pages.yml with one deploy attempt and no retry.
 - No second crawler, automation, runner, factory or publishing route.
@@ -20,7 +20,7 @@
 
 ## 3. CLI operations
 - python scripts/product_factory.py audit
-  Validates all 11 catalog products and frozen approved contracts. Reports old placeholder images without pretending they are official media.
+  Validates all 13 catalog products and frozen approved contracts. Reports old placeholder images without pretending they are official media.
 - python -m unittest discover -s tests -p test_product_factory.py -v
   Contract, XSS, asset paths, missing source, unknown price, duplicate image, CEO G1-design regression.
 - python scripts/product_factory.py generate --id PRODUCT-ID --mode preview --output PATH/preview.html
@@ -38,7 +38,7 @@
 - pageFactory.specifications >= 3, each with label, value, sourceUrl
 - pageFactory.faq >= 3, each with question, answer
 - pageFactory.images >= 3, each with src, alt, sourceUrl; src must exist in local assets/
-- pageFactory.videos >= 1, each with src, poster, label, sourceUrl; browser decoding tested separately
+- pageFactory.videos: verified entries each with src, poster, label, sourceUrl; 0 is permitted ONLY when pageFactory.videoAvailability=not_provided_by_manufacturer; no fictional video or video CTA, browser decoding checked when provided
 - pageFactory.ctaImageIndexes is three distinct gallery image indexes
 - pageFactory.releaseReady=false by default; no indexable page until contents validated and approved
 - Existing parent row supplies id, name, manufacturerName, summary, image, imageAlt, verifiedAt, statusLabel, priceLabel, leadTimeLabel, detailPage.

@@ -24,6 +24,15 @@ for (const width of [1440,390,360]) {
     await expect(page.locator('header .brand-logo-sp')).toHaveCount(1);
     await expect(page.locator('header nav#nav[aria-label="グローバルナビゲーション"]')).toHaveCount(1);
     await expect(page.locator('header nav#nav a[href="/contact.html"]')).toHaveCount(1);
+    const footer=page.locator('footer.footer[data-shared-layout="footer"]');
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('img.aa8-main-logo')).toHaveCount(1);
+    expect(await footer.locator('img.aa8-main-logo').evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
+    await expect(footer.locator('nav.footer-links a[href="/contact.html"]')).toHaveCount(1);
+    await expect(footer.locator('nav.footer-utility-links a[href="/products.html"]')).toHaveCount(1);
+    expect(await footer.innerText()).toContain('© AirAdmin8 Inc. All rights reserved.');
+    expect(await page.locator('script[data-aa8-menu-runtime="true"]').count()).toBe(1);
+    expect(await page.locator('script[src*="analytics-events.js"],script[src*="site.js"]').count()).toBe(0);
     if(width<=390){
       const menu=page.locator('header button.menu[aria-controls="nav"]');
       await expect(menu).toBeVisible();
@@ -31,7 +40,14 @@ for (const width of [1440,390,360]) {
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded','true');
       await expect(page.locator('header nav#nav a[href="/products.html"]')).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(menu).toHaveAttribute('aria-expanded','false');
       await menu.click();
+      await expect(menu).toHaveAttribute('aria-expanded','true');
+      await page.locator('header nav#nav a[href="/products.html"]').evaluate(el=>{
+        el.addEventListener('click',e=>e.preventDefault(),{once:true});
+        el.click();
+      });
       await expect(menu).toHaveAttribute('aria-expanded','false');
       // All chapter links remain reachable by horizontal swipe AND keyboard.
       const nav=page.locator('.g1-anchor-nav .g1-shell');

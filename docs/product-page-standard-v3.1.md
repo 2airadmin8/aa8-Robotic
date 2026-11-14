@@ -41,7 +41,7 @@ it does **not** add a redundant third consultation CTA.
 
 ## 3. Data SSOT
 
-The existing `data/products.json` is the single Product Master.
+The existing `data/products.json` is the public website catalog SSOT (currently 13 rows), not the RobotFDE/ERP commercial Product Master.
 
 - `id`: immutable machine identity, not inferred from user-facing display name.
 - `name`: canonical display name, manufacturer/source-controlled.
@@ -101,8 +101,7 @@ nor does it certify SDK compatibility or actual CRM customer creation.
 
 ## 6. Existing data-quality debt (not silently declared complete)
 
-- Five existing Product Master entries are marked with placeholder-image status;
-  leave these warnings visible until manufacturer-proven material replaces them.
+- Historical placeholder-image entries were resolved in the current 13-row website catalog (code test verifies five official replacements); verify individual manufacturer attribution and source on future SKU additions; do not extrapolate to business ERP Product Master.
 - Exact Unitree/H2 SDK compatibility is still a version/SKU question.
 - Inquiry Master → Customer Master/PAI Case end-to-end real write is separate
   and must never be assumed from query-prefill tests.

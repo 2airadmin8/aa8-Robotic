@@ -556,19 +556,21 @@ def render(root: Path, product: dict, mode: str) -> str:
         mapping["shared_header"] = header_file.read_text(encoding="utf-8")
     else:
         mapping["shared_header"] = original_factory_header
-    # The normal site.js initializes GA4, so preview uses a strictly local
-    # nav toggle without analytics, network calls or production writers.
-    mapping["factory_nav_script"] = (
-        '<script>(function(){var b=document.querySelector(".site-header .menu"),'
-        'n=document.querySelector(".site-header .nav");'
-        'if(!b||!n)return;'
-        'function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false")}'
-        'b.addEventListener("click",function(){var o=n.classList.toggle("open");'
-        'b.setAttribute("aria-expanded",String(o))});'
-        'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
-        '})();</script>'
-        if mode == "preview" else ""
+    # Preview uses the ONE official footer, including its guarded, local menu
+    # runtime. Do not attach a second Factory menu listener or load GA4.
+    original_factory_footer = (
+        '<footer class="footer" data-shared-layout="footer"><div class="wrap">'
+        '© AirAdmin8 Inc.</div></footer>'
     )
+    if mode == "preview":
+        footer_file = root / "includes/site-footer.html"
+        if not footer_file.is_file():
+            raise ContractError("Official shared footer template is missing")
+        mapping["shared_footer"] = footer_file.read_text(encoding="utf-8").strip()
+    else:
+        # Preserve existing approved candidate-mode output byte for byte.
+        mapping["shared_footer"] = original_factory_footer
+    mapping["factory_nav_script"] = ""
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
     if mode == "preview":
         # CI/local preview is not a public page: never emit production
