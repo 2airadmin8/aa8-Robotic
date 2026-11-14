@@ -107,6 +107,13 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertIn('gh workflow run ci.yml --ref main',job('ai-autofix-commit'))
   self.assertNotIn('uses: actions/deploy-pages@',router)
   self.assertNotIn('secrets.',router)
+  handoff=job('ceo-feedback-preview-handoff')
+  self.assertIn('review_source_comment_id:',WF)
+  self.assertIn("needs.separate-technical-qa.result == 'success'",handoff)
+  self.assertIn('ref: ${{ github.sha }}',handoff)
+  self.assertIn('python scripts/factory_feedback_preview.py',handoff)
+  self.assertIn('review_source_comment_id="$FEEDBACK_ID"',job('ai-autofix-commit'))
+  self.assertNotIn('secrets.',handoff)
 
  def test_existing_pages_workflow_is_manual_only(self):
   x=(ROOT/'.github/workflows/pages.yml').read_text('utf8')
