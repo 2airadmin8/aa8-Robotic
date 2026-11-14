@@ -1,0 +1,119 @@
+{
+  "schema": "aa8-hp-real-sku-trial-intake-v1",
+  "created_at_jst": "2026-11-14T23:09:04+09:00",
+  "trial_type": "REAL_MANUFACTURER_EVIDENCE_DRAFT_NO_PRODUCTION",
+  "sku_id": "agibot-a2-ultra",
+  "selected_model": "AGIBOT A2 Ultra",
+  "selection_rationale": "PM selection delegated by CEO request to choose one next real SKU; existing G-drive A2 Ultra pilot and three verified manufacturer images are reused. Prior A2 series-vs-Ultra choice in 2026-11-08 pilot was not approved; final sales SKU selection remains HOLD pending explicit business confirmation.",
+  "status": "SOURCE_EVIDENCE_VERIFIED_DESIGN_AND_SALES_HOLD",
+  "factory_generator_status": "NOT_YET_GENERATED_EXISTING_FACTORY",
+  "source_ready_at": null,
+  "intake_started_at_jst": "2026-11-14T23:09:04+09:00",
+  "preview_ready_at": null,
+  "first_qa_at": null,
+  "manual_code_edits": null,
+  "rework_iterations": null,
+  "ceo_interventions": null,
+  "repeated_bug_count": null,
+  "business_release_approved": false,
+  "crm_writes_allowed": false,
+  "production_publish_allowed": false,
+  "autofix_switch": "OFF",
+  "catalog_registration": "NOT_YET_13_TO_14_CHANGE_NOT_AUTHORIZED_AS_SALES_RELEASE",
+  "sources": [
+    {
+      "kind": "manufacturer_official_product",
+      "url": "https://www.agibot.com/products/A2_Ultra",
+      "claimed_variant": "A2 Ultra",
+      "access": "read-only 2026-11-14"
+    },
+    {
+      "kind": "manufacturer_official_store",
+      "url": "https://store.agibot.com/products/a2-ultra",
+      "claimed_variant": "A2 Ultra",
+      "access": "read-only 2026-11-14"
+    },
+    {
+      "kind": "manufacturer_official_japanese",
+      "url": "https://agibot.com/jp/products/A2_Ultra",
+      "claimed_variant": "A2 Ultra",
+      "access": "read-only 2026-11-14"
+    }
+  ],
+  "verified_public_claims": [
+    {
+      "label": "height",
+      "value": "169cm",
+      "source": "https://www.agibot.com/products/A2_Ultra"
+    },
+    {
+      "label": "weight",
+      "value": "approximately 69kg",
+      "source": "https://www.agibot.com/products/A2_Ultra"
+    },
+    {
+      "label": "joint_degrees_of_freedom",
+      "value": "40",
+      "source": "https://www.agibot.com/products/A2_Ultra"
+    },
+    {
+      "label": "navigation",
+      "value": "LiDAR and obstacle avoidance, specific configuration to be verified",
+      "source": "https://www.agibot.com/products/A2_Ultra"
+    },
+    {
+      "label": "walking_endurance",
+      "value": "approximately 1.5h in maker-defined conditions",
+      "source": "https://store.agibot.com/products/a2-ultra"
+    },
+    {
+      "label": "sdk_scope",
+      "value": "UNKNOWN / requires maker confirmation",
+      "source": "https://open.uat.agibot.com/docs/en/aimdk/a2/v2_1/dev_guide/01-a2_overview"
+    }
+  ],
+  "excluded_claims": [
+    "maker's conflicting historic walking validation hour totals",
+    "guaranteed autonomous 24-hour operation",
+    "guaranteed ROS2/SDK or Japan delivery",
+    "Japan price",
+    "approval of final A2 series-vs-Ultra SKU"
+  ],
+  "official_media_gdrive": "G:\\共有ドライブ\\002_PAI_ID009_[PhyicalAI]_AIロボット\\03_マーケ_コンテンツ\\01_HP\\A2_Ultra_Pilot_20261108\\assets",
+  "official_media_sha256": [
+    {
+      "name": "a2-ultra-hero.png",
+      "sha256": "0e4d04118a58dee7ade81524cf1d13500e3616197723a3667899a921baa0fbb4",
+      "source": "https://cdn.shopify.com/s/files/1/0628/8175/9275/files/3_2d26b845-0a00-427e-9e4f-d9afb5f317fe.png?v=1766128167"
+    },
+    {
+      "name": "a2-ultra-side.png",
+      "sha256": "24910b3c92d5c6497a80ba6d5b7c97b9d5e1d7cde7f2ccb28be17039bd490844",
+      "source": "https://cdn.shopify.com/s/files/1/0628/8175/9275/files/1_d5122551-3eb0-4784-8c7e-01963aeb46ca.png?v=1766128167"
+    },
+    {
+      "name": "a2-ultra-detail.png",
+      "sha256": "8c3003338111504b746680e859d90c6717d8f0ab88c12a1d89722b17f4762e59",
+      "source": "https://cdn.shopify.com/s/files/1/0628/8175/9275/files/2_ff0f068b-3ddd-497c-91dc-341a24cdc2c2.png?v=1766128167"
+    }
+  ],
+  "historical_local_pilot": {
+    "path": "A2_Ultra_Pilot_20261108",
+    "preview": "LOCAL_DISPLAY_ONLY",
+    "factory_used": false,
+    "formal_pr_created": false,
+    "formal_design_qa": false,
+    "production_written": false,
+    "prior_gate": "INPUT_REQUIRED"
+  },
+  "required_before_eligible_factory_trial": [
+    "CEO business model: confirm A2 Ultra singular SKU vs broader A2 series",
+    "PM verify current official A2 Ultra maker spec/SDK and media reuse",
+    "lock approved design/Figma or choose explicitly approved common humanoid baseline without overstating pixel identity",
+    "register a valid isolated Product Master candidate without silently expanding the published 13 products",
+    "produce noindex existing-Factory candidate, then new exact-HEAD CI, independent AA8-N-015 real browser QA and reachable preview",
+    "only then seek CEO-authored return event on eligible open Draft product PR; OFF-to-ON is a separate bounded safety authorization and must return OFF"
+  ],
+  "stop": "HOLD_AND_NO_CLAIM_SOURCE_TO_PREVIEW_DURATION_UNTIL_SOURCE_READY_AND_OFFICIAL_FACTORY_PREVIEW_ACTUALLY_VERIFIED",
+  "evidence": "Manufacturer sources and original G-drive image hash verified read-only 2026-11-14"
+}
