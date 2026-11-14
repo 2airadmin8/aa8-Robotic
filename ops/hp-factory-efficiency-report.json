@@ -1,0 +1,9 @@
+{
+  "schema": "aa8-factory-efficiency-report-v1",
+  "total": 2,
+  "comparable": 0,
+  "measurements": [],
+  "insufficientEvidence": true,
+  "efficiencyImprovementProven": false,
+  "note": "No % improvement without at least two traceable comparable SKU runs."
+}

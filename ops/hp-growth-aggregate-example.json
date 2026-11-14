@@ -1,0 +1,551 @@
+{
+  "schema": "aa8-hp-gsc-inquiry-aggregate-v1",
+  "collectedAt": "2026-11-14",
+  "sources": {
+    "gscId": "1VTLnGjyld_pNWBad-gJcPNqGy0jUnrDKiiU18S6OgbM",
+    "inquiryId": "1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI",
+    "gscLastRun": "2026/11/14 12:35:28",
+    "gscLastEndDate": "2026-11-12",
+    "gscSyncStatus": "SUCCESS",
+    "fetchLagDays": "2"
+  },
+  "periods": [
+    {
+      "name": "current",
+      "from": "2026-11-06",
+      "to": "2026-11-12"
+    },
+    {
+      "name": "previous",
+      "from": "2026-10-30",
+      "to": "2026-11-05"
+    }
+  ],
+  "weekly": {
+    "current": {
+      "clicks": 8,
+      "impressions": 219,
+      "days": 7
+    },
+    "previous": {
+      "clicks": 4,
+      "impressions": 190,
+      "days": 7
+    }
+  },
+  "pages": [
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/unitree-g1-d.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 29
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 27
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/agibot-a3-ultra.html",
+      "current": {
+        "clicks": 3,
+        "impressions": 26
+      },
+      "previous": {
+        "clicks": 2,
+        "impressions": 36
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/robot-arm.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 24
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 15
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 19
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 15
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/guides/agibot-japan.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 19
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 9
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/guides/agibot-sdk.html",
+      "current": {
+        "clicks": 1,
+        "impressions": 14
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 1
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/use-cases/vla-data-collection.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 12
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 7
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/unitree-g1.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 11
+      },
+      "previous": {
+        "clicks": 1,
+        "impressions": 13
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/manufacturers/agibot.html",
+      "current": {
+        "clicks": 1,
+        "impressions": 9
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 14
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/cross-embodiment.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 8
+      },
+      "previous": {
+        "clicks": 1,
+        "impressions": 7
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/guides/unitree-sdk.html",
+      "current": {
+        "clicks": 1,
+        "impressions": 8
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 10
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/unitree-h2.html",
+      "current": {
+        "clicks": 1,
+        "impressions": 7
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/agibot-g2.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 5
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 4
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 5
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 3
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/rgb-d-camera.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 5
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/e-stop.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 4
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/",
+      "current": {
+        "clicks": 0,
+        "impressions": 4
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/mobile-manipulator.html",
+      "current": {
+        "clicks": 1,
+        "impressions": 3
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 1
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/unitree-go2.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 3
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 6
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/products/agibot-x2-edu.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/compare/unitree-g1-vs-agibot-g2.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/force-sensor.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 1
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/glossary/tf2.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/guides/agibot-price.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "url": "https://robotics.air-admin8.co.jp/checklist.html",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    }
+  ],
+  "queries": [
+    {
+      "query": "robotic arm",
+      "current": {
+        "clicks": 0,
+        "impressions": 8
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 6
+      }
+    },
+    {
+      "query": "g1-d",
+      "current": {
+        "clicks": 0,
+        "impressions": 8
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 5
+      }
+    },
+    {
+      "query": "ロボットアーム",
+      "current": {
+        "clicks": 0,
+        "impressions": 7
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "query": "agibot a3",
+      "current": {
+        "clicks": 0,
+        "impressions": 6
+      },
+      "previous": {
+        "clicks": 1,
+        "impressions": 19
+      }
+    },
+    {
+      "query": "agibot sdk",
+      "current": {
+        "clicks": 1,
+        "impressions": 6
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "h2 edu",
+      "current": {
+        "clicks": 1,
+        "impressions": 4
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "agibot a3 ultra",
+      "current": {
+        "clicks": 0,
+        "impressions": 4
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 3
+      }
+    },
+    {
+      "query": "agibot 価格",
+      "current": {
+        "clicks": 0,
+        "impressions": 4
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "a3 ultra agibot",
+      "current": {
+        "clicks": 2,
+        "impressions": 3
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "ロボット 腕",
+      "current": {
+        "clicks": 0,
+        "impressions": 3
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "query": "robot arm",
+      "current": {
+        "clicks": 0,
+        "impressions": 3
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 1
+      }
+    },
+    {
+      "query": "ロボット工学のvlaモデル向けに多様な視覚データを大量収集する方法を探しています",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 3
+      }
+    },
+    {
+      "query": "unitree g1",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "query": "ロボット アーム 機構",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "宇树sdk",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "unitree g1 価格",
+      "current": {
+        "clicks": 0,
+        "impressions": 2
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    },
+    {
+      "query": "g1 d",
+      "current": {
+        "clicks": 0,
+        "impressions": 1
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "query": "unitree sdk",
+      "current": {
+        "clicks": 0,
+        "impressions": 1
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 3
+      }
+    },
+    {
+      "query": "unitree g1-d",
+      "current": {
+        "clicks": 0,
+        "impressions": 1
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 2
+      }
+    },
+    {
+      "query": "unitree agibot",
+      "current": {
+        "clicks": 0,
+        "impressions": 1
+      },
+      "previous": {
+        "clicks": 0,
+        "impressions": 0
+      }
+    }
+  ],
+  "inquiry": {
+    "total": 17,
+    "withProduct": 14,
+    "withSourceProduct": 2,
+    "withSourceService": 0,
+    "withUtmSource": 1,
+    "withNotifiedAt": 17,
+    "statusCounts": {
+      "NEW": 16,
+      "失注": 1
+    }
+  },
+  "notes": [
+    "Read-only Google Sheets connector snapshot, aggregate only; no customer PII or raw inquiry messages stored.",
+    "Daily full property data may differ from Page/Query totals due to Google Search Console reporting limits."
+  ]
+}

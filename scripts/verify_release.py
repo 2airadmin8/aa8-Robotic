@@ -80,7 +80,9 @@ LEGACY_PATTERNS = {
 }
 
 SOURCE_SCAN_SUFFIXES = {".html", ".css", ".xml", ".js", ".json"}
-SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes"}
+SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes", "docs", "ops"}
+PRIVATE_PUBLISH_DIRS = {"docs", "ops"}
+PRIVATE_PUBLISH_FILES = {"data/hp-page-family-contract-v1.json"}
 
 
 def is_legacy_redirect(path: Path) -> bool:
@@ -133,6 +135,18 @@ def verify_source_hygiene(errors: list[str]) -> None:
                 errors.append(f"{label} remains in publishable source: {relative}")
 
 
+def verify_private_artifacts_absent(errors: list[str]) -> None:
+    """No internal governance, business metric snapshots or private contracts
+    may enter the public Pages artifact; protects both PR CI and manual deploy.
+    """
+    for directory in sorted(PRIVATE_PUBLISH_DIRS):
+        if (OUTPUT / directory).exists():
+            errors.append(f"internal folder published: {directory}")
+    for filename in sorted(PRIVATE_PUBLISH_FILES):
+        if (OUTPUT / filename).exists():
+            errors.append(f"internal file published: {filename}")
+
+
 def main() -> int:
     errors: list[str] = []
     # Both PR CI and the existing manual-only Pages deploy must pass this
@@ -157,6 +171,8 @@ def main() -> int:
     if not OUTPUT.is_dir():
         errors.append("_site does not exist")
         return fail(errors)
+
+    verify_private_artifacts_absent(errors)
 
     for item in REQUIRED_FILES:
         path = OUTPUT / item
