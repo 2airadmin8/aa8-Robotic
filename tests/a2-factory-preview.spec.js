@@ -40,8 +40,10 @@ for (const width of [1440,390,360]) {
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded','true');
       await expect(page.locator('header nav#nav a[href="/products.html"]')).toBeVisible();
+      await page.locator('header nav#nav a[href="/products.html"]').focus();
       await page.keyboard.press('Escape');
       await expect(menu).toHaveAttribute('aria-expanded','false');
+      await expect(menu).toBeFocused();
       await menu.click();
       await expect(menu).toHaveAttribute('aria-expanded','true');
       await page.locator('header nav#nav a[href="/products.html"]').evaluate(el=>{

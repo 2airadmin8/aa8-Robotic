@@ -81,6 +81,7 @@ class A2RealFactoryPilot(unittest.TestCase):
         built=build_html(one,Path("products/unitree-a2.html"))
         for text in (one,built):
             self.assertEqual(text.count('data-aa8-menu-runtime="true"'),1)
+            self.assertIn("focusInNav && button instanceof HTMLButtonElement",text)
             self.assertEqual(text.count('data-aa8-footer-layout="true"'),1)
             self.assertIn('class="aa8-main-logo"',text)
             self.assertIn('class="footer-links"',text)

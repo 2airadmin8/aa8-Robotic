@@ -227,7 +227,14 @@
   }, true);
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMenu();
+    if (event.key !== 'Escape') return;
+    const header = document.querySelector('.site-header');
+    const navigation = header?.querySelector('.nav');
+    const button = header?.querySelector('.menu');
+    const wasOpen = navigation?.classList.contains('open') === true;
+    const focusInNav = navigation?.contains(document.activeElement) === true;
+    closeMenu();
+    if (wasOpen && focusInNav && button instanceof HTMLButtonElement) button.focus();
   });
 })();
 </script>
