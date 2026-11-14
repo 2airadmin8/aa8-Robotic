@@ -55,8 +55,18 @@ def verify_manual_release(source: str, event_name: str = "") -> None:
         )
 
 
+def verify_autofix_disabled(value: str | None) -> None:
+    """Accept only an explicitly set repository variable of literal 'false'."""
+    if value != "false":
+        raise ReleaseGateError(
+            "AA8_FACTORY_AUTOFIX_ENABLED must be explicitly 'false' before Production"
+        )
+
+
 def main() -> int:
     try:
+        if "--require-autofix-off" in sys.argv:
+            verify_autofix_disabled(os.environ.get("AA8_FACTORY_AUTOFIX_ENABLED"))
         verify_manual_release(
             WORKFLOW.read_text(encoding="utf-8"),
             os.environ.get("GITHUB_EVENT_NAME", "") if "--runtime-event" in sys.argv else "",
