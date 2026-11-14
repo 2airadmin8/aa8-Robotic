@@ -32,7 +32,8 @@ env:
 
 concurrency:
   group: pr-ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
-  cancel-in-progress: true
+  # CEO comment events for one PR are serialized; no duplicate dispatch races.
+  cancel-in-progress: ${{ github.event_name != 'issue_comment' }}
 
 jobs:
   # Trusted default-branch router; never check out untrusted PR code with a write token.
@@ -46,7 +47,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      issues: read
+      issues: write
       pull-requests: read
       actions: write
     steps:
@@ -75,6 +76,16 @@ jobs:
           pr="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['pr'])")"
           head="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['sha'])")"
           base="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['base'])")"
+          # Persist a durable per-comment lease before dispatch; any repeated
+          # event sees this marker and fails closed instead of creating another run.
+          marker="<!-- AA8-CEO-FEEDBACK-ROUTED comment_id=$FEEDBACK_ID -->"
+          if gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments?per_page=100" --jq '.[].body' | grep -Fq "$marker"; then
+            echo "HOLD: feedback comment already routed; no repeat dispatch"
+            exit 2
+          fi
+          gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments" \
+            -f body="$marker CEO comment accepted for single bounded Factory CI dispatch. No merge or Production authorization." \
+            > /tmp/aa8_feedback_routed_ack.json
           gh workflow run ci.yml --ref main -f autofix_pr="$pr" \
             -f autofix_head="$head" -f autofix_base="$base" \
             -f feedback_comment_id="$FEEDBACK_ID"
