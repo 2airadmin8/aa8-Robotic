@@ -1,5 +1,7 @@
 """Product Page Factory: catalog, CEO design contract, generator and safety negatives."""
 import copy
+import hashlib
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -31,6 +33,38 @@ class ProductFactoryContractTests(unittest.TestCase):
             self.assertEqual(product["imageStatus"], "official", pid)
             self.assertTrue((ROOT / product["image"]).is_file(), pid)
             self.assertTrue(product.get("imageSourcePage"), pid)
+
+    def test_real_agibot_a2ultra_draft_factory_preview_not_sales_release(self):
+        # Physical official assets + actual isolated existing Factory, never Master.
+        fixture = ROOT / "tests/fixtures/agibot-a2-ultra-draft.json"
+        trial = ROOT / "ops/next-sku-trials/agibot-a2-ultra-20261114.json"
+        self.assertTrue(fixture.is_file())
+        self.assertTrue(trial.is_file())
+        item = json.loads(fixture.read_text(encoding="utf-8"))
+        evidence = json.loads(trial.read_text(encoding="utf-8"))
+        self.assertEqual(item["id"], "agibot-a2-ultra")
+        self.assertFalse(item["pageFactory"]["releaseReady"])
+        self.assertEqual(item["imageStatus"], "official")
+        self.assertEqual(evidence["status"], "FACTORY_LOCAL_PREVIEW_GENERATED_SALES_AND_EXTERNAL_PREVIEW_HOLD")
+        self.assertEqual(evidence["factory_local_preview_sha256"],
+                         hashlib.sha256((ROOT / evidence["factory_local_preview_path"]).read_bytes()).hexdigest())
+        self.assertIsNone(evidence["source_ready_at"])
+        self.assertIsNone(evidence["preview_ready_at"])
+        self.assertFalse(any(x["id"] == item["id"] for x in catalog(ROOT)))
+        validate_page_factory(ROOT, item)
+        for media in evidence["official_media_sha256"]:
+            file = ROOT / "assets/img/products/agibot/a2-ultra/pilot" / media["name"]
+            self.assertTrue(file.is_file(), file)
+            self.assertEqual(hashlib.sha256(file.read_bytes()).hexdigest(), media["sha256"])
+        html = render(ROOT, item, "preview")
+        self.assertIn('name="robots" content="noindex,nofollow"', html)
+        self.assertIn('data-product-factory="g1-v1"', html)
+        self.assertIn('AGIBOT A2 Ultra', html)
+        self.assertEqual(html.count('class="g1-cta-card"'), 3)
+        self.assertNotIn('src="/assets/js/site.js"', html)
+        self.assertNotIn("¥", html)
+        with self.assertRaises(ContractError):
+            render(ROOT, item, "candidate")
 
     def test_h2x_ceo_design_contract_approved_assets(self):
         h2x = next(p for p in catalog(ROOT) if p["id"] == "unitree-h2-x")

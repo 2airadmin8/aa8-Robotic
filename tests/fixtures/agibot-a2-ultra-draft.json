@@ -1,0 +1,176 @@
+{
+  "id": "agibot-a2-ultra",
+  "name": "AGIBOT A2 Ultra",
+  "manufacturerId": "agibot",
+  "manufacturerName": "AGIBOT",
+  "categoryId": "humanoid",
+  "categoryLabel": "ヒューマノイド",
+  "filterGroups": [
+    "humanoid",
+    "education"
+  ],
+  "status": "researching",
+  "statusLabel": "研究・導入条件を確認中",
+  "visibility": "hidden",
+  "salesStatus": "confirmation_required",
+  "supportStatus": "confirmation_required",
+  "summary": "AGIBOT A2 Ultraはメーカー公表169cm・約69kg・40自由度のフルサイズヒューマノイド。研究利用や日本国内での調達・SDK・保証は構成別に確認が必要です。",
+  "featureLabels": [
+    "169cm（メーカー公表）",
+    "約69kg（メーカー公表）",
+    "40自由度（メーカー公表）",
+    "構成・開発条件は要確認"
+  ],
+  "useCaseIds": [
+    "humanoid-research",
+    "education",
+    "human-robot-interaction"
+  ],
+  "useLabels": [
+    "人とロボットの対話研究",
+    "教育・研究PoC",
+    "案内・ナビゲーション評価"
+  ],
+  "detailPage": "products/agibot-a2-ultra.html",
+  "image": "assets/img/products/agibot/a2-ultra/pilot/a2-ultra-hero.png",
+  "imageAlt": "AGIBOT A2 Ultra メーカー公式ヒューマノイド正面画像",
+  "imageStatus": "official",
+  "priceStatus": "confirmation_required",
+  "priceLabel": "国内見積要確認",
+  "leadTimeStatus": "confirmation_required",
+  "leadTimeLabel": "納期要確認",
+  "replacementIds": [],
+  "relatedCaseIds": [],
+  "relatedResourceIds": [
+    "sdk",
+    "ros2"
+  ],
+  "verifiedAt": "2026-11-14",
+  "note": "CEO選定済み最終販売SKUではない。以前のA2シリーズ/Ultraの業務判断未完。既存Factory隔離Previewのみ。メーカーの保証・開発SDKは未確約。",
+  "pageFactory": {
+    "template": "g1-v1",
+    "releaseReady": false,
+    "officialSource": "https://www.agibot.com/products/A2_Ultra",
+    "title": "AGIBOT A2 Ultra｜公式仕様・研究/PoCの導入条件｜AirAdmin8 Robotics",
+    "metaDescription": "AGIBOT A2 Ultraは169cm・約69kg・40自由度のヒューマノイド。メーカー公式情報を基に研究・PoC・導入条件を整理。SDK、国内見積・納期・サポートは確認が必要です。",
+    "heroLead": "人との対話・研究検証・案内用途を、公式仕様から選定。",
+    "facts": [
+      {
+        "label": "身長",
+        "value": "169cm（メーカー公表）",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "label": "機体重量",
+        "value": "約69kg（メーカー公表）",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "label": "全身自由度",
+        "value": "40自由度（メーカー公表）",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      }
+    ],
+    "applications": [
+      {
+        "title": "対話・接客研究",
+        "description": "画面・音声インタラクションの研究や教育用途。実際の制御範囲・権限・導入先条件は要確認。",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "title": "移動・障害物回避PoC",
+        "description": "メーカー公表の自律ナビゲーション・障害物回避能力を基に、実施設での動線と安全評価を検討。",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      }
+    ],
+    "specifications": [
+      {
+        "label": "機体高さ",
+        "value": "169cm",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "label": "重量",
+        "value": "約69kg",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "label": "全身自由度",
+        "value": "40",
+        "sourceUrl": "https://www.agibot.com/products/A2_Ultra"
+      },
+      {
+        "label": "公表歩行連続時間",
+        "value": "約1.5時間（条件に依存）",
+        "sourceUrl": "https://store.agibot.com/products/a2-ultra"
+      },
+      {
+        "label": "充電時間",
+        "value": "約2時間（公表仕様）",
+        "sourceUrl": "https://store.agibot.com/products/a2-ultra"
+      }
+    ],
+    "faq": [
+      {
+        "question": "日本国内での価格・納期は決まっていますか？",
+        "answer": "未確定です。運送、輸入、保証、初期設定などを含む正式見積条件を確認してからご案内します。"
+      },
+      {
+        "question": "研究用SDKやROS 2を利用できますか？",
+        "answer": "利用可能な開発API・SDK配布条件・OS／ROS 2互換性をメーカー・対象構成別に確認します。現時点で標準対応を保証しません。"
+      },
+      {
+        "question": "メーカー写真と実際の納入仕様は同じですか？",
+        "answer": "写真はメーカー公式掲載の参考画像です。オプション・搭載構成、保証・納期は正式見積の前に確認します。"
+      }
+    ],
+    "images": [
+      {
+        "src": "assets/img/products/agibot/a2-ultra/pilot/a2-ultra-hero.png",
+        "alt": "AGIBOT A2 Ultra 正面のメーカー公式製品画像",
+        "sourceUrl": "https://store.agibot.com/products/a2-ultra"
+      },
+      {
+        "src": "assets/img/products/agibot/a2-ultra/pilot/a2-ultra-side.png",
+        "alt": "AGIBOT A2 Ultra 側面のメーカー公式製品画像",
+        "sourceUrl": "https://store.agibot.com/products/a2-ultra"
+      },
+      {
+        "src": "assets/img/products/agibot/a2-ultra/pilot/a2-ultra-detail.png",
+        "alt": "AGIBOT A2 Ultra 機体のメーカー公式詳細画像",
+        "sourceUrl": "https://store.agibot.com/products/a2-ultra"
+      }
+    ],
+    "videos": [],
+    "videoAvailability": "not_provided_by_manufacturer",
+    "ctaImageIndexes": [
+      0,
+      1,
+      2
+    ],
+    "relatedProductIds": [
+      "agibot-a3-ultra",
+      "agibot-x2-edu",
+      "unitree-h2-plus",
+      "unitree-g1"
+    ],
+    "contactService": ""
+  },
+  "pageStandard": {
+    "version": "3.1",
+    "family": "humanoid",
+    "customerValue": "大学・研究機関・PoC導入の条件整理。販売条件、SDK・サポート範囲は個別確認。",
+    "preserveSectionIds": [
+      "capabilities",
+      "applications",
+      "media",
+      "specifications",
+      "faq",
+      "related",
+      "contact-product"
+    ],
+    "resourcesHref": "/resources.html?maker=agibot&product=humanoid&type=sdk",
+    "supportHref": "/support.html#setup",
+    "showBridge": true
+  }
+}

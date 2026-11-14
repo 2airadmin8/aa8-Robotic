@@ -5,8 +5,8 @@
   "sku_id": "agibot-a2-ultra",
   "selected_model": "AGIBOT A2 Ultra",
   "selection_rationale": "PM selection delegated by CEO request to choose one next real SKU; existing G-drive A2 Ultra pilot and three verified manufacturer images are reused. Prior A2 series-vs-Ultra choice in 2026-11-08 pilot was not approved; final sales SKU selection remains HOLD pending explicit business confirmation.",
-  "status": "SOURCE_EVIDENCE_VERIFIED_DESIGN_AND_SALES_HOLD",
-  "factory_generator_status": "NOT_YET_GENERATED_EXISTING_FACTORY",
+  "status": "FACTORY_LOCAL_PREVIEW_GENERATED_SALES_AND_EXTERNAL_PREVIEW_HOLD",
+  "factory_generator_status": "EXISTING_FACTORY_G1_V1_ISOLATED_PREVIEW_GENERATED",
   "source_ready_at": null,
   "intake_started_at_jst": "2026-11-14T23:09:04+09:00",
   "preview_ready_at": null,
@@ -115,5 +115,11 @@
     "only then seek CEO-authored return event on eligible open Draft product PR; OFF-to-ON is a separate bounded safety authorization and must return OFF"
   ],
   "stop": "HOLD_AND_NO_CLAIM_SOURCE_TO_PREVIEW_DURATION_UNTIL_SOURCE_READY_AND_OFFICIAL_FACTORY_PREVIEW_ACTUALLY_VERIFIED",
-  "evidence": "Manufacturer sources and original G-drive image hash verified read-only 2026-11-14"
+  "evidence": "Manufacturer sources and original G-drive image hash verified read-only 2026-11-14",
+  "factory_local_generated_at_jst": "2026-11-14T23:15:00.4643076+09:00",
+  "factory_local_preview_sha256": "38e495f615d7db49736277362be86b4e5225e4e0cf29435fef9397987f52e2d0",
+  "factory_local_preview_path": "ops/next-sku-trials/agibot-a2-ultra-preview.html",
+  "factory_preview_reachability": "LOCAL_ONLY_NOT_EXTERNAL_OR_CEO_ACCESSIBLE",
+  "initial_preview_interventions": 0,
+  "original_13_products_unchanged": true
 }
