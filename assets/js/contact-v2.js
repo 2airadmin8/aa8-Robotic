@@ -302,6 +302,25 @@
     if (status) status.textContent = message;
   }
 
+  // Product Factory CTA preserves the canonical source_page, not merely
+  // the preview/referrer address. Never accept arbitrary external URL values.
+  function verifiedSourcePage() {
+    const requested = params.get('source_page');
+    if (requested) {
+      try {
+        const url = new URL(requested);
+        if (url.origin === 'https://robotics.air-admin8.co.jp' &&
+            /^\/products\/[a-z0-9-]+\.html$/.test(url.pathname) &&
+            !url.search && !url.hash && !url.username && !url.password) {
+          return url.href;
+        }
+      } catch (error) {
+        // Invalid untrusted source_page: preserve legacy referrer fallback.
+      }
+    }
+    return document.referrer || window.location.href;
+  }
+
   function applyPrefill() {
     const productField = form.elements.namedItem('product');
     const categoryField = form.elements.namedItem('category');
@@ -313,7 +332,7 @@
       source_service: source.service,
       source_theme: source.theme,
       source_case: source.caseId,
-      source_page: document.referrer || window.location.href,
+      source_page: verifiedSourcePage(),
     };
 
     Object.entries(sourceMap).forEach(([name, value]) => {

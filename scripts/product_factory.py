@@ -89,14 +89,23 @@ def _strings(value: object, label: str, min_count: int) -> list:
     return value
 
 
-def validate_page_factory(root: Path, product: dict) -> dict:
+def validate_page_factory(root: Path, product: dict, *, allow_original_preview: bool = False) -> dict:
     pid = product["id"]
     page_path(root, product.get("detailPage"), pid, generated=True)
     spec = product.get("pageFactory")
     if not isinstance(spec, dict) or spec.get("template") != "g1-v1":
         raise ContractError(f"{pid}: pageFactory.template must be g1-v1")
     if product.get("imageStatus") != "official":
-        raise ContractError(f"{pid}: hero source image must be confirmed official")
+        # An owner-confirmed series-generic derived hero may be previewed, never released,
+        # and must not be mistaken for a manufacturer-approved SKU photograph.
+        allowed = (
+            allow_original_preview
+            and product.get("imageStatus") == "original"
+            and product.get("imageApproval") == "user_confirmed_x2_series_generic"
+            and spec.get("releaseReady") is False
+        )
+        if not allowed:
+            raise ContractError(f"{pid}: hero source image must be confirmed official for release")
     local_asset(root, product.get("image", ""), f"{pid}.image", IMAGE_EXT)
     official_url(spec.get("officialSource"), f"{pid}.officialSource")
     for field in ("title", "metaDescription", "heroLead"):
@@ -112,6 +121,8 @@ def validate_page_factory(root: Path, product: dict) -> dict:
         local_asset(root, item.get("src", ""), f"{pid}.images[{i}].src", IMAGE_EXT)
         required(item.get("alt"), f"{pid}.images[{i}].alt")
         official_url(item.get("sourceUrl"), f"{pid}.images[{i}].sourceUrl")
+    if "inheritSourcePage" in spec and type(spec["inheritSourcePage"]) is not bool:
+        raise ContractError(f"{pid}: inheritSourcePage must be boolean")
     vids = _strings(spec.get("videos"), f"{pid}.videos", 0)
     if not vids and spec.get("videoAvailability") != "not_provided_by_manufacturer":
         raise ContractError(f"{pid}: no verified videos; mark manufacturer media absence explicitly")
@@ -273,6 +284,49 @@ def _item_html(items: list[dict], kind: str) -> str:
 
 
 
+def render_variant_compare_specs(product: dict, spec: dict) -> str:
+    """X2 series: readable native comparison from the same 36 manufacturer facts."""
+    rows = spec["specifications"]
+    if product["id"] != "agibot-x2-series":
+        return _item_html(rows, "specifications")
+    if len(rows) != 36:
+        raise ContractError("X2 JP current source must have exactly 36 compared specs")
+    categories = set()
+    group = None
+    html_rows = [
+        '<tr class="x2-compare-head"><th scope="col">比較項目</th>'
+        '<th scope="col">X2</th><th scope="col">X2 Ultra</th></tr>'
+    ]
+    for item in rows:
+        category = required(item.get("category"), "X2 comparison category")
+        label = required(item.get("parameter"), "X2 comparison parameter")
+        models = item.get("models")
+        if not isinstance(models, dict) or set(models) != {"X2", "X2 Ultra"}:
+            raise ContractError("X2 comparison must preserve two official model values")
+        if category != group:
+            if category in categories:
+                raise ContractError("X2 categories must stay contiguous")
+            categories.add(category)
+            group = category
+            html_rows.append(
+                '<tr class="x2-category-row"><th scope="colgroup" colspan="3">'
+                + esc(category) + '</th></tr>'
+            )
+        x2 = required(models["X2"], "X2 model spec")
+        ultra = required(models["X2 Ultra"], "X2 Ultra model spec")
+        html_rows.append(
+            '<tr class="x2-spec-row" data-spec-row="true">'
+            '<th scope="row">' + esc(label) +
+            ' <small><a href="' + esc(item["sourceUrl"]) +
+            '" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></th>'
+            '<td data-model="X2">' + esc(x2) + '</td>'
+            '<td data-model="X2 Ultra">' + esc(ultra) + '</td></tr>'
+        )
+    if len(categories) != 9:
+        raise ContractError("X2 JP comparison must preserve 9 categories")
+    return "\n".join(html_rows)
+
+
 def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
     """Optional, validated V3 content from Product Master, without changing legacy pages."""
     empty = {"v3_navigation": "", "v3_model_section": "", "v3_sdk_section": "",
@@ -343,7 +397,7 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
 
 
 def render(root: Path, product: dict, mode: str) -> str:
-    spec = validate_page_factory(root, product)
+    spec = validate_page_factory(root, product, allow_original_preview=(mode == "preview"))
     if mode == "candidate" and not spec["releaseReady"]:
         raise ContractError("release candidate blocked: pageFactory.releaseReady must be true")
     slug = product["id"]
@@ -364,6 +418,10 @@ def render(root: Path, product: dict, mode: str) -> str:
                + ("&service=" + quote(contact_service, safe="") if contact_service else "")
                + ("&maker=" + quote(product["manufacturerName"], safe="")
                   if product.get("pageStandard") and not spec.get("v3") else ""))
+    if spec.get("inheritSourcePage"):
+        contact += "&source_page=" + quote(
+            f'{PUBLIC_ORIGIN}/{product["detailPage"]}', safe=""
+        )
     cta_img = [
         esc(local_asset(root, spec["images"][i]["src"], "ctaImage", IMAGE_EXT))
         for i in spec["ctaImageIndexes"]
@@ -452,7 +510,7 @@ def render(root: Path, product: dict, mode: str) -> str:
         "contact": esc(contact),
         "facts": _item_html(spec["facts"], "facts"),
         "applications": _item_html(spec["applications"], "applications"),
-        "specifications": _item_html(spec["specifications"], "specifications"),
+        "specifications": render_variant_compare_specs(product, spec),
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
         "videos": videos,
@@ -484,13 +542,46 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
-    return Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
+    # X2 preview alone opts into the live shared header. Existing committed
+    # H2 Plus / A3 Ultra generated pages must remain byte-for-byte identical.
+    original_factory_header = (
+        '<header class="site-header" data-shared-layout="header"><div class="wrap">'
+        '<a href="/index.html">AirAdmin8 Robotics</a></div></header>'
+    )
+    if slug == "agibot-x2-series":
+        header_file = root / "includes/site-header.html"
+        if not header_file.is_file():
+            raise ContractError("Official shared header template is missing")
+        mapping["shared_header"] = header_file.read_text(encoding="utf-8")
+    else:
+        mapping["shared_header"] = original_factory_header
+    # The normal site.js initializes GA4, so preview uses a strictly local
+    # nav toggle without analytics, network calls or production writers.
+    mapping["factory_nav_script"] = (
+        '<script>(function(){var b=document.querySelector(".site-header .menu"),'
+        'n=document.querySelector(".site-header .nav");'
+        'if(!b||!n)return;'
+        'function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false")}'
+        'b.addEventListener("click",function(){var o=n.classList.toggle("open");'
+        'b.setAttribute("aria-expanded",String(o))});'
+        'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
+        '})();</script>'
+        if mode == "preview" and slug == "agibot-x2-series" else ""
+    )
+    page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
+    if mode == "preview":
+        # CI/local preview is not a public page: never emit production
+        # analytics page_view from site.js (GA4) or other site bootstrap.
+        page = page.replace('<script src="/assets/js/site.js" defer></script>', '')
+    return page
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("audit", "generate"))
     parser.add_argument("--id", help="Product ID from data/products.json")
+    parser.add_argument("--draft-product", type=Path,
+                        help="isolated preview-only single product JSON under tests/fixtures; never updates Product Master")
     parser.add_argument("--mode", choices=("preview", "candidate"), default="preview")
     parser.add_argument("--output", type=Path, help="Output file; never overwrites")
     parser.add_argument("--root", type=Path, default=ROOT, help=argparse.SUPPRESS)
@@ -500,10 +591,22 @@ def main() -> int:
         errors, warnings, stats = audit_catalog(root)
         print(json.dumps({"pass": not errors, "stats": stats, "errors": errors, "warnings": warnings}, ensure_ascii=False, indent=2))
         return 1 if errors else 0
-    if not args.id or not args.output:
-        parser.error("generate requires --id and --output")
+    if not args.output or (not args.id and not args.draft_product):
+        parser.error("generate requires --output and either --id or --draft-product")
+    if args.draft_product and (args.id or args.mode != "preview"):
+        parser.error("--draft-product is preview-only and cannot be combined with --id")
     try:
-        product = next(p for p in catalog(root) if p["id"] == args.id)
+        if args.draft_product:
+            draft_path = args.draft_product.resolve()
+            if not draft_path.is_relative_to((root / "tests" / "fixtures").resolve()):
+                raise ContractError("draft-product must reside under tests/fixtures")
+            product = json.loads(draft_path.read_text(encoding="utf-8"))
+            if product.get("id") in {p["id"] for p in catalog(root)}:
+                raise ContractError("draft-product ID conflicts with existing Product Master")
+            if product.get("pageFactory", {}).get("releaseReady") is not False:
+                raise ContractError("draft-product releaseReady must be false")
+        else:
+            product = next(p for p in catalog(root) if p["id"] == args.id)
         result = render(root, product, args.mode)
         output = args.output.resolve()
         if output.suffix.lower() != ".html":
@@ -515,7 +618,7 @@ def main() -> int:
         output.parent.mkdir(parents=True, exist_ok=True)
         with output.open("x", encoding="utf-8", newline="\n") as f:
             f.write(result)
-        print(f"GENERATED {args.mode}: {output} from Product Master {args.id}")
+        print(f"GENERATED {args.mode}: {output} from "+("isolated pilot fixture" if args.draft_product else f"Product Master {args.id}"))
         return 0
     except (ContractError, StopIteration, FileExistsError, OSError) as exc:
         print(f"PRODUCT FACTORY STOP: {exc}", file=sys.stderr)
