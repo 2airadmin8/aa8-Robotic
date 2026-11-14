@@ -262,6 +262,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
@@ -279,10 +280,24 @@ jobs:
       - name: Verify shared CSS ownership
         id: css_owner
         shell: bash
+        env:
+          CSS_POLICY_EVENT: ${{ github.event_name }}
+          CSS_POLICY_BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
           set -euo pipefail
           python -m py_compile scripts/verify_shared_css_ownership.py
           python scripts/verify_shared_css_ownership.py
+          # New shared CSS selector conflicts are mandatory PR/repair failures.
+          # Existing X2 EDU/G1 inline overrides remain visible in the report.
+          if [[ "$CSS_POLICY_EVENT" == "pull_request" ||
+                ( "$CSS_POLICY_EVENT" == "workflow_dispatch" && -n "$CSS_POLICY_BASE_SHA" ) ]]; then
+            if ! [[ "$CSS_POLICY_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "HOLD: exact trusted base SHA required for shared CSS delta gate"
+              exit 2
+            fi
+            git fetch --no-tags --depth=1 origin "$CSS_POLICY_BASE_SHA"
+            python scripts/verify_shared_css_ownership.py --strict-new --base-sha "$CSS_POLICY_BASE_SHA"
+          fi
 
       - name: Build release candidate
         id: build
@@ -471,6 +486,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
