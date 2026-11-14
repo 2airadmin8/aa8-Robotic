@@ -32,7 +32,7 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertNotIn('secrets.OPENAI_API_KEY',WF)
   self.assertNotIn('openai/codex-action@',WF)
   self.assertIn("DeepSeek API - propose minimal source repair",propose)
-  self.assertIn("scripts/deepseek_factory_autofix.py",propose)
+  self.assertIn("/tmp/aa8_trusted_factory/deepseek_factory_autofix.py",propose)
   self.assertIn("DEEPSEEK_AUTOFIX_MODEL: deepseek-flash",propose)
   self.assertIn("DEEPSEEK_API_KEY:",propose)
   self.assertIn('contents: read',propose)
