@@ -271,8 +271,8 @@ def main() -> int:
         else:
             ensure(args.event is not None and args.files is not None,
                    "PR event and GitHub changed-file list required")
-            result = check_pr(json.loads(args.event.read_text("utf-8")),
-                              json.loads(args.files.read_text("utf-8")),
+            result = check_pr(json.loads(args.event.read_text("utf-8-sig")),
+                              json.loads(args.files.read_text("utf-8-sig")),
                               contract=c)
             print(json.dumps(result, ensure_ascii=False))
         return 0

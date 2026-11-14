@@ -1,6 +1,9 @@
 """PM/CTO independent checks of existing PR intake and trusted-main governance."""
 from pathlib import Path
+import json
+import subprocess
 import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -158,6 +161,23 @@ class GovernanceQualityGateTests(unittest.TestCase):
         self.assertNotIn("secrets.", part)
         self.assertNotIn("github.event.pull_request.head.sha", part)
         self.assertIn("scripts/hp_governance_quality_gate.py pr", part)
+
+    def test_real_cli_bom_json_compatibility(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path_event = root / "event.json"
+            path_files = root / "files.json"
+            path_event.write_text(json.dumps(event()), encoding="utf-8-sig")
+            path_files.write_text(json.dumps([[
+                {"filename": "scripts/hp_governance_quality_gate.py"},
+            ]]), encoding="utf-8-sig")
+            run = subprocess.run([
+                sys.executable, "-B",
+                str(ROOT / "scripts/hp_governance_quality_gate.py"),
+                "pr", "--event", str(path_event), "--files", str(path_files),
+            ], cwd=ROOT, capture_output=True, text=True, timeout=30)
+            self.assertEqual(run.returncode, 0, run.stderr)
+            self.assertIn("SCOPED_INTAKE_READY", run.stdout)
 
     def test_one_existing_ci_and_manual_only_pages(self):
         wf = (ROOT / ".github/workflows/ci.yml").read_text("utf-8")
