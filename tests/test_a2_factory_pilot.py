@@ -63,6 +63,10 @@ class A2RealFactoryPilot(unittest.TestCase):
         self.assertIn('data-product-family="quadruped"',original)
         self.assertIn('<meta name="robots" content="noindex,nofollow">',original)
         self.assertIn('href="/contact.html?product=Unitree%20A2',original)
+        self.assertIn('class="brand-logo brand-logo-pc"',original)
+        self.assertIn('class="brand-logo brand-logo-sp"',original)
+        self.assertIn('aria-controls="nav"',original)
+        self.assertIn('aria-label="グローバルナビゲーション"',original)
         self.assertIn("service=industrial-poc",original)
         self.assertNotIn("Google Analytics",original)
         self.assertEqual(original.count("unitree-a2-maker-0"),8)  # 5 media + 3 CTA

@@ -59,6 +59,13 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn('property="og:image"', text)
         self.assertIn('href="/contact.html?product=QA%20Fixture%20Robot&amp;service=university-procurement"', text)
         self.assertIn('g1-factory-v1.css', text)
+        self.assertIn('class="brand-logo brand-logo-pc"', text)
+        self.assertIn('class="brand-logo brand-logo-sp"', text)
+        self.assertIn('aria-label="グローバルナビゲーション"', text)
+        self.assertIn('class="menu" type="button"', text)
+        self.assertEqual(text.count('data-shared-layout="header"'), 1)
+        self.assertNotIn('<script src="/assets/js/site.js" defer></script>', text)
+        self.assertIn('aria-expanded', text)
         self.assertNotIn("¥", text)
 
     def test_release_candidate_requires_explicit_ready(self):
