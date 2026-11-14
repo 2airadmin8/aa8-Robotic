@@ -15,20 +15,20 @@ import factory_feedback_rework as fb
 SHA = "a" * 40
 
 
-def comment(now=None, reason="Please correct pilot test label safely."):
+def comment(now=None, reason="Please correct pilot test label safely.", pr=173, sha=SHA):
     now = now or datetime.now(timezone.utc)
     stamp = now.isoformat().replace("+00:00", "Z")
     return {
         "id": 8675309,
         "user": {"id": 211299962, "login": "2airadmin8"},
-        "issue_url": "https://api.github.com/repos/2airadmin8/aa8-Robotic/issues/173",
+        "issue_url": f"https://api.github.com/repos/2airadmin8/aa8-Robotic/issues/{pr}",
         "body": (
-            "<!-- AA8-CEO-RETURNED sha=" + SHA + " -->\n"
+            "<!-- AA8-CEO-RETURNED sha=" + sha + " -->\n"
             "### CEO revision request / 退回修改\n"
-            "PR #173 HEAD " + SHA + "\n\n"
+            f"PR #{pr} HEAD " + sha + "\n\n"
             + reason +
             "\n\nThis records a real scoped PR change request. "
-            "Existing Factory repair is NOT automatically started by a comment."
+            "Only authenticated, bounded Draft PR repairs are eligible."
         ),
         "created_at": stamp,
         "updated_at": stamp,
@@ -38,7 +38,7 @@ def comment(now=None, reason="Please correct pilot test label safely."):
 class FeedbackVerification(unittest.TestCase):
     def verify(self, data):
         return fb.verify_comment(
-            data, expected_sha=SHA, comment_id=8675309,
+            data, expected_sha=SHA, expected_pr=173, comment_id=8675309,
             now=datetime.now(timezone.utc)
         )
 
@@ -94,7 +94,7 @@ class FeedbackVerification(unittest.TestCase):
 
     def test_forbidden_nonmatching_comment_id(self):
         with self.assertRaisesRegex(ValueError, "ID mismatch"):
-            fb.verify_comment(comment(), expected_sha=SHA, comment_id=9876)
+            fb.verify_comment(comment(), expected_sha=SHA, expected_pr=173, comment_id=9876)
 
 
 class FeedbackPatch(unittest.TestCase):
@@ -123,7 +123,7 @@ class FeedbackPatch(unittest.TestCase):
         self.head = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=self.root, text=True
         ).strip()
-        self.verified = {"schema": "aa8-feedback-rework-v1", "pr": 173,
+        self.verified = {"schema": "aa8-feedback-rework-v2", "pr": 173,
                          "sha": self.head, "comment_id": 8675309,
                          "reason": "Change demo label OLD to NEW",
                          "release": "HOLD"}
@@ -163,6 +163,85 @@ class FeedbackPatch(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "SHA differs"):
             fb.propose(self.root, self.base, self.verified, "test",
                        self.root / "patch.diff", self.root / "report.json")
+
+
+class GenericDraftFeedbackRouting(unittest.TestCase):
+    """Contract tests use synthetic events only, never a fabricated CEO action."""
+    PR = 201
+
+    def fixture(self):
+        c = comment(pr=self.PR)
+        event = {
+            "action": "created", "repository": {"full_name": fb.EXPECTED_REPOSITORY},
+            "issue": {"number": self.PR, "pull_request": {"url": "https://api.github.com/pr/201"}},
+            "comment": {"id": c["id"], "body": c["body"]},
+        }
+        pr = {
+            "number": self.PR, "state": "open", "draft": True,
+            "head": {"sha": SHA, "ref": "feat/unitree-new-model",
+                     "repo": {"full_name": fb.EXPECTED_REPOSITORY}},
+            "base": {"ref": "main", "sha": "b" * 40,
+                     "repo": {"full_name": fb.EXPECTED_REPOSITORY}},
+        }
+        return event, pr, c
+
+    def test_generic_draft_201_routes_exact_sha_to_trusted_main(self):
+        event, pr, c = self.fixture()
+        result = fb.route_event(event, pr, c)
+        self.assertEqual(result["pr"], 201)
+        self.assertEqual(result["sha"], SHA)
+        self.assertEqual(result["branch"], "feat/unitree-new-model")
+        self.assertEqual(result["dispatch_ref"], "main")
+        self.assertEqual(result["release"], "HOLD")
+
+    def test_closed_or_ready_pr_denied(self):
+        for key, value in (("state", "closed"), ("draft", False)):
+            event, pr, c = self.fixture()
+            pr[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                fb.route_event(event, pr, c)
+
+    def test_fork_or_wrong_base_denied(self):
+        for field in ("head", "base"):
+            event, pr, c = self.fixture()
+            pr[field]["repo"]["full_name"] = "someone-else/evil"
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                fb.route_event(event, pr, c)
+        event, pr, c = self.fixture()
+        pr["base"]["ref"] = "release"
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+
+    def test_stale_sha_and_replay_edit_denied(self):
+        event, pr, c = self.fixture()
+        pr["head"]["sha"] = "c" * 40
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+        event, pr, c = self.fixture()
+        c["updated_at"] = (datetime.now(timezone.utc) + timedelta(seconds=2)).isoformat()
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+
+    def test_untrusted_issue_or_mismatched_comment_denied(self):
+        event, pr, c = self.fixture()
+        event["issue"]["pull_request"] = None
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+        event, pr, c = self.fixture()
+        event["comment"]["id"] += 1
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+        event, pr, c = self.fixture()
+        event["action"] = "edited"
+        with self.assertRaises(ValueError):
+            fb.route_event(event, pr, c)
+
+    def test_no_master_or_workflow_auto_edits(self):
+        self.assertFalse(fb.is_feedback_source("data/products.json"))
+        self.assertFalse(fb.is_feedback_source(".github/workflows/ci.yml"))
+        self.assertFalse(fb.is_feedback_source("scripts/factory_autofix_policy.py"))
+        self.assertTrue(fb.is_feedback_source("products/unitree-g1-plus.html"))
+        self.assertTrue(fb.is_feedback_source("tests/fixtures/x2-pilot/product.json"))
 
 
 if __name__ == "__main__":
