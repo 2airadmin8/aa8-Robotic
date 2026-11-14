@@ -79,7 +79,8 @@ jobs:
           # Persist a durable per-comment lease before dispatch; any repeated
           # event sees this marker and fails closed instead of creating another run.
           marker="<!-- AA8-CEO-FEEDBACK-ROUTED comment_id=$FEEDBACK_ID -->"
-          if gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments?per_page=100" --jq '.[].body' | grep -Fq "$marker"; then
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments?per_page=100" --jq '.[].body' > /tmp/aa8_prior_feedback_comments.txt
+          if grep -Fq -- "$marker" /tmp/aa8_prior_feedback_comments.txt; then
             echo "HOLD: feedback comment already routed; no repeat dispatch"
             exit 2
           fi
