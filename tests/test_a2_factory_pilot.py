@@ -75,7 +75,7 @@ class A2RealFactoryPilot(unittest.TestCase):
         from build_site import build_html
         one=factory.render(ROOT,self.product,"preview")
         two=factory.render(ROOT,self.product,"preview")
-        self.assertEqual(one.encode("utf-8"), (PILOT/"preview.html").read_bytes())
+        self.assertEqual(one, (PILOT/"preview.html").read_text(encoding="utf-8"))
         self.assertEqual(one,two)
         self.assertEqual(one,self.preview)
         built=build_html(one,Path("products/unitree-a2.html"))
