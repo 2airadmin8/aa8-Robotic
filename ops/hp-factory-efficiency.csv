@@ -1,0 +1,3 @@
+sku_id,pr_number,source_ready_at,preview_ready_at,first_qa_at,manual_code_edits,rework_iterations,ceo_interventions,repeated_bug_count,evidence_url,record_status
+unitree-h2-plus,173,,,,,,,,https://github.com/2airadmin8/aa8-Robotic/pull/173,HISTORICAL_INCOMPLETE
+agibot-a3-ultra,173,,,,,,,,https://github.com/2airadmin8/aa8-Robotic/pull/173,HISTORICAL_INCOMPLETE

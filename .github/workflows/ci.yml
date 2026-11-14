@@ -201,6 +201,11 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
+          python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
+          python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
+          python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python scripts/hp_design_contract.py
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -295,7 +300,7 @@ jobs:
           python tests/prepare_product_factory_qa.py
           # Preview-only X2 fixture uses the existing product_factory.py, never Product Master or production Pages.
           python scripts/product_factory.py generate --draft-product tests/fixtures/x2-pilot/product.json --mode preview --output _site/x2-pilot-preview.html
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js --reporter=line
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js --reporter=line
 
       - name: Preserve X2 exact SHA PC/SP Figma screenshot evidence
         if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
@@ -402,6 +407,11 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
+          python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
+          python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
+          python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
       - name: Record separate technical QA evidence
         shell: bash
