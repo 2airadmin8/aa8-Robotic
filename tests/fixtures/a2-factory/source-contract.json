@@ -12,7 +12,7 @@
     "sha256": "d4cf2b9fb04a3cb3ae6c5e22253566dabdf491331b5711ff0f57fb6a3d949a27",
     "drive_file": "https://drive.google.com/file/d/1reZR6ITCYq1n9Ct2T9pKYHWO8oR9uJp6/view"
   },
-  "rechecked_official_live": "2026-11-14",
+  "rechecked_official_live": "2026-11-15",
   "hero": {
     "file": "assets/img/products/unitree/catalog/24_a2.png",
     "sha256": "a23bf74444db86dacfc01192dee7144a6cfcc01b8b7523cb6d8bd0795bb03096",
@@ -71,5 +71,90 @@
     "service and warranty in Japan",
     "manufacturer official A2 vs A2-PRO selection"
   ],
-  "status": "SOURCE_QUALIFIED_FOR_ISOLATED_PREVIEW_ONLY"
+  "status": "SOURCE_QUALIFIED_FOR_ISOLATED_PREVIEW_ONLY",
+  "official_parameter_table": {
+    "source": "https://www.unitree.com/A2/",
+    "models": [
+      "A2",
+      "A2-PRO"
+    ],
+    "group_counts": [
+      {
+        "category": "機械パラメータ",
+        "count": 10
+      },
+      {
+        "category": "電気特性",
+        "count": 15
+      },
+      {
+        "category": "性能パラメータ",
+        "count": 9
+      },
+      {
+        "category": "その他",
+        "count": 3
+      }
+    ],
+    "parameter_labels": [
+      "立位寸法",
+      "伏臥寸法",
+      "本体材質",
+      "電池除外重量",
+      "電池装着重量",
+      "関節自由度",
+      "関節軸受",
+      "関節モーター",
+      "最大関節トルク",
+      "関節可動域",
+      "電源電圧",
+      "関節エンコーダ",
+      "冷却方式",
+      "電源構成",
+      "バッテリー容量",
+      "無線通信",
+      "スピーカー",
+      "マイク",
+      "前照灯",
+      "ワイヤレスベクトル追従モジュール",
+      "GPS",
+      "4G通信",
+      "センサー構成",
+      "制御・演算",
+      "外部インターフェース",
+      "動作温度",
+      "歩行持続時間・距離",
+      "最大立位静荷重",
+      "連続歩行積載",
+      "登坂能力",
+      "階段・段差",
+      "最大乗越え高さ",
+      "走行速度",
+      "防護等級",
+      "スマートOTA更新",
+      "二次開発",
+      "保証期間"
+    ],
+    "important_model_differences": {
+      "センサー構成": {
+        "A2": "LiDAR ×1＋HDカメラ ×1",
+        "A2-PRO": "LiDAR ×2＋HDカメラ ×1"
+      },
+      "GPS": {
+        "A2": "オプション",
+        "A2-PRO": "拡張構成で搭載"
+      },
+      "4G通信": {
+        "A2": "オプション",
+        "A2-PRO": "拡張構成で搭載"
+      },
+      "防護等級": {
+        "A2": "IP56",
+        "A2-PRO": "IP56～IP67（主要部品はIP67）"
+      }
+    },
+    "verifiedAgainst": "https://www.unitree.com/A2/",
+    "note": "メーカー公式英語版公開表。行数37項（10+15+9+3）、モデル2列。価格・付属条件は要確認",
+    "checkedAt": "2026-11-15"
+  }
 }

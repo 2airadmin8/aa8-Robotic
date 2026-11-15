@@ -64,9 +64,35 @@ for (const width of [1440,390,360]) {
     }
     const text=await page.locator('main').innerText();
     expect(text).toContain('A2-PRO');
-    expect(text).toContain('LiDAR 1基');
+    expect(text).toContain('LiDAR ×1＋HDカメラ ×1');
+    expect(text).toContain('LiDAR ×2＋HDカメラ ×1');
     expect(text).toContain('25 kg');
     expect(text).toContain('100 kg');
+    // Real manufacturer table: 10 mechanical + 15 electrical + 9 performance
+    // + 3 other = 37 parameter rows for TWO named models, not 37 per model.
+    const specs=page.locator('#specifications');
+    await expect(page.locator('#model-selection')).toBeVisible();
+    await expect(specs.locator('tr.a2-category-row')).toHaveCount(4);
+    await expect(specs.locator('tr.a2-spec-row[data-spec-row="true"]')).toHaveCount(37);
+    await expect(specs.locator('td[data-model="A2"]')).toHaveCount(37);
+    await expect(specs.locator('td[data-model="A2-PRO"]')).toHaveCount(37);
+    for(const group of ['機械パラメータ','電気特性','性能パラメータ','その他']){
+      await expect(specs.locator('tr.a2-category-row').filter({hasText:group})).toHaveCount(1);
+    }
+    await expect(specs.locator('td[data-model="A2"]').filter({hasText:'IP56'})).toHaveCount(1);
+    await expect(specs.locator('td[data-model="A2-PRO"]').filter({hasText:'IP56～IP67'})).toHaveCount(1);
+    // Model choice must survive the existing contact CTA, not silently default to A2.
+    const a2Consult=page.locator('[data-model-inquiry="A2"]');
+    const proConsult=page.locator('[data-model-inquiry="A2-PRO"]');
+    await expect(a2Consult).toHaveCount(1);
+    await expect(proConsult).toHaveCount(1);
+    for(const [link,model] of [[a2Consult,'Unitree A2'],[proConsult,'Unitree A2-PRO']]){
+      const href=new URL(await link.getAttribute('href'),ORIGIN);
+      expect(href.searchParams.get('product')).toBe(model);
+      expect(href.searchParams.get('maker')).toBe('Unitree');
+      expect(href.searchParams.get('service')).toBe('industrial-poc');
+      expect(href.searchParams.get('source_page')).toBe('https://robotics.air-admin8.co.jp/products/unitree-a2.html');
+    }
     const hero=page.locator('.g1-hero-image img');
     await expect(hero).toBeVisible();
     expect(await hero.evaluate(el=>el.complete && el.naturalWidth>100)).toBe(true);
