@@ -5,7 +5,7 @@ from unittest.mock import patch
 import io
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from factory_feedback_preview import eligible_preview, reachable, preview_probe, deliver
+from factory_feedback_preview import eligible_preview, reachable, preview_probe, deliver, preview_path_from_pr
 
 SHA = "a" * 40
 
@@ -103,6 +103,7 @@ class VerifiedPreviewSources(unittest.TestCase):
                 [{"id": 51, "sha": SHA, "environment": "Preview – x2-edu-make-review"}],
                 [{"state": "success", "environment_url": url,
                   "creator": {"login": "vercel[bot]"}}],
+                [{"filename": "tests/fixtures/a2-factory/preview.html", "status": "added"}],
                 {"id": 1001},  # posted to the original PR only
             ]
             result = deliver(SHA, 180, 42, 9911)
@@ -110,7 +111,7 @@ class VerifiedPreviewSources(unittest.TestCase):
             self.assertFalse(result["html_verified"])
             self.assertEqual(result["release"], "HOLD")
             sleep.assert_not_called()
-            self.assertEqual(github.call_count, 4)
+            self.assertEqual(github.call_count, 5)
             posted = github.call_args_list[-1]
             self.assertEqual(posted.args[0], "repos/2airadmin8/aa8-Robotic/issues/180/comments")
             self.assertEqual(posted.kwargs["method"], "POST")
@@ -134,6 +135,24 @@ class VerifiedPreviewSources(unittest.TestCase):
             "51": [{"state": "success", "environment_url": url,
                     "creator": {"login": "vercel[bot]"}}]
         }), [])
+
+    def test_preview_path_is_derived_from_original_pr_diff(self):
+        with patch("factory_feedback_preview.github") as api:
+            api.return_value = [
+                {"filename": "tests/fixtures/h2plus-pilot/preview.html"},
+                {"filename": "tests/test_product_factory.py"},
+            ]
+            self.assertEqual(preview_path_from_pr(180), "h2plus-pilot-preview.html")
+        for changed in (
+            [],
+            [{"filename": "tests/fixtures/../../secrets/preview.html"}],
+            [{"filename": "tests/fixtures/a2-factory/preview.html"},
+             {"filename": "tests/fixtures/h2plus-pilot/preview.html"}],
+            [{"filename": "tests/fixtures/a2-factory/preview.html"}] * 100,
+        ):
+            with self.subTest(changed=changed), patch("factory_feedback_preview.github", return_value=changed):
+                with self.assertRaisesRegex(ValueError, "exactly one|pagination"):
+                    preview_path_from_pr(180)
 
     def test_duplicate_ceo_handoff_is_idempotent(self):
         from factory_feedback_preview import MARKER

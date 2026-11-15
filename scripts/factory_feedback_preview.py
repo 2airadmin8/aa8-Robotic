@@ -170,6 +170,27 @@ def trusted_review_previews(sha: str, deployments: list,
     return eligible_preview(sha, safe, trusted_statuses)
 
 
+def preview_path_from_pr(pr: int) -> str:
+    """Use the ONE preview artifact declared by the original Draft PR diff.
+
+    Never make up an A2 route for a different SKU. No untrusted PR code is run.
+    """
+    files = github(f"repos/{REPO}/pulls/{pr}/files?per_page=100")
+    require(isinstance(files, list) and len(files) < 100,
+            "PR file history requires pagination or is invalid")
+    candidates = []
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("filename") or "")
+        match = re.fullmatch(r"tests/fixtures/([a-z0-9-]+)/preview\.html", name)
+        if match:
+            candidates.append(match.group(1) + "-preview.html")
+    require(len(candidates) == 1,
+            "exactly one approved product-specific Preview fixture required")
+    return candidates[0]
+
+
 def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
     verify_live(sha, pr, comment_id)
     marker = MARKER.format(sha=sha, comment_id=comment_id)
@@ -202,9 +223,11 @@ def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
     # An SSO 302 is sufficient to hand the protected link to the CEO, NOT
     # sufficient to claim HTML content was reviewed or approved.
     protected = any(status == "AUTH_REQUIRED" for _, status in previews)
+    # Do not infer product identity from the Vercel deployment's project name.
+    preview_path = preview_path_from_pr(pr)
     evidence_lines = []
     for url, state in previews:
-        review_url = url.rstrip("/") + "/a2-factory-preview.html"
+        review_url = url.rstrip("/") + "/" + preview_path
         kind = ("受保护Preview部署成功；HTML仍待CEO登录确认" if state == "AUTH_REQUIRED"
                 else "匿名HTML内容检查通过；仍待CEO实际审核")
         evidence_lines.append(f"- {kind}：{review_url}\n")
