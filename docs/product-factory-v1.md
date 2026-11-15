@@ -119,3 +119,33 @@ This does not modify the 74 signed-off technical Japanese spec cells.
 - Vercel deployment is **not fully accepted** by `READY` or HTTP200 alone. After uploading, read the **real Vercel deployment source file tree** by ID, require `target=null` (not Production), exact source revision, and compare SHA1 of all required HTML and recursively collected assets. Use `--verify-deployed <Vercel-tree-json> --expected <manifest.json> --deployed-sha <exact-SHA> --deployed-state READY`; any missing/mismatched file = HOLD. Also require real SP360/390 and PC1440 Chrome load checks and authorized CEO SSO page review separately.
 - The existing manual-only Pages release gate `scripts/verify_release.py` now applies the identical recursive **source asset existence** check to all public `products/*.html`. This caught and removed the obsolete, already missing `footer-mobile-cleanup.css` link from G1-D. Main and Pages remain unchanged until a separate exact-SHA CEO approval.
 - The existing CI and independent AA8-N-015 QA can verify code, generated manifests, and negative drift behavior. The GitHub workflow itself cannot read authenticated Vercel Files without a connected Vercel action. Do **not** call the post-deploy Gate fully enforced until the authorized deployment path always calls the real file-tree readback before promoting Preview to `CEO_REVIEW_READY`. No new Runner, Cron, Factory, or automatic main/Production deployment is authorized.
+
+### Native Vercel deploy-ready → existing GitHub CI readback bridge (2026-11-16)
+
+- No new workflow/runner/scheduler. The existing ci.yml has a trusted-main
+  `repository_dispatch` entry for the official
+  `vercel.deployment.ready` event from the **existing Git-linked**
+  `x2-edu-make-review` Vercel project (projectId
+  `prj_vH6kcA1vFU6FPCm3skNdpudINkEh`). Product Factory PR CI attaches
+  `aa8-preview-bundle-<exact-head-sha>` and never executes PR code alongside
+  provider credentials in the post-deploy job.
+- The post-deploy job reads the existing exact-SHA CI artifact, then executes
+  `scripts/preview_postdeploy_bridge.py`. This requires a **separately
+  configured GitHub Actions protected VERCEL_TOKEN secret** with read-only
+  deployment and source-files scope, verifies team/project, deployment ID,
+  Preview-only target, READY, the exact source Git SHA, and all linked
+  per-product local asset SHAs from the real Vercel files tree.
+- When all checks pass it emits only the exact-head GitHub status
+  `aa8-preview-postdeploy=success`. Missing secret/trigger, missing CI
+  artifact, SSO/URL without underlying source evidence, mismatched HEAD,
+  stale CSS, missing image, wrong project or production target must HOLD.
+  The status is a **technical artifact** only: neither real CEO SSO review
+  nor production merge/deploy authorization.
+- **Activation blockers to verify, not assume:** repository_dispatch routes
+  only to a workflow present on the default branch; this change remains
+  in original Draft #180 until explicit CEO approved main integration.
+  The Vercel project is Git-linked but webhook administration returned 403,
+  so actual `vercel.deployment.ready` delivery to the repo is unverified.
+  No VERCEL_TOKEN secret presence/read permission has been proven.
+  Do not claim an unattended E2E until a real new deployment triggers
+  the trusted-main job and exact-source SHA check PASS.

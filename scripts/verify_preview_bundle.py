@@ -142,6 +142,7 @@ def prepare(web_root: Path, html_files: list[Path], revision: str) -> dict:
     entries: dict[str, dict] = {}
     pages: dict[str, str] = {}
     page_sizes: dict[str, int] = {}
+    per_preview_assets: dict[str, list[str]] = {}
     for html_file in html_files:
         if not html_file.is_file() or not html_file.resolve().is_relative_to(web_root.resolve()):
             raise ValueError("PREVIEW_BUNDLE_HOLD: preview HTML missing or outside build")
@@ -154,7 +155,9 @@ def prepare(web_root: Path, html_files: list[Path], revision: str) -> dict:
             raise ValueError("PREVIEW_BUNDLE_HOLD: cannot bundle non-isolated public HTML")
         pages[relative] = sha1(blob).hexdigest()
         page_sizes[relative] = len(blob)
-        for path in referenced_assets(text, web_root, relative):
+        page_assets = referenced_assets(text, web_root, relative)
+        per_preview_assets[relative] = page_assets
+        for path in page_assets:
             data = (web_root / path).read_bytes()
             entries[path] = {"sha1": sha1(data).hexdigest(), "size": len(data)}
     source_files = [
@@ -165,6 +168,7 @@ def prepare(web_root: Path, html_files: list[Path], revision: str) -> dict:
         for name, info in sorted(entries.items())
     ]
     return {"schema": SCHEMA, "revision": revision, "previews": pages,
+            "per_preview_assets": per_preview_assets,
             "assets": dict(sorted(entries.items())),
             "files": source_files,
             "asset_count": len(entries), "preview_count": len(pages)}
@@ -195,7 +199,18 @@ def deployed_source_tree(tree: object) -> dict[str, str]:
                 if path in output:
                     raise ValueError("PREVIEW_BUNDLE_HOLD: duplicate deployed path")
                 output[path] = sha
-    visit(tree)
+    # Vercel REST /v6/deployments/{id}/files encloses uploaded root files
+    # in one provider-defined top-level "src" directory. This is a wrapper,
+    # NOT part of their deployed URL paths. Strip it exactly once.
+    items=tree
+    if (len(tree)==1 and isinstance(tree[0],dict)
+            and tree[0].get("name")=="src"
+            and tree[0].get("type")=="directory"):
+        children=tree[0].get("children")
+        if not isinstance(children,list):
+            raise ValueError("PREVIEW_BUNDLE_HOLD: malformed Vercel source root")
+        items=children
+    visit(items)
     return output
 
 
@@ -236,6 +251,36 @@ def verify_deployment(expected: dict, tree: object, *, deployed_revision: str,
             "assets":len(expected["assets"]),
             "files_checked":len(expected["previews"])+len(expected["assets"]),
             "missing":[],"sha_mismatch":[],"production":False}
+
+
+def select_deployed_previews(expected: dict, tree: object) -> dict:
+    """Pick only the exact products in a Vercel deployment from CI's union.
+
+    A single CI build can generate many Preview products, while a protected
+    Vercel deployment serves one or a few. Never require unrelated preview
+    assets, and NEVER let an unknown Preview HTML silently pass.
+    """
+    paths = deployed_source_tree(tree)
+    actual = sorted(p for p in paths if p.endswith("-preview.html"))
+    if not actual:
+        raise ValueError("PREVIEW_BUNDLE_HOLD: no recognized product Preview deployed")
+    declared=expected.get("per_preview_assets")
+    if not isinstance(declared,dict):
+        raise ValueError("PREVIEW_BUNDLE_HOLD: per-preview exact asset map absent")
+    unknown = sorted(set(actual)-set(expected["previews"]))
+    if unknown:
+        raise ValueError("PREVIEW_BUNDLE_HOLD: unregistered deployed Preview "+repr(unknown))
+    related = sorted({asset for page in actual for asset in declared[page]})
+    missing = sorted(set(related)-set(expected["assets"]))
+    if missing:
+        raise ValueError("PREVIEW_BUNDLE_HOLD: missing recorded source asset "+repr(missing))
+    pages={name:expected["previews"][name] for name in actual}
+    assets={path:expected["assets"][path] for path in related}
+    files = ([{"file":name,"sha":digest,"size":0} for name,digest in pages.items()]
+             +[{"file":name,"sha":data["sha1"],"size":data["size"]}
+               for name,data in assets.items()])
+    return {"schema":SCHEMA,"revision":expected["revision"],
+            "previews":pages,"assets":assets,"files":files}
 
 
 def check(html_text: str, files: set[str]) -> dict:
