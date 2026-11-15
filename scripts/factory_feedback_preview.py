@@ -88,21 +88,86 @@ def verify_live(sha: str, pr: int, comment_id: int) -> None:
             "origin not a valid CEO rejection")
 
 
-def reachable(url: str) -> bool:
+def preview_probe(url: str) -> str:
+    """Fail-closed Preview probe: HTML_VERIFIED / AUTH_REQUIRED / INVALID.
+
+    AUTH_REQUIRED means SSO is correctly enforced, not that the CEO saw the
+    page. This read-only probe never uses a bypass token or stores cookies.
+    """
     try:
+        requested = urlsplit(url)
+        if (requested.scheme != "https" or not requested.hostname
+                or not requested.hostname.endswith(".vercel.app")
+                or requested.username or requested.password
+                or requested.query or requested.fragment):
+            return "INVALID"
         request = urllib.request.Request(url, headers={
             "User-Agent": "AirAdmin8-Factory-Preview-Verification",
             "Cache-Control": "no-cache",
         })
         with urllib.request.urlopen(request, timeout=15) as response:
             final = urlsplit(response.url)
-            if (response.status != 200 or not final.hostname
-                    or not final.hostname.endswith(".vercel.app")):
-                return False
-            first = response.read(2048).lower()
-            return b"<" in first and b"vercel authentication" not in first
-    except (urllib.error.URLError, TimeoutError, ValueError):
-        return False
+            if final.hostname == "vercel.com" and final.path == "/sso-api":
+                return "AUTH_REQUIRED"
+            if (response.status != 200 or final.hostname != requested.hostname
+                    or final.path != requested.path):
+                return "INVALID"
+            if "text/html" not in response.headers.get("Content-Type", "").lower():
+                return "INVALID"
+            content = response.read(1_000_001)
+            if len(content) > 1_000_000:
+                return "INVALID"
+            html = content.decode("utf-8", errors="replace")
+            if re.search(r"(?i)vercel authentication|vercel.com/sso-api|log[ -]?in", html):
+                return "AUTH_REQUIRED"
+            checks = (
+                re.search(r'<main\b[^>]*data-product-id="[a-z0-9-]+"', html),
+                re.search(r'data-product-factory="g1-v1"', html),
+                re.search(r'<meta\s+name="robots"\s+content="noindex,nofollow"', html),
+                re.search(r'<header\b[^>]*data-shared-layout="header"', html),
+                re.search(r'<footer\b[^>]*data-shared-layout="footer"', html),
+                re.search(r'data-factory-cta="hero"', html),
+                re.search(r'data-aa8-menu-runtime="true"', html),
+                re.search(r'class="aa8-main-logo"', html),
+            )
+            return "HTML_VERIFIED" if all(checks) else "INVALID"
+    except urllib.error.HTTPError as exc:
+        return "AUTH_REQUIRED" if exc.code in (401, 403) else "INVALID"
+    except (urllib.error.URLError, TimeoutError, ValueError, UnicodeError):
+        return "INVALID"
+
+
+def reachable(url: str) -> bool:
+    """Compatibility wrapper: SSO screens are NEVER an HTML PASS."""
+    return preview_probe(url) == "HTML_VERIFIED"
+
+
+def trusted_review_previews(sha: str, deployments: list,
+                            statuses: dict[str, list]) -> list[str]:
+    """Only successful exact-SHA x2 review deployments by Vercel's bot.
+
+    An authenticated CEO browser can open a protected Preview; the server-side
+    workflow must never pretend its anonymous HTTP request viewed that HTML.
+    """
+    safe = []
+    trusted_statuses = {}
+    for d in deployments:
+        if (d.get("sha") != sha
+                or d.get("environment") != "Preview – x2-edu-make-review"):
+            continue
+        did = str(d.get("id"))
+        approved = []
+        for st in statuses.get(did, []):
+            url = str(st.get("environment_url") or "")
+            host = urlsplit(url).hostname or ""
+            actor = (st.get("creator") or {}).get("login")
+            if (actor == "vercel[bot]"
+                    and re.fullmatch(r"x2-edu-make-review-[a-z0-9-]+\.vercel\.app", host)):
+                approved.append(st)
+        if approved:
+            safe.append(d)
+            trusted_statuses[did] = approved
+    return eligible_preview(sha, safe, trusted_statuses)
 
 
 def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
@@ -115,35 +180,51 @@ def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
         return {"status": "ALREADY_DELIVERED", "sha": sha, "pr": pr}
     previews = []
     # Bounded provider readiness polling; no recursive workflow or rerun.
-    for _ in range(6):
+    for attempt in range(6):
         deployments = github(f"repos/{REPO}/deployments?sha={sha}&per_page=100")
         status_map = {}
         for d in deployments[:20]:
             did = d.get("id")
-            if isinstance(did, int) and str(d.get("environment") or "").startswith("Preview"):
+            if (isinstance(did, int)
+                    and d.get("sha") == sha
+                    and d.get("environment") == "Preview – x2-edu-make-review"):
                 status_map[str(did)] = github(
                     f"repos/{REPO}/deployments/{did}/statuses?per_page=5")
-        previews = [u for u in eligible_preview(sha, deployments, status_map)
-                    if reachable(u)]
+        candidates = trusted_review_previews(sha, deployments, status_map)
+        previews = [(url, preview_probe(url)) for url in candidates]
+        previews = [(url, status) for url, status in previews
+                    if status in ("HTML_VERIFIED", "AUTH_REQUIRED")]
         if previews:
             break
-        time.sleep(12)
-    require(bool(previews), "no verified online Preview for exact new SHA")
+        if attempt < 5:
+            time.sleep(12)
+    require(bool(previews), "no successful exact-SHA x2 review deployment with vercel[bot] proof")
+    # An SSO 302 is sufficient to hand the protected link to the CEO, NOT
+    # sufficient to claim HTML content was reviewed or approved.
+    protected = any(status == "AUTH_REQUIRED" for _, status in previews)
+    evidence_lines = []
+    for url, state in previews:
+        review_url = url.rstrip("/") + "/a2-factory-preview.html"
+        kind = ("受保护Preview部署成功；HTML仍待CEO登录确认" if state == "AUTH_REQUIRED"
+                else "匿名HTML内容检查通过；仍待CEO实际审核")
+        evidence_lines.append(f"- {kind}：{review_url}\n")
     body = (
         f"{marker}\n"
-        f"### CEO再验收｜AI返工完成・精确SHA证据\n\n"
+        f"### CEO再验收｜AI返工完成・精确SHA部署交接\n\n"
         f"- 原退回评论ID：{comment_id}\n"
         f"- 原Draft PR：#{pr}\n"
         f"- 新HEAD：\x60{sha}\x60\n"
         f"- 新SHA CI / 独立QA："
         f"https://github.com/{REPO}/actions/runs/{run_id}\n"
-        + "".join(f"- 已验证在线Preview：{url}\n" for url in previews)
-        + "\n**请查看新版真实HTML后再次批准或退回。** "
-          "这里只是技术QA/Preview证据，不代表CEO批准、main合并或Production授权。"
+        + "".join(evidence_lines)
+        + "\n**请通过现有SSO登录并实际查看新版HTML，再批准或退回。** "
+          "Vercel READY / GitHub部署状态不是CEO已看页面的证明；"
+          "不代表CEO批准、main合并或Production授权。"
     )
     github(f"repos/{REPO}/issues/{pr}/comments", method="POST", body=body)
-    return {"status": "READY_FOR_CEO_REVIEW", "pr": pr, "sha": sha,
-            "preview_count": len(previews), "release": "HOLD"}
+    return {"status": "WAIT_CEO_SSO_REVIEW" if protected else "READY_FOR_CEO_REVIEW",
+            "pr": pr, "sha": sha, "preview_count": len(previews),
+            "html_verified": not protected, "release": "HOLD"}
 
 
 def main() -> int:
