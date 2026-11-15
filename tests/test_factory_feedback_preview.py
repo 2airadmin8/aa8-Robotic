@@ -100,6 +100,12 @@ class VerifiedPreviewSources(unittest.TestCase):
              patch("factory_feedback_preview.time.sleep") as sleep:
             github.side_effect = [
                 [],  # existing comments
+                {"statuses": [{
+                    "context": "aa8-preview-postdeploy",
+                    "state": "success",
+                    "creator": {"login": "github-actions[bot]"},
+                    "target_url": "https://github.com/2airadmin8/aa8-Robotic/actions/runs/567",
+                }]},
                 [{"id": 51, "sha": SHA, "environment": "Preview – x2-edu-make-review"}],
                 [{"state": "success", "environment_url": url,
                   "creator": {"login": "vercel[bot]"}}],
@@ -111,13 +117,30 @@ class VerifiedPreviewSources(unittest.TestCase):
             self.assertFalse(result["html_verified"])
             self.assertEqual(result["release"], "HOLD")
             sleep.assert_not_called()
-            self.assertEqual(github.call_count, 5)
+            self.assertEqual(github.call_count, 6)
             posted = github.call_args_list[-1]
             self.assertEqual(posted.args[0], "repos/2airadmin8/aa8-Robotic/issues/180/comments")
             self.assertEqual(posted.kwargs["method"], "POST")
             self.assertIn(url + "/a2-factory-preview.html", posted.kwargs["body"])
             self.assertIn("HTML仍待CEO登录确认", posted.kwargs["body"])
             self.assertNotIn("已验证在线Preview", posted.kwargs["body"])
+
+    def test_missing_or_bad_postdeploy_sha_status_blocks_ceo_handoff(self):
+        from factory_feedback_preview import require_postdeploy_sha_gate
+        bad=[
+            {"statuses":[]},
+            {"statuses":[{"context":"aa8-preview-postdeploy","state":"pending"}]},
+            {"statuses":[{"context":"aa8-preview-postdeploy","state":"success",
+                          "creator":{"login":"untrusted-bot"},
+                          "target_url":"https://github.com/2airadmin8/aa8-Robotic/actions/runs/567"}]},
+            {"statuses":[{"context":"aa8-preview-postdeploy","state":"success",
+                          "creator":{"login":"github-actions[bot]"},
+                          "target_url":"https://example.com/malicious"}]},
+        ]
+        for result in bad:
+            with self.subTest(result=result), patch("factory_feedback_preview.github",return_value=result):
+                with self.assertRaisesRegex(ValueError,"post-deploy"):
+                    require_postdeploy_sha_gate(SHA)
 
     def test_untrusted_preview_status_never_delivered(self):
         url = "https://x2-edu-make-review-test.vercel.app"

@@ -191,6 +191,26 @@ def preview_path_from_pr(pr: int) -> str:
     return candidates[0]
 
 
+def require_postdeploy_sha_gate(sha: str) -> None:
+    """CEO handoff is impossible without the trusted Vercel source-file gate.
+
+    GitHub CI success and Vercel READY alone never establish the exact bytes
+    of an SSO-protected reviewer deployment. The newest exact-SHA commit
+    status must be produced by verified trusted-main postdeploy CI.
+    """
+    commit = github(f"repos/{REPO}/commits/{sha}/status")
+    items = commit.get("statuses") if isinstance(commit,dict) else None
+    require(isinstance(items,list), "post-deploy GitHub SHA evidence missing")
+    related = [x for x in items if x.get("context") == "aa8-preview-postdeploy"]
+    require(bool(related), "Vercel post-deploy exact-source SHA gate NOT_CONNECTED")
+    latest=related[0]  # GitHub combined-status API returns newest first.
+    require(latest.get("state") == "success"
+            and (latest.get("creator") or {}).get("login") == "github-actions[bot]"
+            and re.fullmatch(r"https://github\.com/2airadmin8/aa8-Robotic/actions/runs/\d+",
+                             str(latest.get("target_url") or "")) is not None,
+            "Vercel post-deploy exact-source SHA gate failed or unauthenticated")
+
+
 def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
     verify_live(sha, pr, comment_id)
     marker = MARKER.format(sha=sha, comment_id=comment_id)
@@ -199,6 +219,7 @@ def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
             "comment history requires pagination review")
     if any(marker in str(c.get("body") or "") for c in comments):
         return {"status": "ALREADY_DELIVERED", "sha": sha, "pr": pr}
+    require_postdeploy_sha_gate(sha)
     previews = []
     # Bounded provider readiness polling; no recursive workflow or rerun.
     for attempt in range(6):
