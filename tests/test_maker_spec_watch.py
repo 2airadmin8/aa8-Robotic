@@ -16,7 +16,7 @@ class MakerSourceWatchTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.contract=maker.load_contract(ROOT/'tests/fixtures/a2-factory/maker-live-contract.json')
-        cls.product=json.loads((ROOT/'tests/fixtures/a2-factory/product.json').read_text())
+        cls.product=json.loads((ROOT/'tests/fixtures/a2-factory/product.json').read_text(encoding='utf-8'))
         cls.parsed={
             'models':cls.contract['models'],
             'categories':[{'name':g['source_name'],
