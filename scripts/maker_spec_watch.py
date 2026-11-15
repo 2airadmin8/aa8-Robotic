@@ -273,6 +273,12 @@ def verify_display(product: dict, contract: dict, parsed: dict) -> None:
         for m in contract["models"]:
             if row["models"][m] != approved[m]:
                 raise ValueError(f"DISPLAY_HOLD: JP display drift or unapproved auto-edit {ref['id']}/{m}")
+            # A manufacturer cell containing only YES is evidence of support,
+            # not of specific Wi-Fi/Bluetooth versions or unstated numbers.
+            if norm(ref["models"][m]).upper()=="YES":
+                jp=norm(approved[m])
+                if re.search(r"\d",jp) or not any(x in jp for x in ("対応","搭載","あり")):
+                    raise ValueError(f"DISPLAY_HOLD: YES cell cannot certify specific unstated version {ref['id']}/{m}")
 
 
 def run(contract_path: Path, product_path: Path, *, source_file: Path | None = None,

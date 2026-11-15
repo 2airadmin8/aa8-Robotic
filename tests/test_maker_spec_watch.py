@@ -62,6 +62,16 @@ class MakerSourceWatchTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'SOURCE_HOLD'):
                     maker.compare(parsed,self.contract)
 
+    def test_bare_yes_does_not_approve_unstated_wireless_version(self):
+        contract=copy.deepcopy(self.contract)
+        product=copy.deepcopy(self.product)
+        rows=[r for g in contract["categories"] for r in g["rows"]]
+        idx=next(i for i,r in enumerate(rows) if r["id"]=="無線通信")
+        rows[idx]["approved_display"]["A2"]="Wi-Fi 6、Bluetooth 5.2"
+        product["pageFactory"]["specifications"][idx]["models"]["A2"]="Wi-Fi 6、Bluetooth 5.2"
+        with self.assertRaisesRegex(ValueError,"YES cell"):
+            maker.verify_display(product,contract,self.parsed)
+
     def test_japanese_display_cannot_disagree_with_saved_provenance(self):
         product=copy.deepcopy(self.product)
         product['pageFactory']['specifications'][4]['models']['A2']='約45 kg'

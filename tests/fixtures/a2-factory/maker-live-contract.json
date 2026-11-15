@@ -220,8 +220,8 @@
             "A2-PRO": "YES"
           },
           "approved_display": {
-            "A2": "Wi-Fi 6、Bluetooth 5.2",
-            "A2-PRO": "Wi-Fi 6、Bluetooth 5.2"
+            "A2": "対応（通信規格・バージョンは別途確認）",
+            "A2-PRO": "対応（通信規格・バージョンは別途確認）"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },
