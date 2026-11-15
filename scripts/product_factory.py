@@ -154,6 +154,10 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
         for field, minimum in (("models", 3), ("sdk", 3), ("solutions", 3), ("process", 5)):
             if field == "models" and field not in v3:
                 continue
+            # An official two-model comparison must not invent a third SKU
+            # merely to satisfy the generic three-related-model layout.
+            if pid == "unitree-a2" and field == "models":
+                minimum = 2
             items = _strings(v3.get(field), f"{pid}.v3.{field}", minimum)
             for i, item in enumerate(items):
                 if not isinstance(item, dict):
@@ -161,6 +165,8 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
                 required(item.get("title"), f"{pid}.v3.{field}[{i}].title")
                 required(item.get("description"), f"{pid}.v3.{field}[{i}].description")
                 if field == "models":
+                    if pid == "unitree-a2" and item.get("modelId") not in {"A2", "A2-PRO"}:
+                        raise ContractError("A2 model selection must name an official model")
                     href = required(item.get("href"), f"{pid}.v3.models[{i}].href")
                     if not (href == "#specifications" or re.fullmatch(r"/products/[a-z0-9-]+\.html", href)):
                         raise ContractError(f"{pid}.v3.models[{i}]: unsafe href")
@@ -287,6 +293,59 @@ def _item_html(items: list[dict], kind: str) -> str:
 def render_variant_compare_specs(product: dict, spec: dict) -> str:
     """X2 series: readable native comparison from the same 36 manufacturer facts."""
     rows = spec["specifications"]
+    if product["id"] == "unitree-a2":
+        # Source-of-truth contract: Unitree official A2/A2-PRO table consists of
+        # exactly 37 parameter rows (10/15/9/3), not 37 per model.
+        official_groups = (
+            ("機械パラメータ", 10), ("電気特性", 15),
+            ("性能パラメータ", 9), ("その他", 3),
+        )
+        if len(rows) != 37:
+            raise ContractError("A2 maker specification must contain exactly 37 parameter rows")
+        group_names = [name for name, _ in official_groups]
+        counts = {name: 0 for name in group_names}
+        seen = set()
+        current = None
+        rendered = [
+            '<tr class="a2-compare-head"><th scope="col">メーカー仕様項目</th>'
+            '<th scope="col">A2（標準）</th><th scope="col">A2-PRO</th></tr>'
+        ]
+        for row in rows:
+            group = required(row.get("category"), "A2 spec category")
+            label = required(row.get("parameter"), "A2 spec parameter")
+            if group not in counts or label in seen or group_names.index(group) < (
+                group_names.index(current) if current else 0
+            ):
+                raise ContractError("A2 maker category order or parameter duplicate")
+            if current != group:
+                if current is not None and counts[current] != dict(official_groups)[current]:
+                    raise ContractError("A2 maker category row count mismatch")
+                current = group
+                rendered.append(
+                    '<tr class="a2-category-row"><th scope="colgroup" colspan="3">'
+                    + esc(group) + '</th></tr>'
+                )
+            model_values = row.get("models")
+            if not isinstance(model_values, dict) or set(model_values) != {"A2", "A2-PRO"}:
+                raise ContractError("A2 comparison requires exactly two official models")
+            std = required(model_values["A2"], "A2 standard value")
+            pro = required(model_values["A2-PRO"], "A2-PRO value")
+            if row.get("label") != label or not required(row.get("value"), "A2 legacy value"):
+                raise ContractError("A2 label/value legacy contract mismatch")
+            if official_url(row.get("sourceUrl"), "A2 comparison source") != spec["officialSource"]:
+                raise ContractError("A2 specification must use the same official maker source")
+            counts[group] += 1
+            seen.add(label)
+            rendered.append(
+                '<tr class="a2-spec-row" data-spec-row="true"><th scope="row">'
+                + esc(label) + ' <small><a href="' + esc(row["sourceUrl"])
+                + '" target="_blank" rel="noopener noreferrer">公式出典 ↗</a></small></th>'
+                + '<td data-model="A2">' + esc(std) + '</td>'
+                + '<td data-model="A2-PRO">' + esc(pro) + '</td></tr>'
+            )
+        if [counts[name] for name in group_names] != [10, 15, 9, 3]:
+            raise ContractError("A2 maker 10/15/9/3 parameter count mismatch")
+        return "\n".join(rendered)
     if product["id"] != "agibot-x2-series":
         return _item_html(rows, "specifications")
     if len(rows) != 36:
@@ -341,10 +400,25 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
                 + inner + '\n<p class="g1-fine">' + foot + '</p>\n</div></section>')
 
     models = v3.get("models", [])
-    model_rows = '\n'.join(
-        '<tr><th scope="row"><a href="' + esc(item["href"]) + '">' + esc(item["title"]) +
-        '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in models
-    )
+    def render_model_row(item: dict) -> str:
+        inquiry = ""
+        if product["id"] == "unitree-a2":
+            # Keep the selected maker model when moving to the existing
+            # consultation form, without adding a second public SKU/Master.
+            model_id = item["modelId"]
+            if model_id not in {"A2", "A2-PRO"}:
+                raise ContractError("Unapproved A2 consultation model")
+            href = ("/contact.html?product=" + quote("Unitree " + model_id, safe="")
+                    + "&maker=Unitree&service=industrial-poc&source_page="
+                    + quote(PUBLIC_ORIGIN + "/" + product["detailPage"], safe=""))
+            inquiry = (' <a class="g1-factory-support-link" data-model-inquiry="' +
+                       esc(model_id) + '" href="' + esc(href) +
+                       '">このモデルで相談する →</a>')
+        return ('<tr><th scope="row"><a href="' + esc(item["href"]) + '">' +
+                esc(item["title"]) + '</a></th><td>' +
+                esc(item["description"]) + inquiry + '</td></tr>')
+
+    model_rows = '\n'.join(render_model_row(item) for item in models)
     model_table = ('<table class="g1-factory-spec-table"><caption>関連モデルの選定目安</caption>'
                    '<tbody>' + model_rows + '</tbody></table>') if models else ""
     model_section = section("model-selection", "MODEL SELECTION",

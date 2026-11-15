@@ -29,7 +29,7 @@
   "priceLabel": "メーカー見積・対象構成の確認が必要",
   "leadTimeStatus": "confirmation_required",
   "leadTimeLabel": "販売条件・納期は個別確認",
-  "verifiedAt": "2026-11-14",
+  "verifiedAt": "2026-11-15",
   "pageStandard": {
     "version": "3.1",
     "family": "quadruped",
@@ -92,83 +92,410 @@
     ],
     "specifications": [
       {
-        "label": "正式対象モデル",
-        "value": "Unitree A2 標準モデル。A2-PROの装備を含むとは限りません。",
-        "sourceUrl": "https://www.unitree.com/A2/"
-      },
-      {
+        "category": "機械パラメータ",
+        "parameter": "立位寸法",
         "label": "立位寸法",
-        "value": "約820 × 440 × 570 mm",
+        "value": "820 × 440 × 570 mm",
+        "models": {
+          "A2": "820 × 440 × 570 mm",
+          "A2-PRO": "820 × 440 × 570 mm"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "バッテリー装着重量",
+        "category": "機械パラメータ",
+        "parameter": "伏臥寸法",
+        "label": "伏臥寸法",
+        "value": "720 × 550 × 220 mm",
+        "models": {
+          "A2": "720 × 550 × 220 mm",
+          "A2-PRO": "720 × 550 × 220 mm"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "機械パラメータ",
+        "parameter": "本体材質",
+        "label": "本体材質",
+        "value": "アルミ合金＋高強度エンジニアリングプラスチック",
+        "models": {
+          "A2": "アルミ合金＋高強度エンジニアリングプラスチック",
+          "A2-PRO": "アルミ合金＋高強度エンジニアリングプラスチック"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "機械パラメータ",
+        "parameter": "電池除外重量",
+        "label": "電池除外重量",
+        "value": "約35 kg",
+        "models": {
+          "A2": "約35 kg",
+          "A2-PRO": "約35 kg"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "機械パラメータ",
+        "parameter": "電池装着重量",
+        "label": "電池装着重量",
         "value": "約42 kg",
+        "models": {
+          "A2": "約42 kg",
+          "A2-PRO": "約42 kg"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "自由度・最大関節トルク",
-        "value": "12 DoF／約180 N·m（公表値）",
+        "category": "機械パラメータ",
+        "parameter": "関節自由度",
+        "label": "関節自由度",
+        "value": "12 DoF（各脚3関節）",
+        "models": {
+          "A2": "12 DoF（各脚3関節）",
+          "A2-PRO": "12 DoF（各脚3関節）"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "バッテリー",
-        "value": "2スロット・2電池。合計18,000 mAh／約907.2 Wh（公表値）",
+        "category": "機械パラメータ",
+        "parameter": "関節軸受",
+        "label": "関節軸受",
+        "value": "産業用クロスローラーベアリング",
+        "models": {
+          "A2": "産業用クロスローラーベアリング",
+          "A2-PRO": "産業用クロスローラーベアリング"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "無積載走行時間・距離",
-        "value": "約5時間／約20 km（メーカー条件下）",
+        "category": "機械パラメータ",
+        "parameter": "関節モーター",
+        "label": "関節モーター",
+        "value": "低慣性・高速インナーロータPMSM",
+        "models": {
+          "A2": "低慣性・高速インナーロータPMSM",
+          "A2-PRO": "低慣性・高速インナーロータPMSM"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "25 kg積載時の走行時間・距離",
-        "value": "約3時間／約12.5 km（メーカー条件下）",
+        "category": "機械パラメータ",
+        "parameter": "最大関節トルク",
+        "label": "最大関節トルク",
+        "value": "約180 N·m",
+        "models": {
+          "A2": "約180 N·m",
+          "A2-PRO": "約180 N·m"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "連続歩行積載（メーカー参考）",
-        "value": "約25 kg。最大立位静荷重約100 kgとは別。実使用条件によって変動。",
+        "category": "機械パラメータ",
+        "parameter": "関節可動域",
+        "label": "関節可動域",
+        "value": "胴体：−58～58°／大腿：−134～180°・−89～225°／下腿：−158～−30°",
+        "models": {
+          "A2": "胴体：−58～58°／大腿：−134～180°・−89～225°／下腿：−158～−30°",
+          "A2-PRO": "胴体：−58～58°／大腿：−134～180°・−89～225°／下腿：−158～−30°"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "最大立位静荷重",
-        "value": "約100 kg（歩行時の積載値とは異なる）",
+        "category": "電気特性",
+        "parameter": "電源電圧",
+        "label": "電源電圧",
+        "value": "50.4 V",
+        "models": {
+          "A2": "50.4 V",
+          "A2-PRO": "50.4 V"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "登坂・段差のメーカー参考",
-        "value": "最大斜度 約45°、段差 約30 cm（条件依存）",
+        "category": "電気特性",
+        "parameter": "関節エンコーダ",
+        "label": "関節エンコーダ",
+        "value": "デュアルエンコーダ",
+        "models": {
+          "A2": "デュアルエンコーダ",
+          "A2-PRO": "デュアルエンコーダ"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "センサー：A2標準",
-        "value": "LiDAR 1基＋HDカメラ1基。A2-PROはLiDAR 2基＋HDカメラ。",
+        "category": "電気特性",
+        "parameter": "冷却方式",
+        "label": "冷却方式",
+        "value": "部分空冷",
+        "models": {
+          "A2": "部分空冷",
+          "A2-PRO": "部分空冷"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "外部インターフェース",
-        "value": "RS485×2、CAN×2、Gigabit Ethernet×2、USB3 Type-C、12/24V電源出力（公式表参照）",
+        "category": "電気特性",
+        "parameter": "電源構成",
+        "label": "電源構成",
+        "value": "2スロット・デュアルバッテリー",
+        "models": {
+          "A2": "2スロット・デュアルバッテリー",
+          "A2-PRO": "2スロット・デュアルバッテリー"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "通信",
+        "category": "電気特性",
+        "parameter": "バッテリー容量",
+        "label": "バッテリー容量",
+        "value": "1本9,000 mAh（453.6 Wh）／2本合計18,000 mAh（907.2 Wh）",
+        "models": {
+          "A2": "1本9,000 mAh（453.6 Wh）／2本合計18,000 mAh（907.2 Wh）",
+          "A2-PRO": "1本9,000 mAh（453.6 Wh）／2本合計18,000 mAh（907.2 Wh）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "無線通信",
+        "label": "無線通信",
         "value": "Wi-Fi 6、Bluetooth 5.2",
+        "models": {
+          "A2": "Wi-Fi 6、Bluetooth 5.2",
+          "A2-PRO": "Wi-Fi 6、Bluetooth 5.2"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "動作温度・保護等級",
-        "value": "−20～55°C／標準A2はIP56（構成と実使用条件要確認）",
+        "category": "電気特性",
+        "parameter": "スピーカー",
+        "label": "スピーカー",
+        "value": "搭載",
+        "models": {
+          "A2": "搭載",
+          "A2-PRO": "搭載"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
+        "category": "電気特性",
+        "parameter": "マイク",
+        "label": "マイク",
+        "value": "マイクアレイ",
+        "models": {
+          "A2": "マイクアレイ",
+          "A2-PRO": "マイクアレイ"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "前照灯",
+        "label": "前照灯",
+        "value": "搭載",
+        "models": {
+          "A2": "搭載",
+          "A2-PRO": "搭載"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "ワイヤレスベクトル追従モジュール",
+        "label": "ワイヤレスベクトル追従モジュール",
+        "value": "A2：オプション／A2-PRO：拡張構成で搭載",
+        "models": {
+          "A2": "オプション",
+          "A2-PRO": "拡張構成で搭載"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "GPS",
+        "label": "GPS",
+        "value": "A2：オプション／A2-PRO：拡張構成で搭載",
+        "models": {
+          "A2": "オプション",
+          "A2-PRO": "拡張構成で搭載"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "4G通信",
+        "label": "4G通信",
+        "value": "A2：オプション／A2-PRO：拡張構成で搭載",
+        "models": {
+          "A2": "オプション",
+          "A2-PRO": "拡張構成で搭載"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "センサー構成",
+        "label": "センサー構成",
+        "value": "A2：LiDAR ×1＋HDカメラ ×1／A2-PRO：LiDAR ×2＋HDカメラ ×1",
+        "models": {
+          "A2": "LiDAR ×1＋HDカメラ ×1",
+          "A2-PRO": "LiDAR ×2＋HDカメラ ×1"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "制御・演算",
+        "label": "制御・演算",
+        "value": "A2：標準：8コア高性能CPU（本体制御）＋Intel Core i7（ユーザー開発）／A2-PRO：標準：8コア高性能CPU＋Intel Core i7／高演算拡張Dockはオプション",
+        "models": {
+          "A2": "標準：8コア高性能CPU（本体制御）＋Intel Core i7（ユーザー開発）",
+          "A2-PRO": "標準：8コア高性能CPU＋Intel Core i7／高演算拡張Dockはオプション"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "電気特性",
+        "parameter": "外部インターフェース",
+        "label": "外部インターフェース",
+        "value": "RS485×2／CAN×2／GbE×2／USB3.0 Type-C（8コアCPU側）×2＋（i7側）×2／12V・24V・BAT出力",
+        "models": {
+          "A2": "RS485×2／CAN×2／GbE×2／USB3.0 Type-C（8コアCPU側）×2＋（i7側）×2／12V・24V・BAT出力",
+          "A2-PRO": "RS485×2／CAN×2／GbE×2／USB3.0 Type-C（8コアCPU側）×2＋（i7側）×2／12V・24V・BAT出力"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "動作温度",
+        "label": "動作温度",
+        "value": "−20～55°C",
+        "models": {
+          "A2": "−20～55°C",
+          "A2-PRO": "−20～55°C"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "歩行持続時間・距離",
+        "label": "歩行持続時間・距離",
+        "value": "無積載：5時間超／約20 km。25 kg積載：3時間超／約12.5 km（メーカー試験条件）",
+        "models": {
+          "A2": "無積載：5時間超／約20 km。25 kg積載：3時間超／約12.5 km（メーカー試験条件）",
+          "A2-PRO": "無積載：5時間超／約20 km。25 kg積載：3時間超／約12.5 km（メーカー試験条件）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "最大立位静荷重",
+        "label": "最大立位静荷重",
+        "value": "約100 kg（歩行積載ではない）",
+        "models": {
+          "A2": "約100 kg（歩行積載ではない）",
+          "A2-PRO": "約100 kg（歩行積載ではない）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "連続歩行積載",
+        "label": "連続歩行積載",
+        "value": "約25 kg（理想条件では約35 kgに達する場合あり。通常保証値ではない）",
+        "models": {
+          "A2": "約25 kg（理想条件では約35 kgに達する場合あり。通常保証値ではない）",
+          "A2-PRO": "約25 kg（理想条件では約35 kgに達する場合あり。通常保証値ではない）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "登坂能力",
+        "label": "登坂能力",
+        "value": "約45°",
+        "models": {
+          "A2": "約45°",
+          "A2-PRO": "約45°"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "階段・段差",
+        "label": "階段・段差",
+        "value": "最大段差高 約30 cm",
+        "models": {
+          "A2": "最大段差高 約30 cm",
+          "A2-PRO": "最大段差高 約30 cm"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "最大乗越え高さ",
+        "label": "最大乗越え高さ",
+        "value": "約0.5～1 m",
+        "models": {
+          "A2": "約0.5～1 m",
+          "A2-PRO": "約0.5～1 m"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "走行速度",
+        "label": "走行速度",
+        "value": "0～3.7 m/s（限界値 約5 m/s）",
+        "models": {
+          "A2": "0～3.7 m/s（限界値 約5 m/s）",
+          "A2-PRO": "0～3.7 m/s（限界値 約5 m/s）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "性能パラメータ",
+        "parameter": "防護等級",
+        "label": "防護等級",
+        "value": "A2：IP56／A2-PRO：IP56～IP67（主要部品はIP67）",
+        "models": {
+          "A2": "IP56",
+          "A2-PRO": "IP56～IP67（主要部品はIP67）"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "その他",
+        "parameter": "スマートOTA更新",
+        "label": "スマートOTA更新",
+        "value": "継続アップデート",
+        "models": {
+          "A2": "継続アップデート",
+          "A2-PRO": "継続アップデート"
+        },
+        "sourceUrl": "https://www.unitree.com/A2/"
+      },
+      {
+        "category": "その他",
+        "parameter": "二次開発",
         "label": "二次開発",
-        "value": "メーカー資料にSupported表記。SDK/OS・ROS 2等の具体適合は別途確認。",
+        "value": "対応（SDK／ROS 2具体条件は要確認）",
+        "models": {
+          "A2": "対応（SDK／ROS 2具体条件は要確認）",
+          "A2-PRO": "対応（SDK／ROS 2具体条件は要確認）"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
       {
-        "label": "保証",
-        "value": "メーカー公表12か月。条件・日本国内サポート範囲は要確認。",
+        "category": "その他",
+        "parameter": "保証期間",
+        "label": "保証期間",
+        "value": "12か月（日本向け条件・窓口は要確認）",
+        "models": {
+          "A2": "12か月（日本向け条件・窓口は要確認）",
+          "A2-PRO": "12か月（日本向け条件・窓口は要確認）"
+        },
         "sourceUrl": "https://www.unitree.com/A2/"
       }
     ],
@@ -294,7 +621,21 @@
       "developerDocsUrl": "https://support.unitree.com/main/en",
       "developerDocsLabel": "Unitree公式サポート（製品別に確認）",
       "developerDocsCaution": "A2用のSDK・OS・ROS 2配布条件や対応バージョンはこの汎用サポートページだけでは未確定です。必ずメーカーへ確認してください。",
-      "sdkDownloadNote": "製品専用SDKダウンロードを本ページでは保証しません。資料の実在と利用条件は個別に確認します。"
+      "sdkDownloadNote": "製品専用SDKダウンロードを本ページでは保証しません。資料の実在と利用条件は個別に確認します。",
+      "models": [
+        {
+          "title": "A2｜標準モデル",
+          "description": "メーカー公式の産業向け標準型。LiDAR 1基＋HDカメラ1基。オプション装備は個別確認。",
+          "href": "#specifications",
+          "modelId": "A2"
+        },
+        {
+          "title": "A2-PRO｜拡張構成",
+          "description": "LiDAR 2基＋HDカメラ1基、GPS・4G・追従モジュールなどの拡張構成。日本向け販売条件は個別確認。",
+          "href": "#specifications",
+          "modelId": "A2-PRO"
+        }
+      ]
     }
   }
 }

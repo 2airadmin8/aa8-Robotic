@@ -58,3 +58,13 @@ Delivery target: three different consecutive real product pages with <= 1 normal
 Business success is separate: Search Console impressions/clicks/CTR, product CTA clicks, actual inquiry delivery, meetings, quotation and orders. Page QA green does not prove sales.
 Known media backlog: AgiBot G2, AgiBot X2 EDU, LimX Oli, Unitree Go2 EDU, Tianji Marvin are still explicitly labeled placeholder in existing Product Master. Do not silently substitute unverified photos.
 Next true trial: select a fact-verified REAL new product with manufacturer sources, execute Master -> noindex Preview -> CI + QA -> exact HEAD CEO approval -> single release -> real production verification. Do not claim factory mass-production proven until 3 consecutive releases pass.
+
+
+## メーカー仕様表の行数・モデル数と自動検査（A2実装ルール）
+
+- メーカーが複数モデルの正式仕様表を公開している場合、先に一次出典のモデル名、カテゴリー順、各カテゴリーの項目行数を凍結する。2モデル列を「2倍の行数」と数えない。
+- A2公式表は2モデル（A2／A2-PRO）、4区分、37項目行（機械10／電気15／性能9／その他3）。A2標準版を主商品とし、PROを同ページの比較対象とする。メーカーにない追加SKU／価格／SDK互換を捏造しない。
+- 正式モデル差（LiDAR、GPS、4G、追従モジュール、IP等）は別々のセルに記述。25kg歩行時積載と100kg最大静止荷重を混同しない。メーカー条件下の参考値は達成保証としない。
+- メーカー出典・区分別行数・2モデル差の正本を tests/fixtures/a2-factory/source-contract.json、生成入力を同階層 product.json に固定。scripts/product_factory.py は37行、4区分順、2モデルの欠損・重複をFail-Closedにする。
+- 既存 tests/test_a2_factory_pilot.py と tests/a2-factory-preview.spec.js をGitHub ci.yml から必ず実行し、実HTMLの37行、4組、モデル別相談CTAの引継ぎ、PC1440／SP390／SP360を検査する。
+- 今後の別メーカー・別型番でも同じ「一次出典の行数×モデル×カテゴリー＋モデル別CTA」の証拠契約を必須チェック項目とし、正本に確定した行数のない製品は全パラメータ掲載と称さずHOLD。既存製品を一括で作り直すことはしない。

@@ -91,15 +91,64 @@ class A2RealFactoryPilot(unittest.TestCase):
             self.assertNotIn('analytics-events.js',text)
             self.assertNotIn('assets/js/site.js',text)
 
-    def test_standard_model_excludes_pro_only_specs(self):
-        p=self.product
-        specs=" ".join(x["value"] for x in p["pageFactory"]["specifications"])
-        self.assertIn("LiDAR 1基",specs)
-        self.assertIn("A2-PROはLiDAR 2基",specs)
-        self.assertIn("25 kg",specs)
-        self.assertIn("100 kg",specs)
-        self.assertIn("メーカー条件下",specs)
-        self.assertIn("要確認",specs)
+    def test_official_37_parameter_rows_four_categories_two_models(self):
+        from collections import Counter
+        rows=self.product["pageFactory"]["specifications"]
+        contract=self.evidence["official_parameter_table"]
+        self.assertEqual(contract["source"],"https://www.unitree.com/A2/")
+        self.assertEqual(contract["models"],["A2","A2-PRO"])
+        self.assertEqual(len(rows),37)
+        groups=[(item["category"],item["count"]) for item in contract["group_counts"]]
+        self.assertEqual(groups,[
+            ("機械パラメータ",10),("電気特性",15),("性能パラメータ",9),("その他",3)
+        ])
+        self.assertEqual([(r["category"],r["parameter"]) for r in rows],[
+            (group,label) for (group,n),start in zip(groups,[0,10,25,34])
+            for label in contract["parameter_labels"][start:start+n]
+        ])
+        self.assertEqual(len(set(r["parameter"] for r in rows)),37)
+        self.assertEqual([Counter(r["category"] for r in rows)[group] for group,n in groups],[10,15,9,3])
+        for row in rows:
+            self.assertEqual(set(row["models"]),{"A2","A2-PRO"})
+            self.assertEqual(row["sourceUrl"],"https://www.unitree.com/A2/")
+        official={r["parameter"]:r["models"] for r in rows}
+        for field,models in contract["important_model_differences"].items():
+            self.assertEqual(official[field],models,field)
+        self.assertIn("約25 kg",official["連続歩行積載"]["A2"])
+        self.assertIn("約100 kg",official["最大立位静荷重"]["A2"])
+        self.assertNotEqual(official["センサー構成"]["A2"],official["センサー構成"]["A2-PRO"])
+        self.assertEqual(len(self.product["pageFactory"]["v3"]["models"]),2)
+
+    def test_html_exposes_real_two_model_comparison_all_37_rows(self):
+        self.assertEqual(self.preview.count('class="a2-spec-row" data-spec-row="true"'),37)
+        self.assertEqual(self.preview.count('class="a2-category-row"'),4)
+        self.assertEqual(self.preview.count('data-model="A2"'),37)
+        self.assertEqual(self.preview.count('data-model="A2-PRO"'),37)
+        self.assertEqual(self.preview.count('id="model-selection"'),1)
+        self.assertIn('href="#model-selection"',self.preview)
+        self.assertIn("LiDAR ×1＋HDカメラ ×1",self.preview)
+        self.assertIn("LiDAR ×2＋HDカメラ ×1",self.preview)
+        self.assertIn("IP56～IP67",self.preview)
+        self.assertEqual(self.preview.count('data-model-inquiry="A2"'),1)
+        self.assertEqual(self.preview.count('data-model-inquiry="A2-PRO"'),1)
+        self.assertIn('product=Unitree%20A2&amp;maker=Unitree&amp;service=industrial-poc',self.preview)
+        self.assertIn('product=Unitree%20A2-PRO&amp;maker=Unitree&amp;service=industrial-poc',self.preview)
+
+    def test_missing_duplicate_wrong_group_wrong_models_fail_closed(self):
+        from copy import deepcopy
+        variants=[]
+        missing=deepcopy(self.product);missing["pageFactory"]["specifications"].pop()
+        variants.append(missing)
+        duplicate=deepcopy(self.product);duplicate["pageFactory"]["specifications"][1]["parameter"]=duplicate["pageFactory"]["specifications"][0]["parameter"]
+        variants.append(duplicate)
+        order=deepcopy(self.product);order["pageFactory"]["specifications"][0]["category"]="その他"
+        variants.append(order)
+        model=deepcopy(self.product);model["pageFactory"]["specifications"][0]["models"].pop("A2-PRO")
+        variants.append(model)
+        for candidate in variants:
+            with self.subTest(candidate=candidate["pageFactory"]["specifications"][0].get("parameter")):
+                with self.assertRaisesRegex(factory.ContractError,"A2 maker|A2 comparison"):
+                    factory.render(ROOT,candidate,"preview")
 
     def test_release_candidate_refused_even_with_valid_source(self):
         with self.assertRaisesRegex(factory.ContractError,"releaseReady"):
