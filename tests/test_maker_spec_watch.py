@@ -115,7 +115,7 @@ class MakerSourceWatchTests(unittest.TestCase):
             self.assertEqual(len(report['drift']),1)
             self.assertEqual(report['isolated_recheck_rounds'],1)
             self.assertEqual(report['isolated_data_consistency'],'PASS_NOT_RELEASE_AUTHORIZATION')
-            proposed=json.loads((output/'candidate-product.json').read_text())
+            proposed=json.loads((output/'candidate-product.json').read_text(encoding='utf-8'))
             self.assertEqual(proposed['pageFactory']['specifications'][4]['models']['A2'],'About 43kg')
             self.assertEqual(self.product['pageFactory']['specifications'][4]['models']['A2'],'約42 kg')
             self.assertTrue((output/'diff.json').is_file())
