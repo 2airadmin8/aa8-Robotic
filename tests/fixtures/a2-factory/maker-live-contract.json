@@ -85,8 +85,8 @@
             "A2-PRO": "12"
           },
           "approved_display": {
-            "A2": "12 DoF（各脚3関節）",
-            "A2-PRO": "12 DoF（各脚3関節）"
+            "A2": "12 DoF",
+            "A2-PRO": "12 DoF"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },
@@ -98,8 +98,8 @@
             "A2-PRO": "Industrial-grade crossed roller bearings (high precision, high load capacity)"
           },
           "approved_display": {
-            "A2": "産業用クロスローラーベアリング",
-            "A2-PRO": "産業用クロスローラーベアリング"
+            "A2": "産業用クロスローラーベアリング（高精度・高荷重対応）",
+            "A2-PRO": "産業用クロスローラーベアリング（高精度・高荷重対応）"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },
@@ -111,8 +111,8 @@
             "A2-PRO": "Low-inertia, high-speed inner rotor PMSM (enhanced response & heat dissipation)"
           },
           "approved_display": {
-            "A2": "低慣性・高速インナーロータPMSM",
-            "A2-PRO": "低慣性・高速インナーロータPMSM"
+            "A2": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）",
+            "A2-PRO": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },
@@ -324,8 +324,8 @@
             "A2-PRO": "Standard: 8-Core high-performance CPU (platform) + Intel Core i7 (user development) Optional: high computing power expansion dock"
           },
           "approved_display": {
-            "A2": "標準：8コア高性能CPU（本体制御）＋Intel Core i7（ユーザー開発）",
-            "A2-PRO": "標準：8コア高性能CPU＋Intel Core i7／高演算拡張Dockはオプション"
+            "A2": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）",
+            "A2-PRO": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）／高演算能力拡張Dockはオプション"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },
@@ -446,8 +446,8 @@
             "A2-PRO": "0–3.7 m/s (Up to ~5 m/s)"
           },
           "approved_display": {
-            "A2": "0～3.7 m/s（限界値 約5 m/s）",
-            "A2-PRO": "0～3.7 m/s（限界値 約5 m/s）"
+            "A2": "0～3.7 m/s（最高約5 m/s）",
+            "A2-PRO": "0～3.7 m/s（最高約5 m/s）"
           },
           "review_status": "TRANSLATION_REVIEW_PENDING"
         },

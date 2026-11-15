@@ -163,5 +163,69 @@ class A2RealFactoryPilot(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"safety"):
             validate_new_candidate("quadruped",broken,ROOT)
 
+"""Factual A2 Japanese audit tests: separate fixed bilingual reference + official cells."""
+import copy
+import json
+import sys
+from pathlib import Path
+import unittest
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"scripts"))
+import a2_semantic_fact_review as reviewer
+import maker_spec_watch as maker
+
+class IndependentA2SemanticFacts(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.contract=maker.load_contract(ROOT/"tests/fixtures/a2-factory/maker-live-contract.json")
+        cls.product=json.loads((ROOT/"tests/fixtures/a2-factory/product.json").read_text("utf-8"))
+        cls.parsed={
+            "models":cls.contract["models"],
+            "categories":[{"name":group["source_name"],
+             "rows":[{"source_label":row["source_label"],"models":dict(row["models"])}
+                     for row in group["rows"]]}
+                    for group in cls.contract["categories"]]
+        }
+
+    def test_74_model_cells_match_independently_authored_bilingual_reference(self):
+        report=reviewer.evaluate(self.contract,self.product,self.parsed,"synthetic-test-source")
+        self.assertEqual(report["status"],"TECH_SEMANTIC_QA_PASS")
+        self.assertEqual(report["cells_checked"],74)
+        self.assertEqual(len({x["parameter_id"] for x in report["evidence"]}),37)
+        self.assertEqual(len(report["errors"]),0)
+        self.assertEqual(report["independent_human_review"],"NOT_ATTESTED")
+        self.assertEqual(report["production_release"],"HOLD")
+
+    def test_unverified_japanese_semantic_drift_fails_independent_reference(self):
+        for i, text in [(5,"12 DoF（各脚3関節）"),
+                        (6,"産業用クロスローラーベアリング"),
+                        (15,"Wi-Fi 7／Bluetooth 5.2 対応"),
+                        (32,"0～3.7 m/s（限界値 約5 m/s）")]:
+            with self.subTest(row=i):
+                product=copy.deepcopy(self.product)
+                product["pageFactory"]["specifications"][i]["models"]["A2"]=text
+                report=reviewer.evaluate(self.contract,product,self.parsed,"test")
+                self.assertEqual(report["status"],"TECH_SEMANTIC_QA_HOLD")
+                self.assertTrue(any("Japanese semantic mismatch" in x for x in report["errors"]))
+
+    def test_independent_live_fact_signoff_requires_exact_manufacturer_snapshot_hash(self):
+        report=reviewer.evaluate(self.contract,self.product,self.parsed,
+            "different-maker-snapshot",enforce_live_hash=True)
+        self.assertEqual(report["status"],"TECH_SEMANTIC_QA_HOLD")
+        self.assertTrue(any("source snapshot changed" in e for e in report["errors"]))
+
+    def test_changed_manufacturer_heading_or_raw_cell_refuses_facts_signoff(self):
+        for field in ("title","raw"):
+            with self.subTest(field=field):
+                parsed=copy.deepcopy(self.parsed)
+                if field=="title":
+                    parsed["categories"][1]["rows"][5]["source_label"]="Wireless unknown"
+                else:
+                    parsed["categories"][2]["rows"][4]["models"]["A2"]="About 55°"
+                report=reviewer.evaluate(self.contract,self.product,parsed,"test")
+                self.assertEqual(report["status"],"TECH_SEMANTIC_QA_HOLD")
+                self.assertTrue(report["errors"])
+
+
 if __name__=="__main__":
     unittest.main()

@@ -150,10 +150,10 @@
         "category": "機械パラメータ",
         "parameter": "関節自由度",
         "label": "関節自由度",
-        "value": "12 DoF（各脚3関節）",
+        "value": "12 DoF",
         "models": {
-          "A2": "12 DoF（各脚3関節）",
-          "A2-PRO": "12 DoF（各脚3関節）"
+          "A2": "12 DoF",
+          "A2-PRO": "12 DoF"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
@@ -161,10 +161,10 @@
         "category": "機械パラメータ",
         "parameter": "関節軸受",
         "label": "関節軸受",
-        "value": "産業用クロスローラーベアリング",
+        "value": "産業用クロスローラーベアリング（高精度・高荷重対応）",
         "models": {
-          "A2": "産業用クロスローラーベアリング",
-          "A2-PRO": "産業用クロスローラーベアリング"
+          "A2": "産業用クロスローラーベアリング（高精度・高荷重対応）",
+          "A2-PRO": "産業用クロスローラーベアリング（高精度・高荷重対応）"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
@@ -172,10 +172,10 @@
         "category": "機械パラメータ",
         "parameter": "関節モーター",
         "label": "関節モーター",
-        "value": "低慣性・高速インナーロータPMSM",
+        "value": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）",
         "models": {
-          "A2": "低慣性・高速インナーロータPMSM",
-          "A2-PRO": "低慣性・高速インナーロータPMSM"
+          "A2": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）",
+          "A2-PRO": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
@@ -348,10 +348,10 @@
         "category": "電気特性",
         "parameter": "制御・演算",
         "label": "制御・演算",
-        "value": "A2：標準：8コア高性能CPU（本体制御）＋Intel Core i7（ユーザー開発）／A2-PRO：標準：8コア高性能CPU＋Intel Core i7／高演算拡張Dockはオプション",
+        "value": "A2：標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）／A2-PRO：標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）／高演算能力拡張Dockはオプション",
         "models": {
-          "A2": "標準：8コア高性能CPU（本体制御）＋Intel Core i7（ユーザー開発）",
-          "A2-PRO": "標準：8コア高性能CPU＋Intel Core i7／高演算拡張Dockはオプション"
+          "A2": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）",
+          "A2-PRO": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）／高演算能力拡張Dockはオプション"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
@@ -447,10 +447,10 @@
         "category": "性能パラメータ",
         "parameter": "走行速度",
         "label": "走行速度",
-        "value": "0～3.7 m/s（限界値 約5 m/s）",
+        "value": "0～3.7 m/s（最高約5 m/s）",
         "models": {
-          "A2": "0～3.7 m/s（限界値 約5 m/s）",
-          "A2-PRO": "0～3.7 m/s（限界値 約5 m/s）"
+          "A2": "0～3.7 m/s（最高約5 m/s）",
+          "A2-PRO": "0～3.7 m/s（最高約5 m/s）"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },

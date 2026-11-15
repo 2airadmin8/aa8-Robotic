@@ -57,7 +57,8 @@
         "data/hp-page-family-contract-v1.json",
         "scripts/hp_design_contract.py",
         "scripts/product_factory.py",
-        "scripts/maker_spec_watch.py"
+        "scripts/maker_spec_watch.py",
+        "scripts/a2_semantic_fact_review.py"
       ],
       "tests": [
         "tests/test_hp_design_contract.py",
