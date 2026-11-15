@@ -5,7 +5,7 @@ from unittest.mock import patch
 import io
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from factory_feedback_preview import eligible_preview, reachable, preview_probe, deliver
+from factory_feedback_preview import eligible_preview, reachable, preview_probe, deliver, preview_path_from_pr
 
 SHA = "a" * 40
 
@@ -92,8 +92,8 @@ class VerifiedPreviewSources(unittest.TestCase):
                         "https://x2-edu-make-review-test.vercel.app.evil.test/a2-factory-preview.html"):
             self.assertFalse(reachable(bad_url))
 
-    def test_ssoprotection_notified_as_hold_without_retry(self):
-        url = "https://x2-edu-make-review-test.vercel.app/a2-factory-preview.html"
+    def test_protected_ceo_preview_delivered_without_fabricated_html_pass(self):
+        url = "https://x2-edu-make-review-test.vercel.app"
         with patch("factory_feedback_preview.verify_live"), \
              patch("factory_feedback_preview.github") as github, \
              patch("factory_feedback_preview.preview_probe", return_value="AUTH_REQUIRED"), \
@@ -101,13 +101,67 @@ class VerifiedPreviewSources(unittest.TestCase):
             github.side_effect = [
                 [],  # existing comments
                 [{"id": 51, "sha": SHA, "environment": "Preview – x2-edu-make-review"}],
-                [{"state": "success", "environment_url": url}],
+                [{"state": "success", "environment_url": url,
+                  "creator": {"login": "vercel[bot]"}}],
+                [{"filename": "tests/fixtures/a2-factory/preview.html", "status": "added"}],
+                {"id": 1001},  # posted to the original PR only
             ]
-            with self.assertRaisesRegex(ValueError, "protected Preview requires actual CEO SSO"):
-                deliver(SHA, 180, 42, 9911)
+            result = deliver(SHA, 180, 42, 9911)
+            self.assertEqual(result["status"], "WAIT_CEO_SSO_REVIEW")
+            self.assertFalse(result["html_verified"])
+            self.assertEqual(result["release"], "HOLD")
             sleep.assert_not_called()
-            self.assertEqual(github.call_count, 3)
-            self.assertNotIn("POST", [c.kwargs.get("method") for c in github.call_args_list])
+            self.assertEqual(github.call_count, 5)
+            posted = github.call_args_list[-1]
+            self.assertEqual(posted.args[0], "repos/2airadmin8/aa8-Robotic/issues/180/comments")
+            self.assertEqual(posted.kwargs["method"], "POST")
+            self.assertIn(url + "/a2-factory-preview.html", posted.kwargs["body"])
+            self.assertIn("HTML仍待CEO登录确认", posted.kwargs["body"])
+            self.assertNotIn("已验证在线Preview", posted.kwargs["body"])
+
+    def test_untrusted_preview_status_never_delivered(self):
+        url = "https://x2-edu-make-review-test.vercel.app"
+        from factory_feedback_preview import trusted_review_previews
+        deps = [{"id": 51, "sha": SHA, "environment": "Preview – x2-edu-make-review"}]
+        for status in (
+            {"state": "success", "environment_url": url, "creator": {"login": "evil-bot"}},
+            {"state": "success", "environment_url": "https://hikari-abc.vercel.app",
+             "creator": {"login": "vercel[bot]"}},
+            {"state": "pending", "environment_url": url, "creator": {"login": "vercel[bot]"}},
+        ):
+            with self.subTest(status=status):
+                self.assertEqual(trusted_review_previews(SHA, deps, {"51": [status]}), [])
+        self.assertEqual(trusted_review_previews("b" * 40, deps, {
+            "51": [{"state": "success", "environment_url": url,
+                    "creator": {"login": "vercel[bot]"}}]
+        }), [])
+
+    def test_preview_path_is_derived_from_original_pr_diff(self):
+        with patch("factory_feedback_preview.github") as api:
+            api.return_value = [
+                {"filename": "tests/fixtures/h2plus-pilot/preview.html"},
+                {"filename": "tests/test_product_factory.py"},
+            ]
+            self.assertEqual(preview_path_from_pr(180), "h2plus-pilot-preview.html")
+        for changed in (
+            [],
+            [{"filename": "tests/fixtures/../../secrets/preview.html"}],
+            [{"filename": "tests/fixtures/a2-factory/preview.html"},
+             {"filename": "tests/fixtures/h2plus-pilot/preview.html"}],
+            [{"filename": "tests/fixtures/a2-factory/preview.html"}] * 100,
+        ):
+            with self.subTest(changed=changed), patch("factory_feedback_preview.github", return_value=changed):
+                with self.assertRaisesRegex(ValueError, "exactly one|pagination"):
+                    preview_path_from_pr(180)
+
+    def test_duplicate_ceo_handoff_is_idempotent(self):
+        from factory_feedback_preview import MARKER
+        with patch("factory_feedback_preview.verify_live"), \
+             patch("factory_feedback_preview.github") as github:
+            github.return_value = [{"body": MARKER.format(sha=SHA, comment_id=42)}]
+            result = deliver(SHA, 180, 42, 9911)
+            self.assertEqual(result["status"], "ALREADY_DELIVERED")
+            self.assertEqual(github.call_count, 1)
 
     def test_ssoprotection_probe_distinguishes_html(self):
         url = "https://x2-edu-make-review-test.vercel.app/a2-factory-preview.html"

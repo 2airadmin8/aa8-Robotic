@@ -108,11 +108,13 @@
       "implementation": [
         "docs/governance/hp-design-code-trace-v1.json",
         "scripts/hp_governance_quality_gate.py",
-        ".github/workflows/ci.yml"
+        ".github/workflows/ci.yml",
+        "scripts/factory_feedback_preview.py"
       ],
       "tests": [
         "tests/test_hp_governance_quality_gate.py",
-        "tests/test_hp_governance_policy.py"
+        "tests/test_hp_governance_policy.py",
+        "tests/test_factory_feedback_preview.py"
       ]
     }
   ],
