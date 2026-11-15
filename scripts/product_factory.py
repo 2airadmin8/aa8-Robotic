@@ -576,6 +576,24 @@ def render(root: Path, product: dict, mode: str) -> str:
         # CI/local preview is not a public page: never emit production
         # analytics page_view from site.js (GA4) or other site bootstrap.
         page = page.replace('<script src="/assets/js/site.js" defer></script>', '')
+        # A changed template may bring back tracking under a different script
+        # attribute order. The old literal replace alone silently missed it.
+        # This is a mandatory source-HTML safety gate, not a second renderer.
+        scripts = re.findall(r"<script\b[^>]*>", page, flags=re.I)
+        for tag in scripts:
+            if re.search(
+                r"(?:site|seo|analytics-events)\.js|gtag\/js|googletagmanager|google-analytics",
+                tag, flags=re.I,
+            ):
+                raise ContractError("Preview template includes production tracking bootstrap")
+        if re.search(r"\b(?:gtag\s*\(|google-analytics\.com|googletagmanager\.com)", page, re.I):
+            raise ContractError("Preview template includes production analytics code")
+        if page.count('data-aa8-menu-runtime="true"') != 1:
+            raise ContractError("Preview must use exactly one shared menu runtime")
+        if page.count('<footer class="footer" data-shared-layout="footer">') != 1:
+            raise ContractError("Preview must use exactly one official Footer")
+        if '<meta name="robots" content="noindex,nofollow">' not in page:
+            raise ContractError("Preview noindex contract missing")
     return page
 
 

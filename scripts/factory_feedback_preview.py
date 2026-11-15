@@ -89,19 +89,50 @@ def verify_live(sha: str, pr: int, comment_id: int) -> None:
 
 
 def reachable(url: str) -> bool:
+    """A public/authorized HTML response must be the actual Factory Preview.
+
+    Protected Vercel SSO responses without an authorized browser session
+    correctly return HOLD. No bypass token, cookie, or 200 login-page shortcut.
+    GitHub deployment SHA alone is not proof of a browser-visible A2 page.
+    """
     try:
+        requested = urlsplit(url)
+        if (requested.scheme != "https" or not requested.hostname
+                or not requested.hostname.endswith(".vercel.app")
+                or requested.username or requested.password
+                or requested.query or requested.fragment):
+            return False
         request = urllib.request.Request(url, headers={
             "User-Agent": "AirAdmin8-Factory-Preview-Verification",
             "Cache-Control": "no-cache",
         })
         with urllib.request.urlopen(request, timeout=15) as response:
             final = urlsplit(response.url)
-            if (response.status != 200 or not final.hostname
-                    or not final.hostname.endswith(".vercel.app")):
+            if (response.status != 200 or final.hostname != requested.hostname
+                    or final.path != requested.path):
                 return False
-            first = response.read(2048).lower()
-            return b"<" in first and b"vercel authentication" not in first
-    except (urllib.error.URLError, TimeoutError, ValueError):
+            content_type = response.headers.get("Content-Type", "").lower()
+            if "text/html" not in content_type:
+                return False
+            # Bounded content inspection: 200 bytes from an SSO page is NOT proof.
+            content = response.read(1_000_001)
+            if len(content) > 1_000_000:
+                return False
+            html = content.decode("utf-8", errors="replace")
+            if re.search(r"(?i)vercel authentication|vercel.com/sso-api|log[ -]?in", html):
+                return False
+            checks = (
+                re.search(r'<main\b[^>]*data-product-id="[a-z0-9-]+"', html),
+                re.search(r'data-product-factory="g1-v1"', html),
+                re.search(r'<meta\s+name="robots"\s+content="noindex,nofollow"', html),
+                re.search(r'<header\b[^>]*data-shared-layout="header"', html),
+                re.search(r'<footer\b[^>]*data-shared-layout="footer"', html),
+                re.search(r'data-factory-cta="hero"', html),
+                re.search(r'data-aa8-menu-runtime="true"', html),
+                re.search(r'class="aa8-main-logo"', html),
+            )
+            return all(checks)
+    except (urllib.error.URLError, TimeoutError, ValueError, UnicodeError):
         return False
 
 

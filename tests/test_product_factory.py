@@ -90,6 +90,54 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn('href="/contact.html"', preview)
         self.assertIn('href="../contact.html"', built)
 
+    def test_preview_fails_closed_on_unexpected_template_analytics(self):
+        from unittest.mock import patch
+        import tempfile
+        import product_factory
+
+        original = product_factory.TEMPLATE.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            altered = Path(tmp) / "factory-template.html"
+            for bad in (
+                '<script async src="/assets/js/site.js"></script>',
+                '<script src="/assets/js/analytics-events.js"></script>',
+                '<script src="https://www.googletagmanager.com/gtag/js"></script>',
+                '<script>gtag("config","G-TEST");</script>',
+            ):
+                with self.subTest(bad=bad):
+                    altered.write_text(
+                        original.replace("</body>", bad + "</body>"),
+                        encoding="utf-8",
+                    )
+                    with patch.object(product_factory, "TEMPLATE", altered):
+                        with self.assertRaisesRegex(
+                            ContractError, "production tracking|production analytics"
+                        ):
+                            render(ROOT, self.item, "preview")
+
+    def test_preview_shared_menu_and_footer_cannot_be_duplicated(self):
+        from unittest.mock import patch
+        import tempfile
+        import product_factory
+
+        original = product_factory.TEMPLATE.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            altered = Path(tmp) / "factory-template.html"
+            for bad in (
+                '<script data-aa8-menu-runtime="true"></script>',
+                '<footer class="footer" data-shared-layout="footer"></footer>',
+            ):
+                with self.subTest(bad=bad):
+                    altered.write_text(
+                        original.replace("</body>", bad + "</body>"),
+                        encoding="utf-8",
+                    )
+                    with patch.object(product_factory, "TEMPLATE", altered):
+                        with self.assertRaisesRegex(
+                            ContractError, "exactly one"
+                        ):
+                            render(ROOT, self.item, "preview")
+
     def test_release_candidate_requires_explicit_ready(self):
         with self.assertRaises(ContractError):
             render(ROOT, self.item, "candidate")
