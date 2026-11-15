@@ -56,3 +56,27 @@ Unknown source ready dates for historic H2 Plus/A3 Ultra are UNKNOWN, so initial
 - Against main base `c42f19c90f9165101369205d71931f4886ab75ae`, the known legacy baseline contains 32 declarations in three HTML files (X2 EDU 8, G1 12, site-footer include 12). This is not a zero-warning claim. X2 EDU's actual SP menu problem is separate P0.
 - `tests/test_shared_css_owner_delta.py` covers negative new CSS/inline overrides, changed legacy rules, invalid base, plus positive canonical-owner edits. Existing `ci.yml` applies the delta gate to PR or scoped repair events without additional jobs, reviewers, runners, schedulers, or Production permissions.
 - This gate does not establish GitHub Branch Protection Required Check configuration. Existing `pages.yml` stays manual-only and no historical CSS sweep is authorized.
+
+## Preview bundle contract — all products, no separate Factory (2026-11-15)
+
+- The existing Product Factory Preview and CI must enumerate EVERY
+  `tests/fixtures/*/product.json` candidate, not a hard-coded A2/X2 list.
+  The shared asset walker `scripts/verify_preview_bundle.py` collects local
+  HTML src/srcset/poster/link refs plus CSS imports/url() and SVG references,
+  then produces an exact SHA1 and byte size manifest for the combined bundle.
+  Missing local referenced assets FAIL before CI browser tests.
+- Vercel Preview deployment review **requires a second independently sourced
+  file-tree check** after READY, using the exact deployment ID, source HEAD,
+  `target=null`, and SHA1 of every manifest file. The checker has read-only
+  `--verify-deployed` mode; any mismatch or absent file = PREVIEW_BUNDLE_HOLD.
+  SSO login readiness alone does not prove CEO browser review or source files.
+- The existing manual-only Pages release invokes `verify_release.py`, which
+  now uses the same dependency resolver for ALL public products/*.html.
+  The legacy G1-D dead CSS reference was removed after this gate caught it.
+- This repo's GitHub CI cannot read authorized Vercel files without the
+  connected Vercel deployment action. Until the authorized Review deployment
+  operation always invokes this exact post-deploy check, it remains a required
+  external Gate rather than a self-enforcing CI status. Do not call that
+  remaining deployment connector orchestration E2E completed, do not grant
+  Preview Ready/CEO acceptance on GitHub CI alone, and do not add new Runner,
+  workflow, scheduler, Production credential or automatic Pages release.

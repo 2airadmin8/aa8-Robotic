@@ -290,6 +290,20 @@ def main() -> int:
         if count_shared_element(text, "footer", "footer") != 1:
             errors.append(f"shared footer count is not 1: {relative}")
 
+    # Universal local-asset dependency gate for all 13 currently published
+    # product pages and any future public products/*.html.  This reuses the
+    # exact same recursive HTML+CSS walker as isolated Vercel Preview.
+    from verify_preview_bundle import referenced_assets
+    for path in html_files:
+        relative=path.relative_to(OUTPUT)
+        if relative.parts[0] != "products":
+            continue
+        try:
+            referenced_assets(path.read_text(encoding="utf-8"),
+                              OUTPUT, relative.as_posix())
+        except (ValueError, OSError, UnicodeError) as exc:
+            errors.append(f"product bundle required asset missing: {relative}: {exc}")
+
     inspect_files = [
         path for path in OUTPUT.rglob("*")
         if path.is_file()
