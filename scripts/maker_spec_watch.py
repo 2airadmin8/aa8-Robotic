@@ -355,7 +355,32 @@ def run(contract_path: Path, product_path: Path, *, source_file: Path | None = N
 
 
 def audit_new_intake(root: Path) -> dict:
+    """New draft and new public Factory SKUs share one maker-evidence gate.
+
+    Only the two actual, previously shipped Factory opt-ins are legacy-exempt.
+    A newly added public SKU can NEVER bypass source evidence by skipping the
+    tests/fixtures draft path. The existing 13-product catalog stays unchanged.
+    """
     verified=0
+    catalog_file=root/"data/products.json"
+    if catalog_file.exists():
+        from_catalog=json.loads(catalog_file.read_text("utf-8"))
+        for product in from_catalog.get("products",[]):
+            if "pageFactory" not in product:
+                continue
+            pid=product.get("id")
+            if pid in ("unitree-h2-plus","agibot-a3-ultra"):
+                continue  # historic shipped products, NOT independently source-verified
+            fixture=root/"tests/fixtures"/str(pid)
+            expected=fixture/"maker-live-contract.json"
+            if not expected.is_file() or not (fixture/"product.json").is_file():
+                raise ValueError(f"SOURCE_HOLD: new public Factory SKU {pid} lacks official maker source contract")
+            contract=load_contract(expected)
+            if contract["source_url"]!=product["pageFactory"].get("officialSource"):
+                raise ValueError(f"SOURCE_HOLD: new public Factory SKU {pid} official URL mismatch")
+            if any(r.get("review_status")!="INDEPENDENTLY_VERIFIED"
+                   for group in contract["categories"] for r in group["rows"]):
+                raise ValueError(f"SOURCE_HOLD: new public Factory SKU {pid} translation facts pending independent review")
     for item in (root/"tests/fixtures").glob("*/product.json"):
         product=json.loads(item.read_text("utf-8"))
         if product.get("id")=="agibot-x2-series":

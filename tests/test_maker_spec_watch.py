@@ -120,6 +120,38 @@ class MakerSourceWatchTests(unittest.TestCase):
             self.assertEqual(self.product['pageFactory']['specifications'][4]['models']['A2'],'約42 kg')
             self.assertTrue((output/'diff.json').is_file())
 
+    def test_new_public_catalog_factory_optin_cannot_bypass_maker_contract(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"data").mkdir()
+            (root/"tests/fixtures").mkdir(parents=True)
+            product={"id":"new-public-robot","pageFactory":{
+                "officialSource":"https://www.unitree.com/A2/","releaseReady":True}}
+            catalog={"products":[
+                {"id":"unitree-h2-plus","pageFactory":{"releaseReady":True}},
+                {"id":"agibot-a3-ultra","pageFactory":{"releaseReady":True}},
+                product
+            ]}
+            (root/"data/products.json").write_text(json.dumps(catalog),"utf-8")
+            with self.assertRaisesRegex(ValueError,"new public Factory SKU.*lacks"):
+                maker.audit_new_intake(root)
+
+    def test_new_public_release_blocks_unreviewed_translation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            fixture=root/"tests/fixtures/unitree-a2"
+            fixture.mkdir(parents=True)
+            (root/"data").mkdir()
+            (root/"data/products.json").write_text(json.dumps({"products":[{
+                "id":"unitree-a2","pageFactory":{
+                    "officialSource":"https://www.unitree.com/A2/","releaseReady":True}
+            }]}),"utf-8")
+            (fixture/"product.json").write_text(json.dumps(self.product),"utf-8")
+            (fixture/"maker-live-contract.json").write_text(
+                json.dumps(self.contract,ensure_ascii=False),"utf-8")
+            with self.assertRaisesRegex(ValueError,"pending independent review"):
+                maker.audit_new_intake(root)
+
     def test_untrusted_new_maker_is_denied_without_existing_registry_identity(self):
         good={'manufacturer_id':'agibot','adapter':'html-table-v1',
               'source_url':'https://www.agibot.com/products/example'}
