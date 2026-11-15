@@ -74,6 +74,23 @@ class A2RealFactoryPilot(unittest.TestCase):
         self.assertNotIn("Google Analytics",original)
         self.assertEqual(original.count("unitree-a2-maker-0"),8)  # 5 media + 3 CTA
 
+    def test_isolated_preview_deployment_must_include_official_footer_logo(self):
+        # CI source build has the actual asset, while the prior protected
+        # Vercel Preview omitted it: a browser showed missing-image icon.
+        from verify_preview_bundle import LocalAssetParser, check
+        parser=LocalAssetParser()
+        parser.feed(self.preview)
+        all_files=set(parser.paths)
+        footer_logo="assets/img/airadmin8-robotics-logo-footer.svg"
+        self.assertIn(footer_logo,all_files)
+        self.assertTrue((ROOT/footer_logo).is_file())
+        self.assertEqual(check(self.preview,all_files)["footer_logo"],True)
+        with self.assertRaisesRegex(ValueError,"deployment missing.*airadmin8-robotics-logo-footer"):
+            check(self.preview,all_files-{footer_logo})
+        # Header logo assets alone do not prove the Footer is complete.
+        self.assertIn("assets/img/airadmin8-robotics-logo-sp.svg",all_files)
+        self.assertIn("assets/img/airadmin8-robotics-logo-pc.svg",all_files)
+
     def test_a2_repeatable_and_footer_build_parity(self):
         from build_site import build_html
         one=factory.render(ROOT,self.product,"preview")

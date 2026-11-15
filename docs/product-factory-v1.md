@@ -94,3 +94,19 @@ Next true trial: select a fact-verified REAL new product with manufacturer sourc
 - Any source hash change, unexpected official parameter title/number, differing Japanese value, or wrong count fails closed. Tests of hallucinated Wi-Fi version, unsupported inferred 3 joints per leg, incomplete motor/bearing details, and stronger speed maximum are part of existing tests/test_a2_factory_pilot.py and .github/workflows/ci.yml.
 - Run a real official-source fetch and this semantic QA independently on AA8-N-015. Generate a 74-row evidence report for the exact technical SHA. This is technical evidence matching a manually curated bilingual reference, **not** proof of a distinct human reviewer or unconditional authorization to change review_status to INDEPENDENTLY_VERIFIED. The original status stays TRANSLATION_REVIEW_PENDING until the formal independent fact owner approves.
 - Do not waive CEO exact-SHA review or manual-only production Pages; no new scheduler, agent, Runner or product Master edits.
+
+### Protected Preview bundling — Footer Logo regression (2026-11-15)
+
+A source repository preview may pass Chrome CI while a separate external Vercel
+review deployment omits a referenced asset. The A2 preview footer logo actually
+uses /assets/img/airadmin8-robotics-logo-footer.svg?v=20260805-3.
+Deploying only the header PC/SP logos caused iPhone missing-image fallback.
+
+Use scripts/verify_preview_bundle.py --html <exact-preview-html>
+--manifest <vercel-file-list.json> before marking a review deployment READY.
+The check fails closed if ANY locally referenced image, stylesheet, or script
+is missing. It includes the exact shared official Footer SVG; never replace
+it with text, a screenshot, unrelated header logo or a second Footer. Confirm
+the remote Vercel file tree and the loaded image naturalWidth, PC1440/SP390/SP360,
+and do not infer a successful authenticated CEO review from SSO readiness.
+This does not modify the 74 signed-off technical Japanese spec cells.
