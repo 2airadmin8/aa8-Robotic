@@ -24,7 +24,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests/fixtures/a2-factory"
 USER_AGENT = "AirAdmin8-MakerSpecVerifier/1.0 (source-verification)"
 MAX_BYTES = 2_000_000
-ALLOWED = {"www.unitree.com": {"/A2/"}}
+ALLOWED = {"www.unitree.com": {"/A2/"}}  # legacy A2 baseline, no general URL wildcard
+MAKER_REGISTRY = ROOT / "data/manufacturers.json"
 
 
 @dataclass
@@ -77,12 +78,43 @@ def norm(text: str) -> str:
     return re.sub(r"\s+", " ", unescape(text).replace("\u00a0", " ")).strip()
 
 
-def safe_url(url: str) -> None:
+def safe_url(url: str, *, contract: dict | None = None) -> None:
+    """Permit only an exact, registered manufacturer origin and a configured path.
+
+    The manufacturer directory is the pre-existing, separately maintained
+    allowlist. An arbitrary source-contract.json must never grant network trust.
+    """
     parts = urlsplit(url)
-    if (parts.scheme != "https" or parts.hostname not in ALLOWED
-            or parts.path not in ALLOWED[parts.hostname] or parts.port is not None
-            or parts.username or parts.password or parts.query or parts.fragment):
-        raise ValueError("SOURCE_HOLD: manufacturer URL not in exact trusted allowlist")
+    if (parts.scheme != "https" or not parts.hostname or parts.port is not None
+            or parts.username or parts.password or parts.query or parts.fragment
+            or not parts.path.startswith("/") or "//" in parts.path
+            or ".." in parts.path.split("/") or "\\" in parts.path):
+        raise ValueError("SOURCE_HOLD: unsafe manufacturer source URL")
+    if contract is None:
+        if parts.hostname not in ALLOWED or parts.path not in ALLOWED[parts.hostname]:
+            raise ValueError("SOURCE_HOLD: manufacturer URL not in exact trusted allowlist")
+        return
+    maker_id = contract.get("manufacturer_id")
+    if not isinstance(maker_id, str) or not maker_id:
+        raise ValueError("SOURCE_HOLD: manufacturer ID required for source trust")
+    registry = json.loads(MAKER_REGISTRY.read_text("utf-8"))
+    matched = [m for m in registry.get("manufacturers", [])
+               if m.get("id") == maker_id and m.get("status") == "active"]
+    if len(matched) != 1:
+        raise ValueError("SOURCE_HOLD: maker not active in official registry")
+    official = urlsplit(matched[0]["officialUrl"])
+    if parts.hostname != official.hostname or official.scheme != "https":
+        raise ValueError("SOURCE_HOLD: source is not registered maker origin")
+    # A2 remains path-pinned; other manufacturers require an independently
+    # verified adapter + exact source URL in the frozen contract.
+    if maker_id == "unitree" and parts.path == "/A2/":
+        return
+    if contract.get("adapter") != "html-table-v1":
+        raise ValueError("SOURCE_HOLD: new maker adapter not independently verified")
+
+
+def enforce_source_trust(contract: dict) -> None:
+    safe_url(contract["source_url"], contract=contract)
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -90,8 +122,8 @@ class NoRedirect(HTTPRedirectHandler):
         raise ValueError("SOURCE_HOLD: redirect requires separate approval")
 
 
-def fetch(url: str) -> bytes:
-    safe_url(url)
+def fetch(url: str, *, contract: dict | None = None) -> bytes:
+    safe_url(url, contract=contract)
     opener = build_opener(NoRedirect)
     with opener.open(Request(url, headers={"User-Agent": USER_AGENT}), timeout=18) as r:
         if r.status != 200:
@@ -142,7 +174,7 @@ def load_contract(path: Path) -> dict:
     data = json.loads(path.read_text("utf-8"))
     if data.get("schema") != "aa8-maker-source-contract-v1":
         raise ValueError("SOURCE_HOLD: contract schema missing")
-    safe_url(data["source_url"])
+    enforce_source_trust(data)
     if data["adapter"] not in {"unitree-a2-html-v1", "html-table-v1"}:
         raise ValueError("SOURCE_HOLD: manufacturer adapter not verified")
     return data
@@ -244,10 +276,13 @@ def verify_display(product: dict, contract: dict, parsed: dict) -> None:
 
 
 def run(contract_path: Path, product_path: Path, *, source_file: Path | None = None,
+        source_bytes: bytes | None = None,
         output: Path | None = None, stage: bool = False) -> dict:
     contract = load_contract(contract_path)
     product = json.loads(product_path.read_text("utf-8"))
-    blob = source_file.read_bytes() if source_file else fetch(contract["source_url"])
+    blob = (source_bytes if source_bytes is not None else
+            source_file.read_bytes() if source_file else
+            fetch(contract["source_url"], contract=contract))
     live = parse_source(blob,contract)
     drifts = compare(live,contract)
     verify_display(product,contract,live)
@@ -336,16 +371,36 @@ def audit_new_intake(root: Path) -> dict:
             "historical_unverified":"agibot-x2-series"}
 
 
-def monitor_all(root: Path) -> list[dict]:
-    audit_new_intake(root)  # new fixtures missing source contracts never silently pass
+def monitor_all(root: Path, *, stage_dir: Path | None = None) -> list[dict]:
+    """Single existing Factory entrypoint; optional proposal-only drift repair.
+
+    No automatic approvals, commits, write to Master, or recursive CI triggers.
+    A fresh stage_dir is explicit and never overwritten. All recorded drifts
+    still raise HOLD even if their isolated candidate passes consistency tests.
+    """
+    audit_new_intake(root)
     reports=[]
+    if stage_dir is not None:
+        if stage_dir.exists() or not stage_dir.resolve().is_relative_to(root.resolve()):
+            raise ValueError("SOURCE_HOLD: isolated stage root must be new and within repository")
     for item in sorted((root/"tests/fixtures").glob("*/maker-live-contract.json")):
-        result=run(item,item.parent/"product.json")
+        contract = load_contract(item)
+        source_snapshot = fetch(contract["source_url"], contract=contract)
+        result=run(item,item.parent/"product.json",source_bytes=source_snapshot)
+        if result["drift"] and stage_dir is not None:
+            # Existing run() stages and checks a bounded (<=3) isolated patch.
+            # Keep each maker product separate and never rewrite the source.
+            result=run(item,item.parent/"product.json",
+                       source_bytes=source_snapshot,
+                       output=stage_dir/item.parent.name,stage=True)
         reports.append(result)
         if result["drift"]:
             raise ValueError("SOURCE_HOLD: maker source exact-cell changes "
                              + item.parent.name + " "
-                             + json.dumps(result["drift"],ensure_ascii=False))
+                             + json.dumps({"changes":result["drift"],
+                                          "isolated_candidate":result.get("candidate"),
+                                          "review":"PENDING_INDEPENDENT_FACT_REVIEW"},
+                                         ensure_ascii=False))
         if result["status"] not in ("SOURCE_MATCH_PASS",
                                     "SOURCE_MATCH_TRANSLATION_REVIEW_PENDING"):
             raise ValueError("SOURCE_HOLD: manufacturer source cannot be verified")
@@ -361,12 +416,18 @@ def main():
     a.add_argument("--stage",action="store_true")
     a.add_argument("--monitor",action="store_true",
                    help="CI check exact manufacturer source change; pending JP review stays HOLD for release")
+    a.add_argument("--monitor-all",action="store_true",
+                   help="check every onboarded maker through existing Factory; all drifts HOLD")
     a.add_argument("--intake",action="store_true",
                    help="require maker evidence contract for all newly onboarded fixtures")
     args=a.parse_args()
     try:
         if args.intake:
             print(json.dumps(audit_new_intake(ROOT)))
+            return 0
+        if args.monitor_all:
+            reports=monitor_all(ROOT,stage_dir=args.output if args.stage else None)
+            print(json.dumps({"status":"SOURCE_MONITOR_PASS","reports":reports},ensure_ascii=False))
             return 0
         report=run(args.contract,args.product,source_file=args.source_file,output=args.output,stage=args.stage)
         print(json.dumps(report,ensure_ascii=False))
