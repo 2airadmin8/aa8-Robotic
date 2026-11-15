@@ -273,12 +273,19 @@ def verify_display(product: dict, contract: dict, parsed: dict) -> None:
         for m in contract["models"]:
             if row["models"][m] != approved[m]:
                 raise ValueError(f"DISPLAY_HOLD: JP display drift or unapproved auto-edit {ref['id']}/{m}")
-            # A manufacturer cell containing only YES is evidence of support,
-            # not of specific Wi-Fi/Bluetooth versions or unstated numbers.
+            # A YES cell must be interpreted together with its OFFICIAL ROW
+            # HEADING. The A2 row heading explicitly states Wi-Fi 6 and
+            # Bluetooth 5.2, while both model cells say YES. A number not
+            # present in that heading remains unproven and is HOLD.
             if norm(ref["models"][m]).upper()=="YES":
                 jp=norm(approved[m])
-                if re.search(r"\d",jp) or not any(x in jp for x in ("対応","搭載","あり")):
-                    raise ValueError(f"DISPLAY_HOLD: YES cell cannot certify specific unstated version {ref['id']}/{m}")
+                if not any(x in jp for x in ("対応","搭載","あり")):
+                    raise ValueError(f"DISPLAY_HOLD: YES cell has no verified JP availability meaning {ref['id']}/{m}")
+                number=lambda value: re.findall(r"(?<![0-9])\d+(?:\.\d+)?",norm(value))
+                stated=set(number(ref["source_label"]))
+                displayed=set(number(jp))
+                if displayed-stated:
+                    raise ValueError(f"DISPLAY_HOLD: YES cell heading does not certify extra version {ref['id']}/{m}")
 
 
 def run(contract_path: Path, product_path: Path, *, source_file: Path | None = None,

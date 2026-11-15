@@ -62,14 +62,28 @@ class MakerSourceWatchTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'SOURCE_HOLD'):
                     maker.compare(parsed,self.contract)
 
-    def test_bare_yes_does_not_approve_unstated_wireless_version(self):
+    def test_yes_cell_with_official_heading_allows_stated_wireless_versions(self):
+        # The manufacturer title contains both versions; YES model cells
+        # confirm each model supports the named communications standards.
+        maker.verify_display(self.product,self.contract,self.parsed)
+
+    def test_yes_cell_rejects_version_absent_from_official_heading(self):
         contract=copy.deepcopy(self.contract)
         product=copy.deepcopy(self.product)
         rows=[r for g in contract["categories"] for r in g["rows"]]
         idx=next(i for i,r in enumerate(rows) if r["id"]=="無線通信")
-        rows[idx]["approved_display"]["A2"]="Wi-Fi 6、Bluetooth 5.2"
-        product["pageFactory"]["specifications"][idx]["models"]["A2"]="Wi-Fi 6、Bluetooth 5.2"
-        with self.assertRaisesRegex(ValueError,"YES cell"):
+        rows[idx]["approved_display"]["A2"]="Wi-Fi 7／Bluetooth 5.2 対応"
+        product["pageFactory"]["specifications"][idx]["models"]["A2"]="Wi-Fi 7／Bluetooth 5.2 対応"
+        with self.assertRaisesRegex(ValueError,"extra version"):
+            maker.verify_display(product,contract,self.parsed)
+
+    def test_yes_cell_rejects_version_when_heading_has_no_numbers(self):
+        contract=copy.deepcopy(self.contract)
+        product=copy.deepcopy(self.product)
+        rows=[r for g in contract["categories"] for r in g["rows"]]
+        idx=next(i for i,r in enumerate(rows) if r["id"]=="無線通信")
+        rows[idx]["source_label"]="Wireless"
+        with self.assertRaisesRegex(ValueError,"extra version"):
             maker.verify_display(product,contract,self.parsed)
 
     def test_japanese_display_cannot_disagree_with_saved_provenance(self):

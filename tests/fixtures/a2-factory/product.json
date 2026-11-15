@@ -260,10 +260,10 @@
         "category": "電気特性",
         "parameter": "無線通信",
         "label": "無線通信",
-        "value": "対応（通信規格・バージョンは別途確認）",
+        "value": "Wi-Fi 6／Bluetooth 5.2 対応",
         "models": {
-          "A2": "対応（通信規格・バージョンは別途確認）",
-          "A2-PRO": "対応（通信規格・バージョンは別途確認）"
+          "A2": "Wi-Fi 6／Bluetooth 5.2 対応",
+          "A2-PRO": "Wi-Fi 6／Bluetooth 5.2 対応"
         },
         "sourceUrl": "https://www.unitree.com/A2/"
       },
