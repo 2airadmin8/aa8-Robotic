@@ -31,6 +31,13 @@ for (const width of [1440,390,360]) {
     await expect(footer.locator('nav.footer-links a[href="/contact.html"]')).toHaveCount(1);
     await expect(footer.locator('nav.footer-utility-links a[href="/products.html"]')).toHaveCount(1);
     expect(await footer.innerText()).toContain('© AirAdmin8 Inc. All rights reserved.');
+    const footerLogo=footer.locator('img.aa8-main-logo');
+    await expect(footerLogo).toHaveAttribute('src',/airadmin8-robotics-logo-footer\.svg/);
+    if(width<=390){
+      const columns=await footer.locator('nav.footer-links').evaluate(el=>
+        getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean));
+      expect(columns).toHaveLength(2);
+    }
     expect(await page.locator('script[data-aa8-menu-runtime="true"]').count()).toBe(1);
     expect(await page.locator('script[src*="analytics-events.js"],script[src*="site.js"]').count()).toBe(0);
     if(width<=390){

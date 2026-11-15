@@ -292,8 +292,9 @@
     width: min(100% - 28px,560px);
   }
   .footer[data-shared-layout="footer"] .footer-links {
-    grid-template-columns: 1fr;
-    gap: 8px;
+    /* Compact two-column SP navigation; keep one shared Footer for all pages. */
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 8px 14px;
   }
   .footer[data-shared-layout="footer"] .footer-bottom {
     width: min(100% - 28px,560px);
