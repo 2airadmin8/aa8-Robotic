@@ -1,6 +1,7 @@
 {
   "schema": "aa8-maker-source-contract-v1",
   "source_url": "https://www.unitree.com/A2/",
+  "manufacturer_id": "unitree",
   "adapter": "unitree-a2-html-v1",
   "models": [
     "A2",

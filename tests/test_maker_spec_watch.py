@@ -120,6 +120,55 @@ class MakerSourceWatchTests(unittest.TestCase):
             self.assertEqual(self.product['pageFactory']['specifications'][4]['models']['A2'],'約42 kg')
             self.assertTrue((output/'diff.json').is_file())
 
+    def test_untrusted_new_maker_is_denied_without_existing_registry_identity(self):
+        good={'manufacturer_id':'agibot','adapter':'html-table-v1',
+              'source_url':'https://www.agibot.com/products/example'}
+        maker.safe_url(good['source_url'],contract=good)
+        for d in [
+            {**good,'manufacturer_id':'nonexistent'},
+            {**good,'source_url':'https://www.agibot.com.evil.example/specs'},
+            {**good,'source_url':'https://127.0.0.1/internal'},
+            {**good,'source_url':'https://www.unitree.com/A2/'},
+            {**good,'adapter':'auto-ai-guess-v1'},
+        ]:
+            with self.subTest(case=d):
+                with self.assertRaisesRegex(ValueError,'SOURCE_HOLD'):
+                    maker.safe_url(d['source_url'],contract=d)
+
+    def test_monitor_all_stages_real_drift_but_returns_hold(self):
+        source=self._synthetic_page().replace(b'About 42kg',b'About 43kg',1)
+        with tempfile.TemporaryDirectory(dir=ROOT/'tests') as d:
+            base=Path(d)
+            stage=base/'isolated-candidates'
+            calls=[]
+            original=maker.fetch
+            def fake_fetch(url,*,contract=None):
+                calls.append(url)
+                return source
+            try:
+                with patch.object(maker,'fetch',side_effect=fake_fetch):
+                    with self.assertRaisesRegex(ValueError,'PENDING_INDEPENDENT_FACT_REVIEW'):
+                        maker.monitor_all(ROOT,stage_dir=stage)
+                self.assertEqual(len(calls),1,'one unchanged official source snapshot per cycle')
+                p=stage/'a2-factory'
+                self.assertTrue((p/'diff.json').is_file())
+                diff=json.loads((p/'diff.json').read_text('utf-8'))
+                self.assertEqual(diff['status'],'PENDING_INDEPENDENT_FACT_REVIEW')
+                self.assertEqual(len(diff['changes']),1)
+                self.assertEqual(diff['changes'][0]['after'],'About 43kg')
+                self.assertEqual(json.loads((p/'candidate-product.json').read_text('utf-8'))['pageFactory']['specifications'][4]['models']['A2'],'About 43kg')
+                self.assertEqual(self.product['pageFactory']['specifications'][4]['models']['A2'],'約42 kg')
+            finally:
+                maker.fetch=original
+
+    def test_monitor_all_no_change_has_no_staged_candidate(self):
+        with patch.object(maker,'fetch',return_value=self._synthetic_page()):
+            result=maker.monitor_all(ROOT)
+        self.assertEqual(len(result),1)
+        self.assertEqual(result[0]['parameter_rows'],37)
+        self.assertEqual(result[0]['cells_checked'],74)
+        self.assertEqual(result[0]['status'],'SOURCE_MATCH_TRANSLATION_REVIEW_PENDING')
+
     def _synthetic_page(self):
         v=['<div class="decompose"><ul class="versions"><li></li>',
            '<li><p>A2</p></li><li><p>A2-PRO</p></li></ul>',
