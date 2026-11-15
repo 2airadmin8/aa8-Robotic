@@ -5,7 +5,7 @@ from unittest.mock import patch
 import io
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from factory_feedback_preview import eligible_preview, reachable
+from factory_feedback_preview import eligible_preview, reachable, preview_probe, deliver
 
 SHA = "a" * 40
 
@@ -91,6 +91,40 @@ class VerifiedPreviewSources(unittest.TestCase):
         for bad_url in ("https://x2-edu-make-review-test.vercel.app/a2-factory-preview.html?token=secret",
                         "https://x2-edu-make-review-test.vercel.app.evil.test/a2-factory-preview.html"):
             self.assertFalse(reachable(bad_url))
+
+    def test_ssoprotection_notified_as_hold_without_retry(self):
+        url = "https://x2-edu-make-review-test.vercel.app/a2-factory-preview.html"
+        with patch("factory_feedback_preview.verify_live"), \
+             patch("factory_feedback_preview.github") as github, \
+             patch("factory_feedback_preview.preview_probe", return_value="AUTH_REQUIRED"), \
+             patch("factory_feedback_preview.time.sleep") as sleep:
+            github.side_effect = [
+                [],  # existing comments
+                [{"id": 51, "sha": SHA, "environment": "Preview – x2-edu-make-review"}],
+                [{"state": "success", "environment_url": url}],
+            ]
+            with self.assertRaisesRegex(ValueError, "protected Preview requires actual CEO SSO"):
+                deliver(SHA, 180, 42, 9911)
+            sleep.assert_not_called()
+            self.assertEqual(github.call_count, 3)
+            self.assertNotIn("POST", [c.kwargs.get("method") for c in github.call_args_list])
+
+    def test_ssoprotection_probe_distinguishes_html(self):
+        url = "https://x2-edu-make-review-test.vercel.app/a2-factory-preview.html"
+        class FakeResponse:
+            status = 200
+            headers = {"Content-Type": "text/html"}
+            def __init__(self, landing): self.url = landing
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self, size): return b"<html>Vercel Authentication</html>"
+        with patch("factory_feedback_preview.urllib.request.urlopen",
+                   return_value=FakeResponse("https://vercel.com/sso-api")):
+            self.assertEqual(preview_probe(url), "AUTH_REQUIRED")
+            self.assertFalse(reachable(url))
+        with patch("factory_feedback_preview.urllib.request.urlopen",
+                   return_value=FakeResponse(url)):
+            self.assertEqual(preview_probe(url), "AUTH_REQUIRED")
 
     def test_prefer_existing_review_project(self):
         dep = [
