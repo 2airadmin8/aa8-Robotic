@@ -88,12 +88,11 @@ def verify_live(sha: str, pr: int, comment_id: int) -> None:
             "origin not a valid CEO rejection")
 
 
-def reachable(url: str) -> bool:
-    """A public/authorized HTML response must be the actual Factory Preview.
+def preview_probe(url: str) -> str:
+    """Fail-closed Preview probe: HTML_VERIFIED / AUTH_REQUIRED / INVALID.
 
-    Protected Vercel SSO responses without an authorized browser session
-    correctly return HOLD. No bypass token, cookie, or 200 login-page shortcut.
-    GitHub deployment SHA alone is not proof of a browser-visible A2 page.
+    AUTH_REQUIRED means SSO is correctly enforced, not that the CEO saw the
+    page. This read-only probe never uses a bypass token or stores cookies.
     """
     try:
         requested = urlsplit(url)
@@ -101,26 +100,26 @@ def reachable(url: str) -> bool:
                 or not requested.hostname.endswith(".vercel.app")
                 or requested.username or requested.password
                 or requested.query or requested.fragment):
-            return False
+            return "INVALID"
         request = urllib.request.Request(url, headers={
             "User-Agent": "AirAdmin8-Factory-Preview-Verification",
             "Cache-Control": "no-cache",
         })
         with urllib.request.urlopen(request, timeout=15) as response:
             final = urlsplit(response.url)
+            if final.hostname == "vercel.com" and final.path == "/sso-api":
+                return "AUTH_REQUIRED"
             if (response.status != 200 or final.hostname != requested.hostname
                     or final.path != requested.path):
-                return False
-            content_type = response.headers.get("Content-Type", "").lower()
-            if "text/html" not in content_type:
-                return False
-            # Bounded content inspection: 200 bytes from an SSO page is NOT proof.
+                return "INVALID"
+            if "text/html" not in response.headers.get("Content-Type", "").lower():
+                return "INVALID"
             content = response.read(1_000_001)
             if len(content) > 1_000_000:
-                return False
+                return "INVALID"
             html = content.decode("utf-8", errors="replace")
             if re.search(r"(?i)vercel authentication|vercel.com/sso-api|log[ -]?in", html):
-                return False
+                return "AUTH_REQUIRED"
             checks = (
                 re.search(r'<main\b[^>]*data-product-id="[a-z0-9-]+"', html),
                 re.search(r'data-product-factory="g1-v1"', html),
@@ -131,9 +130,16 @@ def reachable(url: str) -> bool:
                 re.search(r'data-aa8-menu-runtime="true"', html),
                 re.search(r'class="aa8-main-logo"', html),
             )
-            return all(checks)
+            return "HTML_VERIFIED" if all(checks) else "INVALID"
+    except urllib.error.HTTPError as exc:
+        return "AUTH_REQUIRED" if exc.code in (401, 403) else "INVALID"
     except (urllib.error.URLError, TimeoutError, ValueError, UnicodeError):
-        return False
+        return "INVALID"
+
+
+def reachable(url: str) -> bool:
+    """Compatibility wrapper: SSO screens are NEVER an HTML PASS."""
+    return preview_probe(url) == "HTML_VERIFIED"
 
 
 def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
@@ -154,11 +160,19 @@ def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
             if isinstance(did, int) and str(d.get("environment") or "").startswith("Preview"):
                 status_map[str(did)] = github(
                     f"repos/{REPO}/deployments/{did}/statuses?per_page=5")
-        previews = [u for u in eligible_preview(sha, deployments, status_map)
-                    if reachable(u)]
+        candidates = eligible_preview(sha, deployments, status_map)
+        probes = [(u, preview_probe(u)) for u in candidates]
+        previews = [u for u, state in probes if state == "HTML_VERIFIED"]
         if previews:
             break
-        time.sleep(12)
+        # Vercel SSO is a deterministic authorization boundary, not a
+        # transient deployment failure. Six more anonymous retries cannot
+        # authenticate the CEO and waste the handoff's runtime.
+        require(not any(state == "AUTH_REQUIRED" for _, state in probes),
+                "protected Preview requires actual CEO SSO browser verification; "
+                "do not mark HTML PASS or bypass deployment protection")
+        if _ < 5:
+            time.sleep(12)
     require(bool(previews), "no verified online Preview for exact new SHA")
     body = (
         f"{marker}\n"
