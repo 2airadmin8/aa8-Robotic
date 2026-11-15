@@ -142,6 +142,55 @@ def reachable(url: str) -> bool:
     return preview_probe(url) == "HTML_VERIFIED"
 
 
+def trusted_review_previews(sha: str, deployments: list,
+                            statuses: dict[str, list]) -> list[str]:
+    """Only successful exact-SHA x2 review deployments by Vercel's bot.
+
+    An authenticated CEO browser can open a protected Preview; the server-side
+    workflow must never pretend its anonymous HTTP request viewed that HTML.
+    """
+    safe = []
+    trusted_statuses = {}
+    for d in deployments:
+        if (d.get("sha") != sha
+                or d.get("environment") != "Preview – x2-edu-make-review"):
+            continue
+        did = str(d.get("id"))
+        approved = []
+        for st in statuses.get(did, []):
+            url = str(st.get("environment_url") or "")
+            host = urlsplit(url).hostname or ""
+            actor = (st.get("creator") or {}).get("login")
+            if (actor == "vercel[bot]"
+                    and re.fullmatch(r"x2-edu-make-review-[a-z0-9-]+\.vercel\.app", host)):
+                approved.append(st)
+        if approved:
+            safe.append(d)
+            trusted_statuses[did] = approved
+    return eligible_preview(sha, safe, trusted_statuses)
+
+
+def preview_path_from_pr(pr: int) -> str:
+    """Use the ONE preview artifact declared by the original Draft PR diff.
+
+    Never make up an A2 route for a different SKU. No untrusted PR code is run.
+    """
+    files = github(f"repos/{REPO}/pulls/{pr}/files?per_page=100")
+    require(isinstance(files, list) and len(files) < 100,
+            "PR file history requires pagination or is invalid")
+    candidates = []
+    for item in files:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("filename") or "")
+        match = re.fullmatch(r"tests/fixtures/([a-z0-9-]+)/preview\.html", name)
+        if match:
+            candidates.append(match.group(1) + "-preview.html")
+    require(len(candidates) == 1,
+            "exactly one approved product-specific Preview fixture required")
+    return candidates[0]
+
+
 def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
     verify_live(sha, pr, comment_id)
     marker = MARKER.format(sha=sha, comment_id=comment_id)
@@ -152,43 +201,53 @@ def deliver(sha: str, pr: int, comment_id: int, run_id: int) -> dict:
         return {"status": "ALREADY_DELIVERED", "sha": sha, "pr": pr}
     previews = []
     # Bounded provider readiness polling; no recursive workflow or rerun.
-    for _ in range(6):
+    for attempt in range(6):
         deployments = github(f"repos/{REPO}/deployments?sha={sha}&per_page=100")
         status_map = {}
         for d in deployments[:20]:
             did = d.get("id")
-            if isinstance(did, int) and str(d.get("environment") or "").startswith("Preview"):
+            if (isinstance(did, int)
+                    and d.get("sha") == sha
+                    and d.get("environment") == "Preview – x2-edu-make-review"):
                 status_map[str(did)] = github(
                     f"repos/{REPO}/deployments/{did}/statuses?per_page=5")
-        candidates = eligible_preview(sha, deployments, status_map)
-        probes = [(u, preview_probe(u)) for u in candidates]
-        previews = [u for u, state in probes if state == "HTML_VERIFIED"]
+        candidates = trusted_review_previews(sha, deployments, status_map)
+        previews = [(url, preview_probe(url)) for url in candidates]
+        previews = [(url, status) for url, status in previews
+                    if status in ("HTML_VERIFIED", "AUTH_REQUIRED")]
         if previews:
             break
-        # Vercel SSO is a deterministic authorization boundary, not a
-        # transient deployment failure. Six more anonymous retries cannot
-        # authenticate the CEO and waste the handoff's runtime.
-        require(not any(state == "AUTH_REQUIRED" for _, state in probes),
-                "protected Preview requires actual CEO SSO browser verification; "
-                "do not mark HTML PASS or bypass deployment protection")
-        if _ < 5:
+        if attempt < 5:
             time.sleep(12)
-    require(bool(previews), "no verified online Preview for exact new SHA")
+    require(bool(previews), "no successful exact-SHA x2 review deployment with vercel[bot] proof")
+    # An SSO 302 is sufficient to hand the protected link to the CEO, NOT
+    # sufficient to claim HTML content was reviewed or approved.
+    protected = any(status == "AUTH_REQUIRED" for _, status in previews)
+    # Do not infer product identity from the Vercel deployment's project name.
+    preview_path = preview_path_from_pr(pr)
+    evidence_lines = []
+    for url, state in previews:
+        review_url = url.rstrip("/") + "/" + preview_path
+        kind = ("受保护Preview部署成功；HTML仍待CEO登录确认" if state == "AUTH_REQUIRED"
+                else "匿名HTML内容检查通过；仍待CEO实际审核")
+        evidence_lines.append(f"- {kind}：{review_url}\n")
     body = (
         f"{marker}\n"
-        f"### CEO再验收｜AI返工完成・精确SHA证据\n\n"
+        f"### CEO再验收｜AI返工完成・精确SHA部署交接\n\n"
         f"- 原退回评论ID：{comment_id}\n"
         f"- 原Draft PR：#{pr}\n"
         f"- 新HEAD：\x60{sha}\x60\n"
         f"- 新SHA CI / 独立QA："
         f"https://github.com/{REPO}/actions/runs/{run_id}\n"
-        + "".join(f"- 已验证在线Preview：{url}\n" for url in previews)
-        + "\n**请查看新版真实HTML后再次批准或退回。** "
-          "这里只是技术QA/Preview证据，不代表CEO批准、main合并或Production授权。"
+        + "".join(evidence_lines)
+        + "\n**请通过现有SSO登录并实际查看新版HTML，再批准或退回。** "
+          "Vercel READY / GitHub部署状态不是CEO已看页面的证明；"
+          "不代表CEO批准、main合并或Production授权。"
     )
     github(f"repos/{REPO}/issues/{pr}/comments", method="POST", body=body)
-    return {"status": "READY_FOR_CEO_REVIEW", "pr": pr, "sha": sha,
-            "preview_count": len(previews), "release": "HOLD"}
+    return {"status": "WAIT_CEO_SSO_REVIEW" if protected else "READY_FOR_CEO_REVIEW",
+            "pr": pr, "sha": sha, "preview_count": len(previews),
+            "html_verified": not protected, "release": "HOLD"}
 
 
 def main() -> int:
