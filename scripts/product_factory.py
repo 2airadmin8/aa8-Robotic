@@ -684,6 +684,21 @@ def main() -> int:
     root = args.root.resolve()
     if args.action == "audit":
         errors, warnings, stats = audit_catalog(root)
+        # Keep using the existing CI audit entrypoint. This is read-only,
+        # fail-closed on live manufacturer fact changes, and does NOT approve
+        # untranslated facts, production release or new SKU registration.
+        try:
+            from maker_spec_watch import monitor_all
+            reports = monitor_all(root)
+            stats["maker_source_checks"] = [
+                {"url":r["source_url"],"status":r["status"],
+                 "rows":r["parameter_rows"],"cells":r["cells_checked"]}
+                for r in reports
+            ]
+            if any(r["status"]=="SOURCE_MATCH_TRANSLATION_REVIEW_PENDING" for r in reports):
+                warnings.append("maker source unchanged; Japanese translations still require independent fact review")
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            errors.append("MANUFACTURER_SOURCE_HOLD: "+str(exc))
         print(json.dumps({"pass": not errors, "stats": stats, "errors": errors, "warnings": warnings}, ensure_ascii=False, indent=2))
         return 1 if errors else 0
     if not args.output or (not args.id and not args.draft_product):

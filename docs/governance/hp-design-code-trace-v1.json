@@ -56,11 +56,13 @@
         "data/products.json",
         "data/hp-page-family-contract-v1.json",
         "scripts/hp_design_contract.py",
-        "scripts/product_factory.py"
+        "scripts/product_factory.py",
+        "scripts/maker_spec_watch.py"
       ],
       "tests": [
         "tests/test_hp_design_contract.py",
-        "tests/test_product_factory.py"
+        "tests/test_product_factory.py",
+        "tests/test_a2_factory_pilot.py"
       ]
     },
     {

@@ -11,6 +11,9 @@ ROOT=Path(__file__).resolve().parents[1]
 PILOT=ROOT/"tests/fixtures/a2-factory"
 sys.path.insert(0,str(ROOT/"scripts"))
 import product_factory as factory
+# Existing CI already explicitly loads this A2 test module; reuse it to run
+# source-watch regression without modifying the protected workflow YAML.
+from test_maker_spec_watch import MakerSourceWatchTests
 from hp_design_contract import validate_new_candidate
 
 def sha(p):
