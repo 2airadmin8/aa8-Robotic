@@ -122,3 +122,47 @@ for (const width of [1440,390,360]) {
     // Do not click submit or write actual customer inquiries.
   });
 }
+
+/* CEO full-page screenshot: readability and A2-only layout acceptance.
+ * This is a real-browser CSS check, not a replacement for maker facts QA. */
+for (const width of [1440, 390, 360]) {
+  test('A2 visual acceptance: model choices, sources, CTA and no clipped text '+width, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const response=await page.goto(ORIGIN+'/a2-factory-preview.html', { waitUntil:'networkidle' });
+    expect(response.status()).toBe(200);
+    const root=page.locator('main[data-product-id="unitree-a2"]');
+    await expect(root).toBeVisible();
+    const models=page.locator('#model-selection .g1-factory-spec-table tr');
+    await expect(models).toHaveCount(2);
+    for (const tr of await models.all()) {
+      await expect(tr).toBeVisible();
+      const btn=tr.locator('[data-model-inquiry]');
+      await expect(btn).toBeVisible();
+      const style=await btn.evaluate(el=>getComputedStyle(el));
+      expect(style.color).toBe('rgb(255, 255, 255)');
+      expect(style.display).not.toBe('none');
+    }
+    await expect(page.locator('#development .g1-fine')).toBeVisible();
+    await expect(page.locator('#solutions .g1-fine')).toBeVisible();
+    await expect(page.locator('#introduction .g1-fine')).toBeVisible();
+    await expect(page.locator('#contact-product .g1-cta-card')).toHaveCount(3);
+    await expect(page.locator('#contact-product > .g1-shell > p:not(.g1-kicker)').first()).toBeVisible();
+    for (const item of await page.locator('#development article,#solutions article,#introduction article').all()) {
+      expect(await item.evaluate(el=>el.getBoundingClientRect().width)).toBeGreaterThan(100);
+    }
+    const cards=await models.evaluateAll(els=>els.map(el=>({
+      width:el.getBoundingClientRect().width,
+      scrollWidth:el.scrollWidth,
+      left:el.getBoundingClientRect().left,
+      right:el.getBoundingClientRect().right,
+    })));
+    expect(cards.every(c=>c.scrollWidth<=c.width+2)).toBe(true);
+    if (width<=390) {
+      expect(cards[0].right).toBeLessThanOrEqual(width+2);
+      expect(cards[1].left).toBeGreaterThanOrEqual(-2);
+      expect(await models.nth(0).evaluate(el=>getComputedStyle(el.parentElement).gridTemplateColumns.split(/\\s+/).length)).toBe(1);
+    } else {
+      expect(cards[0].right).toBeLessThan(cards[1].left);
+    }
+  });
+}
