@@ -233,6 +233,7 @@ jobs:
         shell: bash
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
           SOURCE_SHA: ${{ steps.event.outputs.sha }}
           DEPLOYMENT_ID: ${{ steps.event.outputs.deployment_id }}
         run: |
