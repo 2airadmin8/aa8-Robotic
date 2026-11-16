@@ -157,3 +157,17 @@ This does not modify the 74 signed-off technical Japanese spec cells.
 - Protected Git runtime reads require VERCEL_TOKEN for authoritative Vercel project metadata and VERCEL_AUTOMATION_BYPASS_SECRET for actual SSO-protected response bytes, scoped only to trusted-main Actions. Missing secrets, redirects, bad SHA, partial file list or missing Preview = HOLD. Never disable SSO or print tokens.
 - A Git deployment which does not actually publish CI-generated Preview HTML must fail closed. Do not pretend the source Git repository or Vercel READY response proves actual delivered bytes. CEO authenticated review and manual-only Pages Production remain separate.
 - This feature is code-only until approved exact-SHA main integration and repository secrets are present. No separate Runner, Workflow, webhook or Cron.
+
+### One-time A2 native Git Preview E2E acceptance evidence (2026-11-16)
+
+- Existing original Draft PR #180 only; after trusted-main PR #195 activation,
+  this documentation-only nonempty commit initiates exactly one native Git
+  Preview and the corresponding same-HEAD pull_request CI. No new Factory,
+  workflow, runner, manufacturer facts, or Production product is introduced.
+- Acceptance is explicitly **PENDING** until GitHub PR CI SUCCESS contains
+  the new HEAD's exact manifest, Vercel reports source=git and target=Preview,
+  and trusted-main readback proves every required deployed HTML/CSS/Logo/image
+  byte digest. The older HEAD's manifest cannot be reused.
+- If the CI run is absent, fails, or the deployed byte hashes do not match,
+  aa8-preview-postdeploy must remain FAILURE/HOLD. No automatic retries,
+  PR merge, GitHub Pages Production release, or CRM/ERP changes.
