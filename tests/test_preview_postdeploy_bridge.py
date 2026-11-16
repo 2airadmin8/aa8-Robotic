@@ -106,6 +106,80 @@ class RealPostDeployBridge(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"unregistered deployed Preview"):
             gate.audit_postdeploy(self.manifest,self.deploy,tree,self.did,self.sha)
 
+    def test_git_deployment_real_runtime_sha_fallback_verified(self):
+        from hashlib import sha1
+        a2=b"<html>exact signed Preview</html>"
+        logo=b"<svg>signed official footer</svg>"
+        css=b"body{color:#111}"
+        self.manifest["previews"]["a2-factory-preview.html"]=sha1(a2).hexdigest()
+        self.manifest["assets"]["assets/img/airadmin8-robotics-logo-footer.svg"]["sha1"]=sha1(logo).hexdigest()
+        self.manifest["assets"]["assets/css/shared-layout.css"]["sha1"]=sha1(css).hexdigest()
+        self.manifest["per_preview_assets"].pop("x2-pilot-preview.html")
+        self.manifest["previews"].pop("x2-pilot-preview.html")
+        self.manifest["assets"].pop("assets/img/x2-prototype.webp")
+        deploy={**self.deploy,"source":"git","url":"test-preview.vercel.app"}
+        files={"a2-factory-preview.html":a2,
+               "assets/img/airadmin8-robotics-logo-footer.svg":logo,
+               "assets/css/shared-layout.css":css}
+        seen=[]
+        def retrieve(d,path,bypass):
+            seen.append(path)
+            self.assertEqual(bypass,"private-bypass")
+            return files[path]
+        proof=gate.audit_runtime_git(self.manifest,deploy,self.did,self.sha,
+                                     "private-bypass",fetcher=retrieve)
+        self.assertEqual(proof["status"],"PREVIEW_POSTDEPLOY_PASS")
+        self.assertEqual(proof["method"],"LIVE_RUNTIME_SHA1_WITH_SSO_BYPASS")
+        self.assertEqual(proof["verified_required_files"],3)
+        self.assertEqual(sorted(seen),sorted(files))
+        self.assertEqual(proof["ceo_authenticated_browser_review"],"NOT_ATTESTED")
+        self.assertEqual(proof["production_release"],"HOLD")
+        # A real broken Footer logo or stale CSS is always a hard hold.
+        for file in ("assets/img/airadmin8-robotics-logo-footer.svg",
+                     "assets/css/shared-layout.css"):
+            wrong=dict(files);wrong[file]=b"wrong bytes"
+            with self.subTest(file=file):
+                with self.assertRaisesRegex(ValueError,"runtime file SHA mismatch"):
+                    gate.audit_runtime_git(self.manifest,deploy,self.did,self.sha,
+                        "private-bypass",fetcher=lambda _,p,b:wrong[p])
+
+    def test_git_runtime_missing_auth_or_wrong_identity_hold(self):
+        deploy={**self.deploy,"source":"git","url":"test-preview.vercel.app"}
+        with self.assertRaisesRegex(ValueError,"BYPASS_SECRET missing"):
+            gate.audit_runtime_git(self.manifest,deploy,self.did,self.sha,"")
+        for key,value in (("target","production"),("projectId","other"),
+                          ("readyState","ERROR"),("source","api")):
+            with self.subTest(key=key):
+                wrong={**deploy,key:value}
+                with self.assertRaisesRegex(ValueError,"PREVIEW_POSTDEPLOY_HOLD"):
+                    gate.audit_runtime_git(self.manifest,wrong,self.did,self.sha,
+                        "private-bypass")
+        with self.assertRaisesRegex(ValueError,"source SHA drift"):
+            gate.audit_runtime_git(self.manifest,deploy,self.did,"0"*40,
+                                   "private-bypass")
+
+    def test_git_source_tree_404_uses_runtime_fallback_never_skips_verification(self):
+        with tempfile.TemporaryDirectory() as d:
+            manifest=Path(d)/"manifest.json"
+            manifest.write_text(json.dumps(self.manifest),encoding="utf-8")
+            deploy={**self.deploy,"source":"git","url":"test-preview.vercel.app"}
+            with patch("sys.argv",["gate","--deployment-id",self.did,
+                                   "--expected-sha",self.sha,"--manifest",str(manifest)]):
+                with patch.dict("os.environ",{"VERCEL_TOKEN":"fake",
+                    "VERCEL_AUTOMATION_BYPASS_SECRET":"private-bypass"}):
+                    with patch.object(gate,"api_json",side_effect=[
+                        deploy,gate.DeploymentSourceTreeUnavailable("no Git source file tree")]):
+                        with patch.object(gate,"audit_runtime_git",return_value={
+                            "status":"PREVIEW_POSTDEPLOY_PASS",
+                            "production_release":"HOLD"}) as actual:
+                            self.assertEqual(gate.main(),0)
+                            self.assertEqual(actual.call_count,1)
+                # With no SSO bypass secret, a 404 is a HARD HOLD.
+                with patch.dict("os.environ",{"VERCEL_TOKEN":"fake"},clear=True):
+                    with patch.object(gate,"api_json",side_effect=[
+                        deploy,gate.DeploymentSourceTreeUnavailable("no Git source file tree")]):
+                        self.assertEqual(gate.main(),2)
+
     def test_cli_missing_secret_refuses_without_network_or_false_pass(self):
         with tempfile.TemporaryDirectory() as d:
             manifest=Path(d)/"manifest.json"

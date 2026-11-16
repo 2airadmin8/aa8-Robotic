@@ -80,3 +80,7 @@ Unknown source ready dates for historic H2 Plus/A3 Ultra are UNKNOWN, so initial
   remaining deployment connector orchestration E2E completed, do not grant
   Preview Ready/CEO acceptance on GitHub CI alone, and do not add new Runner,
   workflow, scheduler, Production credential or automatic Pages release.
+
+## Git-linked Vercel runtime SHA readback (2026-11-16)
+
+The existing Git-integrated Vercel Review project returns 404 for the source-file tree on a real source=git deployment. Reuse the same trusted-main event handler and independent CI asset manifest, but verify actual SSO-protected HTML/CSS/JS/images using strict immutable deployment-host SHA1 checks on Git source deployments. VERCEL_TOKEN and VERCEL_AUTOMATION_BYPASS_SECRET must be supplied as protected secrets in GitHub Actions and never exposed. Unknown source, missing HTML, redirect or SHA mismatch is HOLD, not CEO_REVIEW_READY. Full activation still requires main exact-SHA approval and a real post-deploy event run.

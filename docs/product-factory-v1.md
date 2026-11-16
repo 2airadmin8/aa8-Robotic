@@ -149,3 +149,11 @@ This does not modify the 74 signed-off technical Japanese spec cells.
   No VERCEL_TOKEN secret presence/read permission has been proven.
   Do not claim an unattended E2E until a real new deployment triggers
   the trusted-main job and exact-source SHA check PASS.
+
+### Vercel Git Auto Preview post-deploy compatibility (2026-11-16)
+
+- Native Vercel Git deployments send vercel.deployment.ready events, but their /v6/deployments/{id}/files source-tree API can return 404. This is observed with real Vercel deployment dpl_EKRa1xGcRVajRfLLKE7LTTY1M3fH on project x2-edu-make-review. READY and matching Git SHA alone are insufficient.
+- Reuse the existing trusted-main scripts/preview_postdeploy_bridge.py: attempt API-uploaded file-tree SHA verification first. For a Git source-tree 404 only, read ALL immutable deployment HTML and recursively linked local CSS/JS/SVG/media over the exact deployed .vercel.app host, and match every SHA1 to the original CI artifact.
+- Protected Git runtime reads require VERCEL_TOKEN for authoritative Vercel project metadata and VERCEL_AUTOMATION_BYPASS_SECRET for actual SSO-protected response bytes, scoped only to trusted-main Actions. Missing secrets, redirects, bad SHA, partial file list or missing Preview = HOLD. Never disable SSO or print tokens.
+- A Git deployment which does not actually publish CI-generated Preview HTML must fail closed. Do not pretend the source Git repository or Vercel READY response proves actual delivered bytes. CEO authenticated review and manual-only Pages Production remain separate.
+- This feature is code-only until approved exact-SHA main integration and repository secrets are present. No separate Runner, Workflow, webhook or Cron.
