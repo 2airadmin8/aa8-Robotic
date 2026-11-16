@@ -346,6 +346,35 @@ def main() -> int:
         return fail(errors)
 
     print(f"Release verification PASSED: {len(html_files)} HTML page(s), {len(ALLOWED_WORKFLOWS)} workflow(s), clean publishable source tree.")
+    # The existing Vercel Review project runs this LAST during its Git build.
+    # Only the original A2 isolated preview branch may materialize draft pages.
+    # Generate the same complete fixture set *after* release verification as
+    # existing PR CI, so every HTML and linked asset has identical source bytes.
+    # GitHub Pages, Vercel Production, and every other branch remain untouched.
+    import os
+    import subprocess
+    if (os.environ.get("VERCEL_ENV") == "preview"
+            and os.environ.get("VERCEL_GIT_COMMIT_REF")
+                == "feat/unitree-a2-real-factory-preview-20261114"):
+        revision = os.environ.get("VERCEL_GIT_COMMIT_SHA", "")
+        if not re.fullmatch(r"[0-9a-f]{40}", revision):
+            return fail(["A2 Vercel Preview exact Git SHA missing; no draft publish"])
+        fixtures = sorted((ROOT / "tests" / "fixtures").glob("*/product.json"))
+        if not fixtures or not (ROOT / "tests" / "fixtures" / "a2-factory" / "product.json").is_file():
+            return fail(["A2 Vercel Preview approved draft fixture missing"])
+        for fixture in fixtures:
+            target = OUTPUT / (fixture.parent.name + "-preview.html")
+            subprocess.run([
+                sys.executable, str(ROOT / "scripts" / "product_factory.py"),
+                "generate", "--draft-product", str(fixture),
+                "--mode", "preview", "--output", str(target),
+            ], cwd=ROOT, check=True)
+        from verify_preview_bundle import prepare
+        result = prepare(OUTPUT, [OUTPUT / (f.parent.name + "-preview.html")
+                                  for f in fixtures], revision)
+        if result.get("preview_count") != len(fixtures):
+            return fail(["A2 Vercel Preview bundle incomplete"])
+        print(f"Vercel isolated A2 Review Preview published: {len(fixtures)} exact-SHA draft pages; production HOLD.")
     return 0
 
 
