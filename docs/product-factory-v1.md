@@ -58,3 +58,14 @@ Delivery target: three different consecutive real product pages with <= 1 normal
 Business success is separate: Search Console impressions/clicks/CTR, product CTA clicks, actual inquiry delivery, meetings, quotation and orders. Page QA green does not prove sales.
 Known media backlog: AgiBot G2, AgiBot X2 EDU, LimX Oli, Unitree Go2 EDU, Tianji Marvin are still explicitly labeled placeholder in existing Product Master. Do not silently substitute unverified photos.
 Next true trial: select a fact-verified REAL new product with manufacturer sources, execute Master -> noindex Preview -> CI + QA -> exact HEAD CEO approval -> single release -> real production verification. Do not claim factory mass-production proven until 3 consecutive releases pass.
+
+### Preview deploy event activation scope
+
+The existing GitHub CI's main-branch listener verifies external Vercel events
+using scripts/preview_postdeploy_bridge.py and the approved source manifest
+from the exact PR HEAD CI run. It does not create a second Factory or deploy
+an unapproved product. For Git-origin Vercel deployments, the source-file-list
+API can return 404 and is replaced by actual authenticated runtime SHA1
+verification of all registered generated Preview HTML and their linked assets.
+Do not promote a candidate with unauthenticated HTML or missing runtime files.
+The first active event remains a separate live E2E acceptance condition.
