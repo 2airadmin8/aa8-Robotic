@@ -264,8 +264,8 @@
 }
 .g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts strong {
   display: block;
-  font-size: clamp(18px, 1.5vw, 24px);
-  line-height: 1.4;
+  font-size: clamp(20px, 1.6vw, 24px);
+  line-height: 1.45;
   overflow-wrap: anywhere;
   word-break: normal;
 }
@@ -438,8 +438,8 @@
 .g1-page[data-product-id="unitree-a2"] #development .g1-factory-applications p,
 .g1-page[data-product-id="unitree-a2"] #solutions .g1-factory-applications p,
 .g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications p {
-  font-size: 14px;
-  line-height: 1.8;
+  font-size: 15px;
+  line-height: 1.75;
 }
 .g1-page[data-product-id="unitree-a2"] #development .g1-factory-support-link,
 .g1-page[data-product-id="unitree-a2"] #solutions .g1-factory-support-link {
@@ -473,15 +473,40 @@
 }
 .g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card strong {
   color: #12374b;
+  font-size: 18px;
   line-height: 1.45;
 }
 .g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card small {
   color: #466272;
-  line-height: 1.7;
+  font-size: 14px;
+  line-height: 1.65;
 }
 .g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card em {
   color: #006e97;
+  font-size: 14px;
   font-weight: 800;
+}
+.g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card[data-factory-cta="3"] {
+  border: 2px solid #007da9;
+  box-shadow: 0 7px 20px rgba(0,82,122,.13);
+}
+.g1-page[data-product-id="unitree-a2"] #development .g1-fine,
+.g1-page[data-product-id="unitree-a2"] #solutions .g1-fine,
+.g1-page[data-product-id="unitree-a2"] #introduction .g1-fine {
+  padding: 14px 16px;
+  border-left: 3px solid #bfd9e7;
+  background: #f5f8fa;
+  color: #345366;
+  font-size: 14px;
+  line-height: 1.75;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card small {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #465e70;
+}
+.g1-page[data-product-id="unitree-a2"] #contact-product {
+  scroll-margin-top: 155px;
 }
 @media (max-width: 780px) {
   .g1-page[data-product-id="unitree-a2"] #model-selection .g1-factory-spec-table tbody {

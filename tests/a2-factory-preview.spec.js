@@ -286,3 +286,49 @@ for (const width of [1440,390,360]) {
       .toBeLessThanOrEqual(width+2);
   });
 }
+
+// Independent customer-facing Gate for the reported full-page P1s.
+// Must inspect computed styles and real anchor offset, not just source CSS.
+for (const width of [1440,390,360]) {
+  test('A2 customer CTA and readability regression '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    const resp=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(resp.status()).toBe(200);
+    const root=page.locator('main[data-product-id="unitree-a2"]');
+    const consultation=root.locator('#contact-product .g1-cta-card[data-factory-cta="3"]');
+    await expect(consultation).toHaveCount(1);
+    const details=await consultation.evaluate(el=>({
+      border:getComputedStyle(el).borderTopColor,
+      borderWidth:parseFloat(getComputedStyle(el).borderTopWidth),
+      titleFont:parseFloat(getComputedStyle(el.querySelector('strong')).fontSize),
+      bodyFont:parseFloat(getComputedStyle(el.querySelector('small')).fontSize),
+      href:el.getAttribute('href')
+    }));
+    expect(details.border).toBe('rgb(0, 125, 169)');
+    expect(details.borderWidth).toBeGreaterThanOrEqual(2);
+    expect(details.titleFont).toBeGreaterThanOrEqual(18);
+    expect(details.bodyFont).toBeGreaterThanOrEqual(14);
+    const target=new URL(details.href,ORIGIN);
+    expect(target.pathname).toBe('/contact.html');
+    expect(target.searchParams.get('product')).toBe('Unitree A2');
+    expect(target.searchParams.get('maker')).toBe('Unitree');
+    const caution=root.locator('#development .g1-fine');
+    await expect(caution).toBeVisible();
+    expect(await caution.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
+    const related=root.locator('#related .g1-factory-related-card small').first();
+    expect(await related.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
+    await page.evaluate(()=>document.getElementById('contact-product')
+      .scrollIntoView({block:'start',behavior:'instant'}));
+    const pos=await page.evaluate(()=>{
+      const nav=document.querySelector('.g1-anchor-nav').getBoundingClientRect();
+      const section=document.getElementById('contact-product').getBoundingClientRect();
+      return {navBottom:nav.bottom,sectionTop:section.top};
+    });
+    expect(pos.sectionTop).toBeGreaterThanOrEqual(pos.navBottom-5);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await consultation.screenshot({path:'a2-qa-artifacts/a2-consult-'+width+'.png'});
+  });
+}
