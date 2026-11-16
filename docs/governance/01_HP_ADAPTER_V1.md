@@ -48,3 +48,29 @@ Use existing AirAdmin8 Robotics V3 SEO/GEO recurring task; no new GSC pipeline o
 ## P3 Factory KPI
 source_ready_at, preview_ready_at, first_qa_at, manual_code_edits, rework_iterations, ceo_interventions, repeated_bug_count, exact evidence_url.
 Unknown source ready dates for historic H2 Plus/A3 Ultra are UNKNOWN, so initial efficiency gain is unproven. Require >=2 genuinely comparable verified SKUs before any claim of improvement.
+
+## Trusted-main minimal activation of Vercel postdeploy verification (2026-11-16)
+
+- The original A2 Draft PR #180 is NOT merged to main and its 37×2 product
+  facts / business release permissions remain isolated.
+- To receive Vercel's native vercel.deployment.ready event, the existing
+  CI workflow MUST contain the repository_dispatch listener on GitHub's
+  protected default branch. This narrow activation carries only the trusted
+  postdeploy verification code, the one existing workflow event job and the
+  CEO-preview handoff status safeguard, not the A2 website.
+- The event is valid only for the connected x2-edu-make-review project,
+  a READY Preview, exact source SHA, a matching approved CI file manifest,
+  and real deployed HTML/CSS/JS/SVG/media bytes. API(upload) source trees
+  are verified with SHA1; Git(auto) deployments return 404 for the Files API,
+  and are verified through SSO-protected HTTP runtime SHA1 using the existing
+  automation-bypass credential. Missing evidence, token or source output HOLD.
+- Configure GitHub Actions protected secrets VERCEL_TOKEN and
+  VERCEL_AUTOMATION_BYPASS_SECRET without exposing them to Chat or
+  repository source. A Git-linked Preview not serving the generated product
+  HTML is HOLD, even if Vercel says READY.
+- The only automated success effect is GitHub commit status
+  aa8-preview-postdeploy=success for the exact authorized head; no Pages
+  Production release, auto-merge or fabricated human CEO signoff.
+- The default-branch merge of this narrow activation must still receive
+  the CEO's exact-SHA approval and pass independent QA. An isolated Draft
+  CI green alone is not proof of event-triggered postdeploy E2E.
