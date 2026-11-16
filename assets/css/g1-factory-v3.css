@@ -656,3 +656,73 @@
     font-size: 15px;
   }
 }
+
+/* A2 TechShare visual-fidelity correction R2.
+ * Actual manufacturer/reference screenshot is a centered 3-column table,
+ * not merely a colored table. Apply to A2 alone; never copy facts.
+ * The orange "分類" box in the supplied screenshot is an ANNOTATION,
+ * not website UI. Do not create an orange fourth column.
+ */
+@media (min-width: 781px) {
+  .g1-page[data-product-id="unitree-a2"] #specifications .g1-factory-spec-table {
+    table-layout: fixed;
+    margin-block: 30px 18px;
+    border: 1px solid #d9d9d9;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-compare-head th,
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th,
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 15px 18px;
+    line-height: 1.65;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-compare-head th {
+    font-size: 16px;
+    font-weight: 500;
+    background: #fff;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th {
+    width: 32%;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+    width: 34%;
+    font-size: 15px;
+    font-weight: 400;
+  }
+}
+.g1-page[data-product-id="unitree-a2"] #specifications > .g1-shell > h2 {
+  position: relative;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #ebebeb;
+  margin-bottom: 24px;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications > .g1-shell > h2::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: min(240px, 56%);
+  height: 3px;
+  background: #00a4dd;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-category-row th {
+  text-align: center;
+  vertical-align: middle;
+  font-size: 15px;
+  letter-spacing: .025em;
+  background: #eee;
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-category-row th {
+    text-align: left;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th,
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+    text-align: left;
+    background: transparent;
+    color: #242424;
+  }
+}

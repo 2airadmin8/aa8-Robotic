@@ -234,3 +234,55 @@ for (const width of [1440,390,360]) {
     // gate is independent and must stay HOLD until true factual approval.
   });
 }
+
+
+// Reference image fidelity: colors alone are NOT enough.
+// TechShare-style PC spec cells are center-aligned; mobile keeps accessible
+// labeled two-model blocks with intact text, not a shrunk desktop table.
+for (const width of [1440,390,360]) {
+  test('A2 screenshot reference visual alignment '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const reply=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(reply.status()).toBe(200);
+    const area=page.locator('main[data-product-id="unitree-a2"] #specifications');
+    await expect(area.locator('.a2-spec-row')).toHaveCount(37);
+    const computed=await area.evaluate(el=>{
+      const r=el.querySelector('.a2-spec-row');
+      const group=el.querySelector('.a2-category-row th');
+      const title=el.querySelector('.g1-shell > h2');
+      const th=r.querySelector('th'), td=r.querySelector('td');
+      return {
+        rowBg:getComputedStyle(r).backgroundColor,
+        keyAlign:getComputedStyle(th).textAlign,
+        valueAlign:getComputedStyle(td).textAlign,
+        groupBg:getComputedStyle(group).backgroundColor,
+        groupAlign:getComputedStyle(group).textAlign,
+        titleBorder:getComputedStyle(title).borderBottomColor,
+        valueBorder:getComputedStyle(td).borderBottomColor,
+        widths:[th,td].map(x=>x.getBoundingClientRect().width),
+      };
+    });
+    expect(computed.rowBg).toBe('rgb(255, 255, 255)');
+    expect(computed.groupBg).toBe('rgb(238, 238, 238)');
+    expect(computed.valueBorder).toBe('rgb(217, 217, 217)');
+    if(width===1440){
+      expect(computed.keyAlign).toBe('center');
+      expect(computed.valueAlign).toBe('center');
+      expect(computed.groupAlign).toBe('center');
+      expect(computed.widths[0]).toBeGreaterThan(200);
+    }else{
+      expect(computed.keyAlign).toBe('left');
+      expect(computed.valueAlign).toBe('left');
+    }
+    // Immutable independent artifact: compact focused screenshot, not only a
+    // screen-height table partially hidden by the sticky site navigation.
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await area.locator('.g1-shell > h2').screenshot({path:'a2-qa-artifacts/a2-spec-heading-'+width+'.png'});
+    const rows=area.locator('tr.a2-spec-row');
+    await rows.first().scrollIntoViewIfNeeded();
+    await rows.first().screenshot({path:'a2-qa-artifacts/a2-spec-first-row-'+width+'.png'});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width+2);
+  });
+}
