@@ -9,6 +9,8 @@ on:
     branches: [main]
   issue_comment:
     types: [created]
+  repository_dispatch:
+    types: [vercel.deployment.ready]
   workflow_dispatch:
     inputs:
       autofix_pr:
@@ -39,9 +41,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
-  group: pr-ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}
+  group: pr-ci-${{ github.event_name }}-${{ github.event.client_payload.id || github.event.pull_request.number || github.event.issue.number || github.ref }}
   # CEO comment events for one PR are serialized; no duplicate dispatch races.
-  cancel-in-progress: ${{ github.event_name != 'issue_comment' }}
+  cancel-in-progress: ${{ github.event_name != 'issue_comment' && github.event_name != 'repository_dispatch' }}
 
 jobs:
   # POLICY-TRUSTED: BASE branch only, never untrusted candidate code.
@@ -131,8 +133,130 @@ jobs:
             -f autofix_head="$head" -f autofix_base="$base" \
             -f feedback_comment_id="$FEEDBACK_ID"
           echo "CEO feedback #$FEEDBACK_ID routed once: Draft PR #$pr HEAD $head; main/Production HOLD." >> "$GITHUB_STEP_SUMMARY"
+  preview-postdeploy-readback:
+    if: >-
+      ${{ github.event_name == 'repository_dispatch' &&
+          github.event.action == 'vercel.deployment.ready' &&
+          github.event.client_payload.project.id == 'prj_vH6kcA1vFU6FPCm3skNdpudINkEh' &&
+          github.event.client_payload.environment == 'preview' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      actions: read
+      statuses: write
+    steps:
+      - name: Checkout trusted protected branch only
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate Vercel event and exact source commit
+        id: event
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,re
+          from pathlib import Path
+          event=json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          data=event.get('client_payload') or {}
+          sha=(data.get('git') or {}).get('sha')
+          did=data.get('id')
+          project=(data.get('project') or {}).get('id')
+          if (project!='prj_vH6kcA1vFU6FPCm3skNdpudINkEh'
+              or data.get('environment')!='preview'
+              or not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha)
+              or not isinstance(did,str) or not re.fullmatch(r'dpl_[A-Za-z0-9]+',did)):
+              raise SystemExit('PREVIEW_POSTDEPLOY_HOLD: invalid Vercel event identity')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              print('sha='+sha,file=out)
+              print('deployment_id='+did,file=out)
+          PY
+          # A real commit MUST exist in the same authorized GitHub repository.
+          verified_sha="$(sed -n 's/^sha=//p' "$GITHUB_OUTPUT")"
+          test "${#verified_sha}" -eq 40
+          gh api "repos/$GITHUB_REPOSITORY/commits/$verified_sha" --jq .sha >/dev/null
+
+      - name: Mark deployed SHA pending until full verified Vercel readback
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA" -f state=pending -f context=aa8-preview-postdeploy -f description='Vercel exact file tree readback pending; CEO still HOLD' >/dev/null
+
+      - name: Find already successful exact-SHA CI manifest (no PR code checkout)
+        id: artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100&name=aa8-preview-bundle-$EXPECTED_SHA" > "$RUNNER_TEMP/aa8-artifact-search.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          data=json.loads((Path(os.environ['RUNNER_TEMP'])/'aa8-artifact-search.json').read_text())
+          expected='aa8-preview-bundle-'+os.environ['EXPECTED_SHA']
+          candidates=[x for x in data.get('artifacts',[])
+                      if x.get('name')==expected and not x.get('expired')
+                      and (x.get('workflow_run') or {}).get('head_sha')==os.environ['EXPECTED_SHA']]
+          if not candidates:
+              raise SystemExit('PREVIEW_POSTDEPLOY_HOLD: exact-HEAD CI manifest artifact unavailable')
+          selected=max(candidates,key=lambda x:x.get('created_at',''))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              print('run_id='+str(selected['workflow_run']['id']),file=f)
+          PY
+          mkdir -p "$RUNNER_TEMP/aa8-preview-review"
+          gh run download "${{ steps.artifact.outputs.run_id }}" --repo "$GITHUB_REPOSITORY"             --name "aa8-preview-bundle-$EXPECTED_SHA" --dir "$RUNNER_TEMP/aa8-preview-review"
+          test -s "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"
+
+      - name: Verify exact Vercel project + deployed source file tree
+        id: verified
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+          DEPLOYMENT_ID: ${{ steps.event.outputs.deployment_id }}
+        run: |
+          set -euo pipefail
+          # No token => FAIL, never SKIP / assumed-ready.
+          python scripts/preview_postdeploy_bridge.py             --deployment-id "$DEPLOYMENT_ID"             --expected-sha "$SOURCE_SHA"             --manifest "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"             --evidence "$RUNNER_TEMP/aa8-preview-postdeploy-proof.json"
+
+      - name: Mark deployment verification failure as hard HOLD on exact SHA
+        if: ${{ failure() && steps.event.outcome == 'success' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA" -f state=failure -f context=aa8-preview-postdeploy -f description='Vercel Preview source/asset gate HOLD - no CEO review READY' -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+          echo 'HOLD: Vercel preview file-tree verification incomplete/failed.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Mark exact verified commit only (after authenticated Vercel PASS)
+        if: ${{ steps.verified.outcome == 'success' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA"             -f state=success -f context=aa8-preview-postdeploy             -f description='Vercel deployed file-tree SHA verified; CEO review remains separate'             -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+          echo 'Verified exact SHA manifest vs actual deployed files; not CEO or Production approval.' >> "$GITHUB_STEP_SUMMARY"
+
   build-and-verify:
-    if: ${{ github.event_name != 'issue_comment' && github.event_name != 'pull_request_target' }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -257,6 +381,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
@@ -464,6 +589,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
