@@ -157,6 +157,34 @@ for (const width of [1440, 390, 360]) {
       right:el.getBoundingClientRect().right,
     })));
     expect(cards.every(c=>c.scrollWidth<=c.width+2)).toBe(true);
+
+    // Visual acceptance: real rendered photos MUST display after lazy scroll.
+    // An asset SHA alone is not a visual acceptance.
+    const everyImage=page.locator('main img');
+    for (const image of await everyImage.all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect.poll(
+        async()=>image.evaluate(el=>el.complete && el.naturalWidth>0),
+        {timeout:10000}
+      ).toBe(true);
+    }
+    expect(await everyImage.count()).toBeGreaterThanOrEqual(12);
+    await expect(page.locator('#specifications .g1-factory-source')).toBeVisible();
+    const heroHeight=await page.locator('main > .g1-hero').evaluate(el=>el.getBoundingClientRect().height);
+    if(width===1440) {
+      expect(heroHeight).toBeLessThan(610);
+      const grid=await page.locator('#introduction .g1-factory-applications').evaluate(el=>
+        getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean).length);
+      expect(grid).toBe(3);
+    }
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await page.screenshot({
+      path:'a2-qa-artifacts/a2-fullpage-'+width+'.png',
+      fullPage:true,
+      animations:'disabled'
+    });
+
     if (width<=390) {
       expect(cards[0].right).toBeLessThanOrEqual(width+2);
       expect(cards[1].left).toBeGreaterThanOrEqual(-2);

@@ -566,6 +566,15 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Preserve A2 independent PC/SP real-page screenshots
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-qa-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Preserve X2 exact SHA PC/SP Figma screenshot evidence
         if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
         uses: actions/upload-artifact@v4

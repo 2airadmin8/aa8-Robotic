@@ -527,3 +527,26 @@
     min-width: 0;
   }
 }
+
+/* CEO screenshot P1: A2-only visible density, no cross-product selector.
+   Keep official 37x2 facts and full manufacturer source available. */
+@media(min-width:781px){
+  .g1-page[data-product-id="unitree-a2"] .g1-hero-image{height:440px}
+}
+.g1-page[data-product-id="unitree-a2"] > .g1-section:not(.g1-final-cta){padding-top:68px;padding-bottom:72px}
+.g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications article{padding:24px 20px}
+.g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications h3{font-size:18px;line-height:1.5}
+.g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications p{font-size:15px}
+.g1-page[data-product-id="unitree-a2"] #media .g1-factory-media-grid figcaption{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-photo{aspect-ratio:16/10}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-photo img{width:100%;height:100%;object-fit:contain}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row small{display:none}
+.g1-page[data-product-id="unitree-a2"] #specifications .g1-factory-source{display:block}
+@media(max-width:780px){
+  .g1-page[data-product-id="unitree-a2"] > .g1-section:not(.g1-final-cta){padding-top:46px;padding-bottom:52px}
+  .g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications{grid-template-columns:1fr;gap:14px}
+  .g1-page[data-product-id="unitree-a2"] #introduction .g1-factory-applications article{padding:19px 16px}
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row{padding:12px 0;gap:8px}
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td{padding:10px;line-height:1.6}
+}
