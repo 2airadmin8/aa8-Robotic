@@ -550,3 +550,109 @@
   .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row{padding:12px 0;gap:8px}
   .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td{padding:10px;line-height:1.6}
 }
+
+/* A2 TechShare-style white / neutral-gray spec comparison.
+   A2 isolated preview only; do not copy third-party data or affect G1/X2.
+   Keep every one of 37 rows, 4 source groups and both official model cells. */
+.g1-page[data-product-id="unitree-a2"] #specifications .g1-factory-spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  background: #ffffff;
+  color: #242424;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .g1-factory-spec-table th,
+.g1-page[data-product-id="unitree-a2"] #specifications .g1-factory-spec-table td {
+  border: 1px solid #d9d9d9;
+  color: #242424;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-compare-head th {
+  background: #ffffff;
+  color: #242424;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 16px 18px;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-category-row th {
+  background: #eeeeee;
+  color: #242424;
+  border-top: 2px solid #c7c7c7;
+  border-bottom: 2px solid #c7c7c7;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 18px;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications tr.a2-spec-row:nth-child(odd of .a2-spec-row) {
+  background: #ffffff;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications tr.a2-spec-row:nth-child(even of .a2-spec-row) {
+  background: #f5f5f5;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th,
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+  background: transparent;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 14px 18px;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th {
+  font-weight: 600;
+}
+.g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+  font-weight: 400;
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-id="unitree-a2"] #specifications tr.a2-spec-row {
+    gap: 0;
+    padding: 0;
+    border: 1px solid #d9d9d9;
+    border-bottom: 0;
+    border-radius: 0;
+    background: #ffffff;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications tr.a2-spec-row:nth-child(even of .a2-spec-row) {
+    background: #f5f5f5;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row th {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    border-bottom: 1px solid #d9d9d9;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    background: transparent;
+    color: #242424;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 0;
+    border-bottom: 1px solid #d9d9d9;
+    border-right: 1px solid #d9d9d9;
+    border-radius: 0;
+    background: transparent;
+    color: #242424;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-spec-row td::before {
+    display: block;
+    color: #444444;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 7px;
+  }
+  .g1-page[data-product-id="unitree-a2"] #specifications .a2-category-row th {
+    border: 1px solid #d9d9d9;
+    border-top: 2px solid #c7c7c7;
+    border-bottom: 2px solid #c7c7c7;
+    background: #eeeeee;
+    color: #242424;
+    font-size: 15px;
+  }
+}

@@ -194,3 +194,43 @@ for (const width of [1440, 390, 360]) {
     }
   });
 }
+
+// Independent computed-style gate: TechShare-inspired white/gray specification
+// table is mandatory for A2 PC/SP, not merely present in committed CSS.
+// All 37 rows and both 37-cell model columns remain required.
+for (const width of [1440,390,360]) {
+  test('A2 neutral white-gray specs actual computed style '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const resp=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(resp.status()).toBe(200);
+    const spec=page.locator('main[data-product-id="unitree-a2"] #specifications');
+    const rows=spec.locator('tr.a2-spec-row[data-spec-row="true"]');
+    await expect(rows).toHaveCount(37);
+    await expect(spec.locator('tr.a2-category-row')).toHaveCount(4);
+    await expect(spec.locator('td[data-model="A2"]')).toHaveCount(37);
+    await expect(spec.locator('td[data-model="A2-PRO"]')).toHaveCount(37);
+    const backgrounds=await rows.evaluateAll(els=>els.slice(0,6).map(el=>getComputedStyle(el).backgroundColor));
+    expect(backgrounds).toEqual([
+      'rgb(255, 255, 255)','rgb(245, 245, 245)',
+      'rgb(255, 255, 255)','rgb(245, 245, 245)',
+      'rgb(255, 255, 255)','rgb(245, 245, 245)',
+    ]);
+    const cat=await spec.locator('tr.a2-category-row th').first()
+      .evaluate(el=>({bg:getComputedStyle(el).backgroundColor,
+                      color:getComputedStyle(el).color}));
+    expect(cat.bg).toBe('rgb(238, 238, 238)');
+    expect(cat.color).toBe('rgb(36, 36, 36)');
+    const cells=await rows.first().locator('th,td').evaluateAll(els=>els.map(el=>({
+      fg:getComputedStyle(el).color,
+      border:getComputedStyle(el).borderBottomColor,
+      font:parseFloat(getComputedStyle(el).fontSize),
+    })));
+    expect(cells).toHaveLength(3);
+    expect(cells.every(x=>x.fg==='rgb(36, 36, 36)' && x.font>=14)).toBe(true);
+    expect(cells.some(x=>x.border==='rgb(217, 217, 217)')).toBe(true);
+    const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2);
+    expect(overflow).toBe(false);
+    // Avoid assertions on TechShare's R&D variant weight: data source/reviewer
+    // gate is independent and must stay HOLD until true factual approval.
+  });
+}
