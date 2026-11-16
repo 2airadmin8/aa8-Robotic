@@ -44,8 +44,7 @@ env:
 
 concurrency:
   group: pr-ci-${{ github.event_name }}-${{ github.event.client_payload.id || github.event.pull_request.number || github.event.issue.number || github.ref }}
-  # One independent post-deploy verdict for EACH deployment, never cancel
-  # a previous in-progress verifier just because another Preview was created.
+  # CEO comment events for one PR are serialized; no duplicate dispatch races.
   cancel-in-progress: ${{ github.event_name != 'issue_comment' && github.event_name != 'repository_dispatch' }}
 
 jobs:
@@ -148,7 +147,7 @@ jobs:
           github.event.client_payload.project.id == 'prj_vH6kcA1vFU6FPCm3skNdpudINkEh' &&
           github.event.client_payload.environment == 'preview' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 12
     permissions:
       contents: read
       actions: read
@@ -201,7 +200,7 @@ jobs:
           set -euo pipefail
           gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA" -f state=pending -f context=aa8-preview-postdeploy -f description='Vercel exact file tree readback pending; CEO still HOLD' >/dev/null
 
-      - name: Find already successful exact-SHA CI manifest (no PR code checkout)
+      - name: Wait boundedly for SUCCESSFUL exact-SHA PR CI manifest (no PR code checkout)
         id: artifact
         shell: bash
         env:
@@ -209,24 +208,55 @@ jobs:
           EXPECTED_SHA: ${{ steps.event.outputs.sha }}
         run: |
           set -euo pipefail
-          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100&name=aa8-preview-bundle-$EXPECTED_SHA" > "$RUNNER_TEMP/aa8-artifact-search.json"
+          # A Git-native Vercel Preview can become READY before PR CI finishes.
+          # Never invent a manifest, use another SHA, or accept a merely uploaded
+          # artifact from a still-running / failed CI. Bounded wait; then HOLD.
+          chosen_run=""
+          for attempt in $(seq 1 24); do
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$EXPECTED_SHA&event=pull_request&per_page=100" > "$RUNNER_TEMP/aa8-ci-runs.json"
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100&name=aa8-preview-bundle-$EXPECTED_SHA" > "$RUNNER_TEMP/aa8-artifact-search.json"
+            chosen_run="$(python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          runs=json.loads((root/"aa8-ci-runs.json").read_text()).get("workflow_runs",[])
+          assets=json.loads((root/"aa8-artifact-search.json").read_text()).get("artifacts",[])
+          sha=os.environ["EXPECTED_SHA"]
+          valid_runs={r.get("id"):r for r in runs
+              if r.get("head_sha")==sha and r.get("event")=="pull_request"
+              and r.get("name")=="PR CI" and r.get("status")=="completed"
+              and r.get("conclusion")=="success"}
+          matching=[a for a in assets
+              if a.get("name")=="aa8-preview-bundle-"+sha and not a.get("expired")
+              and (a.get("workflow_run") or {}).get("head_sha")==sha
+              and (a.get("workflow_run") or {}).get("id") in valid_runs]
+          if matching:
+              newest=max(matching,key=lambda a:a.get("created_at",""))
+              print((newest.get("workflow_run") or {})["id"])
+          PY
+          )"
+            if [[ "$chosen_run" =~ ^[0-9]+$ ]]; then
+              break
+            fi
+            if (( attempt < 24 )); then
+              sleep 20
+            fi
+          done
+          if ! [[ "$chosen_run" =~ ^[0-9]+$ ]]; then
+            echo "PREVIEW_POSTDEPLOY_HOLD: no SUCCESSFUL exact-HEAD pull_request CI with matching manifest artifact" >&2
+            exit 2
+          fi
+          mkdir -p "$RUNNER_TEMP/aa8-preview-review"
+          gh run download "$chosen_run" --repo "$GITHUB_REPOSITORY" \
+            --name "aa8-preview-bundle-$EXPECTED_SHA" --dir "$RUNNER_TEMP/aa8-preview-review"
+          test -s "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"
           python - <<'PY'
           import json,os
           from pathlib import Path
-          data=json.loads((Path(os.environ['RUNNER_TEMP'])/'aa8-artifact-search.json').read_text())
-          expected='aa8-preview-bundle-'+os.environ['EXPECTED_SHA']
-          candidates=[x for x in data.get('artifacts',[])
-                      if x.get('name')==expected and not x.get('expired')
-                      and (x.get('workflow_run') or {}).get('head_sha')==os.environ['EXPECTED_SHA']]
-          if not candidates:
-              raise SystemExit('PREVIEW_POSTDEPLOY_HOLD: exact-HEAD CI manifest artifact unavailable')
-          selected=max(candidates,key=lambda x:x.get('created_at',''))
-          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
-              print('run_id='+str(selected['workflow_run']['id']),file=f)
+          manifest=json.loads((Path(os.environ["RUNNER_TEMP"])/"aa8-preview-review"/"aa8-preview-bundle-manifest.json").read_text())
+          if manifest.get("revision")!=os.environ["EXPECTED_SHA"]:
+              raise SystemExit("PREVIEW_POSTDEPLOY_HOLD: downloaded CI manifest has wrong exact HEAD")
           PY
-          mkdir -p "$RUNNER_TEMP/aa8-preview-review"
-          gh run download "${{ steps.artifact.outputs.run_id }}" --repo "$GITHUB_REPOSITORY"             --name "aa8-preview-bundle-$EXPECTED_SHA" --dir "$RUNNER_TEMP/aa8-preview-review"
-          test -s "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"
 
       - name: Verify exact Vercel project + deployed source file tree
         id: verified
@@ -389,6 +419,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
           python -m unittest discover -s tests -p 'test_preview_bundle_universal.py' -v
           python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
@@ -640,6 +671,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v

@@ -191,5 +191,27 @@ class RealPostDeployBridge(unittest.TestCase):
                     with patch.object(gate,"api_json",side_effect=AssertionError("network accessed")):
                         self.assertEqual(gate.main(),2)
 
+
+
+class TrustedMainManifestOrderContract(unittest.TestCase):
+    """Guard the exact CI-before-deployed-bytes sequence against regression."""
+
+    def test_native_vercel_event_waits_for_complete_same_sha_ci(self):
+        workflow=(ROOT/".github"/"workflows"/"ci.yml").read_text("utf-8")
+        self.assertIn("Wait boundedly for SUCCESSFUL exact-SHA PR CI manifest",workflow)
+        self.assertIn("for attempt in $(seq 1 24)",workflow)
+        self.assertRegex(workflow, r"preview-postdeploy-readback:[\s\S]{0,500}timeout-minutes: 12")
+        self.assertIn("if (( attempt < 24 )); then",workflow)
+        self.assertIn('r.get("head_sha")==sha and r.get("event")=="pull_request"',workflow)
+        self.assertIn('r.get("conclusion")=="success"',workflow)
+        self.assertIn('(a.get("workflow_run") or {}).get("id") in valid_runs',workflow)
+        self.assertIn('manifest.get("revision")!=os.environ["EXPECTED_SHA"]',workflow)
+        self.assertIn("PREVIEW_POSTDEPLOY_HOLD: no SUCCESSFUL exact-HEAD",workflow)
+        self.assertIn("runtime fallback only allowed for native Git deployments",
+                      (ROOT/"scripts"/"preview_postdeploy_bridge.py").read_text("utf-8"))
+        self.assertIn("Mark deployment verification failure as hard HOLD",workflow)
+        self.assertIn("Mark exact verified commit only (after authenticated Vercel PASS)",workflow)
+
+
 if __name__=="__main__":
     unittest.main()

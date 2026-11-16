@@ -84,3 +84,29 @@ Unknown source ready dates for historic H2 Plus/A3 Ultra are UNKNOWN, so initial
 ## Git-linked Vercel runtime SHA readback (2026-11-16)
 
 The existing Git-integrated Vercel Review project returns 404 for the source-file tree on a real source=git deployment. Reuse the same trusted-main event handler and independent CI asset manifest, but verify actual SSO-protected HTML/CSS/JS/images using strict immutable deployment-host SHA1 checks on Git source deployments. VERCEL_TOKEN and VERCEL_AUTOMATION_BYPASS_SECRET must be supplied as protected secrets in GitHub Actions and never exposed. Unknown source, missing HTML, redirect or SHA mismatch is HOLD, not CEO_REVIEW_READY. Full activation still requires main exact-SHA approval and a real post-deploy event run.
+
+## Trusted-main minimal activation of Vercel postdeploy verification (2026-11-16)
+
+- The original A2 Draft PR #180 is NOT merged to main and its 37×2 product
+  facts / business release permissions remain isolated.
+- To receive Vercel's native vercel.deployment.ready event, the existing
+  CI workflow MUST contain the repository_dispatch listener on GitHub's
+  protected default branch. This narrow activation carries only the trusted
+  postdeploy verification code, the one existing workflow event job and the
+  CEO-preview handoff status safeguard, not the A2 website.
+- The event is valid only for the connected x2-edu-make-review project,
+  a READY Preview, exact source SHA, a matching approved CI file manifest,
+  and real deployed HTML/CSS/JS/SVG/media bytes. API(upload) source trees
+  are verified with SHA1; Git(auto) deployments return 404 for the Files API,
+  and are verified through SSO-protected HTTP runtime SHA1 using the existing
+  automation-bypass credential. Missing evidence, token or source output HOLD.
+- Configure GitHub Actions protected secrets VERCEL_TOKEN and
+  VERCEL_AUTOMATION_BYPASS_SECRET without exposing them to Chat or
+  repository source. A Git-linked Preview not serving the generated product
+  HTML is HOLD, even if Vercel says READY.
+- The only automated success effect is GitHub commit status
+  aa8-preview-postdeploy=success for the exact authorized head; no Pages
+  Production release, auto-merge or fabricated human CEO signoff.
+- The default-branch merge of this narrow activation must still receive
+  the CEO's exact-SHA approval and pass independent QA. An isolated Draft
+  CI green alone is not proof of event-triggered postdeploy E2E.

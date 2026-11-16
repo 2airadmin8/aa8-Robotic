@@ -171,3 +171,14 @@ This does not modify the 74 signed-off technical Japanese spec cells.
 - If the CI run is absent, fails, or the deployed byte hashes do not match,
   aa8-preview-postdeploy must remain FAILURE/HOLD. No automatic retries,
   PR merge, GitHub Pages Production release, or CRM/ERP changes.
+
+### Preview deploy event activation scope
+
+The existing GitHub CI's main-branch listener verifies external Vercel events
+using scripts/preview_postdeploy_bridge.py and the approved source manifest
+from the exact PR HEAD CI run. It does not create a second Factory or deploy
+an unapproved product. For Git-origin Vercel deployments, the source-file-list
+API can return 404 and is replaced by actual authenticated runtime SHA1
+verification of all registered generated Preview HTML and their linked assets.
+Do not promote a candidate with unauthenticated HTML or missing runtime files.
+The first active event remains a separate live E2E acceptance condition.
