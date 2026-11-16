@@ -198,6 +198,8 @@ class TrustedMainManifestOrderContract(unittest.TestCase):
         workflow=(ROOT/".github"/"workflows"/"ci.yml").read_text("utf-8")
         self.assertIn("Wait boundedly for SUCCESSFUL exact-SHA PR CI manifest",workflow)
         self.assertIn("for attempt in $(seq 1 24)",workflow)
+        self.assertRegex(workflow, r"preview-postdeploy-readback:[\\s\\S]{0,500}timeout-minutes: 12")
+        self.assertIn("if (( attempt < 24 )); then",workflow)
         self.assertIn('r.get("head_sha")==sha and r.get("event")=="pull_request"',workflow)
         self.assertIn('r.get("conclusion")=="success"',workflow)
         self.assertIn('(a.get("workflow_run") or {}).get("id") in valid_runs',workflow)
