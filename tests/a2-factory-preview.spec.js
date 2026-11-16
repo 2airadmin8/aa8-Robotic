@@ -138,7 +138,7 @@ for (const width of [1440, 390, 360]) {
       await expect(tr).toBeVisible();
       const btn=tr.locator('[data-model-inquiry]');
       await expect(btn).toBeVisible();
-      const style=await btn.evaluate(el=>getComputedStyle(el));
+      const style=await btn.evaluate(el=>({color:getComputedStyle(el).color,display:getComputedStyle(el).display}));
       expect(style.color).toBe('rgb(255, 255, 255)');
       expect(style.display).not.toBe('none');
     }
@@ -160,7 +160,7 @@ for (const width of [1440, 390, 360]) {
     if (width<=390) {
       expect(cards[0].right).toBeLessThanOrEqual(width+2);
       expect(cards[1].left).toBeGreaterThanOrEqual(-2);
-      expect(await models.nth(0).evaluate(el=>getComputedStyle(el.parentElement).gridTemplateColumns.split(/\\s+/).length)).toBe(1);
+      expect(await models.nth(0).evaluate(el=>getComputedStyle(el.parentElement).gridTemplateColumns.split(' ').filter(Boolean).length)).toBe(1);
     } else {
       expect(cards[0].right).toBeLessThan(cards[1].left);
     }
