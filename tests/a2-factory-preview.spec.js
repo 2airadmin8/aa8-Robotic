@@ -322,10 +322,15 @@ for (const width of [1440,390,360]) {
       .scrollIntoView({block:'start',behavior:'instant'}));
     const pos=await page.evaluate(()=>{
       const nav=document.querySelector('.g1-anchor-nav').getBoundingClientRect();
-      const section=document.getElementById('contact-product').getBoundingClientRect();
-      return {navBottom:nav.bottom,sectionTop:section.top};
+      const section=document.getElementById('contact-product');
+      const title=section.querySelector('h2').getBoundingClientRect();
+      const button=section.querySelector('[data-factory-cta="3"]').getBoundingClientRect();
+      return {navBottom:nav.bottom,titleTop:title.top,buttonBottom:button.bottom};
     });
-    expect(pos.sectionTop).toBeGreaterThanOrEqual(pos.navBottom-5);
+    // The colored SECTION background may extend behind a sticky nav;
+    // text and the actual consultation action must remain unobscured.
+    expect(pos.titleTop).toBeGreaterThanOrEqual(pos.navBottom+6);
+    expect(pos.buttonBottom).toBeGreaterThan(pos.navBottom+44);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
     const fs=require('node:fs');
     fs.mkdirSync('a2-qa-artifacts',{recursive:true});
