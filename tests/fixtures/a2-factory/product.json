@@ -45,7 +45,7 @@
     "officialSource": "https://www.unitree.com/A2/",
     "title": "Unitree A2｜産業用四足ロボットの研究・現場PoC｜AirAdmin8 Robotics",
     "metaDescription": "Unitree A2のメーカー公表仕様を整理。四足移動、センサー、電源・通信、開発インターフェースと安全条件を研究・PoCの観点から比較。日本向け価格・構成は個別確認。",
-    "heroLead": "産業用四足移動を、研究と現場PoCで安全に評価する。",
+    "heroLead": "研究・現場PoCに向けて、Unitree A2の導入条件を見極める。",
     "facts": [
       {
         "label": "機体重量（バッテリー装着時）",

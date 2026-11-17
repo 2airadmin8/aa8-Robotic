@@ -14,6 +14,8 @@ for (const width of [1440,390,360]) {
     await expect(page.locator('main[data-product-id="unitree-a2"]')).toHaveCount(1);
     await expect(page.locator('main[data-product-family="quadruped"]')).toHaveCount(1);
     await expect(page.locator('main h1')).toHaveText('Unitree A2');
+    // Screenshot V01: do not imply the maker guarantees safety.
+    await expect(page.locator('main .g1-hero-lead')).toHaveText('研究・現場PoCに向けて、Unitree A2の導入条件を見極める。');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content','noindex,nofollow');
     // P0 design contract: preview must use the existing ONE shared logo/menu,
     // not the old hard-coded text-only Factory Header.
