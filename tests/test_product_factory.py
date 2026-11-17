@@ -219,8 +219,11 @@ class ProductFactoryContractTests(unittest.TestCase):
 
     def test_each_claim_source_is_rendered(self):
         source = render(ROOT, self.item, "preview")
-        self.assertGreaterEqual(source.count("仕様出典 ↗"), 3)
-        self.assertGreaterEqual(source.count("出典 ↗"), 5)
+        # Sales cards must stay clean; verified maker URLs remain in source data
+        # and the official manufacturer resources link stays visible.
+        self.assertNotIn("仕様出典 ↗", source)
+        self.assertGreaterEqual(source.count("出典 ↗"), 3)
+        self.assertIn("メーカー公式ページ", source)
 
 
     def test_no_video_product_copy_is_consistent(self):
