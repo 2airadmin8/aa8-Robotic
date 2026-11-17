@@ -5,13 +5,29 @@ const master = require('../data/products.json');
 const ROOT = 'http://127.0.0.1:4173';
 const PUBLIC = 'https://robotics.air-admin8.co.jp';
 
-for (const width of [1440, 390]) {
+for (const width of [1440, 390, 360]) {
   for (const product of master.products) {
     test('HP shared Header/Footer and CTA prefill ' + product.id + ' ' + width + 'px', async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(ROOT + '/' + product.detailPage, { waitUntil: 'networkidle' });
       await expect(page.locator('header.site-header[data-shared-layout="header"]')).toHaveCount(1);
       await expect(page.locator('footer.footer[data-shared-layout="footer"]')).toHaveCount(1);
+      // Shared shell is not only a presence check: real SP menu must open,
+      // expose navigation and close by Escape without horizontal overflow.
+      if (width <= 390) {
+        const button = page.locator('header.site-header button.menu');
+        const nav = page.locator('header.site-header nav.nav');
+        await expect(button).toBeVisible();
+        await expect(button).toHaveAttribute('aria-expanded', 'false');
+        await button.click();
+        await expect(button).toHaveAttribute('aria-expanded', 'true');
+        await expect(nav.locator('a[href="/contact.html"]')).toBeVisible();
+        await page.keyboard.press('Escape');
+        await expect(button).toHaveAttribute('aria-expanded', 'false');
+        await expect(nav).toBeHidden();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth))
+          .toBeLessThanOrEqual(width + 2);
+      }
       const links = await page.locator('main a[href*="contact.html"]').evaluateAll(
         nodes => nodes.map(n => n.getAttribute('href')).filter(Boolean));
       const actual = links.map(link => {
