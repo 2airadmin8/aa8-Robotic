@@ -60,6 +60,7 @@
   gap: clamp(10px,1vw,18px);
   font-size: clamp(.8rem,.8vw,.92rem);
   font-weight: 800;
+  color: #173342 !important;
 }
 
 .site-header[data-shared-layout="header"] .nav > a {
