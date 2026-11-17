@@ -9,6 +9,30 @@ for (const width of [1440, 390, 360]) {
   for (const product of master.products) {
     test('HP shared Header/Footer and CTA prefill ' + product.id + ' ' + width + 'px', async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
+      const sharedMenuFingerprint = async () => page.evaluate(() => {
+        const snap = selector => {
+          const el = document.querySelector(selector);
+          if (!el) return null;
+          const style = getComputedStyle(el), rect = el.getBoundingClientRect();
+          return {
+            position: style.position, color: style.color,
+            background: style.backgroundColor,
+            width: Math.round(rect.width), height: Math.round(rect.height)
+          };
+        };
+        return {
+          header: snap('header.site-header'),
+          nav: snap('header.site-header nav.nav'),
+          link: snap('header.site-header nav.nav a'),
+          cta: snap('header.site-header nav.nav .nav-cta')
+        };
+      });
+      let homepageMenu = null;
+      if (width <= 390) {
+        await page.goto(ROOT + '/index.html', { waitUntil: 'networkidle' });
+        await page.locator('header.site-header button.menu').click();
+        homepageMenu = await sharedMenuFingerprint();
+      }
       await page.goto(ROOT + '/' + product.detailPage, { waitUntil: 'networkidle' });
       await expect(page.locator('header.site-header[data-shared-layout="header"]')).toHaveCount(1);
       await expect(page.locator('footer.footer[data-shared-layout="footer"]')).toHaveCount(1);
@@ -21,6 +45,8 @@ for (const width of [1440, 390, 360]) {
         await expect(button).toHaveAttribute('aria-expanded', 'false');
         await button.click();
         await expect(button).toHaveAttribute('aria-expanded', 'true');
+        expect(await sharedMenuFingerprint(), product.id + ' must match actual homepage SP layout')
+          .toEqual(homepageMenu);
         const navConsult = nav.locator('a[href*="contact.html"]').first();
         await expect(navConsult).toBeVisible();
         const navHref = await navConsult.getAttribute('href');
