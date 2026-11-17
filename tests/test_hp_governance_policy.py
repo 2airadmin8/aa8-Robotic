@@ -43,5 +43,51 @@ class PolicyV1(unittest.TestCase):
         self.assertIn("public _site/",security)
 
 
+    def test_a2_15_redline_evidence_never_auto_approves(self):
+        import json
+        import struct
+        import zlib
+        import sys
+        import tempfile
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from hp_governance_quality_gate import (
+            A2_REDLINE_SHOTS, A2_VISUAL_VIEWPORTS, a2_visual_evidence,
+        )
+        self.assertEqual(len(A2_REDLINE_SHOTS), 15)
+        with tempfile.TemporaryDirectory() as tmp:
+            images = Path(tmp) / "images"
+            images.mkdir()
+            output = Path(tmp) / "result.json"
+            with self.assertRaisesRegex(ValueError, "screenshot missing"):
+                a2_visual_evidence("a"*40, images, output)
+            def png(view, height):
+                def chunk(kind, data):
+                    return (struct.pack(">I", len(data)) + kind + data
+                            + struct.pack(">I", zlib.crc32(kind+data)&0xffffffff))
+                ihdr = struct.pack(">IIBBBBB", view, height, 8, 2, 0, 0, 0)
+                pixel = (b"\0" + b"\0"*(view*3)) * height
+                return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr)
+                        + chunk(b"tEXt", b"QA-evidence"+b"x"*1200)
+                        + chunk(b"IDAT", zlib.compress(pixel))
+                        + chunk(b"IEND", b""))
+            for stem in set(A2_REDLINE_SHOTS.values()):
+                for v in A2_VISUAL_VIEWPORTS:
+                    (images / f"{stem}-{v}.png").write_bytes(png(v,350))
+            with self.assertRaisesRegex(ValueError, "screenshot missing"):
+                a2_visual_evidence("a"*40, images, output)
+            for v in (390, 360):
+                (images / f"a2-sp-cta-after-anchor-{v}.png").write_bytes(
+                    png(v,500))
+            result = a2_visual_evidence("a"*40, images, output)
+            self.assertEqual(result["visual_approval"], "HOLD")
+            self.assertEqual(result["p0_p1_closure"], "NOT_ATTESTED")
+            self.assertEqual(len(result["bugs"]), 15)
+            self.assertEqual(json.loads(output.read_text("utf-8"))["head_sha"], "a"*40)
+            (images / "a2-sales-cta-390.png").write_bytes(b"garbage")
+            with self.assertRaisesRegex(ValueError, "invalid/empty PNG"):
+                a2_visual_evidence("a"*40, images, output)
+
+
+
 if __name__ == "__main__":
     unittest.main()

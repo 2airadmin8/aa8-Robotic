@@ -689,6 +689,28 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
+      # A2 screenshots re-audited on the existing separate technical QA runner.
+      # Evidenced screenshot bytes NEVER imply independent CEO visual approval.
+      - name: Download exact-HEAD A2 screenshots for independent evidence check
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/download-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-independent-screenshots/
+
+      - name: Verify 15 A2 redline screenshot sets (visual approval HOLD)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        shell: bash
+        env:
+          A2_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py visual-evidence --head-sha "$A2_HEAD" --screenshots a2-independent-screenshots --out separate-qa-evidence/a2-visual-gate.json
+          echo '## A2 CEO 15-redline gate' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Exact-SHA screenshot integrity PASS on separate runner.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'VISUAL HOLD: original-image comparison and P0/P1 closure NOT_ATTESTED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Technical CI and SHA verification cannot authorize design signoff.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Record separate technical QA evidence
         shell: bash
         env:

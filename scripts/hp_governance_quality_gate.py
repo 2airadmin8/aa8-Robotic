@@ -256,15 +256,115 @@ def check_pr(event: dict, file_list: object, root: Path = ROOT,
     }
 
 
+
+# CEO A2 redline screenshot integrity audit; NOT automated visual approval.
+A2_REDLINE_SHOTS = {
+    "V01": "a2-fullpage", "V02": "a2-fullpage",
+    "V03": "a2-buglist-facts", "V04": "a2-buglist-usecases",
+    "V05": "a2-sales-media", "V06": "a2-fullpage",
+    "V07": "a2-fullpage", "V08": "a2-spec-first-row",
+    "V09": "a2-spec-heading", "V10": "a2-sales-sdk",
+    "V11": "a2-sales-solutions", "V12": "a2-sales-process",
+    "V13": "a2-sales-faq", "V14": "a2-sales-related",
+    "V15": "a2-sales-cta",
+}
+A2_VISUAL_VIEWPORTS = (1440, 390, 360)
+
+
+def a2_visual_evidence(head_sha: str, screenshots: Path, out: Path) -> dict:
+    """Validate exact-SHA PNG evidence; never certify CEO design alignment."""
+    import hashlib
+    import struct
+
+    ensure(re.fullmatch(r"[0-9a-f]{40}", head_sha) is not None,
+           "A2 screenshot exact SHA missing")
+    ensure(screenshots.is_dir(), "A2 screenshots absent")
+
+    def check_image(filename: str, viewport: int) -> dict:
+        image = screenshots / filename
+        ensure(image.is_file(), "screenshot missing: " + filename)
+        raw = image.read_bytes()
+        ensure(len(raw) > 1024 and raw[:8] == b"\x89PNG\r\n\x1a\n"
+               and raw[12:16] == b"IHDR",
+               "invalid/empty PNG: " + filename)
+        # Check actual PNG chunk framing/CRC. A forged IHDR-only blob is
+        # not a screenshot and must not pass an independent evidence gate.
+        import zlib
+        cursor = 8
+        seen_idat = False
+        seen_iend = False
+        while cursor + 12 <= len(raw):
+            size = struct.unpack(">I", raw[cursor:cursor+4])[0]
+            end = cursor + 12 + size
+            ensure(size <= 100_000_000 and end <= len(raw),
+                   "PNG chunk truncated: " + filename)
+            kind = raw[cursor+4:cursor+8]
+            data = raw[cursor+8:cursor+8+size]
+            checksum = struct.unpack(">I", raw[cursor+8+size:end])[0]
+            ensure(zlib.crc32(kind + data) & 0xffffffff == checksum,
+                   "PNG chunk CRC invalid: " + filename)
+            if kind == b"IDAT":
+                seen_idat = True
+            if kind == b"IEND":
+                seen_iend = True
+                ensure(end == len(raw), "PNG trailing bytes: " + filename)
+                break
+            cursor = end
+        ensure(seen_idat and seen_iend,
+               "PNG image data missing: " + filename)
+        width, height = struct.unpack(">II", raw[16:24])
+        # Full-page captures must match the viewport. Cropped module/row
+        # screenshots are intentionally narrower and some table rows short.
+        is_fullpage = filename.startswith("a2-fullpage-")
+        ensure(80 <= width <= viewport + 2 and height >= 40
+               and (not is_fullpage or width == viewport),
+               "wrong viewport PNG: " + filename)
+        return {"file": filename, "sha256": hashlib.sha256(raw).hexdigest(),
+                "width": width, "height": height}
+
+    bugs = {}
+    for bug, stem in A2_REDLINE_SHOTS.items():
+        bugs[bug] = {
+            "status": "HOLD_INDEPENDENT_VISUAL_COMPARISON",
+            "screenshots": {str(view): check_image(f"{stem}-{view}.png", view)
+                            for view in A2_VISUAL_VIEWPORTS},
+        }
+    for viewport in (390, 360):
+        check_image(f"a2-sp-cta-after-anchor-{viewport}.png", viewport)
+    report = {
+        "schema": "aa8-a2-redline-visual-evidence-v1",
+        "pr": 180, "head_sha": head_sha, "bugs": bugs,
+        "screenshot_integrity": "PASS",
+        "independent_reference_comparison": "NOT_ATTESTED",
+        "p0_p1_closure": "NOT_ATTESTED",
+        "visual_approval": "HOLD", "production_release": "HOLD",
+    }
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n",
+                   encoding="utf-8")
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("audit", "pr"))
+    parser.add_argument("mode", choices=("audit", "pr", "visual-evidence"))
     parser.add_argument("--event", type=Path)
     parser.add_argument("--files", type=Path)
+    parser.add_argument("--head-sha")
+    parser.add_argument("--screenshots", type=Path)
+    parser.add_argument("--out", type=Path)
     args = parser.parse_args()
     try:
         c = load()
-        if args.mode == "audit":
+        if args.mode == "visual-evidence":
+            ensure(args.head_sha and args.screenshots and args.out,
+                   "A2 exact SHA, screenshots and output required")
+            result = a2_visual_evidence(args.head_sha,
+                                        args.screenshots, args.out)
+            print(json.dumps({"status":"A2_EVIDENCE_PASS",
+                "visual_approval":result["visual_approval"],
+                "bugs":len(result["bugs"]), "head_sha":args.head_sha}))
+        elif args.mode == "audit":
             print(json.dumps({"status": "DESIGN_CODE_TRACE_PASS",
                               "modules": [x["id"] for x in c["traceability"]],
                               "release": "HOLD"}, ensure_ascii=False))

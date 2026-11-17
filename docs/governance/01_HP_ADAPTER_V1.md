@@ -110,3 +110,12 @@ The existing Git-integrated Vercel Review project returns 404 for the source-fil
 - The default-branch merge of this narrow activation must still receive
   the CEO's exact-SHA approval and pass independent QA. An isolated Draft
   CI green alone is not proof of event-triggered postdeploy E2E.
+
+
+## A2 CEO redline visual evidence gate (2026-11-17)
+
+- The existing CI and separate-technical-qa runner must download and verify the same-run exact-HEAD screenshots for all V01-V15 on PC1440 / SP390 / SP360, plus clicked mobile CTA screenshots. Missing, damaged, or wrong-viewport PNG = CI FAIL.
+- Existing scripts/hp_governance_quality_gate.py checks screenshot bytes, dimensions and SHA256, and writes an A2 matrix into the existing separate-QA artifact. No new workflow, job, runner, Factory, schedule or standalone approval process.
+- The only automatic conclusion is screenshot_integrity=PASS and visual_approval=HOLD. Original CEO redline comparison, every P0/P1 closure and genuinely independent visual judgment remain NOT_ATTESTED until separately evidenced on the exact same SHA.
+- Technical CI/Preview SHA may pass independently to keep the existing postdeployment hash check working. Such PASS must NEVER be presented as visual signoff; normal Factory handoff remains WAIT_DESIGN_QA/HOLD.
+- CEO-controlled GitHub accounts do not count as separate people. If original reference or independent verdict is missing, Production NO-GO. The 80-point stop rule applies only to optional aesthetics, never to mandatory safety, facts, functionality or P0/P1 defects.
