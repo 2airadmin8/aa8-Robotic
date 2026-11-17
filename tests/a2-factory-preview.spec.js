@@ -337,3 +337,42 @@ for (const width of [1440,390,360]) {
     await consultation.screenshot({path:'a2-qa-artifacts/a2-consult-'+width+'.png'});
   });
 }
+
+// CEO annotated Bug List V03/V04/V05: independent browser measurements
+// must reject dense 4-column cards and undersized image captions.
+for(const width of [1440,390,360]){
+  test('A2 visual buglist V03 V04 V05 '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const resp=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(resp.status()).toBe(200);
+    const a=page.locator('main[data-product-id="unitree-a2"]');
+    for(const [section,selector] of [
+      ['#capabilities','.g1-factory-facts'],
+      ['#applications','.g1-factory-applications']
+    ]){
+      const grid=a.locator(section+' '+selector);
+      await expect(grid.locator('article')).toHaveCount(4);
+      const g=await grid.evaluate(el=>({
+        columns:getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean),
+        cards:[...el.querySelectorAll('article')].map(x=>({
+          width:x.getBoundingClientRect().width,scrollWidth:x.scrollWidth,
+          height:x.getBoundingClientRect().height
+        }))
+      }));
+      expect(g.columns).toHaveLength(width===1440?2:1);
+      expect(g.cards.every(x=>x.width>180 && x.scrollWidth<=x.width+2)).toBe(true);
+    }
+    const captions=page.locator('#media .g1-factory-media-grid figcaption');
+    await expect(captions).toHaveCount(5);
+    const sizes=await captions.evaluateAll(els=>els.map(x=>parseFloat(getComputedStyle(x).fontSize)));
+    expect(sizes.every(x=>x>=14)).toBe(true);
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    for(const [key,section] of [['facts','#capabilities'],['usecases','#applications'],['media','#media']]){
+      await a.locator(section).screenshot({
+        path:'a2-qa-artifacts/a2-buglist-'+key+'-'+width+'.png'
+      });
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+  });
+}

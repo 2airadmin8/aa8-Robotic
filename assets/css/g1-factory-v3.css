@@ -751,3 +751,63 @@
     color: #242424;
   }
 }
+
+/* CEO screenshot Bug List V03/V04/V05.
+   Fix dense A2-only value/application cards and tiny manufacturer captions.
+   Existing Fact/Spec/CTA source data and official media attribution unchanged. */
+@media (min-width: 781px) {
+  .g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+}
+.g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts article,
+.g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications article {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 24px 22px;
+  line-height: 1.7;
+  height: 100%;
+}
+.g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts strong {
+  font-size: clamp(21px, 2vw, 26px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts p,
+.g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications p {
+  font-size: 15px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications h3 {
+  font-size: 19px;
+  line-height: 1.5;
+}
+.g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts small,
+.g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications small {
+  display: block;
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.g1-page[data-product-id="unitree-a2"] #media .g1-factory-media-grid figcaption {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #415d6e;
+}
+@media (max-width: 780px) {
+  .g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts,
+  .g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .g1-page[data-product-id="unitree-a2"] #capabilities .g1-factory-facts article,
+  .g1-page[data-product-id="unitree-a2"] #applications .g1-factory-applications article {
+    padding: 20px 18px;
+  }
+}
