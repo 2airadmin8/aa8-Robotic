@@ -21,7 +21,10 @@ for (const width of [1440, 390, 360]) {
         await expect(button).toHaveAttribute('aria-expanded', 'false');
         await button.click();
         await expect(button).toHaveAttribute('aria-expanded', 'true');
-        await expect(nav.locator('a[href="/contact.html"]')).toBeVisible();
+        const navConsult = nav.locator('a[href*="contact.html"]').first();
+        await expect(navConsult).toBeVisible();
+        const navHref = await navConsult.getAttribute('href');
+        expect(new URL(navHref, PUBLIC + '/' + product.detailPage).pathname).toBe('/contact.html');
         await page.keyboard.press('Escape');
         await expect(button).toHaveAttribute('aria-expanded', 'false');
         await expect(nav).toBeHidden();
