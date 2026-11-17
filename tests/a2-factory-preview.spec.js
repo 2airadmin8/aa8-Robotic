@@ -459,4 +459,35 @@ for(const width of [1440,390,360]) {
     expect(await page.evaluate(()=>document.documentElement.scrollWidth))
       .toBeLessThanOrEqual(width+2);
   });
+}// Sales-page source presentation regression: card value first, source
+// consolidated under the maker's specification/resources disclosure.
+// This must NOT affect the JSON source contracts or the other SKUs.
+for(const width of [1440,390,360]){
+  test('A2 sales-first consolidated official sources '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const resp=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(resp.status()).toBe(200);
+    const root=page.locator('main[data-product-id="unitree-a2"]');
+    await expect(root.locator('#capabilities article')).toHaveCount(4);
+    await expect(root.locator('#applications article')).toHaveCount(4);
+    await expect(root.locator('#specifications tr.a2-spec-row')).toHaveCount(37);
+    await expect(root.locator('#capabilities article a')).toHaveCount(0);
+    await expect(root.locator('#applications article a')).toHaveCount(0);
+    await expect(root.locator('#specifications tr.a2-spec-row a')).toHaveCount(0);
+    const source=root.locator('#specifications .g1-factory-source');
+    await expect(source).toHaveCount(1);
+    await expect(source.locator('summary')).toHaveText('メーカー資料・詳細仕様');
+    await source.locator('summary').click();
+    const link=source.locator('a[href="https://www.unitree.com/A2/"]');
+    await expect(link).toBeVisible();
+    await expect(root.locator('.g1-hero-image + .g1-image-caption a[href="https://www.unitree.com/A2/"]')).toHaveCount(1);
+    await expect(root.locator('#model-selection [data-model-inquiry]')).toHaveCount(2);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width+2);
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await root.locator('#capabilities').screenshot({
+      path:'a2-qa-artifacts/a2-no-inline-source-cards-'+width+'.png'
+    });
+  });
 }

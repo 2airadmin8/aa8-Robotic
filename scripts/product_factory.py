@@ -277,11 +277,21 @@ def audit_catalog(root: Path) -> tuple[list[str], list[str], dict]:
     return errors, warnings, {"products": len(products), "ids": len(seen), "factoryEnabled": factory_count}
 
 
-def _item_html(items: list[dict], kind: str) -> str:
+def _item_html(items: list[dict], kind: str, inline_sources: bool = True) -> str:
     if kind == "facts":
-        return "\n".join(f'<article><strong>{esc(x["value"])}</strong><p>{esc(x["label"])}</p><small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">仕様出典 ↗</a></small></article>' for x in items)
+        return "\n".join(
+            f'<article><strong>{esc(x["value"])}</strong><p>{esc(x["label"])}</p>'
+            + (f'<small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">仕様出典 ↗</a></small>'
+               if inline_sources else "")
+            + '</article>' for x in items
+        )
     if kind == "applications":
-        return "\n".join(f'<article><h3>{esc(x["title"])}</h3><p>{esc(x["description"])}</p><small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></article>' for x in items)
+        return "\n".join(
+            f'<article><h3>{esc(x["title"])}</h3><p>{esc(x["description"])}</p>'
+            + (f'<small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small>'
+               if inline_sources else "")
+            + '</article>' for x in items
+        )
     if kind == "specifications":
         return "\n".join(f'<tr><th scope="row">{esc(x["label"])}</th><td>{esc(x["value"])} <small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></td></tr>' for x in items)
     if kind == "faq":
@@ -338,8 +348,7 @@ def render_variant_compare_specs(product: dict, spec: dict) -> str:
             seen.add(label)
             rendered.append(
                 '<tr class="a2-spec-row" data-spec-row="true"><th scope="row">'
-                + esc(label) + ' <small><a href="' + esc(row["sourceUrl"])
-                + '" target="_blank" rel="noopener noreferrer">公式出典 ↗</a></small></th>'
+                + esc(label) + '</th>'
                 + '<td data-model="A2">' + esc(std) + '</td>'
                 + '<td data-model="A2-PRO">' + esc(pro) + '</td></tr>'
             )
@@ -587,7 +596,9 @@ def render(root: Path, product: dict, mode: str) -> str:
         ),
         "spec_heading": "製品スペック" if spec.get("v3") else "メーカー公開仕様",
         "spec_origin": (
-            '<details class="g1-factory-source"><summary>仕様の出典・確認情報</summary>'
+            '<details class="g1-factory-source"><summary>' +
+            ('メーカー資料・詳細仕様' if slug == 'unitree-a2' else '仕様の出典・確認情報') +
+            '</summary>'
             '<p>' + esc(product["manufacturerName"]) + '公式の公表値を参照。確認日：' + esc(product["verifiedAt"]) +
             '。掲載値は購入するSKU・オプション構成で異なる場合があります。 '
             '<a href="' + source + '" target="_blank" rel="noopener noreferrer">'
@@ -609,8 +620,11 @@ def render(root: Path, product: dict, mode: str) -> str:
         "hero_image": esc(local_asset(root, product["image"], "hero", IMAGE_EXT)),
         "hero_alt": esc(product["imageAlt"]),
         "contact": esc(contact),
-        "facts": _item_html(spec["facts"], "facts"),
-        "applications": _item_html(spec["applications"], "applications"),
+        # CEO sales-page requirement: A2 values first; do not append a maker
+        # source link to every card. All per-item URLs remain in Product Master
+        # and the official maker link remains in the single specs resource area.
+        "facts": _item_html(spec["facts"], "facts", inline_sources=(slug != "unitree-a2")),
+        "applications": _item_html(spec["applications"], "applications", inline_sources=(slug != "unitree-a2")),
         "specifications": render_variant_compare_specs(product, spec),
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
