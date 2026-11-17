@@ -376,3 +376,44 @@ for(const width of [1440,390,360]){
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
   });
 }
+
+
+// CEO screenshot Bug List V02 V13 V14: verify the DOM item is hidden,
+// original hero's photo entry is still available, and customer comparison
+// cards retain readable descriptions/links across PC/SP.
+for(const width of [1440,390,360]){
+  test('A2 buglist V02 V13 V14 navigation FAQ related '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const a=page.locator('main[data-product-id="unitree-a2"]');
+    await expect(a.locator('.g1-anchor-nav a[href="#media"]')).toBeHidden();
+    await expect(a.locator('.g1-hero a[href="#media"]')).toBeVisible();
+    const faq=a.locator('#faq .g1-faq-list details');
+    await expect(faq).toHaveCount(5);
+    const summarySizes=await faq.locator('summary').evaluateAll(els=>els.map(el=>({
+      font:parseFloat(getComputedStyle(el).fontSize),
+      padding:parseFloat(getComputedStyle(el).paddingTop)
+    })));
+    expect(summarySizes.every(v=>v.font>=16 && v.padding<=16)).toBe(true);
+    const links=a.locator('#related .g1-factory-related-card');
+    await expect(links).toHaveCount(3);
+    for(const card of await links.all()){
+      const data=await card.evaluate(el=>{
+        const desc=el.querySelector('small'),more=el.querySelector('em');
+        return {
+          descriptionFont:parseFloat(getComputedStyle(desc).fontSize),
+          maxLines:getComputedStyle(desc).webkitLineClamp,
+          visibleLink:getComputedStyle(more).display!=='none',
+          href:el.getAttribute('href')
+        };
+      });
+      expect(data.descriptionFont).toBeGreaterThanOrEqual(14);
+      expect(data.maxLines).toBe('3');
+      expect(data.visibleLink).toBe(true);
+      expect(data.href).toMatch(/^\/products\/[a-z0-9-]+\.html$/);
+    }
+    await a.locator('#related').screenshot({path:'a2-qa-artifacts/a2-buglist-related-'+width+'.png'});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+  });
+}

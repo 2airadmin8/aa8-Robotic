@@ -811,3 +811,65 @@
     padding: 20px 18px;
   }
 }
+
+/* CEO screenshot Bug List V02/V13/V14: A2 only.
+ * "写真" is redundant in the sticky chapter navigation because the HERO
+ * already has a direct "公式写真を見る" link. Keep media itself accessible.
+ * Compact FAQ whitespace and equalize overly long related product cards,
+ * preserving all article/FAQ/source text and legitimate destinations.
+ */
+.g1-page[data-product-id="unitree-a2"] .g1-anchor-nav a[href="#media"] {
+  display: none;
+}
+.g1-page[data-product-id="unitree-a2"] #faq .g1-faq-list summary {
+  padding: 15px 16px;
+  border-bottom: 1px solid #e1e9ec;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.g1-page[data-product-id="unitree-a2"] #faq .g1-faq-list details[open] > summary {
+  border-bottom-color: #c7dbe5;
+}
+.g1-page[data-product-id="unitree-a2"] #faq .g1-faq-list details p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #3a5566;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-grid {
+  align-items: stretch;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card {
+  height: 100%;
+  justify-content: flex-start;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  flex: 0 1 auto;
+  min-height: 0;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card em {
+  margin-top: auto;
+  padding-top: 15px;
+}
+@media(max-width:520px){
+  .g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card {
+    display: grid;
+    grid-template-columns: 108px minmax(0,1fr);
+    gap: 8px 15px;
+  }
+  .g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-photo {
+    grid-row: 1 / span 3;
+    width: 100%;
+    align-self: center;
+  }
+  .g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card strong,
+  .g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card small,
+  .g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card em {
+    min-width: 0;
+    margin: 0;
+  }
+}
