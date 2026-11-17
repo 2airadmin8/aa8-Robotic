@@ -181,3 +181,13 @@ Factory/Runner/Workflow/Cron from this standard.
 exact-SHA report identifies TECHNICAL_PASS, VISUAL_HOLD/PASS,
 HUMAN_FACT_HOLD/PASS, BUSINESS_E2E_HOLD/PASS and RELEASE_HOLD/READY,
 with original source links and no fabricated approvals.
+
+
+### 15 CEO redlines must have 15 DISTINCT screenshot captures
+Previous A2 QA mapped several bug IDs to the same generic full-page PNG.
+That is valid evidence the page rendered but INVALID as independent proof
+of bug-by-bug coverage. Each V01-V15 now requires a distinct screenshot
+from its relevant DOM section at PC1440/SP390/SP360, plus screenshot byte
+uniqueness across bug IDs and the existing CRC/size/SHA integrity checks.
+Original reference-to-current visual comparison still remains human/QA
+HOLD until actually attested; no automated approval is invented.

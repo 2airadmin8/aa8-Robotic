@@ -258,16 +258,8 @@ def check_pr(event: dict, file_list: object, root: Path = ROOT,
 
 
 # CEO A2 redline screenshot integrity audit; NOT automated visual approval.
-A2_REDLINE_SHOTS = {
-    "V01": "a2-fullpage", "V02": "a2-fullpage",
-    "V03": "a2-buglist-facts", "V04": "a2-buglist-usecases",
-    "V05": "a2-sales-media", "V06": "a2-fullpage",
-    "V07": "a2-fullpage", "V08": "a2-spec-first-row",
-    "V09": "a2-spec-heading", "V10": "a2-sales-sdk",
-    "V11": "a2-sales-solutions", "V12": "a2-sales-process",
-    "V13": "a2-sales-faq", "V14": "a2-sales-related",
-    "V15": "a2-sales-cta",
-}
+A2_REDLINE_SHOTS = {f"V{i:02d}": f"a2-redline-V{i:02d}" for i in range(1, 16)}
+
 A2_VISUAL_VIEWPORTS = (1440, 390, 360)
 
 
@@ -316,7 +308,7 @@ def a2_visual_evidence(head_sha: str, screenshots: Path, out: Path) -> dict:
         # Full-page captures must match the viewport. Cropped module/row
         # screenshots are intentionally narrower and some table rows short.
         is_fullpage = filename.startswith("a2-fullpage-")
-        ensure(80 <= width <= viewport + 2 and height >= 40
+        ensure(80 <= width <= viewport + 2 and height >= 24
                and (not is_fullpage or width == viewport),
                "wrong viewport PNG: " + filename)
         return {"file": filename, "sha256": hashlib.sha256(raw).hexdigest(),
@@ -329,6 +321,11 @@ def a2_visual_evidence(head_sha: str, screenshots: Path, out: Path) -> dict:
             "screenshots": {str(view): check_image(f"{stem}-{view}.png", view)
                             for view in A2_VISUAL_VIEWPORTS},
         }
+    # Each CEO redline needs its own image, not a recycled full-page PNG.
+    for viewport in A2_VISUAL_VIEWPORTS:
+        digests=[bugs[bug]["screenshots"][str(viewport)]["sha256"] for bug in bugs]
+        ensure(len(set(digests)) == len(A2_REDLINE_SHOTS),
+               "duplicate/reused screenshot across redline bugs")
     for viewport in (390, 360):
         check_image(f"a2-sp-cta-after-anchor-{viewport}.png", viewport)
     report = {

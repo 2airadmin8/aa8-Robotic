@@ -43,3 +43,13 @@
   preview-postdeploy bridge test; separate technical QA still runs it.
 - No new PR, Factory, runner, workflow, scheduler, source number edits,
   production merge, CRM/ERP write or Pages publish.
+
+
+### 2026-11-17 QA correction: reject duplicated redline screenshot evidence
+- Former A2 evidence mapper reused one full-page screenshot for several V IDs;
+  the apparent 15/15 reference coverage was stronger than the evidence.
+- The existing Playwright captures 15 separate DOM-section screenshots
+  across 1440/390/360; the existing independent QA checker enforces
+  distinct PNG hashes by Bug ID in addition to integrity/dimension/SHA.
+- This prevents false screenshot coverage. It does NOT automate
+  independent original-redline design comparison or permit Production.

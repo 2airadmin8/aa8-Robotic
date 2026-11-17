@@ -190,6 +190,38 @@ for (const width of [1440, 390, 360]) {
       fullPage:true,
       animations:'disabled'
     });
+    // One UNIQUE section screenshot per CEO redline V01-V15, not four
+    // different bug IDs mapped to the same generic full-page image.
+    // Screenshot existence is technical evidence, never visual approval.
+    const redlineAreas=[
+      ['V01','.g1-hero'], ['V02','.g1-anchor-nav'],
+      ['V03','#capabilities'], ['V04','#applications'],
+      ['V05','#media'], ['V06','#model-selection'],
+      ['V07','#model-selection .a2-foot-disclosure'],
+      ['V08','#specifications'], ['V09','#specifications .g1-factory-source'],
+      ['V10','#development'], ['V11','#solutions'],
+      ['V12','#introduction'], ['V13','#faq'],
+      ['V14','#related'], ['V15','#contact-product']
+    ];
+    for(const [bugId,selector] of redlineAreas){
+      const section=root.locator(selector);
+      await expect(section).toHaveCount(1);
+      // The CEO marked the LONG note and source region, not just the
+      // collapsed 23px accordion. Capture actual expanded content as proof.
+      const expanded=(bugId==='V07'||bugId==='V09');
+      if(expanded) {
+        // For reference screenshots, force the disclosure open without
+        // relying on scroll-triggered auto-close handlers. Real click
+        // interaction is tested in separate Playwright cases.
+        await section.evaluate(el=>{el.open=true});
+        await expect(section).toHaveJSProperty('open',true);
+      }
+      await section.screenshot({
+        path:'a2-qa-artifacts/a2-redline-'+bugId+'-'+width+'.png',
+        animations:'disabled'
+      });
+      if(expanded) await section.evaluate(el=>{el.open=false});
+    }
 
     if (width<=390) {
       expect(cards[0].right).toBeLessThanOrEqual(width+2);
