@@ -10,6 +10,7 @@
     const syncNavigationState = () => {
       const isOpen = navigation.classList.contains('open');
       menuButton.setAttribute('aria-expanded', String(isOpen));
+      menuButton.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
       document.body.classList.toggle('nav-is-open', isOpen);
     };
 
@@ -32,9 +33,23 @@
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && navigation.classList.contains('open')) {
+      if (!navigation.classList.contains('open')) return;
+      if (event.key === 'Escape') {
         closeNavigation();
         menuButton.focus();
+        return;
+      }
+      // Keep keyboard focus in the full-screen menu until it is closed.
+      if (event.key === 'Tab') {
+        const links = [...navigation.querySelectorAll('a[href]')];
+        const lastLink = links[links.length - 1];
+        if (event.shiftKey && document.activeElement === menuButton && lastLink) {
+          event.preventDefault();
+          lastLink.focus();
+        } else if (!event.shiftKey && document.activeElement === lastLink) {
+          event.preventDefault();
+          menuButton.focus();
+        }
       }
     });
 
