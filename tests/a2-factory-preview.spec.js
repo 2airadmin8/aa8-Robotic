@@ -564,3 +564,48 @@ for (const width of [1440,390,360]) {
       .toBeLessThanOrEqual(width+2);
   });
 }
+
+
+// Final CTA anchor overlay regression on narrow screens. The generic
+// "element visible" check missed the second sticky chapter nav covering
+// lead copy in a real screenshot.
+for (const width of [390,360]) {
+  test('A2 mobile CTA anchor unobscured visible sales copy '+width, async ({page})=>{
+    await page.setViewportSize({width,height:900});
+    const reply=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(reply.status()).toBe(200);
+    const chapter=page.locator('main[data-product-id="unitree-a2"] .g1-anchor-nav');
+    expect(await chapter.evaluate(el=>getComputedStyle(el).position)).toBe('static');
+    await chapter.locator('a[href="#contact-product"]').click();
+    // The site uses smooth scrolling; at 350ms the browser may be only
+    // halfway down its long specs page. Assert AFTER scroll has settled.
+    await page.waitForFunction(()=>{
+      const r=document.querySelector('#contact-product h2').getBoundingClientRect();
+      return r.top>65 && r.top<240;
+    },null,{timeout:12000});
+    await page.waitForTimeout(350); // screenshot only after smooth scroll settles
+    const measure=await page.evaluate(()=>{
+      const main=document.querySelector('main[data-product-id="unitree-a2"]');
+      const sec=main.querySelector('#contact-product');
+      const title=sec.querySelector('h2').getBoundingClientRect();
+      const lead=sec.querySelector('p:not(.g1-kicker)').getBoundingClientRect();
+      const header=document.querySelector('.site-header')?.getBoundingClientRect();
+      const stickyBottom=header&&header.top<window.innerHeight ? Math.max(0,header.bottom):0;
+      const isUncovered=(r)=>{
+        const x=Math.max(0,Math.min(innerWidth-1,r.left+r.width/2));
+        const y=Math.max(0,Math.min(innerHeight-1,r.top+Math.min(r.height/2,15)));
+        const hit=document.elementFromPoint(x,y);
+        return Boolean(hit&&sec.contains(hit));
+      };
+      return {titleTop:title.top,leadTop:lead.top,headerBottom:stickyBottom,
+        titleVisible:isUncovered(title),leadVisible:isUncovered(lead)};
+    });
+    expect(measure.titleTop).toBeGreaterThan(measure.headerBottom+5);
+    expect(measure.leadTop).toBeGreaterThan(measure.headerBottom+5);
+    expect(measure.titleVisible).toBe(true);
+    expect(measure.leadVisible).toBe(true);
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await page.screenshot({path:'a2-qa-artifacts/a2-sp-cta-after-anchor-'+width+'.png',fullPage:false});
+  });
+}

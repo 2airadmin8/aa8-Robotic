@@ -956,3 +956,16 @@
   font-size: 14px;
   line-height: 1.65;
 }
+
+/* A2 SP P1: two simultaneous sticky navigation bars obscure sales copy.
+   Keep the normal site header; the chapter nav remains usable in flow. */
+@media (max-width: 780px) {
+  .g1-page[data-product-id="unitree-a2"] .g1-anchor-nav {
+    position: static;
+    top: auto;
+    z-index: auto;
+  }
+  .g1-page[data-product-id="unitree-a2"] #contact-product {
+    scroll-margin-top: 88px;
+  }
+}
