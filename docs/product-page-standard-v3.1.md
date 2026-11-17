@@ -107,3 +107,29 @@ nor does it certify SDK compatibility or actual CRM customer creation.
   and must never be assumed from query-prefill tests.
 - Existing manufacturer CTA links are not all category-neutral by design;
   preserve explicit buyer-intent links unless product-level review says otherwise.
+
+## Buyer-first SKU page: sales copy and evidence separation (2026-11-17)
+
+The page is built for a Japanese buyer/researcher deciding whether to consult
+AirAdmin8, not to demonstrate how many warnings or source links the developer
+can print. Keep the semantic role baseline and product-specific visual
+design, but prioritize: Hero buyer value → verifiable product capabilities →
+applicable uses → realistic model choice → optional deep specifications/SDK →
+PoC/purchase steps → one clear consultation action.
+
+- Put a manufacturer's primary URL and dated snapshot provenance under
+  specifications/resources. Store the per-parameter maker URLs in the
+  data contract; do not repeat a "仕様出典" footer in every sales card.
+- Distinguish static load, continuous walking load, maker testing and
+  deployable local capability. If source does not establish SDK/ROS2/price/
+  service/warranty, do not promise it. State qualifications compactly
+  where the decision is made or in an accessible disclosure.
+- Visual QA must compare buyer reading sequence and content hierarchy
+  against the approved reference image. PC1440/SP390/SP360 screenshot
+  capture, no overflow, clickability and byte-hash checks are necessary
+  technical evidence, NOT visual signoff.
+- Model selection is optional and must be sourced. Long comparison tables
+  may be disclosed/anchored in SP without deleting approved facts; the
+  consultation action must remain easy to reach.
+- Customer inquiry prefill only proves link construction. The formal
+  Inquiry Master/CRM E2E is separate and is never inferred from HTTP200.

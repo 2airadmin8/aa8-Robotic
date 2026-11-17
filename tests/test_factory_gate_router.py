@@ -36,6 +36,8 @@ class UniversalGateTest(unittest.TestCase):
   x=discover(ROOT,["tests/fixtures/x2-pilot/product.json","scripts/product_factory.py"])
   self.assertEqual(x["ids"],["agibot-x2-series"])
   self.assertTrue(x["global_factory_change"])
+  self.assertEqual(x["work_scope"],"GLOBAL_FACTORY")
+  self.assertTrue(x["all_13_public_product_regression_required"])
   self.assertEqual(route(173,SHA,self.outcomes(),x,"date")["state"],"WAIT_FACTORY_QA")
  def test_shared_css_and_site_js_require_full_factory_qa(self):
   for path in ("assets/css/g1-factory-v1.css","assets/css/shared-layout.css","assets/js/site.js"):
@@ -43,6 +45,27 @@ class UniversalGateTest(unittest.TestCase):
     x=discover(ROOT,[path])
     self.assertTrue(x["global_factory_change"])
     self.assertEqual(route(173,SHA,self.outcomes(),x,"date")["state"],"WAIT_FACTORY_QA")
+ def test_a2_real_source_evidence_has_separate_human_hold(self):
+  a=discover(ROOT,["tests/fixtures/a2-factory/product.json",
+                   "scripts/product_factory.py"])
+  self.assertEqual(a["work_scope"],"GLOBAL_FACTORY")
+  self.assertEqual(a["master_count"],13)
+  facts=a["pilot_fact_quality"]["unitree-a2"]
+  self.assertEqual(facts["maker_rows"],37)
+  self.assertEqual(facts["model_cells"],74)
+  self.assertEqual(facts["independent_technical_semantic_review"],"PASS_REFERENCE_ONLY")
+  self.assertEqual(facts["row_review_statuses"],["TRANSLATION_REVIEW_PENDING"])
+  self.assertEqual(facts["human_semantic_signoff"],"NOT_ATTESTED")
+  out=route(180,SHA,self.outcomes(),a,"date")
+  self.assertEqual(out["state"],"WAIT_FACTORY_QA")
+  self.assertEqual(out["product_gates"][0]["manufacturer_human_semantic_signoff"],"NOT_ATTESTED")
+  self.assertEqual(out["release"],"HOLD")
+  mixed=discover(ROOT,["tests/fixtures/a2-factory/product.json",
+                       "products/unitree-g1-d.html","scripts/product_factory.py"])
+  status={x["product_id"]:x["manufacturer_human_semantic_signoff"]
+          for x in route(180,SHA,self.outcomes(),mixed,"date")["product_gates"]}
+  self.assertEqual(status["unitree-a2"],"NOT_ATTESTED")
+  self.assertEqual(status["unitree-g1-d"],"EXISTING_PUBLIC_PRODUCT_NOT_REATTESTED_IN_THIS_PR")
  def test_no_product_change_never_fabricates_agent(self):
   x=discover(ROOT,["README.md"])
   self.assertEqual(x["work_scope"],"NO_PRODUCT_SCOPE")

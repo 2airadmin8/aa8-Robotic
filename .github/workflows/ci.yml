@@ -419,7 +419,6 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
-          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
           python -m unittest discover -s tests -p 'test_preview_bundle_universal.py' -v
           python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
@@ -645,6 +644,10 @@ jobs:
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| BuildによるSource汚染なし | $(status_icon '${{ steps.source_clean.outcome }}') |"
+            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.number }}" = "180" ]; then
+              echo "| A2 15项CEO视觉签核 | VISUAL_HOLD（截图证据不等于独立视觉验收） |"
+              echo "| A2 日文厂家事实真人签核 | FACT_HOLD（技术对照不等于真人批准） |"
+            fi
             echo ""
             echo "Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"

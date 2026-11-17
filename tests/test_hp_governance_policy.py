@@ -43,6 +43,33 @@ class PolicyV1(unittest.TestCase):
         self.assertIn("public _site/",security)
 
 
+    def test_a2_technical_fact_pass_is_not_human_approval(self):
+        import json
+        folder = ROOT / "tests/fixtures/a2-factory"
+        maker = json.loads((folder / "maker-live-contract.json").read_text("utf-8"))
+        rows = [r for g in maker["categories"] for r in g["rows"]]
+        self.assertEqual(len(rows), 37)
+        self.assertTrue(all(r["review_status"] == "TRANSLATION_REVIEW_PENDING"
+                            for r in rows))
+        result = json.loads((folder / "independent-technical-fact-review-74.json").read_text("utf-8"))
+        self.assertEqual(result["status"], "TECH_SEMANTIC_QA_PASS")
+        self.assertEqual(result["cells_checked"], 74)
+        self.assertEqual(result["independent_human_review"], "NOT_ATTESTED")
+        self.assertEqual(result["production_release"], "HOLD")
+
+    def test_product_pr_template_requires_business_data_qa_and_scope(self):
+        template = (ROOT / ".github/PULL_REQUEST_TEMPLATE.md").read_text("utf-8")
+        for required in (
+            "产品PR定义", "共通Factory", "厂家数据双层签核",
+            "逐项视觉对照", "MAKER_HUMAN_FACT_SIGNOFF", "LEAD_CRM_E2E"
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, template)
+        governance = (DOCS / "01_HP_ADAPTER_V1.md").read_text("utf-8")
+        self.assertIn("GLOBAL_FACTORY", governance)
+        self.assertIn("TRANSLATION_REVIEW_PENDING", governance)
+        self.assertIn("80 points", governance)
+
     def test_a2_15_redline_evidence_never_auto_approves(self):
         import json
         import struct

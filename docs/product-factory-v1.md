@@ -182,3 +182,27 @@ API can return 404 and is replaced by actual authenticated runtime SHA1
 verification of all registered generated Preview HTML and their linked assets.
 Do not promote a candidate with unauthenticated HTML or missing runtime files.
 The first active event remains a separate live E2E acceptance condition.
+
+## Product PR factory: single SKU versus shared impact (2026-11-17)
+
+- Draft fixture is a safe candidate input, not a second public Product Master.
+  All official 13 products continue to be read from data/products.json;
+  adding a new SKU requires an independently authorized product record
+  and separate controlled publishing.
+- Any change to scripts/product_factory.py, its template, shared header/
+  footer/menu, relevant shared CSS/JS, or CI changes the **Factory contract**
+  even when PR's only new fixture is A2. Thus assign GLOBAL_FACTORY scope
+  and require cross-product regression, then separate candidate QA.
+- Cross-SKU facts/metadata/CTA/data rendering must not be modified to
+  solve one draft's CSS or copy complaint. Use explicit product-scoped
+  presentation where necessary; preserve existing JSON source references,
+  maker facts and approved public product output.
+- Factory stages: G0 evidence + real manufacturer snapshot; G1 business
+  customer value + 4-family module map; G2 source/preview generation and
+  noindex/CTA checks; G3 cross-product and device QA with before/after
+  screenshot evidence; G4 independent visual and human semantic facts;
+  G5 exact-SHA CEO release/rollback. No stage can borrow a PASS from another.
+- A real Bug recurrence means the generator's source/template or
+  QA requirement is wrong; adding CSS on top of another override is not a
+  root-cause fix. Once all mandatory gates pass, close within the
+  80-point optional design standard and stop speculative polish.

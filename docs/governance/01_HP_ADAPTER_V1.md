@@ -119,3 +119,65 @@ The existing Git-integrated Vercel Review project returns 404 for the source-fil
 - The only automatic conclusion is screenshot_integrity=PASS and visual_approval=HOLD. Original CEO redline comparison, every P0/P1 closure and genuinely independent visual judgment remain NOT_ATTESTED until separately evidenced on the exact same SHA.
 - Technical CI/Preview SHA may pass independently to keep the existing postdeployment hash check working. Such PASS must NEVER be presented as visual signoff; normal Factory handoff remains WAIT_DESIGN_QA/HOLD.
 - CEO-controlled GitHub accounts do not count as separate people. If original reference or independent verdict is missing, Production NO-GO. The 80-point stop rule applies only to optional aesthetics, never to mandatory safety, facts, functionality or P0/P1 defects.
+
+## Product PR single contract | architecture/data/QA/release (2026-11-17)
+
+**One Product PR = one verifiable business delivery contract.** It is NOT a
+stack of successful CI runs. Keep the existing Factory, Product Master,
+Figma V3.2 authority, Product Standard V3.1 and GitHub manual-only release.
+
+1. **Architecture owner** — website public SSOT remains data/products.json
+   (currently 13). New candidate stays in tests/fixtures/*/product.json
+   with releaseReady=false and no public HTML. ERP/PAI Product Master is a
+   separate business system; never infer matching IDs or CRM writes.
+   Header/Footer/menu and template/CSS/CI are cross-product shared code.
+   Any PR touching shared Factory + one SKU is **GLOBAL_FACTORY**, must run
+   regression of all 13 public products as well as the candidate.
+2. **Business owner** — start with the buyer's question: what problem can
+   this SKU address, what are verified product differentiators, and what is
+   the next action? Keep ONE clear consultation CTA (with product/maker/
+   source_page prefill). Put manufacturer documents in a consistent
+   Specs/Resources region rather than repeating source links on every card.
+   Technical cautions must be accurate and discoverable, not hidden as
+   falsely guaranteed specifications nor repeated as sales-negative boilerplate.
+3. **Data owner** — keep four distinct states:
+   (a) raw manufacturer URL/snapshot hash/date and model/option/units;
+   (b) machine bilingual/technical semantic correspondence;
+   (c) independently signed human Japanese semantic/fact review;
+   (d) authorized Production release. They may never collapse into a
+   single PASS. The legacy field name approved_display in
+   maker-live-contract.json is a DISPLAY CANDIDATE while its
+   review_status=TRANSLATION_REVIEW_PENDING; the field name alone grants
+   NO approval. A2 had 37 rows/74 cells technical verification evidence
+   but still no attested human signoff. Differences with reseller data
+   (model variant, battery count, payload modes) remain unresolved, not
+   silently replaced by marketing copy.
+4. **PM/CTO gate owner** — freeze versioned customer requirement, 4 family
+   roles (biped, biped_accessory, quadruped, quadruped_accessory) and mapped
+   semantic modules before development. Each redline BUG gets
+   ID→original reference→Expected/Actual→RCA→patch SHA→PC/SP screens→
+   independent verdict→P0/P1 closure. A screenshot checksum validates
+   evidence integrity, not the independent visual conclusion.
+5. **Independent QA owner** — technical QA, visual comparison, manufacturer
+   human facts, CTA/lead E2E are FOUR independently labeled gates.
+   DEV/authored screenshot tests cannot self-certify visual design.
+   The existing AA8-N-015 can check code and browser, but a genuine
+   independent design verdict requires actual reference-to-result
+   comparison. Two CEO-controlled GitHub identities do not create an
+   independent human reviewer.
+6. **Delivery owner** — first finish Draft's CI and exact-SHA Vercel
+   runtime readback, then separately clear factual/visual/business HOLD.
+   Draft or Vercel Preview SUCCESS never permits main merge, Pages
+   Production or CRM/ERP writes. Release remains one CEO-approved precise
+   SHA with manual-only deploy and online SHA verification.
+
+**Stop discipline:** mandatory safety, facts, functionality and P0/P1 must
+be 100% resolved; approved optional visual quality can stop at 80 points.
+At most three targeted repair iterations; recurrence after three is a
+root-cause/policy issue, not another CEO screenshot task. No new
+Factory/Runner/Workflow/Cron from this standard.
+
+**Product PR handoff**: use ONLY .github/PULL_REQUEST_TEMPLATE.md. A single
+exact-SHA report identifies TECHNICAL_PASS, VISUAL_HOLD/PASS,
+HUMAN_FACT_HOLD/PASS, BUSINESS_E2E_HOLD/PASS and RELEASE_HOLD/READY,
+with original source links and no fabricated approvals.
