@@ -413,12 +413,18 @@ for(const width of [1440,390,360]){
         return {
           descriptionFont:parseFloat(getComputedStyle(desc).fontSize),
           maxLines:getComputedStyle(desc).webkitLineClamp,
+          shortText:desc.textContent.trim().length<=50,
+          unclipped:desc.scrollHeight<=desc.clientHeight+2,
           visibleLink:getComputedStyle(more).display!=='none',
           href:el.getAttribute('href')
         };
       });
       expect(data.descriptionFont).toBeGreaterThanOrEqual(14);
-      expect(data.maxLines).toBe('3');
+      // Original three-line clamp was a workaround for long boilerplate.
+      // New factual A2-related copy must be short AND fully visible.
+      expect(data.shortText).toBe(true);
+      expect(data.unclipped).toBe(true);
+      expect(data.maxLines).toBe('none');
       expect(data.visibleLink).toBe(true);
       expect(data.href).toMatch(/^\/products\/[a-z0-9-]+\.html$/);
     }
@@ -489,5 +495,72 @@ for(const width of [1440,390,360]){
     await root.locator('#capabilities').screenshot({
       path:'a2-qa-artifacts/a2-no-inline-source-cards-'+width+'.png'
     });
+  });
+}
+
+
+// CEO annotated red-mark remediation: verify the actual sales message,
+// not only CSS bytes. Source data and factual caveats remain separately.
+for (const width of [1440,390,360]) {
+  test('A2 sales copy V05 V10 V11 V12 V13 V14 V15 '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const root=page.locator('main[data-product-id="unitree-a2"]');
+    const captions=root.locator('#media .g1-factory-media-grid figcaption');
+    await expect(captions).toHaveCount(5);
+    for(const caption of await captions.all()){
+      const value=await caption.innerText();
+      expect(value.length).toBeLessThanOrEqual(38);
+      expect(value).toContain('Unitree A2');
+    }
+    const sdk=root.locator('#development article');
+    await expect(sdk).toHaveCount(3);
+    await expect(sdk.nth(0).locator('h3')).toHaveText('二次開発の選択肢を確認');
+    await expect(sdk.nth(1).locator('h3')).toHaveText('センサー・外部機器との接続');
+    await expect(sdk.nth(2).locator('h3')).toHaveText('ROS 2を使う研究の進め方');
+    const solutions=root.locator('#solutions article');
+    await expect(solutions).toHaveCount(3);
+    await expect(solutions.nth(0).locator('h3')).toHaveText('不整地走行の研究プラン');
+    const steps=root.locator('#introduction article');
+    await expect(steps).toHaveCount(5);
+    await expect(steps.nth(0).locator('h3')).toHaveText('用途・研究テーマを相談');
+    await expect(steps.nth(3).locator('h3')).toHaveText('PoC・実機評価を計画');
+    await expect(steps.nth(4).locator('h3')).toHaveText('見積・納入・保守を相談');
+    expect(await steps.allTextContents()).not.toContain('PC/SPでの導入候補整理・PoC');
+    const faq=root.locator('#faq details');
+    await expect(faq).toHaveCount(5);
+    await expect(faq.nth(4).locator('summary')).toHaveText('価格・納期・導入支援はどう相談できますか？');
+    await faq.nth(4).locator('summary').click();
+    await expect(faq.nth(4).locator('p')).toContainText('お見積りします');
+    const related=root.locator('#related .g1-factory-related-card');
+    await expect(related).toHaveCount(3);
+    const desc=await related.locator('small').allTextContents();
+    expect(desc.every(x=>x.length<50)).toBe(true);
+    const cards=root.locator('#contact-product .g1-cta-card');
+    await expect(cards).toHaveCount(3);
+    await expect(root.locator('#contact-product h2')).toHaveText('Unitree A2の導入・PoCを、ここから相談。');
+    await expect(cards.first()).toHaveAttribute('data-factory-cta','3');
+    await expect(cards.first().locator('strong')).toHaveText('A2の導入・PoCを相談する');
+    await expect(cards.first().locator('em')).toHaveText('相談フォームへ →');
+    const href=new URL(await cards.first().getAttribute('href'),ORIGIN);
+    expect(href.pathname).toBe('/contact.html');
+    expect(href.searchParams.get('product')).toBe('Unitree A2');
+    expect(href.searchParams.get('maker')).toBe('Unitree');
+    await expect(cards.nth(1).locator('strong')).toHaveText('製品・走行写真を見る');
+    await expect(cards.nth(1).locator('em')).toHaveText('写真を見る →');
+    await expect(cards.nth(2).locator('strong')).toHaveText('A2とA2-PROを比較する');
+    await expect(cards.nth(2).locator('em')).toHaveText('モデルを比較 →');
+    expect(await root.locator('#specifications tr.a2-spec-row').count()).toBe(37);
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    for(const [label,id] of [['media','media'],['sdk','development'],['solutions','solutions'],
+                              ['process','introduction'],['faq','faq'],['related','related'],['cta','contact-product']]){
+      await root.locator('#'+id).screenshot({
+        path:'a2-qa-artifacts/a2-sales-'+label+'-'+width+'.png'
+      });
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width+2);
   });
 }

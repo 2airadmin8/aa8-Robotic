@@ -513,6 +513,8 @@ def render(root: Path, product: dict, mode: str) -> str:
     slug = product["id"]
     name = esc(product["name"])
     source = esc(official_url(spec["officialSource"], "officialSource"))
+    # A2 image captions are short customer-facing labels; image/sourceUrl
+    # contract stays verified and its required source remains in one place.
     media_images = "\n".join(
         f'<figure><img loading="lazy" src="{esc(local_asset(root,x["src"],"image",IMAGE_EXT))}" alt="{esc(x["alt"])}"><figcaption>{esc(x["alt"])}</figcaption></figure>'
         for x in spec["images"]
@@ -547,20 +549,37 @@ def render(root: Path, product: dict, mode: str) -> str:
         ("02 / COMPARE THE HARDWARE", "#specifications", "仕様を比較する", "メーカー公開仕様と導入条件を整理します。"),
         ("03 / PLAN YOUR NEXT STEP", contact, "研究・導入を相談する", "用途、SDK、見積、納期を個別に確認します。"),
     ]
+    if slug == "unitree-a2":
+        card_data = [
+            ("02 / OFFICIAL PHOTOS", "#media", "製品・走行写真を見る", "屋外での実演シーンや機体の姿を写真で確認できます。"),
+            ("03 / COMPARE MODELS", "#model-selection", "A2とA2-PROを比較する", "センサー構成や用途から、適したモデルを検討します。"),
+            ("01 / CONSULTATION", contact, "A2の導入・PoCを相談する", "研究目的、必要な構成、予算や納期をご相談ください。"),
+        ]
+    # Show consultation FIRST in the DOM as well as visually. Keep stable
+    # data-factory-cta indexes so consent/CTA integration tests are preserved.
+    card_order = (2, 0, 1) if slug == "unitree-a2" else range(3)
     cards = "\n".join(
-        f'<a class="g1-cta-card" href="{esc(url)}" data-factory-cta="{i+1}">'
-        f'<span class="g1-cta-photo"><img loading="lazy" src="{cta_img[i]}" alt="{esc(title)}"></span>'
-        f'<span class="g1-cta-number">{esc(kicker)}</span><strong>{esc(title)}</strong>'
-        f'<small>{esc(description)}</small><em>詳細を見る →</em></a>'
-        for i, (kicker, url, title, description) in enumerate(card_data)
+        f'<a class="g1-cta-card" href="{esc(card_data[i][1])}" data-factory-cta="{i+1}">'
+        f'<span class="g1-cta-photo"><img loading="lazy" src="{cta_img[i]}" alt="{esc(card_data[i][2])}"></span>'
+        f'<span class="g1-cta-number">{esc(card_data[i][0])}</span><strong>{esc(card_data[i][2])}</strong>'
+        f'<small>{esc(card_data[i][3])}</small><em>{esc(
+            ("相談フォームへ →" if i == 2 else "写真を見る →" if i == 0 else "モデルを比較 →")
+            if slug == "unitree-a2" else "詳細を見る →"
+        )}</em></a>'
+        for i in card_order
     )
     by_id = {p["id"]: p for p in catalog(root)}
+    a2_related_summaries = {
+        "unitree-go2-edu": "小型の四足ロボットを研究・教育用途で比較したい方へ。",
+        "agibot-g2": "移動操作ロボットとの用途・開発環境の違いを比較。",
+        "unitree-h2-plus": "人型ロボットとの研究テーマや導入条件を比較。",
+    } if slug == "unitree-a2" else {}
     related = "\n".join(
         f'<a class="g1-factory-related-card" href="/{esc(by_id[rid]["detailPage"])}">'
         f'<span class="g1-factory-related-photo"><img loading="lazy" decoding="async" '
         f'src="{esc(local_asset(root,by_id[rid]["image"],"related",IMAGE_EXT))}" '
         f'alt="{esc(by_id[rid]["imageAlt"])}"></span>'
-        f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(by_id[rid]["summary"])}</small>'
+        f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(a2_related_summaries.get(rid, by_id[rid]["summary"]))}</small>'
         f'<em>製品詳細へ →</em></a>' for rid in spec["relatedProductIds"]
     )
     hero_actions = (
@@ -605,9 +624,18 @@ def render(root: Path, product: dict, mode: str) -> str:
             'メーカー公式仕様を見る ↗</a></p></details>'
             if spec.get("v3") else ""
         ),
-        "cta_lead": ("動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
-                     if spec["videos"] else
-                     "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"),
+        "cta_lead": (
+            "研究目的・対象現場・必要な装備を整理し、モデル選定からPoC・見積の進め方までご相談いただけます。"
+            if slug == "unitree-a2" else
+            "動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
+            if spec["videos"] else
+            "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"
+        ),
+        "final_cta_heading": (
+            "Unitree A2の導入・PoCを、ここから相談。"
+            if slug == "unitree-a2" else
+            name + " の可能性を、次の一歩へ。"
+        ),
         "media_attribution": "画像・動画出典" if spec["videos"] else "画像出典",
         "title": esc(spec["title"]),
         "description": esc(spec["metaDescription"]),
@@ -633,7 +661,11 @@ def render(root: Path, product: dict, mode: str) -> str:
             '<div class="g1-factory-videos">' + videos + '</div>'
             '<p class="g1-fine">メーカー映像と実際の納入仕様は異なる場合があります。動作保証ではありません。</p>'
             if spec["videos"] else
-            ('<p class="g1-fine g1-v3-video-note">提供された公式製品素材には検証可能な動画がありません。'
+            ('<p class="g1-fine g1-v3-video-note">掲載写真はメーカーの実演例です。'
+             '詳しい仕様・試験条件は <a href="' + source +
+             '" target="_blank" rel="noopener noreferrer">メーカー公式資料</a>でご確認ください。</p>'
+             if slug == "unitree-a2" else
+             '<p class="g1-fine g1-v3-video-note">提供された公式製品素材には検証可能な動画がありません。'
              '最新の実演情報は <a href="' + source +
              '" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>')
         ),

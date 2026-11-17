@@ -926,3 +926,33 @@
   outline: 3px solid #007da9;
   outline-offset: -3px;
 }
+
+
+/* CEO screenshot V05-V15 sales-focused content R3 — A2-only. */
+.g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card[data-factory-cta="3"] {
+  background: #eff8fd;
+  border: 2px solid #007da9;
+  box-shadow: 0 8px 20px rgba(0,93,130,.13);
+}
+.g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card[data-factory-cta="3"] strong {
+  font-size: clamp(20px, 1.7vw, 24px);
+  line-height: 1.45;
+}
+.g1-page[data-product-id="unitree-a2"] #contact-product .g1-cta-card[data-factory-cta="3"] em {
+  color: #006d93;
+  font-size: 16px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.g1-page[data-product-id="unitree-a2"] #related .g1-factory-related-card small {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  display: block;
+  overflow: visible;
+}
+.g1-page[data-product-id="unitree-a2"] #media .g1-factory-media-grid figcaption {
+  display: block;
+  -webkit-line-clamp: unset;
+  font-size: 14px;
+  line-height: 1.65;
+}

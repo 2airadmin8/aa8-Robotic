@@ -501,50 +501,50 @@
     ],
     "faq": [
       {
-        "question": "A2とA2-PROはセンサーが同じですか？",
-        "answer": "異なります。メーカー仕様表ではA2標準がLiDAR×1＋HDカメラ×1、A2-PROがLiDAR×2＋HDカメラ×1です。ほかの装備差も見積段階で確認します。"
+        "question": "A2とA2-PROは何が違いますか？",
+        "answer": "メーカー仕様ではA2はLiDAR×1＋HDカメラ×1、A2-PROはLiDAR×2＋HDカメラ×1です。目的に合わせて必要な構成をご相談いただけます。"
       },
       {
-        "question": "最大積載100 kgで歩行できますか？",
-        "answer": "できると断定しません。100 kgは最大立位静荷重の参考値、歩行時の連続積載は約25 kgです。メーカーの試験条件と現場条件を分けて判断します。"
+        "question": "歩行中には何kg程度を積載できますか？",
+        "answer": "歩行時の参考積載量は約25 kgです。約100 kgの最大立位静荷重とは条件が異なります。走行環境や搭載方法に合わせて検討します。"
       },
       {
-        "question": "屋外巡検の自律運転にそのまま使えますか？",
-        "answer": "完成済みの自律運転を保証しません。LiDAR・カメラ・通信と二次開発の対応を踏まえ、必要な制御・地図・安全要件をPoCで検証します。"
+        "question": "屋外点検のPoCでは何を検証できますか？",
+        "answer": "センサー構成を踏まえ、地図化、巡検ルート、制御方法、安全計画などを評価します。完成済みの自律巡検機能を保証するものではありません。"
       },
       {
-        "question": "研究用SDKは標準で利用できますか？",
-        "answer": "メーカーは二次開発対応と公表していますが、対象A2型番の配布条件、OS/SDK、サンプルコードやROS 2互換性は公式資料・販売窓口で確認が必要です。"
+        "question": "SDKやROS 2を使った研究はできますか？",
+        "answer": "メーカーは二次開発への対応を案内しています。SDKの配布範囲、対象OSとROS 2の適合条件は選定する型番・構成に応じて確認します。"
       },
       {
-        "question": "価格や納期は確定していますか？",
-        "answer": "このプレビューでは確定していません。正式構成と輸入・保守・安全要件を確認後、個別に見積をご案内します。"
+        "question": "価格・納期・導入支援はどう相談できますか？",
+        "answer": "研究目的、必要装備、希望時期をお知らせください。正式構成と保守条件を確認し、個別にお見積りします。"
       }
     ],
     "images": [
       {
         "src": "assets/img/products/unitree/a2-factory-pilot/unitree-a2-maker-01.jpg",
-        "alt": "Unitree A2 メーカー実演素材：耐環境試験のイメージ。仕様・検証条件は別途確認。",
+        "alt": "Unitree A2｜メーカー公開の耐環境試験シーン",
         "sourceUrl": "https://www.unitree.com/images/b8f82abe4aa34240b0e72438869c3ca4_1920x1080.jpg"
       },
       {
         "src": "assets/img/products/unitree/a2-factory-pilot/unitree-a2-maker-02.jpg",
-        "alt": "Unitree A2 メーカー実演素材：野外運搬・移動シーン。標準装備の保証ではありません。",
+        "alt": "Unitree A2｜屋外の移動・搬送実演",
         "sourceUrl": "https://www.unitree.com/images/9124f2efd3c04a16a2846bd1d516e757_1920x1080.jpg"
       },
       {
         "src": "assets/img/products/unitree/a2-factory-pilot/unitree-a2-maker-03.jpg",
-        "alt": "Unitree A2 メーカー実演素材：段差・地形走行シーン。実環境性能は現場で検証。",
+        "alt": "Unitree A2｜段差・不整地での走行実演",
         "sourceUrl": "https://www.unitree.com/images/c2943dab465043558d8521970d6d0851_1920x1080.jpg"
       },
       {
         "src": "assets/img/products/unitree/a2-factory-pilot/unitree-a2-maker-04.jpg",
-        "alt": "Unitree A2 メーカー実演素材：岩場の走行シーン。安全な試験計画を優先。",
+        "alt": "Unitree A2｜岩場での移動実演",
         "sourceUrl": "https://www.unitree.com/images/c1c651cb2725425f9af606fc481eff83_1920x1080.jpg"
       },
       {
         "src": "assets/img/products/unitree/a2-factory-pilot/unitree-a2-maker-05.jpg",
-        "alt": "Unitree A2 メーカー実演素材：人と同じ現場での運用例。安全距離を厳守。",
+        "alt": "Unitree A2｜人がいる環境での運用イメージ",
         "sourceUrl": "https://www.unitree.com/images/1cd5245e9671450f81cd159cf3923817_1920x1080.jpg"
       }
     ],
@@ -565,55 +565,55 @@
     "v3": {
       "sdk": [
         {
-          "title": "メーカーの二次開発対応を確認",
-          "description": "A2はSecondary Development対応として公開。サンプル実装、ソフトウェア版、API提供範囲は別途照会します。"
+          "title": "二次開発の選択肢を確認",
+          "description": "メーカーはA2の二次開発対応を案内しています。研究に必要なAPIやSDK、サンプルコードの提供範囲は、対象構成と合わせて確認します。"
         },
         {
-          "title": "研究用接続インターフェース",
-          "description": "メーカー公表のRS485・CAN・Gigabit Ethernet・USBと開発用演算機を参照。現場システムとの接続互換を検証します。"
+          "title": "センサー・外部機器との接続",
+          "description": "公表されているRS485、CAN、Gigabit Ethernet、USBなどを参考に、研究機材と接続する構成を検討できます。"
         },
         {
-          "title": "ROS 2等の活用可否",
-          "description": "ROS 2がA2向けに同梱されているとは断定しません。SDKと対象OSの適用条件を導入前に確認します。"
+          "title": "ROS 2を使う研究の進め方",
+          "description": "研究環境に必要なOS・SDKとROS 2との適合条件を整理し、対象型番で利用できる範囲を確認します。"
         }
       ],
       "solutions": [
         {
-          "title": "研究用不整地走行試験",
-          "description": "斜面・段差・歩行時積載を安全な試験計画に落とし込み、参考公表値と実測値を分離。",
+          "title": "不整地走行の研究プラン",
+          "description": "段差・斜面・歩行時積載を研究課題に合わせて比較。メーカー参考値と実測データを分けて評価します。",
           "supportSectionId": "university"
         },
         {
-          "title": "屋外設備点検PoC",
-          "description": "センサー構成と安全境界を確認し、必要な地図化・巡検ルート・人の操作を試験。",
+          "title": "設備点検PoCの進め方",
+          "description": "LiDAR・カメラの構成を踏まえ、点検ルート、地図化、遠隔操作や安全対策を検討します。",
           "supportSectionId": "poc"
         },
         {
-          "title": "現場実装時の選定・見積支援",
-          "description": "必要構成、運搬物、環境条件、保守・部品・輸入手配を確認し、導入可否を判断。",
+          "title": "研究・現場に合う構成を選ぶ",
+          "description": "搭載機器、対象環境、保守と調達条件を整理し、A2/A2-PROの選定から見積まで検討します。",
           "supportSectionId": "procurement"
         }
       ],
       "process": [
         {
-          "title": "目的と対象現場の確認",
-          "description": "大学研究、点検、搬送などの使い方と評価指標を定義。"
+          "title": "用途・研究テーマを相談",
+          "description": "走行研究、巡検、搬送など、まず実現したい目的と評価項目を整理します。"
         },
         {
-          "title": "対象A2型番・オプションの確定",
-          "description": "A2標準とA2-PROのセンサー差や必要装備を照合。"
+          "title": "A2/A2-PROと装備を選定",
+          "description": "センサー構成、必要な搭載機器、運用環境を比較します。"
         },
         {
-          "title": "資料とSDK条件の確認",
-          "description": "配布条件、接続、搭載制約と安全要求を照会。"
+          "title": "SDK・安全条件を確認",
+          "description": "接続方式、ソフトウェア配布条件と現場の安全計画を確認します。"
         },
         {
-          "title": "PC/SPでの導入候補整理・PoC",
-          "description": "メーカー参考値と現場実測値を分離して試験。"
+          "title": "PoC・実機評価を計画",
+          "description": "評価手順を決め、メーカー参考値と現場での実測結果を分けて検証します。"
         },
         {
-          "title": "購入・保守条件の相談",
-          "description": "正式な価格、納期、保証と国内支援範囲を個別に確認。"
+          "title": "見積・納入・保守を相談",
+          "description": "価格、納期、保証、国内支援の範囲を正式な構成に合わせて確認します。"
         }
       ],
       "resourceSearchUrl": "/resources.html?maker=unitree&product=quadruped&type=sdk&keyword=A2",
