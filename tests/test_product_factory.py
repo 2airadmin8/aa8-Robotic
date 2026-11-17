@@ -223,7 +223,7 @@ class ProductFactoryContractTests(unittest.TestCase):
         # and the official manufacturer resources link stays visible.
         self.assertNotIn("仕様出典 ↗", source)
         self.assertGreaterEqual(source.count("出典 ↗"), 3)
-        self.assertIn("メーカー公式ページ", source)
+        self.assertIn(self.item["pageFactory"]["officialSource"], source)
 
 
     def test_no_video_product_copy_is_consistent(self):
