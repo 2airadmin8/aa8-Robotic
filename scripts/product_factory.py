@@ -651,8 +651,8 @@ def render(root: Path, product: dict, mode: str) -> str:
         # CEO sales-page requirement: A2 values first; do not append a maker
         # source link to every card. All per-item URLs remain in Product Master
         # and the official maker link remains in the single specs resource area.
-        "facts": _item_html(spec["facts"], "facts", inline_sources=(slug != "unitree-a2")),
-        "applications": _item_html(spec["applications"], "applications", inline_sources=(slug != "unitree-a2")),
+        "facts": _item_html(spec["facts"], "facts", inline_sources=False),
+        "applications": _item_html(spec["applications"], "applications", inline_sources=False),
         "specifications": render_variant_compare_specs(product, spec),
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
