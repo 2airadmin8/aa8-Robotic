@@ -142,9 +142,13 @@ for (const width of [1440, 390, 360]) {
       expect(style.color).toBe('rgb(255, 255, 255)');
       expect(style.display).not.toBe('none');
     }
-    await expect(page.locator('#development .g1-fine')).toBeVisible();
-    await expect(page.locator('#solutions .g1-fine')).toBeVisible();
-    await expect(page.locator('#introduction .g1-fine')).toBeVisible();
+    for (const id of ['model-selection','development','solutions','introduction']) {
+      const disclosure=page.locator('#'+id+' details.a2-foot-disclosure');
+      await expect(disclosure).toHaveCount(1);
+      await expect(disclosure.locator('summary')).toBeVisible();
+      await disclosure.locator('summary').click();
+      await expect(disclosure.locator('.g1-fine')).toBeVisible();
+    }
     await expect(page.locator('#contact-product .g1-cta-card')).toHaveCount(3);
     await expect(page.locator('#contact-product > .g1-shell > p:not(.g1-kicker)').first()).toBeVisible();
     for (const item of await page.locator('#development article,#solutions article,#introduction article').all()) {
@@ -313,7 +317,10 @@ for (const width of [1440,390,360]) {
     expect(target.pathname).toBe('/contact.html');
     expect(target.searchParams.get('product')).toBe('Unitree A2');
     expect(target.searchParams.get('maker')).toBe('Unitree');
-    const caution=root.locator('#development .g1-fine');
+    const disclosure=root.locator('#development details.a2-foot-disclosure');
+    await expect(disclosure.locator('summary')).toBeVisible();
+    await disclosure.locator('summary').click();
+    const caution=disclosure.locator('.g1-fine');
     await expect(caution).toBeVisible();
     expect(await caution.evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(14);
     const related=root.locator('#related .g1-factory-related-card small').first();
@@ -415,5 +422,39 @@ for(const width of [1440,390,360]){
     }
     await a.locator('#related').screenshot({path:'a2-qa-artifacts/a2-buglist-related-'+width+'.png'});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+  });
+}
+
+
+// CEO screenshot V07/V10/V11/V12: long cautions are not thrown away.
+// Original text and manufacturer source links must remain accessible after
+// keyboard/real user expansion on all actual page sizes.
+for(const width of [1440,390,360]) {
+  test('A2 red-box notes compact but preserved V07 V10 V11 V12 '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(ORIGIN+'/a2-factory-preview.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const root=page.locator('main[data-product-id="unitree-a2"]');
+    for(const section of ['model-selection','development','solutions','introduction']){
+      const el=root.locator('#'+section+' details.a2-foot-disclosure');
+      await expect(el).toHaveCount(1);
+      expect(await el.evaluate(e=>e.open)).toBe(false);
+      await expect(el.locator('summary')).toBeVisible();
+      const summary=await el.locator('summary').innerText();
+      expect(summary).toContain('確認');
+      await el.locator('summary').click();
+      await expect(el.locator('.g1-fine')).toBeVisible();
+      expect((await el.locator('.g1-fine').innerText()).length).toBeGreaterThan(26);
+      if(section==='development'){
+        const sdk=root.locator('#development .a2-direct-resource a');
+        await expect(sdk).toBeVisible();
+        expect(await sdk.getAttribute('href')).toContain('/resources.html?');
+      }
+    }
+    const fs=require('node:fs');
+    fs.mkdirSync('a2-qa-artifacts',{recursive:true});
+    await root.locator('#development').screenshot({path:'a2-qa-artifacts/a2-buglist-sdk-'+width+'.png'});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth))
+      .toBeLessThanOrEqual(width+2);
   });
 }

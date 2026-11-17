@@ -395,9 +395,36 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
         return empty
 
     def section(anchor: str, kicker: str, title: str, inner: str, foot: str) -> str:
+        # A2 CEO screenshot review: long supplementary notes must no longer
+        # dominate the page. Preserve every warning and source in a real,
+        # keyboard-operable disclosure, never remove maker restrictions.
+        if product["id"] == "unitree-a2" and anchor in {
+            "model-selection", "development", "solutions", "introduction"
+        }:
+            labels = {
+                "model-selection": "型番・仕様の確認事項（必ずご確認ください）",
+                "development": "SDK・配布条件の確認事項（必ずご確認ください）",
+                "solutions": "研究構成・保証範囲の確認事項（必ずご確認ください）",
+                "introduction": "責任分界・見積条件（必ずご確認ください）",
+            }
+            direct = ""
+            if anchor == "development":
+                direct = ('<p class="a2-direct-resource"><a href="' +
+                          esc(v3["resourceSearchUrl"]) +
+                          '">関連SDK・開発資料を探す →</a></p>')
+            elif anchor == "solutions":
+                direct = ('<p class="a2-direct-resource"><a href="/support.html">'
+                          '導入支援・責任分界を確認する →</a></p>')
+            foot_markup = (
+                direct + '<details class="a2-foot-disclosure"><summary>' +
+                labels[anchor] + '</summary><div class="g1-fine">' +
+                foot + '</div></details>'
+            )
+        else:
+            foot_markup = '<p class="g1-fine">' + foot + '</p>'
         return (f'<section class="g1-section g1-factory-section g1-factory-v3" id="{anchor}"><div class="g1-shell">\n'
                 f'<p class="g1-kicker">{kicker}</p><h2>{title}</h2>\n'
-                + inner + '\n<p class="g1-fine">' + foot + '</p>\n</div></section>')
+                + inner + '\n' + foot_markup + '\n</div></section>')
 
     models = v3.get("models", [])
     def render_model_row(item: dict) -> str:

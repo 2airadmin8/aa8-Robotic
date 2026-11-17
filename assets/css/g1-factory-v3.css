@@ -873,3 +873,56 @@
     margin: 0;
   }
 }
+
+/* CEO screenshot V07/V10/V11/V12: preserve maker/SDK limitations behind
+   accessible compact A2-only supplement. All original legal text remains. */
+.g1-page[data-product-id="unitree-a2"] .a2-direct-resource {
+  display: block;
+  margin: 15px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-direct-resource a {
+  color: #006f97;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure {
+  margin: 15px 0 0;
+  border: 1px solid #d7e4ea;
+  border-radius: 8px;
+  background: #f7fafb;
+  overflow: hidden;
+  color: #28485b;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure summary {
+  display: list-item;
+  padding: 15px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.65;
+  font-weight: 700;
+  color: #26516a;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure[open] summary {
+  border-bottom: 1px solid #d7e4ea;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure .g1-fine {
+  display: block;
+  margin: 0;
+  padding: 17px 18px;
+  border: 0;
+  background: #ffffff;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #345366;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure a {
+  color: #007199;
+  text-decoration: underline;
+}
+.g1-page[data-product-id="unitree-a2"] .a2-foot-disclosure summary:focus-visible {
+  outline: 3px solid #007da9;
+  outline-offset: -3px;
+}
