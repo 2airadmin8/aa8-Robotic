@@ -35,3 +35,35 @@ The original homepage HTML, WordPress theme CSS, menu runtime JS, and header/foo
 - An independently generated offline component extraction and PC1440/PC1024/SP1023/SP390/SP360 preview is available as review artifact outside published product paths. It does not amend the existing `site-header`/`site-footer` until approval and full regression.
 
 **Gate boundary:** corporate extraction/preview is source-grounded, not approval of 13 live pages; legacy CSS collisions and active certifications remain distinct HOLDs.
+
+## Figma native component handoff and code freeze (2026-11-18)
+
+**Existing target:** https://www.figma.com/design/uo56l51NgUqit4976LV6P2
+**Actual Figma write status:** BLOCKED_STARTER_API_QUOTA. The connected Figma API explicitly refused the write. No native Figma nodes, variables, component keys or sign-off can be claimed. SVG preview and importable token JSON are staged; they are NOT native reusable Figma components yet.
+
+### Unique design-token code contract
+- SSOT primary-source capture: `ops/brand-preview/mother-site-contract-v1.json`.
+- Figma-ready variables: `ops/brand-preview/figma-corporate-tokens-v1.json`.
+- Code implementation: **existing owner** `assets/css/shared-layout.css` (AA8_CORPORATE_BRAND_V1_OPT_IN), **existing runtime** `assets/js/site.js`, **existing HTML include** `includes/site-header.html`.
+- Owner of public product facts remains `data/products.json`; no Figma layer may alter a numeric manufacturer fact.
+- Key colors: #0069B5 / #009BD2 / #00B2BC, body text #333333, Footer #F4F8FA; Noto Sans JP 16px PC / 15px SP; body tracking .05em.
+- Corporate shell must be *opt-in* via `body.aa8-corporate-v1`; public 13 products and Production remain unchanged until authorized rollout.
+
+### Target Figma reusable components (native nodes PENDING)
+| Target component | Required properties/variants | Code owner |
+| --- | --- | --- |
+| AA8/Corporate/Header | Desktop / Mobile, logo using approved official asset | includes/site-header.html + shared-layout.css |
+| AA8/Corporate/MobileMenu | Open / Closed; 1023px; full-screen gradient; keyboard access | assets/js/site.js + shared-layout.css |
+| AA8/Corporate/Footer | Desktop / Mobile, four grouped semantic nav sections, legal facts verified | includes/site-footer.html + shared-layout.css |
+| AA8/Corporate/CTA | Main Header 130×40 radius21 / rectangular content CTA | shared design tokens, page action CSS |
+| AA8/Corporate/Typography | Desktop / Mobile text hierarchy, token-bound | existing main-site-experience.css after approval |
+
+### Mandatory release contract
+1. Figma token/variant IDs and independently reviewed native component screenshots; design **NOT_APPROVED** until actually written and read back.
+2. Same token values in CSS and Figma; existing Python contract gate must PASS.
+3. PC1440/SP390/SP360, plus mother mobile breakpoint 1023/1024, actual Chrome menu/CTA/keyboard/scroll checks must PASS.
+4. Explicit product catalogue 13/13 visual and functionality regression when opt-in is applied to actual pages.
+5. Safety: no ISMS-certification or address text is imported from mother site without current verification. All manufacturer facts and CRM E2E are separate release HOLDs.
+6. CEO one-shot exact-SHA approval required before main merge and manual-only Pages deployment.
+
+Stop when required quality passes; do not invent a second Factory, a separate HTML renderer, extra PRs, or a new persistent runner.
