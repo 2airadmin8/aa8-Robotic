@@ -181,6 +181,66 @@ def rewrite_canonical(html: str, relative: Path) -> str:
     raise ValueError(f"{relative}: </head> not found for canonical injection")
 
 
+def apply_corporate_product_v33(html: str, relative: Path, isolated_preview: bool) -> str:
+    """Apply the V3.3 *visual* build layer, not a product data migration.
+
+    Shared corporate shell/font applies to public Robotics pages. The single
+    V3.3 specifications owner is linked only on product catalog pages.
+    Historical/isolated A2 Preview is intentionally not reclassified as public.
+    """
+    if isolated_preview:
+        return html
+
+    def corporate_body(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if "aa8-corporate-v1" in tag:
+            return tag
+        klass = re.search(r'\bclass=(["\'])(.*?)\1', tag, flags=re.I | re.S)
+        if klass:
+            original = klass.group(2)
+            value = f'{original} aa8-corporate-v1'.strip()
+            return tag[:klass.start(2)] + value + tag[klass.end(2):]
+        return tag[:-1] + ' class="aa8-corporate-v1">'
+
+    html, count = re.subn(r'<body\b[^>]*>', corporate_body, html, count=1, flags=re.I)
+    if count != 1:
+        raise ValueError(f"{relative}: corporate V3.3 body missing")
+
+    # Original mother site loads these Japanese/Latin families. Preserve
+    # fallback; do not reuse WordPress jQuery, zoom lock or minute-busting CSS.
+    if "fonts.googleapis.com/css2?family=Noto" not in html:
+        fonts = (
+            '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+            '<link rel="stylesheet" '
+            'href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900'
+            '&amp;family=Noto+Serif+JP:wght@400'
+            '&amp;family=Poppins:wght@400;500;700;900&amp;display=swap">'
+        )
+        html = html.replace("</head>", fonts + "\n</head>", 1)
+
+    is_public_product = (
+        relative.parts[0] == "products"
+        and 'data-aa8-product-standard="3.1"' in html
+    )
+    if is_public_product:
+        main = re.compile(r'<main\b(?=[^>]*data-aa8-product-standard=["\']3\.1["\'])[^>]*>', re.I)
+        if 'data-aa8-visual-version="3.3"' not in html:
+            html, count = main.subn(
+                lambda m: m.group(0)[:-1] + ' data-aa8-visual-version="3.3">',
+                html, count=1,
+            )
+            if count != 1:
+                raise ValueError(f"{relative}: V3.3 visual scope missing product main")
+        if "assets/css/product-standard-v33.css" not in html:
+            stylesheet = (
+                f'<link rel="stylesheet" href="{page_prefix(relative)}'
+                f'assets/css/product-standard-v33.css?v={BUILD_VERSION}">'
+            )
+            html = html.replace("</head>", stylesheet + "\n</head>", 1)
+    return html
+
+
 def build_html(html: str, relative: Path) -> str:
     prefix = page_prefix(relative)
     isolated_preview = '<meta name="robots" content="noindex,nofollow">' in html and 'data-product-factory="g1-v1"' in html
@@ -221,6 +281,7 @@ def build_html(html: str, relative: Path) -> str:
             scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
     if scripts and "</body>" in html:
         html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
+    html = apply_corporate_product_v33(html, relative, isolated_preview)
     return html
 
 
