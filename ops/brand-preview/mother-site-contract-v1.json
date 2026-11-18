@@ -6,7 +6,9 @@
     {
       "kind": "homepage_html",
       "url": "https://www.air-admin8.co.jp/",
-      "sha256": "91108f431c2c67770aa1f13778976b69c5e01b7e0e7827d1dc81a5dc5eb6c919"
+      "sha256": "0c549e90adde717598080a462937ff3f494abe55dad8d3755a6a93ca74a1a6c0",
+      "dynamic": true,
+      "snapshotBytes": 117512
     },
     {
       "kind": "theme_css",
@@ -94,5 +96,6 @@
     "sku": "existing factory CSS",
     "data": "data/products.json"
   },
-  "staging": "Existing Draft PR #180; no main merge, no Pages deployment, no Production CRM write"
+  "staging": "Existing Draft PR #180; no main merge, no Pages deployment, no Production CRM write",
+  "snapshotPolicy": "Homepage WordPress HTML is dynamically rendered; source SHA identifies a capture only. Theme CSS, common JS and both logos use pinned SHA256."
 }
