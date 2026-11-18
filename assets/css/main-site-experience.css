@@ -2,14 +2,14 @@
    Header, navigation, logo, mobile menu and Footer are owned exclusively by shared-layout.css. */
 
 :root {
-  --aa8-blue: #079fcf;
-  --aa8-blue-dark: #0077b6;
-  --aa8-cyan: #10b8c7;
-  --aa8-ink: #173342;
-  --aa8-text: #526b78;
-  --aa8-line: #dbe8ed;
-  --aa8-pale: #f4fafc;
-  --aa8-pale-blue: #eaf7fb;
+  --aa8-blue: #009bd2;
+  --aa8-blue-dark: #0069b5;
+  --aa8-cyan: #00b2bc;
+  --aa8-ink: #333333;
+  --aa8-text: #333333;
+  --aa8-line: #d9d9d9;
+  --aa8-pale: #f5f5f5;
+  --aa8-pale-blue: #f4f8fa;
   --aa8-white: #fff;
 }
 
