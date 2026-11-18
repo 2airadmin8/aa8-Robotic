@@ -8,7 +8,7 @@
 - New read-only extraction under same R4.1:
   https://drive.google.com/drive/folders/1iOJ-6J-_lXWhLFcL_haRvQZEAcn2gXds
 - Audit files: DEEP_REPORT.md, AUDIT.md, contracts/theme-source-contract.json, css/*.css, source/menu-version-diff.patch, original WordPress Header/Footer fragments; original source files are NOT mutated.
-- Final verified ZIP INSIDE the extraction folder: `AA8_Corporate_Theme_Extract_20261119.zip`; SHA256 `7B11DA5293AD34E2971AC26D476F83D3D7BBD82A73BC3C6D06AA2269F7EE3660` (14 files, no font binaries). Header extractor initially missed `.header__inner`; it was repaired and verified against 4 required selectors, resulting in 44 complete header-family CSS rules.
+- Final verified ZIP INSIDE the extraction folder: `AA8_Corporate_Theme_Extract_20261119.zip`; SHA256 `E9F54744CA38B3F3033CFEC67875E8EFA7ACD96697138431AE9ED819933B3DE8` (34 files: 13 Sass source references, two official logo images, two build manifests, two reproducible one-shot audit scripts, CSS/HTML/JS extracts and evidence; no font binaries). Header extractor initially missed `.header__inner`; it was repaired and verified against 4 required selectors, resulting in 44 complete header-family CSS rules.
 
 ## Verified original / online file identities
 | Source path | SHA256 | Observed status |
