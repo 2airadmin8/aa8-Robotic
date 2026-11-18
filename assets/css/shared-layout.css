@@ -427,6 +427,28 @@ body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > .nav-cta 
   min-height: 40px !important;
   padding: 10px 16px !important;
 }
+/* Corporate mother-site exact PC geometry; opt-in only.
+ * Preserve responsive Robotics navigation below 1280px so 1024px does not overflow.
+ * Parent-source: 130×40 header contact; 220px desktop logo.
+ */
+@media (min-width:1280px) {
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .header-inner {
+    grid-template-columns: 220px minmax(0,1fr) !important;
+  }
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .brand {
+    width: 220px !important;
+  }
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > .nav-cta {
+    box-sizing: border-box !important;
+    width: 130px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 12px !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
 body.aa8-corporate-v1 .footer[data-shared-layout="footer"] {
   background: var(--aa8-corp-footer);
   color: var(--aa8-corp-ink);
