@@ -87,5 +87,50 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("PRODUCTION_HOLD",policy)
         self.assertIn("13-product regression",policy)
 
+    def test_v33_mother_brand_and_white_grey_spec_contract(self):
+        import json
+        from scripts.build_site import build_html
+        mother=json.loads((ROOT/"ops/brand-preview/mother-site-contract-v1.json").read_text(encoding="utf-8"))
+        v33=json.loads((ROOT/"ops/brand-preview/corporate-product-visual-v33.json").read_text(encoding="utf-8"))
+        css=(ROOT/"assets/css/product-standard-v33.css").read_text(encoding="utf-8")
+        foundation=(ROOT/"assets/css/site.css").read_text(encoding="utf-8")
+        content=(ROOT/"assets/css/main-site-experience.css").read_text(encoding="utf-8")
+        self.assertEqual(v33["schema"],"AA8_CORPORATE_PRODUCT_VISUAL_V3.3")
+        self.assertEqual(v33["effectiveDesign"],"3.3")
+        self.assertIn("V3.1",v33["contentAndBuyerJourney"])
+        self.assertEqual(v33["release"],"NO_GO_UNTIL_ALL_REQUIRED_GATES")
+        self.assertIn("FIGMA_NATIVE",v33["status"])
+        for mother_key,code_key in (("deepBlue","deep"),("primaryBlue","primary"),("teal","teal"),("bodyInk","body"),("footerSurface","footer")):
+            self.assertEqual(v33["brandColors"][code_key].lower(),mother["tokens"][mother_key].lower())
+        self.assertEqual(v33["fontFamilies"]["japanese"],mother["tokens"]["fontFamily"])
+        for code,color in (("white","#ffffff"),("group","#eeeeee"),("stripe","#f5f5f5"),("border","#d9d9d9"),("ink","#333333")):
+            self.assertIn(f"--aa8-v33-spec-{code}: {color}",css)
+        self.assertEqual(v33["specTable"]["section"],"#FFFFFF")
+        self.assertEqual(v33["specTable"]["category"],"#EEEEEE")
+        self.assertEqual(v33["specTable"]["even"],"#F5F5F5")
+        self.assertIn('"Noto Sans JP","Montserrat"',foundation)
+        self.assertIn("--blue:#009bd2",foundation)
+        self.assertIn("--ink:#333333",foundation)
+        self.assertIn("--aa8-blue: #009bd2",content)
+        self.assertIn("--aa8-ink: #333333",content)
+        self.assertIn("main[data-aa8-visual-version=\"3.3\"]",css)
+        self.assertIn("#specs .spec-table p:nth-of-type(even)",css)
+        self.assertNotIn("ISMS",css)
+        product_master=json.loads((ROOT/"data/products.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(product_master["products"]),13)
+        self.assertTrue(all(p["pageStandard"]["version"]=="3.1" for p in product_master["products"]))
+        for product in product_master["products"]:
+            relative=Path(product["detailPage"])
+            source=(ROOT/relative).read_text(encoding="utf-8")
+            built=build_html(source,relative)
+            self.assertEqual(built.count('data-aa8-visual-version="3.3"'),1,relative)
+            self.assertEqual(built.count("assets/css/product-standard-v33.css"),1,relative)
+            self.assertEqual(built.count("fonts.googleapis.com/css2?family=Noto"),1,relative)
+            self.assertIn('aa8-corporate-v1',built,relative)
+        home=build_html((ROOT/"index.html").read_text(encoding="utf-8"),Path("index.html"))
+        self.assertIn('aa8-corporate-v1',home)
+        self.assertNotIn("assets/css/product-standard-v33.css",home)
+        self.assertNotIn('data-aa8-visual-version="3.3"',home)
+
 if __name__=="__main__":
     unittest.main()
