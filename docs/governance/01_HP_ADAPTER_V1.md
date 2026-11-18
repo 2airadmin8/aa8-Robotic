@@ -191,3 +191,33 @@ from its relevant DOM section at PC1440/SP390/SP360, plus screenshot byte
 uniqueness across bug IDs and the existing CRC/size/SHA integrity checks.
 Original reference-to-current visual comparison still remains human/QA
 HOLD until actually attested; no automated approval is invented.
+
+## Corporate Product Visual Standard V3.3 — source + executable FAIL gate (2026-11-19)
+
+**Visual candidate ONLY; V3.2 approved visual baseline and Product Standard V3.1
+content remain untouched until V3.3 is independently certified.**
+Exact contract: `docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md`;
+mother verified source: `ops/brand-preview/mother-site-contract-v1.json`;
+v33 contract: `ops/brand-preview/corporate-product-visual-v33.json`.
+
+- CEO non-negotiable rule: every product specification surface WHITE #FFFFFF.
+  All source comparison tables must use header WHITE, category #EEEEEE,
+  odd #FFFFFF, even #F5F5F5, border #D9D9D9 and text #333333.
+  Twelve products render a real table; X2 EDU retains its existing
+  paragraph-based specs while following identical neutral visual rows.
+- Fonts/color from parent theme must be tested at COMPUTED STYLE level:
+  Noto Sans JP, brand #009BD2 / #0069B5 / #00B2BC, body text #333333,
+  footer #F4F8FA. Do not count a CSS declaration as a visual pass.
+- Existing build_site.py installs ONE V3.3 visual owner stylesheet on all 13
+  public product *build artifacts*, not on manufacturer facts or Product Master.
+  Original A2 isolated fixture stays independently controlled.
+- MANDATORY CI: existing Python corporate-source contract test AND existing
+  hp-shared-governance Playwright 13x PC1440/SP390/SP360 CSS computations,
+  real CTA prefill, one shared shell, no overflow; 1023/1024 mother menu edge.
+  Missing one product, wrong neutral color, wrong font or bad hyperlink = FAIL.
+  No duplicate PR/job/Runner/Factory/scheduled monitor.
+- Independent visual source-to-render verdict, native Figma V3.3 editable
+  components/variables and genuine design review remain HOLD. Figma current
+  Starter/View + MCP quota rejection means this round cannot invent Figma PASS.
+  Technical CI green DOES NOT authorize release; CEO exact-SHA approval
+  and manual-only Pages are still required.
