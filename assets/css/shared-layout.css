@@ -453,6 +453,9 @@ body.aa8-corporate-menu-open { overflow: hidden; }
 
 @media (max-width:1023px) {
   body.aa8-corporate-v1 {font-size:15px}
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] {
+    overflow: visible !important;
+  }
   body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .header-inner {
     display: flex !important;
     width: calc(100% - 24px) !important;
@@ -493,14 +496,14 @@ body.aa8-corporate-menu-open { overflow: hidden; }
     display: none !important;
     position: fixed !important;
     z-index: 2101 !important;
-    top: 60px !important; bottom: 0 !important;
+    top: 0 !important; bottom: 0 !important;
     left: 0 !important; right: 0 !important;
     width: 100vw !important; max-width: none !important;
-    height: calc(100dvh - 60px) !important;
+    height: 100dvh !important;
     overflow-y: auto; overscroll-behavior: contain;
     box-sizing: border-box;
     flex-direction: column !important; align-items: stretch !important;
-    padding: 24px 20px calc(40px + env(safe-area-inset-bottom)) !important;
+    padding: 88px 20px calc(40px + env(safe-area-inset-bottom)) !important;
     background: linear-gradient(0deg,var(--aa8-corp-teal),var(--aa8-corp-primary) 50%,var(--aa8-corp-deep)) !important;
     color: #fff !important; gap: 3px !important;
   }
