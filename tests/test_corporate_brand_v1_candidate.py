@@ -58,6 +58,7 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertTrue(all(len(s["sha256"])==64 for s in item["sources"]))
         self.assertTrue(item["copyGates"]["currentIsmsStatusMustBeVerified"])
         self.assertEqual(item["ownership"]["shell"],"assets/css/shared-layout.css")
+        self.assertEqual(item["ownership"]["menuRuntime"],"assets/js/mobile-qa.js")
 
     def test_corporate_preview_not_loaded_by_factory_or_public_pages(self):
         tpl=(ROOT/"scripts/templates/g1_factory_v1.html").read_text(encoding="utf-8")

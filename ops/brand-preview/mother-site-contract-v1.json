@@ -94,7 +94,9 @@
     "shell": "assets/css/shared-layout.css",
     "pageExpression": "assets/css/main-site-experience.css",
     "sku": "existing factory CSS",
-    "data": "data/products.json"
+    "data": "data/products.json",
+    "menuRuntime": "assets/js/mobile-qa.js",
+    "menuLegacyFallback": "assets/js/site.js"
   },
   "staging": "Existing Draft PR #180; no main merge, no Pages deployment, no Production CRM write",
   "snapshotPolicy": "Homepage WordPress HTML is dynamically rendered; source SHA identifies a capture only. Theme CSS, common JS and both logos use pinned SHA256."

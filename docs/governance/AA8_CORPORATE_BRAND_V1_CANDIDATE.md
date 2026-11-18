@@ -44,7 +44,7 @@ The original homepage HTML, WordPress theme CSS, menu runtime JS, and header/foo
 ### Unique design-token code contract
 - SSOT primary-source capture: `ops/brand-preview/mother-site-contract-v1.json`.
 - Figma-ready variables: `ops/brand-preview/figma-corporate-tokens-v1.json`.
-- Code implementation: **existing owner** `assets/css/shared-layout.css` (AA8_CORPORATE_BRAND_V1_OPT_IN), **existing runtime** `assets/js/site.js`, **existing HTML include** `includes/site-header.html`.
+- Code implementation: **existing owner** `assets/css/shared-layout.css` (AA8_CORPORATE_BRAND_V1_OPT_IN), **production capture-phase menu runtime** `assets/js/mobile-qa.js`, fallback `assets/js/site.js`, **existing HTML include** `includes/site-header.html`.
 - Owner of public product facts remains `data/products.json`; no Figma layer may alter a numeric manufacturer fact.
 - Key colors: #0069B5 / #009BD2 / #00B2BC, body text #333333, Footer #F4F8FA; Noto Sans JP 16px PC / 15px SP; body tracking .05em.
 - Corporate shell must be *opt-in* via `body.aa8-corporate-v1`; public 13 products and Production remain unchanged until authorized rollout.
@@ -53,7 +53,7 @@ The original homepage HTML, WordPress theme CSS, menu runtime JS, and header/foo
 | Target component | Required properties/variants | Code owner |
 | --- | --- | --- |
 | AA8/Corporate/Header | Desktop / Mobile, logo using approved official asset | includes/site-header.html + shared-layout.css |
-| AA8/Corporate/MobileMenu | Open / Closed; 1023px; full-screen gradient; keyboard access | assets/js/site.js + shared-layout.css |
+| AA8/Corporate/MobileMenu | Open / Closed; 1023px; full-screen gradient; keyboard access | assets/js/mobile-qa.js + shared-layout.css (site.js fallback) |
 | AA8/Corporate/Footer | Desktop / Mobile, four grouped semantic nav sections, legal facts verified | includes/site-footer.html + shared-layout.css |
 | AA8/Corporate/CTA | Main Header 130×40 radius21 / rectangular content CTA | shared design tokens, page action CSS |
 | AA8/Corporate/Typography | Desktop / Mobile text hierarchy, token-bound | existing main-site-experience.css after approval |
