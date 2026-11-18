@@ -92,7 +92,10 @@ def main() -> None:
     require("display: flex !important" in shared_css, "PC navigation visible-state CSS missing")
 
     site_js = read("assets/js/site.js")
-    require("navigation.classList.toggle('open')" in site_js, "SP menu toggle wiring missing")
+    require(("navigation.classList.toggle(\'open\')" in site_js) or
+            ("navigation.classList.toggle(\'open\', open)" in site_js and
+             "setMenuOpen(!navigation.classList.contains(\'open\'))" in site_js),
+            "SP menu toggle wiring missing")
     require("menuButton.setAttribute('aria-expanded'" in site_js, "SP menu aria-expanded wiring missing")
 
     glossary = read("glossary.html")
