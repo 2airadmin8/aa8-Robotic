@@ -24,7 +24,7 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("AA8_CORPORATE_BRAND_V1_OPT_IN",css)
         self.assertIn("body.aa8-corporate-v1",css)
         self.assertIn("(max-width:1023px)",css)
-        self.assertIn(".aa8-corp-menu-glyph",css)
+        self.assertIn(".menu::before",css)
         self.assertNotIn("aa8-corporate-v1", (ROOT/"index.html").read_text(encoding="utf-8"))
         self.assertNotIn("aa8-corporate-v1", (ROOT/"scripts/templates/g1_factory_v1.html").read_text(encoding="utf-8"))
 
@@ -33,7 +33,7 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         script=(ROOT/"assets/js/site.js").read_text(encoding="utf-8")
         self.assertEqual(header.count('class="site-header"'),1)
         self.assertEqual(header.count('class="menu"'),1)
-        self.assertEqual(header.count("aa8-corp-menu-glyph"),1)
+        self.assertIn("menu::before", (ROOT/"assets/css/shared-layout.css").read_text(encoding="utf-8"))
         self.assertIn("aria-controls=\"nav\"",header)
         self.assertIn("aa8-corporate-menu-open",script)
         self.assertIn("event.key === 'Escape'",script)
