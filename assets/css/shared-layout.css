@@ -515,6 +515,14 @@ body.aa8-corporate-menu-open { overflow: hidden; }
     justify-content:center !important; text-align:center;
     border-radius:0 !important; padding:14px 8px !important;
   }
+  /* Keep white menu text above the corporate gradient; override non-CTA desktop rule. */
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > a:not(.nav-cta) {
+    color: #fff !important;
+  }
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > a:not(.nav-cta):hover,
+  body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > a:not(.nav-cta):focus-visible {
+    background: rgba(255,255,255,.12) !important;
+  }
   body.aa8-corporate-v1 .site-header[data-shared-layout="header"] .nav > .nav-cta {
     border: 1px solid rgba(255,255,255,.85) !important;
     background: transparent !important; margin-top: 12px !important;

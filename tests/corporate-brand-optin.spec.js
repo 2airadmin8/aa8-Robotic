@@ -47,6 +47,7 @@ for (const width of [1023,390,360]) {
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded','true');
     await expect(nav).toBeVisible();
+    await expect(nav.locator('a').first()).toHaveCSS('color','rgb(255, 255, 255)');
     await expect(page.locator('body')).toHaveClass(/aa8-corporate-menu-open/);
     const navStyle=await nav.evaluate(el=>({
       position:getComputedStyle(el).position,
