@@ -35,6 +35,20 @@ for (const width of [1440,1024]) {
     expect(s.deep).toBe('#0069b5');
     expect(s.ink).toBe('rgb(51, 51, 51)');
     expect(s.footer).toBe('rgb(244, 248, 250)');
+    // PC1440 reproduces the mother site's 220px brand / 130x40 contact CTA.
+    // At 1024 retain the responsive layout rather than forcing oversized geometry.
+    if (width === 1440) {
+      const dimensions = await page.evaluate(() => {
+        const brand = document.querySelector('.site-header .brand').getBoundingClientRect();
+        const cta = document.querySelector('.site-header .nav-cta').getBoundingClientRect();
+        return {
+          brandWidth: Math.round(brand.width),
+          ctaWidth: Math.round(cta.width),
+          ctaHeight: Math.round(cta.height),
+        };
+      });
+      expect(dimensions).toEqual({brandWidth: 220, ctaWidth: 130, ctaHeight: 40});
+    }
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
   });
 }
