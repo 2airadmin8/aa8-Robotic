@@ -18,6 +18,7 @@ async function openOptIn(page, width) {
   });
   await page.goto(BASE + '/index.html', {waitUntil:'networkidle'});
   await expect(page.locator('body.aa8-corporate-v1')).toHaveCount(1);
+  await expect(page.locator("script[data-aa8-menu-runtime='true']")).toHaveCount(0);
 }
 for (const width of [1440,1024]) {
   test('corporate PC header/footer and brand tokens ' + width, async ({page}) => {

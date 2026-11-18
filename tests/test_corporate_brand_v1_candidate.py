@@ -46,6 +46,23 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("last.focus()",script)
         self.assertIn("min-width:1024px",script)
 
+    def test_public_build_has_only_external_menu_runtime(self):
+        from scripts.build_site import build_html
+        from pathlib import Path
+        home=(ROOT/"index.html").read_text(encoding="utf-8")
+        output=build_html(home,Path("index.html"))
+        self.assertNotIn('data-aa8-menu-runtime="true"', output)
+        self.assertIn("assets/js/mobile-qa.js",output)
+
+    def test_isolated_factory_preview_keeps_own_runtime(self):
+        from scripts.build_site import build_html
+        from pathlib import Path
+        original=(ROOT/"tests/fixtures/a2-factory/preview.html").read_text(encoding="utf-8")
+        self.assertIn('data-product-factory="g1-v1"',original)
+        output=build_html(original,Path("a2-factory-preview.html"))
+        self.assertEqual(output.count('data-aa8-menu-runtime="true"'),1)
+        self.assertNotIn('assets/js/mobile-qa.js',output)
+
     def test_verified_mother_site_contract_and_menu(self):
         import json
         item=json.loads((ROOT/"ops/brand-preview/mother-site-contract-v1.json").read_text(encoding="utf-8"))

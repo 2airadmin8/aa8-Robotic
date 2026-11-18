@@ -188,7 +188,17 @@ def build_html(html: str, relative: Path) -> str:
     # replace it together with the footer instead of installing it twice.
     html = re.sub(r'\s*<script\b(?=[^>]*\bdata-aa8-menu-runtime=["\']true["\'])[^>]*>[\s\S]*?</script>', "", html, flags=re.I)
     html = replace_required_block(html, "header", "site-header", shared_markup(HEADER_SOURCE, prefix), relative)
-    html = replace_required_block(html, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix), relative)
+    footer_markup = shared_markup(FOOTER_SOURCE, prefix)
+    if not isolated_preview:
+        # For normal site builds the external mobile-qa.js owns menu events.
+        # Keep footer inline runtime only in isolated Factory previews.
+        footer_markup = re.sub(
+            r'\s*<script\b(?=[^>]*\bdata-aa8-menu-runtime=["\']true["\'])[^>]*>[\s\S]*?</script>',
+            "",
+            footer_markup,
+            flags=re.I,
+        )
+    html = replace_required_block(html, "footer", "footer", footer_markup, relative)
     if not isolated_preview:
         html = rewrite_canonical(html, relative)
 
