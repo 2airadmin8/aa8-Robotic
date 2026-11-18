@@ -1,0 +1,92 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "V3.3 Figma import CANDIDATE, not native Figma nodes. Verified mother-site color/font plus CEO-required white/grey specifications. See corporate-product-visual-v33.json.",
+  "color": {
+    "brand": {
+      "deep": {
+        "$type": "color",
+        "$value": "#0069B5"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "#009BD2"
+      },
+      "teal": {
+        "$type": "color",
+        "$value": "#00B2BC"
+      }
+    },
+    "text": {
+      "body": {
+        "$type": "color",
+        "$value": "#333333"
+      }
+    },
+    "surface": {
+      "page": {
+        "$type": "color",
+        "$value": "#FFFFFF"
+      },
+      "footer": {
+        "$type": "color",
+        "$value": "#F4F8FA"
+      }
+    },
+    "spec": {
+      "header": {
+        "$type": "color",
+        "$value": "#FFFFFF"
+      },
+      "category": {
+        "$type": "color",
+        "$value": "#EEEEEE"
+      },
+      "odd": {
+        "$type": "color",
+        "$value": "#FFFFFF"
+      },
+      "even": {
+        "$type": "color",
+        "$value": "#F5F5F5"
+      },
+      "border": {
+        "$type": "color",
+        "$value": "#D9D9D9"
+      }
+    }
+  },
+  "typography": {
+    "family": {
+      "japanese": {
+        "$type": "fontFamily",
+        "$value": "Noto Sans JP"
+      },
+      "latin": {
+        "$type": "fontFamily",
+        "$value": "Poppins"
+      },
+      "serif": {
+        "$type": "fontFamily",
+        "$value": "Noto Serif JP"
+      }
+    }
+  },
+  "dimension": {
+    "headerContactRadius": {
+      "$type": "dimension",
+      "$value": "21px"
+    },
+    "headerContactWidth": {
+      "$type": "dimension",
+      "$value": "130px"
+    },
+    "headerContactHeight": {
+      "$type": "dimension",
+      "$value": "40px"
+    },
+    "footerPanelRadius": {
+      "$type": "dimension",
+      "$value": "18px"
+    }
+  }
+}
