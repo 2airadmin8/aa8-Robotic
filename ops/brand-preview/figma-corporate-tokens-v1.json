@@ -1,0 +1,151 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "AirAdmin8 mother-site Corporate V1. Exact verified brand source colors and typography; spacing scale is governed design proposal, not literal WordPress measurements.",
+  "color": {
+    "brand": {
+      "deep": {
+        "$type": "color",
+        "$value": "#0069B5",
+        "$description": "Mother corporate deep blue"
+      },
+      "primary": {
+        "$type": "color",
+        "$value": "#009BD2",
+        "$description": "Mother corporate blue"
+      },
+      "teal": {
+        "$type": "color",
+        "$value": "#00B2BC",
+        "$description": "Mother corporate teal"
+      }
+    },
+    "text": {
+      "body": {
+        "$type": "color",
+        "$value": "#333333",
+        "$description": "Mother body text"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "#111111",
+        "$description": "Corporate emphasis"
+      }
+    },
+    "surface": {
+      "paper": {
+        "$type": "color",
+        "$value": "#FFFFFF",
+        "$description": "White base"
+      },
+      "footer": {
+        "$type": "color",
+        "$value": "#F4F8FA",
+        "$description": "Mother corporate footer"
+      },
+      "soft": {
+        "$type": "color",
+        "$value": "#EBFAFF",
+        "$description": "Soft accent"
+      }
+    }
+  },
+  "typography": {
+    "family": {
+      "ja": {
+        "$type": "fontFamily",
+        "$value": "Noto Sans JP",
+        "$description": "Mother body font; Japanese fallback in CSS"
+      },
+      "latin": {
+        "$type": "fontFamily",
+        "$value": "Montserrat",
+        "$description": "Latin heading fallback in CSS"
+      }
+    },
+    "size": {
+      "bodyDesktop": {
+        "$type": "dimension",
+        "$value": "16px",
+        "$description": "Mother PC body"
+      },
+      "bodyMobile": {
+        "$type": "dimension",
+        "$value": "15px",
+        "$description": "Mother SP body"
+      },
+      "navDesktop": {
+        "$type": "dimension",
+        "$value": "14px",
+        "$description": "Mother PC navigation"
+      },
+      "navMobile": {
+        "$type": "dimension",
+        "$value": "16px",
+        "$description": "Mother SP navigation"
+      }
+    },
+    "letterSpacing": {
+      "body": {
+        "$type": "dimension",
+        "$value": "0.05em",
+        "$description": "Mother body tracking"
+      }
+    }
+  },
+  "spacing": {
+    "xs": {
+      "$type": "dimension",
+      "$value": "4px",
+      "$description": "Governed spacing scale"
+    },
+    "sm": {
+      "$type": "dimension",
+      "$value": "8px",
+      "$description": "Governed spacing scale"
+    },
+    "md": {
+      "$type": "dimension",
+      "$value": "16px",
+      "$description": "Governed spacing scale"
+    },
+    "lg": {
+      "$type": "dimension",
+      "$value": "24px",
+      "$description": "Governed spacing scale"
+    },
+    "xl": {
+      "$type": "dimension",
+      "$value": "32px",
+      "$description": "Governed spacing scale"
+    },
+    "section": {
+      "$type": "dimension",
+      "$value": "64px",
+      "$description": "Governed section spacing"
+    }
+  },
+  "radius": {
+    "headerContact": {
+      "$type": "dimension",
+      "$value": "21px",
+      "$description": "Mother Header CTA radius"
+    },
+    "footerPanel": {
+      "$type": "dimension",
+      "$value": "18px",
+      "$description": "Mother footer surface radius"
+    }
+  },
+  "layout": {
+    "contentMax": {
+      "$type": "dimension",
+      "$value": "1280px",
+      "$description": "Mother footer maximum width"
+    },
+    "breakpointMobile": {
+      "$type": "dimension",
+      "$value": "1023px",
+      "$description": "Mother mobile breakpoint"
+    }
+  }
+}
