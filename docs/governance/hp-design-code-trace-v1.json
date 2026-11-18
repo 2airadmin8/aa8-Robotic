@@ -14,13 +14,24 @@
     "factory": {
       "version": "1",
       "path": "docs/product-factory-v1.md"
+    },
+    "visualCandidateV33": {
+      "version": "3.3",
+      "status": "PENDING_NATIVE_FIGMA_AND_INDEPENDENT_QA",
+      "designDoc": "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
+      "figmaTarget": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
+      "motherVerified": "ops/brand-preview/mother-site-contract-v1.json",
+      "neutralSpecRequirement": "ops/brand-preview/corporate-product-visual-v33.json",
+      "figmaTokens": "ops/brand-preview/figma-product-v33-tokens.json",
+      "contentVersionUnchanged": "3.1"
     }
   },
   "policyPaths": [
     "docs/governance/00_CORE_CHANGE_CONTROL_V1.md",
     "docs/governance/01_HP_ADAPTER_V1.md",
     "docs/governance/02_CHANGE_REQUEST_TEMPLATE.md",
-    "docs/governance/03_MEASUREMENT_BASELINE.md"
+    "docs/governance/03_MEASUREMENT_BASELINE.md",
+    "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
   ],
   "qualityRule": {
     "mandatory": "ALL_SECURITY_FUNCTIONAL_DATA_INTEGRITY_AND_APPLICABLE_QA_GATES_PASS",
@@ -28,7 +39,18 @@
     "excessPolish": "REQUIRES_MEASURED_CUSTOMER_OR_BUSINESS_BENEFIT",
     "maxAutoRepair": 3,
     "maxCEOConsolidatedDecision": 1,
-    "scoreIsNotReleaseAuthorization": true
+    "scoreIsNotReleaseAuthorization": true,
+    "specificationNeutralPalette": {
+      "section": "#FFFFFF",
+      "header": "#FFFFFF",
+      "group": "#EEEEEE",
+      "odd": "#FFFFFF",
+      "even": "#F5F5F5",
+      "line": "#D9D9D9",
+      "ink": "#333333",
+      "enforceComputedColorOnAll13": true,
+      "allowCssOnlyDeclarationAsEvidence": false
+    }
   },
   "traceability": [
     {
@@ -40,12 +62,16 @@
         "includes/site-footer.html",
         "assets/css/shared-layout.css",
         "scripts/build_site.py",
-        "scripts/verify_shared_css_ownership.py"
+        "scripts/verify_shared_css_ownership.py",
+        "assets/css/site.css",
+        "assets/css/main-site-experience.css",
+        "assets/css/product-standard-v33.css"
       ],
       "tests": [
         "tests/test_hp_design_contract.py",
         "tests/hp-shared-governance.spec.js",
-        "tests/test_shared_css_owner_delta.py"
+        "tests/test_shared_css_owner_delta.py",
+        "tests/test_corporate_brand_v1_candidate.py"
       ]
     },
     {
