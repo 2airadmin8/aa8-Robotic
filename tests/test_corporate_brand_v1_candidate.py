@@ -10,6 +10,36 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
             self.assertIn(val,css)
         self.assertIn('[data-aa8-brand-preview="corporate-v1"]',css)
         self.assertNotIn("ISMS",css)
+    def test_css_and_figma_tokens_match_mother_contract(self):
+        import json
+        mother=json.loads((ROOT/"ops/brand-preview/mother-site-contract-v1.json").read_text(encoding="utf-8"))
+        figma=json.loads((ROOT/"ops/brand-preview/figma-corporate-tokens-v1.json").read_text(encoding="utf-8"))
+        css=(ROOT/"assets/css/shared-layout.css").read_text(encoding="utf-8")
+        fields={"deepBlue":"deep","primaryBlue":"primary","teal":"teal"}
+        for mother_key, figma_key in fields.items():
+            value=mother["tokens"][mother_key]
+            self.assertEqual(figma["color"]["brand"][figma_key]["$value"].lower(),value.lower())
+            self.assertIn(value.lower(),css.lower())
+        self.assertEqual(figma["color"]["text"]["body"]["$value"].lower(),mother["tokens"]["bodyInk"].lower())
+        self.assertIn("AA8_CORPORATE_BRAND_V1_OPT_IN",css)
+        self.assertIn("body.aa8-corporate-v1",css)
+        self.assertIn("(max-width:1023px)",css)
+        self.assertIn(".aa8-corp-menu-glyph",css)
+        self.assertNotIn("aa8-corporate-v1", (ROOT/"index.html").read_text(encoding="utf-8"))
+        self.assertNotIn("aa8-corporate-v1", (ROOT/"scripts/templates/g1_factory_v1.html").read_text(encoding="utf-8"))
+
+    def test_one_shared_header_and_accessible_runtime(self):
+        header=(ROOT/"includes/site-header.html").read_text(encoding="utf-8")
+        script=(ROOT/"assets/js/site.js").read_text(encoding="utf-8")
+        self.assertEqual(header.count('class="site-header"'),1)
+        self.assertEqual(header.count('class="menu"'),1)
+        self.assertEqual(header.count("aa8-corp-menu-glyph"),1)
+        self.assertIn("aria-controls=\"nav\"",header)
+        self.assertIn("aa8-corporate-menu-open",script)
+        self.assertIn("event.key === 'Escape'",script)
+        self.assertIn("last.focus()",script)
+        self.assertIn("min-width:1024px",script)
+
     def test_verified_mother_site_contract_and_menu(self):
         import json
         item=json.loads((ROOT/"ops/brand-preview/mother-site-contract-v1.json").read_text(encoding="utf-8"))
