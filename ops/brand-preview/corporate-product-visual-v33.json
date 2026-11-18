@@ -1,0 +1,79 @@
+{
+  "schema": "AA8_CORPORATE_PRODUCT_VISUAL_V3.3",
+  "status": "SOURCE_ALIGNED_DRAFT_ONLY_FIGMA_NATIVE_AND_INDEPENDENT_VISUAL_HOLD",
+  "effectiveDesign": "3.3",
+  "contentAndBuyerJourney": "Product Page Standard V3.1 preserved",
+  "manufacturerAndPriceFacts": "data/products.json unchanged",
+  "motherSource": "ops/brand-preview/mother-site-contract-v1.json",
+  "figmaTarget": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
+  "sourceClassification": {
+    "motherVerified": [
+      "brandColors",
+      "fontFamilies",
+      "headerFooter",
+      "mobileMenu"
+    ],
+    "ceoUserDefined": [
+      "specTableNeutralPalette"
+    ]
+  },
+  "brandColors": {
+    "deep": "#0069B5",
+    "primary": "#009BD2",
+    "teal": "#00B2BC",
+    "body": "#333333",
+    "footer": "#F4F8FA"
+  },
+  "fontFamilies": {
+    "japanese": "Noto Sans JP",
+    "latin": "Poppins",
+    "serif": "Noto Serif JP",
+    "japaneseWeights": [
+      400,
+      500,
+      700,
+      900
+    ]
+  },
+  "specTable": {
+    "section": "#FFFFFF",
+    "header": "#FFFFFF",
+    "category": "#EEEEEE",
+    "odd": "#FFFFFF",
+    "even": "#F5F5F5",
+    "border": "#D9D9D9",
+    "text": "#333333"
+  },
+  "viewportWidths": [
+    1440,
+    1024,
+    1023,
+    390,
+    360
+  ],
+  "oneOwner": {
+    "corporateShell": "assets/css/shared-layout.css",
+    "baseSite": "assets/css/site.css",
+    "contentExpression": "assets/css/main-site-experience.css",
+    "newSpecPalette": "assets/css/product-standard-v33.css",
+    "publicBuild": "scripts/build_site.py",
+    "browserQa": "tests/hp-shared-governance.spec.js"
+  },
+  "requiredGates": [
+    "same GitHub HEAD Python contract and real browser CSS computed-color tests",
+    "all 13 public products and new SKU must retain verified manufacturer facts and inquiry prefill",
+    "all 13 public product page specs white/gray; 1440/390/360 + 1023/1024 nav breakpoints",
+    "independent reference-to-render visual comparison; screenshot SHA alone insufficient",
+    "Figma native editable component/variable readback, manual visual signoff",
+    "CEO exact SHA approval and single manual production deployment"
+  ],
+  "release": "NO_GO_UNTIL_ALL_REQUIRED_GATES",
+  "forbidden": [
+    "silent manufacturer fact changes",
+    "main merge",
+    "Pages Production",
+    "CRM/ERP writes",
+    "second Runner/Factory/Workflow",
+    "fake Figma signoff"
+  ]
+}
