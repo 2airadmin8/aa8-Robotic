@@ -24,3 +24,14 @@
 - This candidate has **not** been linked into published product pages and does not signify full corporate style rollout.
 - After CEO design-direction review, activate in original PR with explicit PC1440/SP390/SP360 browser comparison and independent QA; block new unowned colors, fonts and shared component overrides.
 - Manufacturer facts, Japanese legal claims, CTA/CRM business E2E, CEO precise-SHA merge and manual-only GitHub Pages release remain separate HOLD gates.
+
+## Verified original mother-site extraction (2026-11-18)
+The original homepage HTML, WordPress theme CSS, menu runtime JS, and header/footer official logo assets were each read directly and fingerprinted. SSOT of observed facts: `ops/brand-preview/mother-site-contract-v1.json` (source URLs and SHA256).
+- Original corporate menu labels: HOME / 製品一覧 / 導入事例 / 会社情報 / サポート / コラム / 採用情報 / お問い合わせ.
+- At <=1023px WordPress uses a full-screen blue/teal gradient navigation, three blue hamburger bars that become white on open, and scroll lock. The original JS relies on jQuery; Robotics should reuse existing menu runtime via the existing shared shell owner, not copy jQuery.
+- The original Footer has 4 information groups (サービス / 導入・事例 / サポート・セキュリティ / 会社情報), light-gray #F4F8FA background and a white 1280px / radius18 panel. Do not transplant unverified ISMS or outdated address statements.
+- Original CSS has two distinct CTAs: header contact is a 130x40px gradient pill; general `common-btn__link` is a black rectangular 320x76px action (52px SP). Choose semantic components intentionally rather than enforcing one global CTA shape.
+- Separate original WordPress styling from Robotics semantic navigation labels; the target must preserve Robotics product discovery + consultation and use the same corporate visual system.
+- An independently generated offline component extraction and PC1440/PC1024/SP1023/SP390/SP360 preview is available as review artifact outside published product paths. It does not amend the existing `site-header`/`site-footer` until approval and full regression.
+
+**Gate boundary:** corporate extraction/preview is source-grounded, not approval of 13 live pages; legacy CSS collisions and active certifications remain distinct HOLDs.
