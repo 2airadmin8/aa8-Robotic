@@ -426,6 +426,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
           python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
@@ -688,6 +689,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
           python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
