@@ -36,6 +36,12 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("menu::before", (ROOT/"assets/css/shared-layout.css").read_text(encoding="utf-8"))
         self.assertIn("aria-controls=\"nav\"",header)
         self.assertIn("aa8-corporate-menu-open",script)
+        # Public build injects mobile-qa.js as the capture-phase menu owner.
+        deployed=(ROOT/"assets/js/mobile-qa.js").read_text(encoding="utf-8")
+        self.assertIn("event.stopImmediatePropagation()",deployed)
+        self.assertIn("aa8-corporate-menu-open",deployed)
+        self.assertIn("const minDesktop = corporateShell ? 1024 : 981",deployed)
+        self.assertIn("event.key === 'Tab'",deployed)
         self.assertIn("event.key === 'Escape'",script)
         self.assertIn("last.focus()",script)
         self.assertIn("min-width:1024px",script)
