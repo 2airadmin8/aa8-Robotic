@@ -36,3 +36,11 @@
 - 唯一开发仓库 `2airadmin8/aa8-Robotic`，仅原Draft PR #180；本轮没有新Runner、Workflow、PR、GitHub Pages任务或正式Customer/ERP写入。
 - Source code JSX/模板/网页共有设计严格按明确Owner修改，旧有不同色的内联规则属于“历史待消除债务”，不在没有视觉回归时盲目删光；V3.3浏览器的计算规则必须盖过它们。
 - 必须提供 **真实V3.3 Figma原生可编辑设计 + 13页PC/SP QA + 一次集中CEO精确SHA批准** 才能从Draft合并/一次性正式发布。缺少任意证明＝NO-GO。
+
+## 2026-11-19 Mother Footer definitive: common component / no product facts changed
+- **Primary WordPress CSS** `style.css` lines ~11490-11849 and `footer.php` lines 277-385; source content uses a 1280px white panel on #F4F8FA, radius 18, 280px company column + 4 visible navigation groups with `1.45fr .8fr 1.15fr .75fr`. Mobile <=1023 two-column groups, <=767 one-column groups with center alignment; 14px panel radius.
+- **RCA:** original Robotics common Footer contained dark #061923 background, 2-column generic links, and an inline `<style data-aa8-footer-layout>` layer that bypassed the sole CSS owner. Merely swapping palette tokens did not recreate the mother's actual layout.
+- **Fix Owner:** replace `includes/site-footer.html` with one semantic company + 4 group navigation structure and bottom utility area, remove its inline CSS, keep its existing isolated preview menu fallback runtime unchanged. Put all Footer CSS in `assets/css/shared-layout.css` only; remove original dark Footer declarations and conflicting opt-in overrides.
+- **Robotics data preserved:** product / use-case / solution / case / resources / glossary / about / contact URLs remain existing Robotics paths; approved Robotics logo remains; **no mother-company obsolete address or ISMS certification claim is transplanted**.
+- **Mandatory QA:** existing `tests/test_corporate_brand_v1_candidate.py` checks 4 groups, single include, no inline CSS and source value invariants; existing `tests/corporate-brand-optin.spec.js` checks actual computed footer width/color/border/typography at 1440/1024/1023/768/767/390/360; all 13 products still run existing shared Header/Footer/CTA regression. Pure screenshot integrity or green CI alone is not independent visual signoff.
+- **Scope:** current Draft PR #180 only; no production merge, Pages trigger or CRM/ERP updates. Figma native V3.3 remains HOLD until real editable source readback and signoff.

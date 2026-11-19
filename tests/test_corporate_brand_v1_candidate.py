@@ -87,6 +87,36 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("PRODUCTION_HOLD",policy)
         self.assertIn("13-product regression",policy)
 
+    def test_v33_corporate_footer_single_owner(self):
+        from scripts.build_site import build_html
+        footer=(ROOT/"includes/site-footer.html").read_text("utf-8")
+        css=(ROOT/"assets/css/shared-layout.css").read_text("utf-8")
+        self.assertEqual(footer.count('<footer class="footer" data-shared-layout="footer">'),1)
+        self.assertEqual(footer.count('class="footer-shell"'),1)
+        self.assertEqual(footer.count('class="footer-links__column"'),4)
+        self.assertEqual(footer.count('class="footer-links__title"'),4)
+        self.assertEqual(footer.count('class="footer-links__list"'),4)
+        for label in ("製品・サービス","導入・事例","研究・サポート","会社情報"):
+            self.assertIn(label,footer)
+        for href in ("/products.html","/use-cases.html","/cases.html","/resources.html",
+                     "/support.html","/glossary.html","/about.html","/contact.html"):
+            self.assertIn('href="'+href+'"',footer)
+        self.assertNotIn('<style',footer)
+        self.assertNotIn("ISMS/ISO27001",footer)
+        self.assertNotIn("千代田区大手町",footer)
+        self.assertIn("AA8_MOTHER_R41_FOOTER_V33_SINGLE_OWNER",css)
+        for token in ("background: #f4f8fa","width: min(1280px, 94%)","border-radius: 18px",
+                      "grid-template-columns: 280px minmax(0,1fr)",
+                      "grid-template-columns: 1.45fr .8fr 1.15fr .75fr",
+                      "border-radius:14px","grid-template-columns:minmax(0,1fr)"):
+            self.assertIn(token,css)
+        self.assertNotIn("background: #061923",css)
+        home=(ROOT/"index.html").read_text("utf-8")
+        built=build_html(home,Path("index.html"))
+        self.assertIn('class="footer-shell"',built)
+        self.assertEqual(built.count('class="footer-links__title"'),4)
+        self.assertEqual(built.count('data-shared-layout="footer"'),1)
+
     def test_v33_mother_brand_and_white_grey_spec_contract(self):
         import json
         from scripts.build_site import build_html

@@ -85,3 +85,48 @@ for (const width of [1023,390,360]) {
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
   });
 }
+
+/* Same existing browser suite. Validate real layout/typography at all
+ * original WordPress breakpoints; not just that a footer exists. */
+for(const width of [1440,1024,1023,768,767,390,360]){
+  test('corporate mother footer actual dimensions '+width,async({page})=>{
+    await openOptIn(page,width);
+    const footer=page.locator('footer.footer[data-shared-layout="footer"]');
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('.footer-links__column')).toHaveCount(4);
+    const v=await footer.evaluate(el=>{
+      const get=s=>el.querySelector(s);
+      const style=s=>getComputedStyle(get(s));
+      const rect=s=>get(s).getBoundingClientRect();
+      return {
+        surface:getComputedStyle(el).backgroundColor,
+        card:style('.footer-shell').backgroundColor,
+        cardRadius:Math.round(parseFloat(style('.footer-shell').borderTopLeftRadius)),
+        cardWidth:Math.round(rect('.footer-shell').width),
+        logoWidth:Math.round(rect('.aa8-main-logo').width),
+        navColumns:style('.footer-links').gridTemplateColumns.split(' ').filter(Boolean).length,
+        firstTitleColor:style('.footer-links__title').color,
+        firstTitleFont:parseFloat(style('.footer-links__title').fontSize),
+        titleFont:style('.footer-links__title').fontFamily,
+        bottomBorder:style('.footer-bottom').borderTopColor,
+        scroll:document.documentElement.scrollWidth-innerWidth,
+        titleTexts:[...el.querySelectorAll('.footer-links__title')].map(x=>x.textContent.trim()),
+        inlineStyles:el.querySelectorAll('style').length
+      };
+    });
+    expect(v.surface).toBe('rgb(244, 248, 250)');
+    expect(v.card).toBe('rgb(255, 255, 255)');
+    expect(v.cardRadius).toBe(width<=767?14:18);
+    expect(v.cardWidth).toBeLessThanOrEqual(width+1);
+    if(width===1440)expect(v.cardWidth).toBe(1280);
+    expect(v.logoWidth).toBe(width<=767?205:240);
+    expect(v.navColumns).toBe(width<=767?1:width<=1023?2:4);
+    expect(v.firstTitleColor).toBe('rgb(0, 105, 181)');
+    expect(v.firstTitleFont).toBe(16);
+    expect(v.titleFont).toContain('Noto Sans JP');
+    expect(v.bottomBorder).toBe('rgba(0, 105, 181, 0.42)');
+    expect(v.titleTexts).toEqual(['製品・サービス','導入・事例','研究・サポート','会社情報']);
+    expect(v.inlineStyles).toBe(0);
+    expect(v.scroll).toBeLessThanOrEqual(2);
+  });
+}

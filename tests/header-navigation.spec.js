@@ -42,13 +42,13 @@ for (const path of pages) {
   });
 }
 
-test('breakpoint contract: 980 is SP, 981 is PC', async ({ page }) => {
-  await page.setViewportSize({ width: 980, height: 844 });
+test('mother corporate breakpoint contract: 1023 SP, 1024 PC', async ({ page }) => {
+  await page.setViewportSize({ width: 1023, height: 844 });
   await page.goto('http://127.0.0.1:4173/index.html', { waitUntil: 'networkidle' });
   await expect(page.locator('.site-header .menu')).toBeVisible();
   await expect(page.locator('.site-header .nav')).toBeHidden();
 
-  await page.setViewportSize({ width: 981, height: 844 });
+  await page.setViewportSize({ width: 1024, height: 844 });
   await expect(page.locator('.site-header .menu')).toBeHidden();
   await expect(page.locator('.site-header .nav')).toBeVisible();
 });
