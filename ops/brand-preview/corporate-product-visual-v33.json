@@ -1,6 +1,6 @@
 {
   "schema": "AA8_CORPORATE_PRODUCT_VISUAL_V3.3",
-  "status": "SOURCE_ALIGNED_DRAFT_ONLY_FIGMA_NATIVE_AND_INDEPENDENT_VISUAL_HOLD",
+  "status": "SOURCE_ALIGNED_DRAFT_ONLY_FIGMA_NATIVE_PENDING_AND_AUTO_VISUAL_PASSED",
   "effectiveDesign": "3.3",
   "contentAndBuyerJourney": "Product Page Standard V3.1 preserved",
   "manufacturerAndPriceFacts": "data/products.json unchanged",
@@ -63,8 +63,8 @@
     "same GitHub HEAD Python contract and real browser CSS computed-color tests",
     "all 13 public products and new SKU must retain verified manufacturer facts and inquiry prefill",
     "all 13 public product page specs white/gray; 1440/390/360 + 1023/1024 nav breakpoints",
-    "independent reference-to-render visual comparison; screenshot SHA alone insufficient",
-    "Figma native editable component/variable readback, manual visual signoff",
+    "independent-device source-to-render automated visual QA incl. actual Chrome and visual evidence; screenshot SHA alone insufficient",
+    "Figma native editable source/variables/components verification and readback; CEO waived separate human visual signature 2026-11-19",
     "CEO exact SHA approval and single manual production deployment"
   ],
   "release": "NO_GO_UNTIL_ALL_REQUIRED_GATES",
@@ -75,5 +75,24 @@
     "CRM/ERP writes",
     "second Runner/Factory/Workflow",
     "fake Figma signoff"
-  ]
+  ],
+  "visualGate": {
+    "ceoDecision": "Separate human visual reviewer signature not required",
+    "approvedAlternative": "CI SUCCESS + independent device visual automated QA PASS",
+    "independentVisualAutomation": {
+      "device": "AA8-N-012",
+      "result": "138/138 PASS",
+      "exactCodeSha": "120c03d1c740f315ba17e6dbde4c1704c4cbb06b"
+    },
+    "status": "PASS_AUTO_VISUAL",
+    "figmaNative": "PENDING",
+    "personalSignature": "NOT_REQUIRED_NOT_ATTESTED"
+  },
+  "assetContrastGate": {
+    "source": "assets/img/airadmin8-robotics-logo-pc.svg",
+    "footerAlias": "assets/img/airadmin8-robotics-logo-footer.svg",
+    "whiteBackground": "#FFFFFF",
+    "darkWordmarkRequired": true,
+    "regressionTest": "tests/test_corporate_brand_v1_candidate.py::test_white_corporate_footer_reuses_dark_on_light_official_logo"
+  }
 }

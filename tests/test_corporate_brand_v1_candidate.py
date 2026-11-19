@@ -87,6 +87,18 @@ class CorporateBrandV1CandidateTests(unittest.TestCase):
         self.assertIn("PRODUCTION_HOLD",policy)
         self.assertIn("13-product regression",policy)
 
+    def test_white_corporate_footer_reuses_dark_on_light_official_logo(self):
+        """White parent-site Footer must never use the old white wordmark."""
+        footer=(ROOT/"assets/img/airadmin8-robotics-logo-footer.svg").read_text(encoding="utf-8")
+        official=(ROOT/"assets/img/airadmin8-robotics-logo-pc.svg").read_text(encoding="utf-8")
+        css=(ROOT/"assets/css/shared-layout.css").read_text(encoding="utf-8")
+        shared=(ROOT/"includes/site-footer.html").read_text(encoding="utf-8")
+        self.assertEqual(footer,official,"Footer logo must mirror approved dark-on-light source")
+        self.assertGreater(footer.count('fill="black"'),0)
+        self.assertIn('background: #f4f8fa',css)
+        self.assertIn('background: #fff',css)
+        self.assertIn("airadmin8-robotics-logo-footer.svg",shared)
+
     def test_v33_corporate_footer_single_owner(self):
         from scripts.build_site import build_html
         footer=(ROOT/"includes/site-footer.html").read_text("utf-8")
