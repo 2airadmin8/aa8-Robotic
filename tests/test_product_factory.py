@@ -77,7 +77,12 @@ class ProductFactoryContractTests(unittest.TestCase):
             self.assertEqual(html.count('data-shared-layout="header"'), 1)
             self.assertEqual(html.count('<footer class="footer" data-shared-layout="footer">'), 1)
             self.assertEqual(html.count('data-aa8-menu-runtime="true"'), 1)
-            self.assertEqual(html.count('data-aa8-footer-layout="true"'), 1)
+            # V3.3 fixes the actual bug: one Footer shell, four reusable columns,
+            # and zero inline style overrides that bypass the common CSS owner.
+            self.assertEqual(html.count('data-aa8-footer-layout="true"'), 0)
+            self.assertEqual(html.count('class="footer-shell"'), 1)
+            self.assertEqual(html.count('class="footer-links__column"'), 4)
+            self.assertEqual(html.count('class="footer-links__title"'), 4)
             self.assertIn('class="aa8-main-logo"', html)
             self.assertIn('class="footer-links"', html)
             self.assertIn('class="footer-utility-links"', html)
