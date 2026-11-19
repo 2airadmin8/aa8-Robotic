@@ -1,6 +1,6 @@
 # AirAdmin8 Robotics｜Product Visual Standard V3.3（DRAFT / NOT RELEASE APPROVED）
-**基準日:** 2026-11-19 JST  
-**状态:** SOURCE_RECONCILED / DRAFT_CODE_STAGED / FIGMA_NATIVE_BLOCKED / INDEPENDENT_VISUAL_HOLD / PRODUCTION_NO_GO.
+**基準日:** 2026-11-20 JST  
+**状态:** FIGMA_NATIVE_8_COMPONENTS_20_VARIABLES_PASS / AUTO_VISUAL_139_PASS / CEO_RELEASE_APPROVAL_PENDING / PRODUCTION_NO_GO.
 
 ## 唯一产品与设计边界
 - 母站真实视觉正本：`https://www.air-admin8.co.jp/`；G盘正式 WordPress `themes/AirAdmin8/style.css`；记录 SHA256 和源码清单：`docs/governance/AA8_MOTHER_R41_SOURCE_TRACE_20261119.md`。
@@ -62,3 +62,19 @@
 - **Figma原生仍是唯一剩余设计门禁**：在原文件 `uo56l51NgUqit4976LV6P2` 内真实创建/更新V3.3可编辑组件、Tokens及PC/SP参考，读取原生结构和截图才能PASS；导出SVG图、PNG或JSON本身不是完整原生签核。MCP Starter调用额度限制不禁止浏览器正常编辑。
 - **独立视觉QA发现的真实漏检**：旧`assets/img/airadmin8-robotics-logo-footer.svg`采用`fill="white"`的母站旧深色Footer版本，放在本轮白底Footer后会丢失Logo中的字标。这个问题不属于1px浏览器误差。直接用现有正式`logo-pc.svg`深字版替换同路径Footer Logo素材，不增加第二Owner、不改厂家业务数据或CTA，新增严格对比度防回归测试，必须重新跑新HEAD CI。
 - 正式上线仍按旧规则：Figma原生PASS、最新HEAD GitHub CI + 独立设备QA、业务FACT/CRM必需Gate、CEO精准SHA一次集中批准后单次manual-only生产发布。未经CEO上线批准不得合并main、发布Pages或写CRM。
+
+
+## 2026-11-20｜Figma V3.3正式原生设计与自动视觉验收：最终验收补记
+
+**前面2026-11-19关于Starter MCP不可写、Figma尚未完成、独立人员签核待办的句子仅保留为历史记录。此节是当前最终判断。**
+
+- **Figma已有正式文件直接升级、非复制新文件：** https://www.figma.com/design/uo56l51NgUqit4976LV6P2 。Chrome已登录的正常Figma编辑器实际新增页面 `02｜AA8 CORPORATE V3.3｜HEADER FOOTER SPECS｜PC SP`，保留原V3.2页面及产品内容。8个真原生可编辑顶层组件在浏览器重新加载后逐个验证名称、节点ID、尺寸及Component属性；全部PASS：
+  - `173:2` Corporate Tokens (1120×690)；`174:2` PC1440 Shared Footer (1440×382)；`175:2` PC1440 Shared Header (1440×100)；`176:2` PC1440 Specifications (1440×1040)。
+  - `181:2` SP390 Shared Header (390×64)；`182:2` SP390 Shared Footer (390×1024)；`183:2` SP390 Open Menu (390×844)；`172:261` SP390 Specifications (390×1500)。
+  - 误嵌套旧画板和临时测试图层已经清理。刷新Figma后8/8顶层组件均PASS。
+- **Figma原生变量20件正式写入＋读回成功：** 品牌色/白灰规格/正文共12色、Noto Sans JP/Poppins/Noto Serif JP共3字族、CTA与Footer尺寸共5项。按Figma Starter当前权限，变量存于已有 `AA8 Robotics V3.2 / Core Colors` 集合的 **`v33/` 分组**，不改动旧V3.2的8项变量值；历史旧变量8/8回读一致。不能创建变量的空V3.3集合已经清理，勿将其当新SSOT。Token数据正本为 `ops/brand-preview/figma-product-v33-tokens.json`，实际Figma组件与VariableID见证据。
+- **V3.3母站规格：** Deep `#0069B5`、Primary `#009BD2`、Teal `#00B2BC`、正文 `#333333`、Footer `#F4F8FA`，规格表白底 `#FFFFFF`／组行 `#EEEEEE`／间隔 `#F5F5F5`／边线 `#D9D9D9`。仍采用Robotics现有真实产品语义，不复制母站的旧地址和ISMS声明。
+- **同代码基线独立设备视觉QA：** 原Draft PR #180代码SHA `95c3174e7f42b981ca0c3e20b8612870053bee65`，GitHub Actions #44494212204 Build＋Separate Technical QA SUCCESS；AA8-N-012独立真实Chrome **139/139 PASS**，包含13款产品×3宽度＝39/39、母站PC1440/SP390真实Footer对照和白底正式深色字标防回归。没有正式邮件发送、CRM/ERP生产写入和GitHub Pages部署。
+- **CEO确认简化审批：** 独立人员人工美工签名为 **NOT_REQUIRED_BY_CEO**，不是假定存在或伪造他人签字。自动设备QA是通过的验收依据。最后一次集中上线批准只由CEO对精确最终HEAD进行业务决定。
+- **最终证据及SHA：** https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG （Figma Components8、Variables20、Legacy8 unchanged、独立实机139条测试、源母站截图/HTML实际渲染比较和全部SHA256）。
+- **Production仍HOLD：** Figma/视觉设计门禁PASS不等于CEO批准上线；原PR #180仍Draft。当前仅追记治理文件，形成新HEAD后须重新确认CI/独立设备QA；所有安全及回滚门禁满足时，才对CEO提交一次集中批准。A2仍独立releaseReady=false/noindex，绝不作为额外新公开SKU随此次上线。

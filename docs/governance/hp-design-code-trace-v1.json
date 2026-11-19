@@ -17,13 +17,37 @@
     },
     "visualCandidateV33": {
       "version": "3.3",
-      "status": "PENDING_NATIVE_FIGMA_AND_INDEPENDENT_QA",
+      "status": "FIGMA_NATIVE_8_COMPONENTS_20_VARIABLES_PASS_AUTO_VISUAL_139_PASS_CEO_HOLD",
       "designDoc": "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
       "figmaTarget": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
       "motherVerified": "ops/brand-preview/mother-site-contract-v1.json",
       "neutralSpecRequirement": "ops/brand-preview/corporate-product-visual-v33.json",
       "figmaTokens": "ops/brand-preview/figma-product-v33-tokens.json",
-      "contentVersionUnchanged": "3.1"
+      "contentVersionUnchanged": "3.1",
+      "figmaNodes": {
+        "tokens": "173:2",
+        "pcFooter": "174:2",
+        "pcHeader": "175:2",
+        "pcSpecifications": "176:2",
+        "spHeader": "181:2",
+        "spFooter": "182:2",
+        "spOpenMenu": "183:2",
+        "spSpecifications": "172:261"
+      },
+      "figmaVariables": {
+        "count": 20,
+        "legacyIntact": 8,
+        "groupPrefix": "v33/",
+        "collection": "AA8 Robotics V3.2 / Core Colors"
+      },
+      "evidenceFolder": "https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG",
+      "reviewPolicy": "Human independent visual signature NOT_REQUIRED_BY_CEO; same HEAD CI + different-device QA remains compulsory",
+      "visualEvidence": {
+        "codeSha": "95c3174e7f42b981ca0c3e20b8612870053bee65",
+        "ciRunId": 44494212204,
+        "independentQA": "AA8-N-012 139/139 PASS",
+        "realMotherSitePcSp": true
+      }
     }
   },
   "policyPaths": [
