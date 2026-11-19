@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 const src=fs.readFileSync('ops/sales-engagement-gas/08_web_event_ingest.js','utf8');
 const sha=crypto.createHash('sha256').update(src).digest('hex');
-if(sha!=='25272fbda6ebd78ea5f6918d908c1ae9bad5123a8473457f6b1aebf25905d624')throw Error('SHA_NOT_PINNED');
+if(sha!=='a27836b435ef82cf62e2419a068ed093617e7cd3a656aa773f1e8b3e9510821e')throw Error('SHA_NOT_PINNED');
 const RID='DLV-TEST-20261120-CORE03',CID='UAT-CUST-20261120-CORE03',TO='sales@air-admin8.co.jp';
 const ID='89a2d324-43af-47ad-843b-bdd4ec0321b1',SECRET='synthetic-32-char-test-secret-no-client-data-123456';
 class Sheet{
