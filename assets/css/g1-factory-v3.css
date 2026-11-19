@@ -969,3 +969,13 @@
     scroll-margin-top: 88px;
   }
 }
+
+/* V3.3 real Chrome regression: 360px H2 Plus consultation button used
+ * 154px text in 152px box under inherited .05em tracking.
+ * Preserve both factory CTAs in the same row and original button labels. */
+@media (min-width:360px) and (max-width:375px) {
+  .g1-page[data-product-factory="g1-v1"]
+    .g1-hero-copy > .g1-hero-ctas > .g1-button {
+    letter-spacing:0;
+  }
+}
