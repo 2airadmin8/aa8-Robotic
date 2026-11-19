@@ -73,9 +73,37 @@ function doPost(e) {
   }
 }
 
+// The single company-only Core03 fixture is never a sales customer or lead.
+function aa8WebEventVerifyCore03_(ss,record,customer,h) {
+  const id='DLV-TEST-20261120-CORE03',cid='UAT-CUST-20261120-CORE03',email='sales@air-admin8.co.jp';
+  if(record.delivery_id!==id)return {ok:false,error:'wrong_internal_uat_id'};
+  const importSh=ss.getSheetByName('UAT_Core03_Import');
+  const historySh=ss.getSheetByName('UAT_Core03_History');
+  const prodSh=ss.getSheetByName(SALES_IMPORT_APP.QUEUE_SHEET);
+  if(!importSh||!historySh||!prodSh)return {ok:false,error:'uat_core03_sheets_missing'};
+  const iv=importSh.getDataRange().getValues(),hv=historySh.getDataRange().getValues();
+  if(iv.length!==2||hv.length!==2)return {ok:false,error:'uat_core03_ledger_not_unique'};
+  const ih=headerMap_(iv[0]),hh=headerMap_(hv[0]);
+  const val=(row,map,key)=>String(value_(row,map,key)||'').trim();
+  const mid=val(customer,h,'GmailメッセージID'),thread=val(customer,h,'GmailスレッドID');
+  if(val(customer,h,'顧客ID')!==cid||val(customer,h,'宛先メール').toLowerCase()!==email||
+    val(customer,h,'配信環境')!=='TEST'||val(customer,h,'送信承認')!=='NO'||
+    !mid||!thread||!val(customer,h,'送信日時'))return {ok:false,error:'uat_core03_queue_identity'};
+  if(val(iv[1],ih,'配信ID')!==id||val(iv[1],ih,'顧客ID')!==cid||
+    val(iv[1],ih,'メールアドレス').toLowerCase()!==email||
+    val(iv[1],ih,'送信状態')!=='送信済'||val(iv[1],ih,'Message_ID')!==mid)return {ok:false,error:'uat_core03_import_mismatch'};
+  if(val(hv[1],hh,'送信管理ID')!==id||val(hv[1],hh,'顧客ID')!==cid||
+    val(hv[1],hh,'宛先').toLowerCase()!==email||val(hv[1],hh,'送信結果')!=='送信済'||
+    val(hv[1],hh,'GmailメッセージID')!==mid||val(hv[1],hh,'GmailスレッドID')!==thread)
+    return {ok:false,error:'uat_core03_history_mismatch'};
+  const pv=prodSh.getDataRange().getValues(),ph=headerMap_(pv[0]);
+  if(pv.slice(1).some(row=>val(row,ph,'送信管理ID')===id))return {ok:false,error:'uat_id_leaked_into_prod_queue'};
+  return {ok:true};
+}
 function aa8WebEventPersist_(r) {
   const ss=getSalesSpreadsheet_();
-  const queue=ss.getSheetByName(SALES_IMPORT_APP.QUEUE_SHEET);
+  const core03=r.delivery_id==='DLV-TEST-20261120-CORE03';
+  const queue=ss.getSheetByName(core03?'UAT_Core03_Queue':SALES_IMPORT_APP.QUEUE_SHEET);
   const log=ss.getSheetByName(AA8_WEB_EVENT.sheetName);
   if(!queue||!log)return {ok:false,error:'existing_sheet_missing'};
   const data=queue.getDataRange().getValues();
@@ -100,6 +128,10 @@ function aa8WebEventPersist_(r) {
   // CEO-approved and actually SENT. Do not confuse creation mode with
   // delivery environment (PROD). Both require explicit send approval.
   const isTest=mode==='TEST';
+  if(core03){
+    const check=aa8WebEventVerifyCore03_(ss,r,customer,h);
+    if(!check.ok)return check;
+  }
   if(!isTest){
     if(mode!=='DRAFT'&&mode!=='PROD')return {ok:false,error:'delivery_mode_not_verified'};
     if(String(value_(customer,h,'送信承認')||'').trim().toUpperCase()!=='YES')
@@ -146,5 +178,11 @@ function aa8WebEventPersist_(r) {
     r.event_id,r.page_path
   ]);
   SpreadsheetApp.flush();
+  // Never ACK a click until its event ID and routing are readable from the durable SSOT.
+  const lastRow=log.getLastRow();
+  const saved=lastRow>1?log.getRange(lastRow,1,1,14).getValues()[0]:[];
+  if(String(saved[1]||'')!==r.delivery_id||String(saved[12]||'')!==r.event_id||
+      String(saved[11]||'')!==(isTest?'VERCEL_WEB_EVENT_TEST':'VERCEL_WEB_EVENT'))
+    return {ok:false,error:'web_log_readback_failed'};
   return {ok:true,persisted:true,duplicate:false};
 }
