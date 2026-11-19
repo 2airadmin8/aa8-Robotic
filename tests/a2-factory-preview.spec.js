@@ -38,7 +38,11 @@ for (const width of [1440,390,360]) {
     if(width<=390){
       const columns=await footer.locator('nav.footer-links').evaluate(el=>
         getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean));
-      expect(columns).toHaveLength(2);
+      // Mother Footer: one centered column at <=767px, not legacy two.
+      expect(columns).toHaveLength(1);
+      await expect(footer.locator('.footer-links__column')).toHaveCount(4);
+      await expect(footer.locator('.footer-links__title')).toHaveCount(4);
+      await expect(footer).toHaveCSS('background-color','rgb(244, 248, 250)');
     }
     expect(await page.locator('script[data-aa8-menu-runtime="true"]').count()).toBe(1);
     expect(await page.locator('script[src*="analytics-events.js"],script[src*="site.js"]').count()).toBe(0);

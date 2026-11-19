@@ -29,7 +29,10 @@ for (const width of [1440, 390, 360]) {
       });
       let homepageMenu = null;
       if (width <= 390) {
-        await page.goto(ROOT + '/index.html', { waitUntil: 'networkidle' });
+        // Google Fonts/third-party timing must not make the local menu test
+        // depend on idle network; DOMContentLoaded waits for deferred scripts.
+        await page.goto(ROOT + '/index.html', { waitUntil: 'domcontentloaded' });
+        await expect(page.locator('header.site-header button.menu')).toBeVisible();
         await page.locator('header.site-header button.menu').click();
         homepageMenu = await sharedMenuFingerprint();
       }

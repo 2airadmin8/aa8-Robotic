@@ -21,6 +21,12 @@ for (const width of [1440, 390, 360]) {
     await expect(page.locator('#specifications tbody tr')).toHaveCount(3);
     await expect(page.locator('.g1-faq-list details')).toHaveCount(3);
     await page.locator('.g1-cta-grid').scrollIntoViewIfNeeded();
+    // Images are loading=lazy. Scrolling reveals them asynchronously;
+    // enforce real decoded images rather than testing before the request finishes.
+    await expect.poll(() => page.locator('.g1-cta-grid .g1-cta-card img')
+      .evaluateAll(imgs => imgs.length === 3 &&
+        imgs.every(img => img.complete && img.naturalWidth > 100)),
+      { timeout: 15000 }).toBeTruthy();
     const m = await page.evaluate(() => {
       const main = document.querySelector('main.g1-page');
       const hero = main.querySelector('.g1-hero');
@@ -46,6 +52,8 @@ for (const width of [1440, 390, 360]) {
     expect(m.columns).toBe(width <= 780 ? 1 : 3);
     await page.locator('.g1-cta-grid .g1-cta-card').nth(2).click();
     await expect(page).toHaveURL(/\/contact\.html\?product=QA%20Fixture%20Robot/);
+    // Wait for deferred contact-v2.js prefill after cross-page navigation.
+    await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('input[name="product"]')).toHaveValue('QA Fixture Robot');
     expect(failed).toEqual([]);
   });

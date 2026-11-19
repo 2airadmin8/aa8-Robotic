@@ -19,6 +19,8 @@ test('X2 actual CTA -> contact -> signed acknowledgement (browser-only, NO produ
   await expect(hero).toHaveAttribute('href',/source_page=/);
   await hero.click();
   await expect(page).toHaveURL(/contact\.html\?/);
+  // URL may update before deferred contact JS has initialized the product.
+  await page.waitForLoadState('domcontentloaded');
   const form=page.locator('[data-contact-form]');
   await expect(form.locator('[name="product"]')).toHaveValue('AGIBOT LINGXI X2');
   await expect(form.locator('[name="source_product"]')).toHaveValue('AGIBOT LINGXI X2');
