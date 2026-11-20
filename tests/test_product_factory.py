@@ -59,7 +59,89 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn('property="og:image"', text)
         self.assertIn('href="/contact.html?product=QA%20Fixture%20Robot&amp;service=university-procurement"', text)
         self.assertIn('g1-factory-v1.css', text)
+        self.assertIn('class="brand-logo brand-logo-pc"', text)
+        self.assertIn('class="brand-logo brand-logo-sp"', text)
+        self.assertIn('aria-label="グローバルナビゲーション"', text)
+        self.assertIn('class="menu" type="button"', text)
+        self.assertEqual(text.count('data-shared-layout="header"'), 1)
+        self.assertNotIn('<script src="/assets/js/site.js" defer></script>', text)
+        self.assertIn('aria-expanded', text)
         self.assertNotIn("¥", text)
+
+    def test_shared_footer_raw_and_build_parity_no_tracking(self):
+        from build_site import build_html
+        from pathlib import Path
+        preview = render(ROOT, self.item, "preview")
+        built = build_html(preview, Path("products/qa-factory-preview.html"))
+        for html in (preview, built):
+            self.assertEqual(html.count('data-shared-layout="header"'), 1)
+            self.assertEqual(html.count('<footer class="footer" data-shared-layout="footer">'), 1)
+            self.assertEqual(html.count('data-aa8-menu-runtime="true"'), 1)
+            # V3.3 fixes the actual bug: one Footer shell, four reusable columns,
+            # and zero inline style overrides that bypass the common CSS owner.
+            self.assertEqual(html.count('data-aa8-footer-layout="true"'), 0)
+            self.assertEqual(html.count('class="footer-shell"'), 1)
+            self.assertEqual(html.count('class="footer-links__column"'), 4)
+            self.assertEqual(html.count('class="footer-links__title"'), 4)
+            self.assertIn('class="aa8-main-logo"', html)
+            self.assertIn('class="footer-links"', html)
+            self.assertIn('class="footer-utility-links"', html)
+            self.assertIn('aria-label="フッターナビゲーション"', html)
+            self.assertIn('© AirAdmin8 Inc. All rights reserved.', html)
+            self.assertIn('name="robots" content="noindex,nofollow"', html)
+            self.assertNotIn('assets/js/site.js', html)
+            self.assertNotIn('analytics-events.js', html)
+            self.assertNotIn('seo.js', html)
+        self.assertIn('href="/contact.html"', preview)
+        self.assertIn('href="../contact.html"', built)
+
+    def test_preview_fails_closed_on_unexpected_template_analytics(self):
+        from unittest.mock import patch
+        import tempfile
+        import product_factory
+
+        original = product_factory.TEMPLATE.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            altered = Path(tmp) / "factory-template.html"
+            for bad in (
+                '<script async src="/assets/js/site.js"></script>',
+                '<script src="/assets/js/analytics-events.js"></script>',
+                '<script src="https://www.googletagmanager.com/gtag/js"></script>',
+                '<script>gtag("config","G-TEST");</script>',
+            ):
+                with self.subTest(bad=bad):
+                    altered.write_text(
+                        original.replace("</body>", bad + "</body>"),
+                        encoding="utf-8",
+                    )
+                    with patch.object(product_factory, "TEMPLATE", altered):
+                        with self.assertRaisesRegex(
+                            ContractError, "production tracking|production analytics"
+                        ):
+                            render(ROOT, self.item, "preview")
+
+    def test_preview_shared_menu_and_footer_cannot_be_duplicated(self):
+        from unittest.mock import patch
+        import tempfile
+        import product_factory
+
+        original = product_factory.TEMPLATE.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            altered = Path(tmp) / "factory-template.html"
+            for bad in (
+                '<script data-aa8-menu-runtime="true"></script>',
+                '<footer class="footer" data-shared-layout="footer"></footer>',
+            ):
+                with self.subTest(bad=bad):
+                    altered.write_text(
+                        original.replace("</body>", bad + "</body>"),
+                        encoding="utf-8",
+                    )
+                    with patch.object(product_factory, "TEMPLATE", altered):
+                        with self.assertRaisesRegex(
+                            ContractError, "exactly one"
+                        ):
+                            render(ROOT, self.item, "preview")
 
     def test_release_candidate_requires_explicit_ready(self):
         with self.assertRaises(ContractError):
@@ -115,12 +197,16 @@ class ProductFactoryContractTests(unittest.TestCase):
 
     def test_generated_page_uses_existing_analytics_not_legacy_seo(self):
         from build_site import build_html
-        generated = render(ROOT, self.item, "preview")
-        rebuilt = build_html(generated, Path("products/factory-qa.html"))
-        self.assertIn("analytics-events.js", rebuilt)
-        self.assertNotIn('src="../assets/js/seo.js', rebuilt)
-        self.assertIn('content="noindex,nofollow"', rebuilt)
-        self.assertIn('data-shared-layout="footer"', rebuilt)
+        preview = build_html(render(ROOT, self.item, "preview"), Path("products/factory-qa.html"))
+        self.assertNotIn("analytics-events.js", preview)
+        self.assertNotIn("seo.js", preview)
+        self.assertIn('content="noindex,nofollow"', preview)
+        self.assertIn('data-shared-layout="footer"', preview)
+        self.item["pageFactory"]["releaseReady"] = True
+        candidate = build_html(render(ROOT, self.item, "candidate"), Path("products/factory-qa.html"))
+        self.assertIn("analytics-events.js", candidate)
+        self.assertNotIn('src="../assets/js/seo.js', candidate)
+        self.assertNotIn('content="noindex,nofollow"', candidate)
 
     def test_structured_page_name_from_existing_master(self):
         from unittest.mock import patch
@@ -138,8 +224,11 @@ class ProductFactoryContractTests(unittest.TestCase):
 
     def test_each_claim_source_is_rendered(self):
         source = render(ROOT, self.item, "preview")
-        self.assertGreaterEqual(source.count("仕様出典 ↗"), 3)
-        self.assertGreaterEqual(source.count("出典 ↗"), 5)
+        # Sales cards must stay clean; verified maker URLs remain in source data
+        # and the official manufacturer resources link stays visible.
+        self.assertNotIn("仕様出典 ↗", source)
+        self.assertGreaterEqual(source.count("出典 ↗"), 3)
+        self.assertIn(self.item["pageFactory"]["officialSource"], source)
 
 
     def test_no_video_product_copy_is_consistent(self):

@@ -191,6 +191,8 @@ class RealPostDeployBridge(unittest.TestCase):
                     with patch.object(gate,"api_json",side_effect=AssertionError("network accessed")):
                         self.assertEqual(gate.main(),2)
 
+
+
 class TrustedMainManifestOrderContract(unittest.TestCase):
     """Guard the exact CI-before-deployed-bytes sequence against regression."""
 

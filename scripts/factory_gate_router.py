@@ -46,11 +46,43 @@ def discover(root, paths):
         for pid, (obj, fixture) in pilots.items():
             if filename == fixture or filename.startswith(fixture.rsplit("/", 1)[0] + "/"):
                 found.add(pid)
-    scope = ("MULTI_PRODUCT" if len(found) > 1 else "PRODUCT" if found else
-             "GLOBAL_FACTORY" if global_change else "INPUT_REQUIRED" if ambiguous else "NO_PRODUCT_SCOPE")
+    # Shared Factory/source/template changes are GLOBAL, even when the same
+    # PR also carries one A2 fixture. The previous label falsely said PRODUCT.
+    scope = ("GLOBAL_FACTORY" if global_change else
+             "MULTI_PRODUCT" if len(found) > 1 else "PRODUCT" if found else
+             "INPUT_REQUIRED" if ambiguous else "NO_PRODUCT_SCOPE")
+    facts = {}
+    for pid, (obj, fixture) in pilots.items():
+        if pid not in found:
+            continue
+        maker = root / Path(fixture).parent / "maker-live-contract.json"
+        if not maker.is_file():
+            facts[pid] = {"maker_contract": "NOT_PRESENT",
+                          "human_semantic_signoff": "NOT_ATTESTED"}
+            continue
+        contract = json.loads(maker.read_text(encoding="utf8"))
+        rows = [row for group in contract.get("categories", [])
+                for row in group.get("rows", [])]
+        check(rows and all(isinstance(row.get("models"),dict) for row in rows),
+              "Maker data contract malformed: "+pid)
+        fact_status = {row.get("review_status","UNKNOWN") for row in rows}
+        tech_file = root / Path(fixture).parent / "independent-technical-fact-review-74.json"
+        technical = json.loads(tech_file.read_text(encoding="utf8")) if tech_file.is_file() else {}
+        facts[pid] = {
+            "manufacturer_source": contract.get("source_url"),
+            "maker_rows": len(rows),
+            "model_cells": sum(len(row["models"]) for row in rows),
+            "row_review_statuses": sorted(fact_status),
+            "independent_technical_semantic_review":
+                "PASS_REFERENCE_ONLY" if technical.get("status") == "TECH_SEMANTIC_QA_PASS"
+                and technical.get("errors") == [] else "HOLD_OR_NOT_RECORDED",
+            "human_semantic_signoff": "NOT_ATTESTED",
+            "evidence_source_code_sha": technical.get("reviewed_source_code_commit","UNKNOWN"),
+        }
     return {"ids": sorted(found), "global_factory_change": global_change,
             "ambiguous": ambiguous, "master_count": len(official), "fixture_count": len(pilots),
-            "work_scope": scope}
+            "work_scope": scope, "pilot_fact_quality": facts,
+            "all_13_public_product_regression_required": global_change}
 
 def route(pr, sha, outcomes, scope, at):
     check(isinstance(pr, int) and pr > 0, "Invalid PR number")
@@ -83,8 +115,14 @@ def route(pr, sha, outcomes, scope, at):
         "head_sha": sha, "scope": scope, "ci_outcomes": outcomes,
         "state": state, "blocking_gate": gate, "next_owner": owner,
         "next_action": action, "resume_from": "same PR #" + str(pr) + ", exact HEAD",
-        "product_gates": [{"product_id": pid, "design": "HOLD", "independent_qa": "HOLD",
-                           "business_e2e": "HOLD", "ceo": "HOLD"} for pid in scope["ids"]],
+        "product_gates": [{
+            "product_id": pid, "design": "HOLD", "independent_qa": "HOLD",
+            "manufacturer_human_semantic_signoff":
+                scope.get("pilot_fact_quality", {}).get(pid, {}).get(
+                    "human_semantic_signoff",
+                    "EXISTING_PUBLIC_PRODUCT_NOT_REATTESTED_IN_THIS_PR"),
+            "business_e2e": "HOLD", "ceo": "HOLD"
+        } for pid in scope["ids"]],
         "executor": {"developer_machine": "AA8-N-018", "qa_machine": "AA8-N-015",
                      "auto_wakeup": "NOT_CONNECTED", "auto_commit": False,
                      "independent_qa_trigger": "NOT_CONNECTED"},

@@ -75,7 +75,13 @@ def main() -> None:
         require('id="nav" class="nav"' in html, f"Global navigation missing: {relative}")
         require(not legacy_link_pattern.search(html), f"Legacy repository path in link attribute: {relative}")
 
-        require(html.count('data-aa8-footer-layout="true"') == 1, f"Footer layout guard count is not 1: {relative}")
+        # Genuine V3.3 single owner: no inline Footer CSS, four mother-style groups.
+        require(html.count('data-aa8-footer-layout="true"') == 0,
+                f"Forbidden legacy inline Footer CSS: {relative}")
+        require(html.count('class="footer-shell"') == 1,
+                f"Mother-style Footer panel missing/duplicated: {relative}")
+        require(html.count('class="footer-links__column"') == 4,
+                f"Footer four-column corporate navigation missing: {relative}")
         require(count_glossary_footer_links(html) >= 2, f"Glossary links missing from footer navigation: {relative}")
         require('class="footer-brand-block"' in html, f"Footer brand block missing: {relative}")
         require('class="footer-links"' in html, f"Footer primary navigation missing: {relative}")
@@ -87,12 +93,19 @@ def main() -> None:
             require(token not in html, f"Forbidden token {token!r}: {relative}")
 
     shared_css = read("assets/css/shared-layout.css")
+    require("AA8_MOTHER_R41_FOOTER_V33_SINGLE_OWNER" in shared_css,
+            "Mother-site Footer CSS owner missing")
+    require("background: #061923" not in shared_css,
+            "Legacy dark Footer CSS cannot coexist with corporate Footer")
     require(".nav.open" in shared_css, "SP menu open-state CSS missing")
     require("@media (min-width:981px)" in shared_css, "PC navigation breakpoint missing")
     require("display: flex !important" in shared_css, "PC navigation visible-state CSS missing")
 
     site_js = read("assets/js/site.js")
-    require("navigation.classList.toggle('open')" in site_js, "SP menu toggle wiring missing")
+    require(("navigation.classList.toggle(\'open\')" in site_js) or
+            ("navigation.classList.toggle(\'open\', open)" in site_js and
+             "setMenuOpen(!navigation.classList.contains(\'open\'))" in site_js),
+            "SP menu toggle wiring missing")
     require("menuButton.setAttribute('aria-expanded'" in site_js, "SP menu aria-expanded wiring missing")
 
     glossary = read("glossary.html")

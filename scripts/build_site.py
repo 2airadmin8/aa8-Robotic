@@ -181,11 +181,86 @@ def rewrite_canonical(html: str, relative: Path) -> str:
     raise ValueError(f"{relative}: </head> not found for canonical injection")
 
 
+def apply_corporate_product_v33(html: str, relative: Path, isolated_preview: bool) -> str:
+    """Apply the V3.3 *visual* build layer, not a product data migration.
+
+    Shared corporate shell/font applies to public Robotics pages. The single
+    V3.3 specifications owner is linked only on product catalog pages.
+    Historical/isolated A2 Preview is intentionally not reclassified as public.
+    """
+    if isolated_preview:
+        return html
+
+    def corporate_body(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if "aa8-corporate-v1" in tag:
+            return tag
+        klass = re.search(r'\bclass=(["\'])(.*?)\1', tag, flags=re.I | re.S)
+        if klass:
+            original = klass.group(2)
+            value = f'{original} aa8-corporate-v1'.strip()
+            return tag[:klass.start(2)] + value + tag[klass.end(2):]
+        return tag[:-1] + ' class="aa8-corporate-v1">'
+
+    html, count = re.subn(r'<body\b[^>]*>', corporate_body, html, count=1, flags=re.I)
+    if count != 1:
+        raise ValueError(f"{relative}: corporate V3.3 body missing")
+
+    # Original mother site loads these Japanese/Latin families. Preserve
+    # fallback; do not reuse WordPress jQuery, zoom lock or minute-busting CSS.
+    if "fonts.googleapis.com/css2?family=Noto" not in html:
+        fonts = (
+            '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+            '<link rel="stylesheet" '
+            'href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900'
+            '&amp;family=Noto+Serif+JP:wght@400'
+            '&amp;family=Poppins:wght@400;500;700;900&amp;display=swap">'
+        )
+        html = html.replace("</head>", fonts + "\n</head>", 1)
+
+    is_public_product = (
+        relative.parts[0] == "products"
+        and 'data-aa8-product-standard="3.1"' in html
+    )
+    if is_public_product:
+        main = re.compile(r'<main\b(?=[^>]*data-aa8-product-standard=["\']3\.1["\'])[^>]*>', re.I)
+        if 'data-aa8-visual-version="3.3"' not in html:
+            html, count = main.subn(
+                lambda m: m.group(0)[:-1] + ' data-aa8-visual-version="3.3">',
+                html, count=1,
+            )
+            if count != 1:
+                raise ValueError(f"{relative}: V3.3 visual scope missing product main")
+        if "assets/css/product-standard-v33.css" not in html:
+            stylesheet = (
+                f'<link rel="stylesheet" href="{page_prefix(relative)}'
+                f'assets/css/product-standard-v33.css?v={BUILD_VERSION}">'
+            )
+            html = html.replace("</head>", stylesheet + "\n</head>", 1)
+    return html
+
+
 def build_html(html: str, relative: Path) -> str:
     prefix = page_prefix(relative)
+    isolated_preview = '<meta name="robots" content="noindex,nofollow">' in html and 'data-product-factory="g1-v1"' in html
+    # Original previews may already contain the official footer runtime;
+    # replace it together with the footer instead of installing it twice.
+    html = re.sub(r'\s*<script\b(?=[^>]*\bdata-aa8-menu-runtime=["\']true["\'])[^>]*>[\s\S]*?</script>', "", html, flags=re.I)
     html = replace_required_block(html, "header", "site-header", shared_markup(HEADER_SOURCE, prefix), relative)
-    html = replace_required_block(html, "footer", "footer", shared_markup(FOOTER_SOURCE, prefix), relative)
-    html = rewrite_canonical(html, relative)
+    footer_markup = shared_markup(FOOTER_SOURCE, prefix)
+    if not isolated_preview:
+        # For normal site builds the external mobile-qa.js owns menu events.
+        # Keep footer inline runtime only in isolated Factory previews.
+        footer_markup = re.sub(
+            r'\s*<script\b(?=[^>]*\bdata-aa8-menu-runtime=["\']true["\'])[^>]*>[\s\S]*?</script>',
+            "",
+            footer_markup,
+            flags=re.I,
+        )
+    html = replace_required_block(html, "footer", "footer", footer_markup, relative)
+    if not isolated_preview:
+        html = rewrite_canonical(html, relative)
 
     html = re.sub(r'assets/css/site\.css(?:\?v=[^"\']+)?', f'assets/css/site.css?v={BUILD_VERSION}', html)
     html = re.sub(r'assets/js/site\.js(?:\?v=[^"\']+)?', f'assets/js/site.js?v={BUILD_VERSION}', html)
@@ -195,17 +270,18 @@ def build_html(html: str, relative: Path) -> str:
         html = html.replace("</head>", f"  {mobile_css}\n</head>", 1)
 
     scripts: list[str] = []
-    if "assets/js/mobile-qa.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
-    # Contact, X2 EDU and G1 pages use the release-owned canonical/OG/JSON-LD.
-    # Legacy seo.js injects retired /aa8-Robotic/ assets (three 404s on contact).
-    if relative.as_posix() in {"contact.html", "products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html", "products/unitree-h2-d.html", "products/unitree-h2.html", "products/unitree-h2-x.html"} or 'data-product-factory="g1-v1"' in html:
-        if "assets/js/analytics-events.js" not in html:
-            scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
-    elif "assets/js/seo.js" not in html:
-        scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
+    if not isolated_preview:
+        if "assets/js/mobile-qa.js" not in html:
+            scripts.append(f'<script src="{prefix}assets/js/mobile-qa.js?v={BUILD_VERSION}" defer></script>')
+        # Production-only analytics/SEO scripts never enter isolated Preview.
+        if relative.as_posix() in {"contact.html", "products/agibot-x2-edu.html", "products/unitree-g1.html", "products/unitree-g1-plus.html", "products/unitree-h2-d.html", "products/unitree-h2.html", "products/unitree-h2-x.html"} or 'data-product-factory="g1-v1"' in html:
+            if "assets/js/analytics-events.js" not in html:
+                scripts.append(f'<script src="{prefix}assets/js/analytics-events.js?v={BUILD_VERSION}" defer></script>')
+        elif "assets/js/seo.js" not in html:
+            scripts.append(f'<script src="{prefix}assets/js/seo.js?v={BUILD_VERSION}" defer></script>')
     if scripts and "</body>" in html:
         html = html.replace("</body>", "\n".join(scripts) + "\n</body>", 1)
+    html = apply_corporate_product_v33(html, relative, isolated_preview)
     return html
 
 

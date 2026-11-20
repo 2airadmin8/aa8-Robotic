@@ -154,6 +154,10 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
         for field, minimum in (("models", 3), ("sdk", 3), ("solutions", 3), ("process", 5)):
             if field == "models" and field not in v3:
                 continue
+            # An official two-model comparison must not invent a third SKU
+            # merely to satisfy the generic three-related-model layout.
+            if pid == "unitree-a2" and field == "models":
+                minimum = 2
             items = _strings(v3.get(field), f"{pid}.v3.{field}", minimum)
             for i, item in enumerate(items):
                 if not isinstance(item, dict):
@@ -161,6 +165,8 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
                 required(item.get("title"), f"{pid}.v3.{field}[{i}].title")
                 required(item.get("description"), f"{pid}.v3.{field}[{i}].description")
                 if field == "models":
+                    if pid == "unitree-a2" and item.get("modelId") not in {"A2", "A2-PRO"}:
+                        raise ContractError("A2 model selection must name an official model")
                     href = required(item.get("href"), f"{pid}.v3.models[{i}].href")
                     if not (href == "#specifications" or re.fullmatch(r"/products/[a-z0-9-]+\.html", href)):
                         raise ContractError(f"{pid}.v3.models[{i}]: unsafe href")
@@ -271,11 +277,21 @@ def audit_catalog(root: Path) -> tuple[list[str], list[str], dict]:
     return errors, warnings, {"products": len(products), "ids": len(seen), "factoryEnabled": factory_count}
 
 
-def _item_html(items: list[dict], kind: str) -> str:
+def _item_html(items: list[dict], kind: str, inline_sources: bool = True) -> str:
     if kind == "facts":
-        return "\n".join(f'<article><strong>{esc(x["value"])}</strong><p>{esc(x["label"])}</p><small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">仕様出典 ↗</a></small></article>' for x in items)
+        return "\n".join(
+            f'<article><strong>{esc(x["value"])}</strong><p>{esc(x["label"])}</p>'
+            + (f'<small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">仕様出典 ↗</a></small>'
+               if inline_sources else "")
+            + '</article>' for x in items
+        )
     if kind == "applications":
-        return "\n".join(f'<article><h3>{esc(x["title"])}</h3><p>{esc(x["description"])}</p><small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></article>' for x in items)
+        return "\n".join(
+            f'<article><h3>{esc(x["title"])}</h3><p>{esc(x["description"])}</p>'
+            + (f'<small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small>'
+               if inline_sources else "")
+            + '</article>' for x in items
+        )
     if kind == "specifications":
         return "\n".join(f'<tr><th scope="row">{esc(x["label"])}</th><td>{esc(x["value"])} <small><a href="{esc(x["sourceUrl"])}" target="_blank" rel="noopener noreferrer">出典 ↗</a></small></td></tr>' for x in items)
     if kind == "faq":
@@ -287,6 +303,58 @@ def _item_html(items: list[dict], kind: str) -> str:
 def render_variant_compare_specs(product: dict, spec: dict) -> str:
     """X2 series: readable native comparison from the same 36 manufacturer facts."""
     rows = spec["specifications"]
+    if product["id"] == "unitree-a2":
+        # Source-of-truth contract: Unitree official A2/A2-PRO table consists of
+        # exactly 37 parameter rows (10/15/9/3), not 37 per model.
+        official_groups = (
+            ("機械パラメータ", 10), ("電気特性", 15),
+            ("性能パラメータ", 9), ("その他", 3),
+        )
+        if len(rows) != 37:
+            raise ContractError("A2 maker specification must contain exactly 37 parameter rows")
+        group_names = [name for name, _ in official_groups]
+        counts = {name: 0 for name in group_names}
+        seen = set()
+        current = None
+        rendered = [
+            '<tr class="a2-compare-head"><th scope="col">メーカー仕様項目</th>'
+            '<th scope="col">A2（標準）</th><th scope="col">A2-PRO</th></tr>'
+        ]
+        for row in rows:
+            group = required(row.get("category"), "A2 spec category")
+            label = required(row.get("parameter"), "A2 spec parameter")
+            if group not in counts or label in seen or group_names.index(group) < (
+                group_names.index(current) if current else 0
+            ):
+                raise ContractError("A2 maker category order or parameter duplicate")
+            if current != group:
+                if current is not None and counts[current] != dict(official_groups)[current]:
+                    raise ContractError("A2 maker category row count mismatch")
+                current = group
+                rendered.append(
+                    '<tr class="a2-category-row"><th scope="colgroup" colspan="3">'
+                    + esc(group) + '</th></tr>'
+                )
+            model_values = row.get("models")
+            if not isinstance(model_values, dict) or set(model_values) != {"A2", "A2-PRO"}:
+                raise ContractError("A2 comparison requires exactly two official models")
+            std = required(model_values["A2"], "A2 standard value")
+            pro = required(model_values["A2-PRO"], "A2-PRO value")
+            if row.get("label") != label or not required(row.get("value"), "A2 legacy value"):
+                raise ContractError("A2 label/value legacy contract mismatch")
+            if official_url(row.get("sourceUrl"), "A2 comparison source") != spec["officialSource"]:
+                raise ContractError("A2 specification must use the same official maker source")
+            counts[group] += 1
+            seen.add(label)
+            rendered.append(
+                '<tr class="a2-spec-row" data-spec-row="true"><th scope="row">'
+                + esc(label) + '</th>'
+                + '<td data-model="A2">' + esc(std) + '</td>'
+                + '<td data-model="A2-PRO">' + esc(pro) + '</td></tr>'
+            )
+        if [counts[name] for name in group_names] != [10, 15, 9, 3]:
+            raise ContractError("A2 maker 10/15/9/3 parameter count mismatch")
+        return "\n".join(rendered)
     if product["id"] != "agibot-x2-series":
         return _item_html(rows, "specifications")
     if len(rows) != 36:
@@ -336,15 +404,57 @@ def render_v3_sections(spec: dict, product: dict) -> dict[str, str]:
         return empty
 
     def section(anchor: str, kicker: str, title: str, inner: str, foot: str) -> str:
+        # A2 CEO screenshot review: long supplementary notes must no longer
+        # dominate the page. Preserve every warning and source in a real,
+        # keyboard-operable disclosure, never remove maker restrictions.
+        if product["id"] == "unitree-a2" and anchor in {
+            "model-selection", "development", "solutions", "introduction"
+        }:
+            labels = {
+                "model-selection": "型番・仕様の確認事項（必ずご確認ください）",
+                "development": "SDK・配布条件の確認事項（必ずご確認ください）",
+                "solutions": "研究構成・保証範囲の確認事項（必ずご確認ください）",
+                "introduction": "責任分界・見積条件（必ずご確認ください）",
+            }
+            direct = ""
+            if anchor == "development":
+                direct = ('<p class="a2-direct-resource"><a href="' +
+                          esc(v3["resourceSearchUrl"]) +
+                          '">関連SDK・開発資料を探す →</a></p>')
+            elif anchor == "solutions":
+                direct = ('<p class="a2-direct-resource"><a href="/support.html">'
+                          '導入支援・責任分界を確認する →</a></p>')
+            foot_markup = (
+                direct + '<details class="a2-foot-disclosure"><summary>' +
+                labels[anchor] + '</summary><div class="g1-fine">' +
+                foot + '</div></details>'
+            )
+        else:
+            foot_markup = '<p class="g1-fine">' + foot + '</p>'
         return (f'<section class="g1-section g1-factory-section g1-factory-v3" id="{anchor}"><div class="g1-shell">\n'
                 f'<p class="g1-kicker">{kicker}</p><h2>{title}</h2>\n'
-                + inner + '\n<p class="g1-fine">' + foot + '</p>\n</div></section>')
+                + inner + '\n' + foot_markup + '\n</div></section>')
 
     models = v3.get("models", [])
-    model_rows = '\n'.join(
-        '<tr><th scope="row"><a href="' + esc(item["href"]) + '">' + esc(item["title"]) +
-        '</a></th><td>' + esc(item["description"]) + '</td></tr>' for item in models
-    )
+    def render_model_row(item: dict) -> str:
+        inquiry = ""
+        if product["id"] == "unitree-a2":
+            # Keep the selected maker model when moving to the existing
+            # consultation form, without adding a second public SKU/Master.
+            model_id = item["modelId"]
+            if model_id not in {"A2", "A2-PRO"}:
+                raise ContractError("Unapproved A2 consultation model")
+            href = ("/contact.html?product=" + quote("Unitree " + model_id, safe="")
+                    + "&maker=Unitree&service=industrial-poc&source_page="
+                    + quote(PUBLIC_ORIGIN + "/" + product["detailPage"], safe=""))
+            inquiry = (' <a class="g1-factory-support-link" data-model-inquiry="' +
+                       esc(model_id) + '" href="' + esc(href) +
+                       '">このモデルで相談する →</a>')
+        return ('<tr><th scope="row"><a href="' + esc(item["href"]) + '">' +
+                esc(item["title"]) + '</a></th><td>' +
+                esc(item["description"]) + inquiry + '</td></tr>')
+
+    model_rows = '\n'.join(render_model_row(item) for item in models)
     model_table = ('<table class="g1-factory-spec-table"><caption>関連モデルの選定目安</caption>'
                    '<tbody>' + model_rows + '</tbody></table>') if models else ""
     model_section = section("model-selection", "MODEL SELECTION",
@@ -403,6 +513,8 @@ def render(root: Path, product: dict, mode: str) -> str:
     slug = product["id"]
     name = esc(product["name"])
     source = esc(official_url(spec["officialSource"], "officialSource"))
+    # A2 image captions are short customer-facing labels; image/sourceUrl
+    # contract stays verified and its required source remains in one place.
     media_images = "\n".join(
         f'<figure><img loading="lazy" src="{esc(local_asset(root,x["src"],"image",IMAGE_EXT))}" alt="{esc(x["alt"])}"><figcaption>{esc(x["alt"])}</figcaption></figure>'
         for x in spec["images"]
@@ -437,20 +549,37 @@ def render(root: Path, product: dict, mode: str) -> str:
         ("02 / COMPARE THE HARDWARE", "#specifications", "仕様を比較する", "メーカー公開仕様と導入条件を整理します。"),
         ("03 / PLAN YOUR NEXT STEP", contact, "研究・導入を相談する", "用途、SDK、見積、納期を個別に確認します。"),
     ]
+    if slug == "unitree-a2":
+        card_data = [
+            ("02 / OFFICIAL PHOTOS", "#media", "製品・走行写真を見る", "屋外での実演シーンや機体の姿を写真で確認できます。"),
+            ("03 / COMPARE MODELS", "#model-selection", "A2とA2-PROを比較する", "センサー構成や用途から、適したモデルを検討します。"),
+            ("01 / CONSULTATION", contact, "A2の導入・PoCを相談する", "研究目的、必要な構成、予算や納期をご相談ください。"),
+        ]
+    # Show consultation FIRST in the DOM as well as visually. Keep stable
+    # data-factory-cta indexes so consent/CTA integration tests are preserved.
+    card_order = (2, 0, 1) if slug == "unitree-a2" else range(3)
     cards = "\n".join(
-        f'<a class="g1-cta-card" href="{esc(url)}" data-factory-cta="{i+1}">'
-        f'<span class="g1-cta-photo"><img loading="lazy" src="{cta_img[i]}" alt="{esc(title)}"></span>'
-        f'<span class="g1-cta-number">{esc(kicker)}</span><strong>{esc(title)}</strong>'
-        f'<small>{esc(description)}</small><em>詳細を見る →</em></a>'
-        for i, (kicker, url, title, description) in enumerate(card_data)
+        f'<a class="g1-cta-card" href="{esc(card_data[i][1])}" data-factory-cta="{i+1}">'
+        f'<span class="g1-cta-photo"><img loading="lazy" src="{cta_img[i]}" alt="{esc(card_data[i][2])}"></span>'
+        f'<span class="g1-cta-number">{esc(card_data[i][0])}</span><strong>{esc(card_data[i][2])}</strong>'
+        f'<small>{esc(card_data[i][3])}</small><em>{esc(
+            ("相談フォームへ →" if i == 2 else "写真を見る →" if i == 0 else "モデルを比較 →")
+            if slug == "unitree-a2" else "詳細を見る →"
+        )}</em></a>'
+        for i in card_order
     )
     by_id = {p["id"]: p for p in catalog(root)}
+    a2_related_summaries = {
+        "unitree-go2-edu": "小型の四足ロボットを研究・教育用途で比較したい方へ。",
+        "agibot-g2": "移動操作ロボットとの用途・開発環境の違いを比較。",
+        "unitree-h2-plus": "人型ロボットとの研究テーマや導入条件を比較。",
+    } if slug == "unitree-a2" else {}
     related = "\n".join(
         f'<a class="g1-factory-related-card" href="/{esc(by_id[rid]["detailPage"])}">'
         f'<span class="g1-factory-related-photo"><img loading="lazy" decoding="async" '
         f'src="{esc(local_asset(root,by_id[rid]["image"],"related",IMAGE_EXT))}" '
         f'alt="{esc(by_id[rid]["imageAlt"])}"></span>'
-        f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(by_id[rid]["summary"])}</small>'
+        f'<strong>{esc(by_id[rid]["name"])}</strong><small>{esc(a2_related_summaries.get(rid, by_id[rid]["summary"]))}</small>'
         f'<em>製品詳細へ →</em></a>' for rid in spec["relatedProductIds"]
     )
     hero_actions = (
@@ -486,16 +615,27 @@ def render(root: Path, product: dict, mode: str) -> str:
         ),
         "spec_heading": "製品スペック" if spec.get("v3") else "メーカー公開仕様",
         "spec_origin": (
-            '<details class="g1-factory-source"><summary>仕様の出典・確認情報</summary>'
+            '<details class="g1-factory-source"><summary>' +
+            ('メーカー資料・詳細仕様' if slug == 'unitree-a2' else '仕様の出典・確認情報') +
+            '</summary>'
             '<p>' + esc(product["manufacturerName"]) + '公式の公表値を参照。確認日：' + esc(product["verifiedAt"]) +
             '。掲載値は購入するSKU・オプション構成で異なる場合があります。 '
             '<a href="' + source + '" target="_blank" rel="noopener noreferrer">'
             'メーカー公式仕様を見る ↗</a></p></details>'
             if spec.get("v3") else ""
         ),
-        "cta_lead": ("動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
-                     if spec["videos"] else
-                     "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"),
+        "cta_lead": (
+            "研究目的・対象現場・必要な装備を整理し、モデル選定からPoC・見積の進め方までご相談いただけます。"
+            if slug == "unitree-a2" else
+            "動きを見て、仕様を比べ、研究・PoCの導入条件を整理します。"
+            if spec["videos"] else
+            "製品写真と公式仕様を確認し、研究・PoCの導入条件を整理します。"
+        ),
+        "final_cta_heading": (
+            "Unitree A2の導入・PoCを、ここから相談。"
+            if slug == "unitree-a2" else
+            name + " の可能性を、次の一歩へ。"
+        ),
         "media_attribution": "画像・動画出典" if spec["videos"] else "画像出典",
         "title": esc(spec["title"]),
         "description": esc(spec["metaDescription"]),
@@ -508,8 +648,11 @@ def render(root: Path, product: dict, mode: str) -> str:
         "hero_image": esc(local_asset(root, product["image"], "hero", IMAGE_EXT)),
         "hero_alt": esc(product["imageAlt"]),
         "contact": esc(contact),
-        "facts": _item_html(spec["facts"], "facts"),
-        "applications": _item_html(spec["applications"], "applications"),
+        # CEO sales-page requirement: A2 values first; do not append a maker
+        # source link to every card. All per-item URLs remain in Product Master
+        # and the official maker link remains in the single specs resource area.
+        "facts": _item_html(spec["facts"], "facts", inline_sources=False),
+        "applications": _item_html(spec["applications"], "applications", inline_sources=False),
         "specifications": render_variant_compare_specs(product, spec),
         "faq": _item_html(spec["faq"], "faq"),
         "images": media_images,
@@ -518,7 +661,11 @@ def render(root: Path, product: dict, mode: str) -> str:
             '<div class="g1-factory-videos">' + videos + '</div>'
             '<p class="g1-fine">メーカー映像と実際の納入仕様は異なる場合があります。動作保証ではありません。</p>'
             if spec["videos"] else
-            ('<p class="g1-fine g1-v3-video-note">提供された公式製品素材には検証可能な動画がありません。'
+            ('<p class="g1-fine g1-v3-video-note">掲載写真はメーカーの実演例です。'
+             '詳しい仕様・試験条件は <a href="' + source +
+             '" target="_blank" rel="noopener noreferrer">メーカー公式資料</a>でご確認ください。</p>'
+             if slug == "unitree-a2" else
+             '<p class="g1-fine g1-v3-video-note">提供された公式製品素材には検証可能な動画がありません。'
              '最新の実演情報は <a href="' + source +
              '" target="_blank" rel="noopener noreferrer">メーカー公式ページ</a>をご確認ください。</p>')
         ),
@@ -542,37 +689,58 @@ def render(root: Path, product: dict, mode: str) -> str:
         '<link rel="stylesheet" href="/assets/css/g1-factory-v3.css">'
         if spec.get("v3") else ""
     )
-    # X2 preview alone opts into the live shared header. Existing committed
-    # H2 Plus / A3 Ultra generated pages must remain byte-for-byte identical.
+    # Every isolated preview uses the ONE approved site Header/Menu.
+    # Committed H2 Plus/A3 Ultra candidates remain byte-identical;
+    # X2 remains on its existing shared Header path even for candidate mode.
     original_factory_header = (
         '<header class="site-header" data-shared-layout="header"><div class="wrap">'
         '<a href="/index.html">AirAdmin8 Robotics</a></div></header>'
     )
-    if slug == "agibot-x2-series":
+    if mode == "preview" or slug == "agibot-x2-series":
         header_file = root / "includes/site-header.html"
         if not header_file.is_file():
             raise ContractError("Official shared header template is missing")
         mapping["shared_header"] = header_file.read_text(encoding="utf-8")
     else:
         mapping["shared_header"] = original_factory_header
-    # The normal site.js initializes GA4, so preview uses a strictly local
-    # nav toggle without analytics, network calls or production writers.
-    mapping["factory_nav_script"] = (
-        '<script>(function(){var b=document.querySelector(".site-header .menu"),'
-        'n=document.querySelector(".site-header .nav");'
-        'if(!b||!n)return;'
-        'function close(){n.classList.remove("open");b.setAttribute("aria-expanded","false")}'
-        'b.addEventListener("click",function(){var o=n.classList.toggle("open");'
-        'b.setAttribute("aria-expanded",String(o))});'
-        'n.querySelectorAll("a").forEach(function(x){x.addEventListener("click",close)})'
-        '})();</script>'
-        if mode == "preview" and slug == "agibot-x2-series" else ""
+    # Preview uses the ONE official footer, including its guarded, local menu
+    # runtime. Do not attach a second Factory menu listener or load GA4.
+    original_factory_footer = (
+        '<footer class="footer" data-shared-layout="footer"><div class="wrap">'
+        '© AirAdmin8 Inc.</div></footer>'
     )
+    if mode == "preview":
+        footer_file = root / "includes/site-footer.html"
+        if not footer_file.is_file():
+            raise ContractError("Official shared footer template is missing")
+        mapping["shared_footer"] = footer_file.read_text(encoding="utf-8").strip()
+    else:
+        # Preserve existing approved candidate-mode output byte for byte.
+        mapping["shared_footer"] = original_factory_footer
+    mapping["factory_nav_script"] = ""
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
     if mode == "preview":
         # CI/local preview is not a public page: never emit production
         # analytics page_view from site.js (GA4) or other site bootstrap.
         page = page.replace('<script src="/assets/js/site.js" defer></script>', '')
+        # A changed template may bring back tracking under a different script
+        # attribute order. The old literal replace alone silently missed it.
+        # This is a mandatory source-HTML safety gate, not a second renderer.
+        scripts = re.findall(r"<script\b[^>]*>", page, flags=re.I)
+        for tag in scripts:
+            if re.search(
+                r"(?:site|seo|analytics-events)\.js|gtag\/js|googletagmanager|google-analytics",
+                tag, flags=re.I,
+            ):
+                raise ContractError("Preview template includes production tracking bootstrap")
+        if re.search(r"\b(?:gtag\s*\(|google-analytics\.com|googletagmanager\.com)", page, re.I):
+            raise ContractError("Preview template includes production analytics code")
+        if page.count('data-aa8-menu-runtime="true"') != 1:
+            raise ContractError("Preview must use exactly one shared menu runtime")
+        if page.count('<footer class="footer" data-shared-layout="footer">') != 1:
+            raise ContractError("Preview must use exactly one official Footer")
+        if '<meta name="robots" content="noindex,nofollow">' not in page:
+            raise ContractError("Preview noindex contract missing")
     return page
 
 
@@ -589,6 +757,21 @@ def main() -> int:
     root = args.root.resolve()
     if args.action == "audit":
         errors, warnings, stats = audit_catalog(root)
+        # Keep using the existing CI audit entrypoint. This is read-only,
+        # fail-closed on live manufacturer fact changes, and does NOT approve
+        # untranslated facts, production release or new SKU registration.
+        try:
+            from maker_spec_watch import monitor_all
+            reports = monitor_all(root)
+            stats["maker_source_checks"] = [
+                {"url":r["source_url"],"status":r["status"],
+                 "rows":r["parameter_rows"],"cells":r["cells_checked"]}
+                for r in reports
+            ]
+            if any(r["status"]=="SOURCE_MATCH_TRANSLATION_REVIEW_PENDING" for r in reports):
+                warnings.append("maker source unchanged; Japanese translations still require independent fact review")
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            errors.append("MANUFACTURER_SOURCE_HOLD: "+str(exc))
         print(json.dumps({"pass": not errors, "stats": stats, "errors": errors, "warnings": warnings}, ensure_ascii=False, indent=2))
         return 1 if errors else 0
     if not args.output or (not args.id and not args.draft_product):

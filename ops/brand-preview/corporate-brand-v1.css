@@ -1,0 +1,26 @@
+/* AirAdmin8 corporate visual baseline — INTERNAL REVIEW ONLY.
+ * Source: www.air-admin8.co.jp WordPress theme style.css inspected 2026-11-18.
+ * Not included by products or GitHub Pages. Approval and 13-SKU QA required.
+ */
+[data-aa8-brand-preview="corporate-v1"] {
+  --aa8-corporate-deep: #0069b5;
+  --aa8-corporate-blue: #009bd2;
+  --aa8-corporate-teal: #00b2bc;
+  --aa8-corporate-ink: #333333;
+  --aa8-corporate-surface: #f4f8fa;
+  --aa8-corporate-white: #ffffff;
+  --aa8-corporate-line: #dbe3e7;
+  --aa8-corporate-content: 1200px;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  color: var(--aa8-corporate-ink);
+  line-height: 1.85;
+  letter-spacing: .05em;
+}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-shell {width:min(1200px,calc(100% - 72px));margin-inline:auto}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-header {background:#fff;border-bottom:1px solid #dbe3e7;box-shadow:0 2px 12px #00000007}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-primary-cta {background:#0069b5;color:#fff;border:1px solid #0069b5;border-radius:2px;padding:13px 25px;font-weight:700}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-secondary-cta {background:#fff;color:#0069b5;border:1px solid #0069b5;border-radius:2px;padding:13px 25px}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-accent {background:linear-gradient(90deg,#00b2bc,#009bd2,#0069b5)}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-footer {background:#f4f8fa;color:#333333}
+[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-footer-inner {background:#fff;border:1px solid #dbe3e7;border-radius:12px}
+@media(max-width:640px){[data-aa8-brand-preview="corporate-v1"] .aa8-corporate-shell{width:calc(100% - 36px)}}

@@ -9,6 +9,8 @@ on:
     branches: [main]
   issue_comment:
     types: [created]
+  # Reuse Vercel's native Git integration notification, not a second webhook,
+  # scheduler, Runner or Workflow. Repository dispatch runs from trusted main.
   repository_dispatch:
     types: [vercel.deployment.ready]
   workflow_dispatch:
@@ -133,6 +135,11 @@ jobs:
             -f autofix_head="$head" -f autofix_base="$base" \
             -f feedback_comment_id="$FEEDBACK_ID"
           echo "CEO feedback #$FEEDBACK_ID routed once: Draft PR #$pr HEAD $head; main/Production HOLD." >> "$GITHUB_STEP_SUMMARY"
+  # Trusted main-side post-deploy gate. Vercel's linked GitHub app supplies
+  # repository_dispatch, but NEVER grants permission to run untrusted PR code
+  # with a Vercel API secret. Missing CI evidence, token, or event = HOLD.
+  # Activation requires this workflow to land on protected main AND a scoped
+  # GitHub VERCEL_TOKEN secret; neither is assumed from an isolated Draft PR.
   preview-postdeploy-readback:
     if: >-
       ${{ github.event_name == 'repository_dispatch' &&
@@ -299,7 +306,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.autofix_head || github.sha }}
+          ref: ${{ inputs.autofix_head || github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -412,11 +419,15 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
           python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
-          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
           python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
+          python -m unittest discover -s tests -p 'test_preview_bundle_universal.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
+          python -m unittest discover -s tests -p 'test_a2_factory_pilot.py' -v
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
@@ -434,10 +445,24 @@ jobs:
       - name: Verify shared CSS ownership
         id: css_owner
         shell: bash
+        env:
+          CSS_POLICY_EVENT: ${{ github.event_name }}
+          CSS_POLICY_BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
           set -euo pipefail
           python -m py_compile scripts/verify_shared_css_ownership.py
           python scripts/verify_shared_css_ownership.py
+          # New shared CSS selector conflicts are mandatory PR/repair failures.
+          # Existing X2 EDU/G1 inline overrides remain visible in the report.
+          if [[ "$CSS_POLICY_EVENT" == "pull_request" ||
+                ( "$CSS_POLICY_EVENT" == "workflow_dispatch" && -n "$CSS_POLICY_BASE_SHA" ) ]]; then
+            if ! [[ "$CSS_POLICY_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "HOLD: exact trusted base SHA required for shared CSS delta gate"
+              exit 2
+            fi
+            git fetch --no-tags --depth=1 origin "$CSS_POLICY_BASE_SHA"
+            python scripts/verify_shared_css_ownership.py --strict-new --base-sha "$CSS_POLICY_BASE_SHA"
+          fi
 
       - name: Build release candidate
         id: build
@@ -497,6 +522,8 @@ jobs:
       - name: Verify PC/SP navigation in real browser
         id: browser
         shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.autofix_head || github.sha }}
         run: |
           set -euo pipefail
           python -m http.server 4173 --directory _site > /tmp/aa8-http.log 2>&1 &
@@ -511,9 +538,42 @@ jobs:
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
           # CI-only synthetic product; preview never reaches Pages production artifact.
           python tests/prepare_product_factory_qa.py
-          # Preview-only X2 fixture uses the existing product_factory.py, never Product Master or production Pages.
-          python scripts/product_factory.py generate --draft-product tests/fixtures/x2-pilot/product.json --mode preview --output _site/x2-pilot-preview.html
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js --reporter=line
+          # All existing and future Product Factory draft fixtures share this
+          # one generation path. Fail closed if any candidate cannot build.
+          python - <<'PY_FACTORY_PREVIEWS'
+          from pathlib import Path
+          import subprocess
+          fixtures=sorted(Path("tests/fixtures").glob("*/product.json"))
+          if not fixtures:
+              raise SystemExit("PREVIEW_BUNDLE_HOLD: no draft product fixtures")
+          for source in fixtures:
+              target=Path("_site")/(source.parent.name+"-preview.html")
+              subprocess.run(["python","scripts/product_factory.py","generate",
+                  "--draft-product",str(source),"--mode","preview",
+                  "--output",str(target)],check=True)
+          PY_FACTORY_PREVIEWS
+          # Pre-deploy Gate: exact asset hashes are mandatory in this existing
+          # CI workflow. Post-deployment must compare with actual Vercel Files.
+          python scripts/verify_preview_bundle.py --site _site --revision "$PR_HEAD_SHA" --emit /tmp/aa8-preview-bundle-manifest.json
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js tests/a2-factory-preview.spec.js tests/corporate-brand-optin.spec.js --reporter=line
+
+      - name: Preserve exact Preview assets manifest for Vercel post-deploy Gate
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa8-preview-bundle-${{ github.event.pull_request.head.sha }}
+          path: /tmp/aa8-preview-bundle-manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Preserve A2 independent PC/SP real-page screenshots
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-qa-artifacts/
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Preserve X2 exact SHA PC/SP Figma screenshot evidence
         if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
@@ -585,6 +645,10 @@ jobs:
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| BuildによるSource汚染なし | $(status_icon '${{ steps.source_clean.outcome }}') |"
+            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.number }}" = "180" ]; then
+              echo "| A2 15项CEO视觉签核 | VISUAL_HOLD（截图证据不等于独立视觉验收） |"
+              echo "| A2 日文厂家事实真人签核 | FACT_HOLD（技术对照不等于真人批准） |"
+            fi
             echo ""
             echo "Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -625,9 +689,33 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
+      # A2 screenshots re-audited on the existing separate technical QA runner.
+      # Evidenced screenshot bytes NEVER imply independent CEO visual approval.
+      - name: Download exact-HEAD A2 screenshots for independent evidence check
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/download-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-independent-screenshots/
+
+      - name: Verify 15 A2 redline screenshot sets (visual approval HOLD)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        shell: bash
+        env:
+          A2_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py visual-evidence --head-sha "$A2_HEAD" --screenshots a2-independent-screenshots --out separate-qa-evidence/a2-visual-gate.json
+          echo '## A2 CEO 15-redline gate' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Exact-SHA screenshot integrity PASS on separate runner.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'VISUAL HOLD: original-image comparison and P0/P1 closure NOT_ATTESTED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Technical CI and SHA verification cannot authorize design signoff.' >> "$GITHUB_STEP_SUMMARY"
+
       - name: Record separate technical QA evidence
         shell: bash
         env:

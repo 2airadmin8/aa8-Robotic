@@ -1,0 +1,12 @@
+{
+  "repair_count": 1,
+  "stage": "initial developer QA repair BEFORE initial PR",
+  "rootCause": "A2 manufacturer continuous walking payload not explicitly shown as its own specification row",
+  "source": "https://www.unitree.com/A2/",
+  "pre_preview_sha256": "ea145c4d2104f80a7a1996d237c3a1776eae61bf8c0ba762e3f4639f1f5e1c6b",
+  "new_preview_sha256": "441e0473c28993f5e44ba39e0aa706502bc67a686b82a5c9d83d9d7a2f5da2bb",
+  "decision": "Existing Factory rerun on isolated fixture; no Product Master change; not a CEO feedback E2E",
+  "ceo_interventions": 0,
+  "manual_code_edits": 0,
+  "rework_iterations": 1
+}

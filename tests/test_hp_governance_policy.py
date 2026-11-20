@@ -43,5 +43,86 @@ class PolicyV1(unittest.TestCase):
         self.assertIn("public _site/",security)
 
 
+    def test_a2_technical_fact_pass_is_not_human_approval(self):
+        import json
+        folder = ROOT / "tests/fixtures/a2-factory"
+        maker = json.loads((folder / "maker-live-contract.json").read_text("utf-8"))
+        rows = [r for g in maker["categories"] for r in g["rows"]]
+        self.assertEqual(len(rows), 37)
+        self.assertTrue(all(r["review_status"] == "TRANSLATION_REVIEW_PENDING"
+                            for r in rows))
+        result = json.loads((folder / "independent-technical-fact-review-74.json").read_text("utf-8"))
+        self.assertEqual(result["status"], "TECH_SEMANTIC_QA_PASS")
+        self.assertEqual(result["cells_checked"], 74)
+        self.assertEqual(result["independent_human_review"], "NOT_ATTESTED")
+        self.assertEqual(result["production_release"], "HOLD")
+
+    def test_product_pr_template_requires_business_data_qa_and_scope(self):
+        template = (ROOT / ".github/PULL_REQUEST_TEMPLATE.md").read_text("utf-8")
+        for required in (
+            "产品PR定义", "共通Factory", "厂家数据双层签核",
+            "逐项视觉对照", "MAKER_HUMAN_FACT_SIGNOFF", "LEAD_CRM_E2E"
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, template)
+        governance = (DOCS / "01_HP_ADAPTER_V1.md").read_text("utf-8")
+        self.assertIn("GLOBAL_FACTORY", governance)
+        self.assertIn("TRANSLATION_REVIEW_PENDING", governance)
+        self.assertIn("80 points", governance)
+
+    def test_a2_15_redline_evidence_never_auto_approves(self):
+        import json
+        import struct
+        import zlib
+        import sys
+        import tempfile
+        sys.path.insert(0, str(ROOT / "scripts"))
+        from hp_governance_quality_gate import (
+            A2_REDLINE_SHOTS, A2_VISUAL_VIEWPORTS, a2_visual_evidence,
+        )
+        self.assertEqual(len(A2_REDLINE_SHOTS), 15)
+        with tempfile.TemporaryDirectory() as tmp:
+            images = Path(tmp) / "images"
+            images.mkdir()
+            output = Path(tmp) / "result.json"
+            with self.assertRaisesRegex(ValueError, "screenshot missing"):
+                a2_visual_evidence("a"*40, images, output)
+            def png(view, height, seed=b""):
+                def chunk(kind, data):
+                    return (struct.pack(">I", len(data)) + kind + data
+                            + struct.pack(">I", zlib.crc32(kind+data)&0xffffffff))
+                ihdr = struct.pack(">IIBBBBB", view, height, 8, 2, 0, 0, 0)
+                pixel = (b"\0" + b"\0"*(view*3)) * height
+                return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr)
+                        + chunk(b"tEXt", b"QA-evidence"+seed+b"x"*1200)
+                        + chunk(b"IDAT", zlib.compress(pixel))
+                        + chunk(b"IEND", b""))
+            for stem in set(A2_REDLINE_SHOTS.values()):
+                for v in A2_VISUAL_VIEWPORTS:
+                    (images / f"{stem}-{v}.png").write_bytes(png(v,350,stem.encode()))
+            with self.assertRaisesRegex(ValueError, "screenshot missing"):
+                a2_visual_evidence("a"*40, images, output)
+            for v in (390, 360):
+                (images / f"a2-sp-cta-after-anchor-{v}.png").write_bytes(
+                    png(v,500))
+            result = a2_visual_evidence("a"*40, images, output)
+            self.assertEqual(result["visual_approval"], "HOLD")
+            self.assertEqual(result["p0_p1_closure"], "NOT_ATTESTED")
+            self.assertEqual(len(result["bugs"]), 15)
+            # Replacing two distinct redlines with the same byte sequence
+            # must fail instead of treating 15 IDs as independently reviewed.
+            (images / "a2-redline-V14-1440.png").write_bytes(
+                (images / "a2-redline-V15-1440.png").read_bytes())
+            with self.assertRaisesRegex(ValueError, "duplicate/reused screenshot"):
+                a2_visual_evidence("a"*40, images, output)
+            (images / "a2-redline-V14-1440.png").write_bytes(
+                png(1440,350,b"a2-redline-V14"))
+            self.assertEqual(json.loads(output.read_text("utf-8"))["head_sha"], "a"*40)
+            (images / "a2-redline-V15-390.png").write_bytes(b"garbage")
+            with self.assertRaisesRegex(ValueError, "invalid/empty PNG"):
+                a2_visual_evidence("a"*40, images, output)
+
+
+
 if __name__ == "__main__":
     unittest.main()
