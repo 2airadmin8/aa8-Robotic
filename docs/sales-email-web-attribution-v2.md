@@ -91,3 +91,10 @@ Vercel hikari-proxy-dev 环境仅见 DIFY_API_KEY；不存在以下配置：
 - 函数去重：doGet 1、doPost 1、salesEngagementHourlyTrigger_ 1、syncWebEngagementFromLog_ 1、syncAa8WebMarketingSummary_ 1、buildTrackedCatalogUrl_ 1；所有JS语法PASS。
 - 配信真实模式已只读确认：DRAFT/YES/送信済；TEST配信：TEST/NO/送信済。两类在签名写入、汇总和每小时同步中有各自分支并独立测试。
 - 回滚时不把整个GAS HEAD降级成旧@43。必须在独立CEO审批后冻结新增API、将既有部署指向此前确切版本并恢复原HEAD文件03的SHA；核对已有Vercel开封像素、GAS GET、原发送与定时同步。若无法确认版本/角色，停止不发布。
+
+
+### 2026-11-20｜X2 Preview build delivery contract（既存PR #163、Production HOLD）
+- X2専用既存Vercel Preview project `x2-edu-make-review`（`prj_vH6kcA1vFU6FPCm3skNdpudINkEh`）のGit標準ビルドは `python3 scripts/build_site.py && python3 scripts/product_factory.py generate --draft-product tests/fixtures/x2-pilot/product.json --mode preview --output _site/x2-pilot-preview.html`。既存GitHub Pages本番／他Vercel projectのビルド設定は変更しない。
+- 正本 `includes/site-footer.html` をX2 Previewのみ再利用。`tests/test_x2_pilot_factory.py` は公式Footer全体の1:1挿入、Logo、MENU二重登録防止、GA4本番送信禁止を検証。
+- 既存 PR CI は `aa8-preview-bundle-{exact HEAD SHA}` を必ず生成し、`verify_preview_bundle.py` でFooter SVGとPreview依存ファイルSHA1を固定。Git由来Preview `source=git`、正確なHEAD、`target=null`、SSOを維持した実URLの全素材SHA1一致を `preview_postdeploy_bridge.py` が検証するまでRELEASE HOLD。API実験デプロイや `source=redeploy` は代用不可。
+- Webhook/GAS署名・正式 `Web行動ログ` 入庫、内部営業メールの実E2Eは別Gate。過去のCI PASSやVercel 204/ログだけを業務完了とみなさない。GAS/Vercel production技術公開は最終正確SHAの単一承認後。顧客宛送信は禁止。
