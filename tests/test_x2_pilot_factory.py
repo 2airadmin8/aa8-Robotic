@@ -93,7 +93,12 @@ class X2PilotContractTest(unittest.TestCase):
         self.assertIn('class="nav"',markup)
         self.assertNotIn('src="/assets/js/site.js"',markup)
         self.assertNotIn('gtag.js',markup)
-        self.assertIn('b.addEventListener("click"',markup)
+        self.assertIn('data-aa8-menu-runtime="true"',markup)
+        self.assertEqual(markup.count('data-aa8-menu-runtime="true"'),1)
+        self.assertIn('airadmin8-robotics-logo-footer.svg',markup)
+        self.assertEqual(markup.count('airadmin8-robotics-logo-footer.svg'),1)
+        self.assertEqual(markup.count('<footer class="footer" data-shared-layout="footer">'),1)
+        self.assertIn('class="wrap footer-grid"',markup)
         self.assertEqual(markup.count('g1-factory-related-photo'),3)
         for rid in self.item["pageFactory"]["relatedProductIds"]:
             self.assertIn('src="/'+next(x["image"] for x in catalog(ROOT) if x["id"]==rid)+'"',markup)

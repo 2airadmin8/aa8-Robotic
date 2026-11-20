@@ -532,6 +532,25 @@ jobs:
           path: x2-qa-artifacts/
           if-no-files-found: error
           retention-days: 30
+      # Same PR CI and existing X2 fixture; no Production release.
+      - name: Prepare exact-HEAD Preview bundle manifest
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          test -s _site/x2-pilot-preview.html
+          python scripts/verify_preview_bundle.py --site _site --previews x2-pilot-preview.html --revision "$EXPECTED_SHA" --emit "$RUNNER_TEMP/aa8-preview-bundle-manifest.json"
+          python -c 'import json,os;d=json.load(open(os.environ["RUNNER_TEMP"]+"/aa8-preview-bundle-manifest.json"));assert d["revision"]==os.environ["EXPECTED_SHA"];assert "x2-pilot-preview.html" in d["previews"];assert "assets/img/airadmin8-robotics-logo-footer.svg" in d["assets"]'
+      - name: Preserve exact-HEAD Preview bundle manifest
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa8-preview-bundle-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/aa8-preview-bundle-manifest.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Ensure build does not modify tracked source
         id: source_clean
         shell: bash
