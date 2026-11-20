@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-11-03",
+  "mediaRole": "official manufacturer marketing image",
+  "products": [
+    {
+      "id": "agibot-g2",
+      "productName": "AgiBot G2",
+      "localPath": "assets/img/products/agibot/g2/official-g2-front.jpg",
+      "sourcePage": "https://store.agibot.com/",
+      "sourceAssetUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-g2.webp",
+      "sha256": "59cbef76de617ff4866ca1593d4ffb553fda0fcb2c0fb9ccee1a7b7c74ba3168",
+      "modelDisclosure": "G2本体写真。G2 Air/G2 Maxとは区別。"
+    },
+    {
+      "id": "agibot-x2-edu",
+      "productName": "AgiBot X2 EDU",
+      "localPath": "assets/img/products/agibot/x2-edu/official-x2-edu-front.jpg",
+      "sourcePage": "https://store.agibot.com/",
+      "sourceAssetUrl": "https://store.agibot.com/cdn/shop/t/81/assets/ag-home-x2-edu.webp",
+      "sha256": "ffc2615ee0edcdd809345a1d045d94eac4b101140e06c9e7d1005abe7ca8fa07",
+      "modelDisclosure": "メーカー公式ストアでX2 EDUとして掲載。X2 Neo/Ultraを転用しない。"
+    },
+    {
+      "id": "limx-oli",
+      "productName": "LimX Oli",
+      "localPath": "assets/img/products/limx/oli/official-oli-portrait.webp",
+      "sourcePage": "https://www.limxdynamics.com/en/products/oli",
+      "sourceAssetUrl": "https://limx-video-oss.limxdynamics.com/limx-website/products/oli/img-1.webp",
+      "sha256": "408335d64c8cec6c6cadf5f72d6645b5db12126b38aeb4d807dec95b3f2e5bd0",
+      "modelDisclosure": "Oli公式ページの機体画像。全身ではなく上半身と腰部の構図。"
+    },
+    {
+      "id": "unitree-go2-edu",
+      "productName": "Unitree Go2 EDU",
+      "localPath": "assets/img/products/unitree/catalog/22_go2.png",
+      "sourcePage": "https://www.unitree.com/go2/",
+      "sourceAssetUrl": "https://www.unitree.com/go2/",
+      "sha256": "36c38c06130c92ae329650a2337ad43900e62808daabddd78cf38a5eab71b16f",
+      "modelDisclosure": "既存のUnitree公式カタログ写真を再利用。EDUの装備と通常Go2の差は別途確認。"
+    },
+    {
+      "id": "tianji-marvin",
+      "productName": "Tianji Marvin",
+      "localPath": "assets/img/products/tianji/marvin/official-marvin-m6.jpg",
+      "sourcePage": "https://en.tianjizn.com/products/marvin-series/",
+      "sourceAssetUrl": "https://en.tianjizn.com/wp-content/uploads/2026/06/Marvin-M6.jpg",
+      "sha256": "de873ebd236bae171982f30d5f7d8e9c49b3d4b7c9868a203ce96ae214307a9a",
+      "modelDisclosure": "Marvin M6双腕本体の公式写真。移動台車やハンド等のセット構成は未確認。"
+    }
+  ]
+}

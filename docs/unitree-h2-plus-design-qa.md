@@ -35,3 +35,30 @@
 - No edit of existing G1/H2/H2-X product HTML or approved CSS.
 - No new automation, Master, runner, or external email/CRM write.
 - Code merge and production deploy require existing CEO SHA approval gates.
+
+## V3.0 strict review / additive modules (2026-11-03)
+- H2 Plus only: model selection, SDK/developer resources, research solution examples, procurement/implementation steps.
+- V3 factory code must be product-agnostic: model heading, manufacturer source and Hero CTA generated from Product Master, never hard-coded to Unitree or H2 Plus.
+- The first Hero CTA is consultation; official image gallery remains accessible by secondary CTA.
+- Resource link points to existing /resources.html and verified manufacturer source; do NOT claim a downloadable H2 Plus SDK or guaranteed ROS 2 compatibility.
+- Five-step process uses scoped V3 layout; retain original white background, 9 official images, three G1 illustrated CTA cards and four related products.
+- Product/Maker must prefill existing contact form; full Inquiry ID, persistent receipt and CRM routing are separate end-to-end projects and are NOT claimed as passed here.
+- CI must assert candidate generated from data/products.json equals committed H2 Plus HTML. Independent AA8-N-015 PC1440/SP390/SP360 must still inspect screenshots and actual interaction.
+- The exact PR HEAD, CI and independent QA must be reverified before a separate CEO merge/deploy approval.
+
+- V3 long anchor navigation on 390/360px must scroll horizontally without colliding labels; test neighboring DOM bounding boxes and source CSS. Header is validated against built `_site` artifact, not just source placeholders.
+
+- Strict design fix: the V3 header anchor navigation is reduced to 9 key sections. Desktop width 1440 must fit without horizontal scrolling; SP390/SP360 must scroll horizontally with non-overlapping labels. FAQ and related modules stay on the page.
+
+## CEO screenshot redline / 2026-11-03
+- H2 Plus V3 only: remove visible Hero repeated status line and tiny manufacturer caption; original manufacturer source retained at specification disclosure and illustrated CTA.
+- Four feature cards and four application cards: 4 in one row on >=1120px, 2 columns on intermediate tablet, one column on SP. No 3+1 orphan layout.
+- Keep all nine verified manufacturer images; equal 16:10 containment frame with caption alignment, never crop or substitute another SKU.
+- Rename heading to 製品スペック and group source/date in expandable detail; machine-readable/SSOT per-fact source links remain in generation data.
+- Suppress long zero-video fine print and duplicate final CTA kicker/lead/fine text on V3 only; preserve factual notes in Product Master and manufacturer source.
+- Do not touch approved legacy pages, shared G1 CSS, QA Factory, contact/CRM or manual-only deployment.
+
+## Responsive edge-case review (2026-11-03)
+- AA8-N-015 viewport sweep 320,360,375,390,430,520,600,768,780,781,800,820,900,1024,1100,1119,1120,1280,1366,1440,1920px detected a real **320px Hero consultation CTA text overflow (scrollWidth 139 > clientWidth 132)**.
+- V3-only @media max-width:359px uses stacked, full-width buttons and wrapping text. No changes to other approved pages.
+- Permanent Playwright regression includes 320px CTA width check and stacked action check; all widths still require exact Product/Maker contact prefill and no real submission.

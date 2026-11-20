@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "aa8-hp-design-code-trace-v1",
+  "effectiveFromUtc": "2026-11-14T11:00:00+00:00",
+  "designSources": {
+    "visual": {
+      "name": "Figma Product Page Standard V3.2",
+      "reference": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
+      "verification": "HUMAN_APPROVED_VISUAL_AND_REAL_BROWSER_QA_NOT_AUTOMATIC_FIGMA_PIXEL_PARITY"
+    },
+    "content": {
+      "version": "3.1",
+      "path": "docs/product-page-standard-v3.1.md"
+    },
+    "factory": {
+      "version": "1",
+      "path": "docs/product-factory-v1.md"
+    }
+  },
+  "policyPaths": [
+    "docs/governance/00_CORE_CHANGE_CONTROL_V1.md",
+    "docs/governance/01_HP_ADAPTER_V1.md",
+    "docs/governance/02_CHANGE_REQUEST_TEMPLATE.md",
+    "docs/governance/03_MEASUREMENT_BASELINE.md"
+  ],
+  "qualityRule": {
+    "mandatory": "ALL_SECURITY_FUNCTIONAL_DATA_INTEGRITY_AND_APPLICABLE_QA_GATES_PASS",
+    "optional": "APPROVED_VISUAL_BASELINE_MET_THEN_STOP",
+    "excessPolish": "REQUIRES_MEASURED_CUSTOMER_OR_BUSINESS_BENEFIT",
+    "maxAutoRepair": 3,
+    "maxCEOConsolidatedDecision": 1,
+    "scoreIsNotReleaseAuthorization": true
+  },
+  "traceability": [
+    {
+      "id": "SHELL",
+      "purpose": "shared header/footer/navigation and screen CSS",
+      "designDoc": "docs/governance/01_HP_ADAPTER_V1.md",
+      "implementation": [
+        "includes/site-header.html",
+        "includes/site-footer.html",
+        "assets/css/shared-layout.css",
+        "scripts/build_site.py"
+      ],
+      "tests": [
+        "tests/test_hp_design_contract.py",
+        "tests/hp-shared-governance.spec.js"
+      ]
+    },
+    {
+      "id": "PRODUCT_FACTS",
+      "purpose": "manufacturer evidence and four product family contracts",
+      "designDoc": "docs/product-page-standard-v3.1.md",
+      "implementation": [
+        "data/products.json",
+        "data/hp-page-family-contract-v1.json",
+        "scripts/hp_design_contract.py",
+        "scripts/product_factory.py"
+      ],
+      "tests": [
+        "tests/test_hp_design_contract.py",
+        "tests/test_product_factory.py"
+      ]
+    },
+    {
+      "id": "CTA",
+      "purpose": "product inquiry context, PC and SP 13 page propagation",
+      "designDoc": "docs/governance/01_HP_ADAPTER_V1.md",
+      "implementation": [
+        "scripts/product_page_standard_v31.py",
+        "contact.html"
+      ],
+      "tests": [
+        "tests/test_product_cta_schema_20261104.py",
+        "tests/hp-shared-governance.spec.js"
+      ]
+    },
+    {
+      "id": "PRIVACY",
+      "purpose": "internal policy and business reports never enter public Pages",
+      "designDoc": "docs/governance/00_CORE_CHANGE_CONTROL_V1.md",
+      "implementation": [
+        "scripts/build_site.py",
+        "scripts/verify_release.py"
+      ],
+      "tests": [
+        "tests/test_hp_private_publish.py"
+      ]
+    },
+    {
+      "id": "GROWTH",
+      "purpose": "read-only GSC + Inquiry suggestions and verified Factory efficiency",
+      "designDoc": "docs/governance/03_MEASUREMENT_BASELINE.md",
+      "implementation": [
+        "scripts/hp_growth_evidence.py",
+        "scripts/hp_factory_efficiency.py"
+      ],
+      "tests": [
+        "tests/test_hp_growth_evidence.py",
+        "tests/test_hp_factory_efficiency.py"
+      ]
+    },
+    {
+      "id": "GOVERNANCE",
+      "purpose": "quality-first closure, actual efficiency metrics and mandatory PR design/code change intake",
+      "designDoc": "docs/governance/00_CORE_CHANGE_CONTROL_V1.md",
+      "implementation": [
+        "docs/governance/hp-design-code-trace-v1.json",
+        "scripts/hp_governance_quality_gate.py",
+        ".github/workflows/ci.yml",
+        "scripts/factory_feedback_preview.py",
+        "scripts/preview_postdeploy_bridge.py",
+        "scripts/verify_preview_bundle.py"
+      ],
+      "tests": [
+        "tests/test_hp_governance_quality_gate.py",
+        "tests/test_hp_governance_policy.py",
+        "tests/test_factory_feedback_preview.py",
+        "tests/test_preview_postdeploy_bridge.py"
+      ]
+    }
+  ],
+  "changeGate": {
+    "headings": [
+      "设计正本 / Design SSOT",
+      "变更与根因 / Change & RCA",
+      "防再发回归 / Regression",
+      "真实业务证据 / E2E",
+      "独立 QA 与发布"
+    ],
+    "legacyOpenPr": "CREATED_BEFORE_EFFECTIVE_DATE_EXEMPT_FROM_NEW_INTAKE_ONLY_NOT_FROM_SAFETY_QA",
+    "reuseExistingPrTemplate": true
+  }
+}

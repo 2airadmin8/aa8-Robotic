@@ -68,7 +68,7 @@ for(const width of [1440,390,360]){
   expect(actions).toEqual([
     '/assets/img/products/unitree/h2x/drive/video_01.mp4',
     '#specifications',
-    '/contact.html?product=Unitree%20H2-X&service=university-procurement'
+    '/contact.html?product=Unitree%20H2-X&maker=Unitree'
   ]);
   expect(failed).toEqual([]);
   expect(errors).toEqual([]);

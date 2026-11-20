@@ -20,11 +20,17 @@ class ProductFactoryContractTests(unittest.TestCase):
     def setUp(self):
         self.item = sample_product()
 
-    def test_current_master_all_11_products_audit(self):
+    def test_current_master_all_13_products_audit(self):
         errors, warnings, stats = audit_catalog(ROOT)
         self.assertEqual(errors, [])
-        self.assertGreaterEqual(stats["products"], 11)
-        self.assertTrue(any("placeholder image" in warning for warning in warnings))
+        self.assertEqual(stats["products"], 13)
+        self.assertFalse(any("placeholder image" in warning for warning in warnings),
+                         "all five manufacturer-image replacements must be verified")
+        for pid in ("agibot-g2", "agibot-x2-edu", "limx-oli", "unitree-go2-edu", "tianji-marvin"):
+            product = next(p for p in catalog(ROOT) if p["id"] == pid)
+            self.assertEqual(product["imageStatus"], "official", pid)
+            self.assertTrue((ROOT / product["image"]).is_file(), pid)
+            self.assertTrue(product.get("imageSourcePage"), pid)
 
     def test_h2x_ceo_design_contract_approved_assets(self):
         h2x = next(p for p in catalog(ROOT) if p["id"] == "unitree-h2-x")

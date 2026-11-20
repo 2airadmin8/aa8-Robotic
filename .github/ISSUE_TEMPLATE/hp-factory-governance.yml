@@ -1,0 +1,50 @@
+name: HP Factory Governance｜Change Intake
+description: Change control for an existing AirAdmin8 Robotics HP component or product; no automatic Production authorization.
+title: "[HP][P1] Scoped change"
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority / 需求类别
+      options:
+        - "P0｜confirmed failure or security"
+        - "P1｜approved product or required function"
+        - "P2｜measured content/UX improvement"
+        - "P3｜aesthetic preference / backlog"
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Real evidence, customer value and source date
+      description: Source URL, real findings, business rationale. UNKNOWN is allowed; fabricated specifications are not.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact matrix / 影响范围
+      description: Product IDs, shared Header/Footer/CTA modules and PC/SP affected page counts.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: No-go / 禁止修改范围
+      description: Official facts, Product Master, CRM, Pages, security, other products; specific exclusions.
+    validations:
+      required: true
+  - type: textarea
+    id: qa
+    attributes:
+      label: Acceptance + negative regression / 验收
+      description: Measurable quality criteria; independent QA machine; required product/browser coverage and repeat-defect test.
+    validations:
+      required: true
+  - type: textarea
+    id: closeout
+    attributes:
+      label: Stop rule, max repairs and rollback / 收口
+      description: Time budget, <=3 repair loops, HOLD condition, rollback and CEO exception decision.
+    validations:
+      required: true

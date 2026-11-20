@@ -1,0 +1,800 @@
+{
+  "schema": "x2-pilot-input-v1",
+  "source_sha256": "f1068d82cb753b369cd61b98cc0eabf4f5551f1b1ea3ac1810a906c5fde9d1d8",
+  "source_date": "2026-10-28",
+  "product_id": "agibot-x2-series",
+  "image_approval": "CEO: X2 series general promotional image, 2026-11-09",
+  "image_is_version_specific": false,
+  "parameter_count": 36,
+  "parameter_groups": {
+    "本体・基本仕様": 10,
+    "認識・センサー": 4,
+    "通信": 1,
+    "対話・表示": 2,
+    "運動・性能": 3,
+    "電源・電池": 6,
+    "演算・制御": 2,
+    "拡張インターフェース": 4,
+    "その他": 4
+  },
+  "model_scope": [
+    "X2 青春版",
+    "X2 旗舰版"
+  ],
+  "source_parameter_entries": [
+    {
+      "label_ja": "サイズ",
+      "category": "本体・基本仕様",
+      "youth_raw": "1310mm（H） 460mm（W） 210mm（L）",
+      "flagship_raw": "1310mm（H） 460mm（W） 210mm（L）",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 1
+    },
+    {
+      "label_ja": "身長",
+      "category": "本体・基本仕様",
+      "youth_raw": "約1.31m",
+      "flagship_raw": "約1.31m",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 2
+    },
+    {
+      "label_ja": "重量",
+      "category": "本体・基本仕様",
+      "youth_raw": "約35kg",
+      "flagship_raw": "約39kg",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 3
+    },
+    {
+      "label_ja": "全自由度",
+      "category": "本体・基本仕様",
+      "youth_raw": "27",
+      "flagship_raw": "30",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 4
+    },
+    {
+      "label_ja": "首部自由度",
+      "category": "本体・基本仕様",
+      "youth_raw": "2",
+      "flagship_raw": "1",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 5
+    },
+    {
+      "label_ja": "片腕自由度",
+      "category": "本体・基本仕様",
+      "youth_raw": "5",
+      "flagship_raw": "7",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 6
+    },
+    {
+      "label_ja": "腰部自由度",
+      "category": "本体・基本仕様",
+      "youth_raw": "3",
+      "flagship_raw": "3",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 7
+    },
+    {
+      "label_ja": "片脚自由度",
+      "category": "本体・基本仕様",
+      "youth_raw": "6",
+      "flagship_raw": "6",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 8
+    },
+    {
+      "label_ja": "腕のリーチ",
+      "category": "本体・基本仕様",
+      "youth_raw": "437mm エンドエフェクタ除く",
+      "flagship_raw": "558mm エンドエフェクタ除く",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 9
+    },
+    {
+      "label_ja": "動作温度範囲",
+      "category": "本体・基本仕様",
+      "youth_raw": "-10℃~40℃",
+      "flagship_raw": "-10℃~40℃",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 10
+    },
+    {
+      "label_ja": "3D LiDAR",
+      "category": "認識・センサー",
+      "youth_raw": "搭載なし",
+      "flagship_raw": "搭載",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 12
+    },
+    {
+      "label_ja": "RGB-Dカメラ",
+      "category": "認識・センサー",
+      "youth_raw": "搭載なし",
+      "flagship_raw": "搭載",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 13
+    },
+    {
+      "label_ja": "RGBカメラ",
+      "category": "認識・センサー",
+      "youth_raw": "インタラクティブRGBカメラ",
+      "flagship_raw": "インタラクティブRGBカメラ 前方デュアルRGB 後方RGB",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 14
+    },
+    {
+      "label_ja": "頭部タッチセンサー",
+      "category": "認識・センサー",
+      "youth_raw": "搭載",
+      "flagship_raw": "搭載",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 15
+    },
+    {
+      "label_ja": "通信方式",
+      "category": "通信",
+      "youth_raw": "Wi-Fi、Bluetooth",
+      "flagship_raw": "Wi-Fi、Bluetooth 4G/5Gモジュール",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 17
+    },
+    {
+      "label_ja": "音声入出力",
+      "category": "対話・表示",
+      "youth_raw": "マイクアレイ、 ワイヤレスマイク、 スピーカー",
+      "flagship_raw": "マイクアレイ、 ワイヤレスマイク、 スピーカー",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 19
+    },
+    {
+      "label_ja": "表示",
+      "category": "対話・表示",
+      "youth_raw": "インタラクションディスプレイ、ライトエフェクト",
+      "flagship_raw": "インタラクションディスプレイ、ライトエフェクト",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 20
+    },
+    {
+      "label_ja": "最大関節トルク",
+      "category": "運動・性能",
+      "youth_raw": "120N·m",
+      "flagship_raw": "120N·m",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 22
+    },
+    {
+      "label_ja": "移動速度",
+      "category": "運動・性能",
+      "youth_raw": "最大: 1.5 m/s 通常 ≤0.8 m/s",
+      "flagship_raw": "最大: 1.5 m/s 通常 ≤0.8 m/s",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 23
+    },
+    {
+      "label_ja": "最大可搬重量",
+      "category": "運動・性能",
+      "youth_raw": "最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）",
+      "flagship_raw": "最大3kg （特定姿勢時） 全域 ≤1kg （エンドエフェクタ除く）",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 24
+    },
+    {
+      "label_ja": "バッテリー容量",
+      "category": "電源・電池",
+      "youth_raw": "約500Wh",
+      "flagship_raw": "約500Wh",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 26
+    },
+    {
+      "label_ja": "連続稼働時間",
+      "category": "電源・電池",
+      "youth_raw": "約2時間 （0.5m/s歩行時）",
+      "flagship_raw": "約2時間 （0.5m/s歩行時）",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 27
+    },
+    {
+      "label_ja": "エネルギー補給方式",
+      "category": "電源・電池",
+      "youth_raw": "直充電・バッテリー交換",
+      "flagship_raw": "直充電・バッテリー交換",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 28
+    },
+    {
+      "label_ja": "充電時間",
+      "category": "電源・電池",
+      "youth_raw": "≤1.5時間",
+      "flagship_raw": "≤1.5時間",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 29
+    },
+    {
+      "label_ja": "入力電圧",
+      "category": "電源・電池",
+      "youth_raw": "100~220V",
+      "flagship_raw": "100~220V",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 30
+    },
+    {
+      "label_ja": "充電器出力",
+      "category": "電源・電池",
+      "youth_raw": "54.6V 10A",
+      "flagship_raw": "54.6V 10A",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 31
+    },
+    {
+      "label_ja": "計算基板",
+      "category": "演算・制御",
+      "youth_raw": "RK3588*2",
+      "flagship_raw": "RK3588*2",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 33
+    },
+    {
+      "label_ja": "高性能計算基板",
+      "category": "演算・制御",
+      "youth_raw": "搭載なし",
+      "flagship_raw": "Orin NX（157TOPS）",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 34
+    },
+    {
+      "label_ja": "USBポート",
+      "category": "拡張インターフェース",
+      "youth_raw": "Type-A *1 Type-C *1",
+      "flagship_raw": "Type-A *2 Type-C *2",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 36
+    },
+    {
+      "label_ja": "LANポート",
+      "category": "拡張インターフェース",
+      "youth_raw": "RJ45 *2",
+      "flagship_raw": "RJ45 *2",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 37
+    },
+    {
+      "label_ja": "映像出力",
+      "category": "拡張インターフェース",
+      "youth_raw": "なし",
+      "flagship_raw": "Mini DP *1",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 38
+    },
+    {
+      "label_ja": "電源出力",
+      "category": "拡張インターフェース",
+      "youth_raw": "なし",
+      "flagship_raw": "12V/3V*1 48V/5A*1",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 39
+    },
+    {
+      "label_ja": "ハンドヘルドコントローラ",
+      "category": "その他",
+      "youth_raw": "あり",
+      "flagship_raw": "あり",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 41
+    },
+    {
+      "label_ja": "OTAアップデート",
+      "category": "その他",
+      "youth_raw": "あり",
+      "flagship_raw": "あり",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 42
+    },
+    {
+      "label_ja": "モバイルアプリ",
+      "category": "その他",
+      "youth_raw": "あり",
+      "flagship_raw": "あり",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 43
+    },
+    {
+      "label_ja": "セカンダリ開発対応",
+      "category": "その他",
+      "youth_raw": "なし",
+      "flagship_raw": "あり",
+      "sourceUrl": "https://agibot.com/jp/products/X2",
+      "source_table_row": 44
+    }
+  ],
+  "official_source": "https://agibot.com/jp/products/X2",
+  "design_reference": "Figma G1 V3.2 PC 33:2714, SP 29:1657; X2-specific approval pending",
+  "release_gate": "HOLD",
+  "preview_only": true,
+  "legacy_cn_source_parameter_entries": [
+    {
+      "id": "spec-00",
+      "category": "本体・基本仕様",
+      "name_cn": "尺寸",
+      "label_ja": "本体寸法",
+      "youth_raw": "1310mm（H） 460mm（W） 210mm（L）",
+      "flagship_raw": "1310mm（H） 460mm（W） 210mm（L）",
+      "source_file": "X2.html",
+      "source_table_row": 1,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-01",
+      "category": "本体・基本仕様",
+      "name_cn": "身高",
+      "label_ja": "全高",
+      "youth_raw": "约1.31m",
+      "flagship_raw": "约1.31m",
+      "source_file": "X2.html",
+      "source_table_row": 2,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-02",
+      "category": "本体・基本仕様",
+      "name_cn": "重量",
+      "label_ja": "重量",
+      "youth_raw": "约35kg",
+      "flagship_raw": "约39kg",
+      "source_file": "X2.html",
+      "source_table_row": 3,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-03",
+      "category": "本体・基本仕様",
+      "name_cn": "主动自由度",
+      "label_ja": "アクティブ自由度",
+      "youth_raw": "25",
+      "flagship_raw": "30",
+      "source_file": "X2.html",
+      "source_table_row": 4,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-04",
+      "category": "本体・基本仕様",
+      "name_cn": "颈部自由度",
+      "label_ja": "首の自由度",
+      "youth_raw": "0",
+      "flagship_raw": "1",
+      "source_file": "X2.html",
+      "source_table_row": 5,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-05",
+      "category": "本体・基本仕様",
+      "name_cn": "单手臂自由度",
+      "label_ja": "片腕自由度",
+      "youth_raw": "5",
+      "flagship_raw": "7",
+      "source_file": "X2.html",
+      "source_table_row": 6,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-06",
+      "category": "本体・基本仕様",
+      "name_cn": "腰部自由度",
+      "label_ja": "腰自由度",
+      "youth_raw": "3",
+      "flagship_raw": "3",
+      "source_file": "X2.html",
+      "source_table_row": 7,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-07",
+      "category": "本体・基本仕様",
+      "name_cn": "单腿自由度",
+      "label_ja": "片脚自由度",
+      "youth_raw": "6",
+      "flagship_raw": "6",
+      "source_file": "X2.html",
+      "source_table_row": 8,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-08",
+      "category": "本体・基本仕様",
+      "name_cn": "单臂展",
+      "label_ja": "片腕リーチ",
+      "youth_raw": "558mm 不含末端执行器",
+      "flagship_raw": "558mm 不含末端执行器",
+      "source_file": "X2.html",
+      "source_table_row": 9,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-09",
+      "category": "本体・基本仕様",
+      "name_cn": "环境温度",
+      "label_ja": "動作環境温度",
+      "youth_raw": "-10℃~40℃",
+      "flagship_raw": "-10℃~40℃",
+      "source_file": "X2.html",
+      "source_table_row": 10,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-10",
+      "category": "認識・センサー",
+      "name_cn": "3D激光雷达",
+      "label_ja": "3D LiDAR",
+      "youth_raw": "/",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 12,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-11",
+      "category": "認識・センサー",
+      "name_cn": "RGB-D相机",
+      "label_ja": "RGB-Dカメラ",
+      "youth_raw": "/",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 13,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-12",
+      "category": "認識・センサー",
+      "name_cn": "RGB相机",
+      "label_ja": "RGBカメラ",
+      "youth_raw": "交互RGB摄像头",
+      "flagship_raw": "交互RGB摄像头 前视双目RGB摄像头 后视RGB摄像头",
+      "source_file": "X2.html",
+      "source_table_row": 14,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-13",
+      "category": "認識・センサー",
+      "name_cn": "头部触摸 传感器",
+      "label_ja": "頭部タッチセンサー",
+      "youth_raw": "具备",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 15,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-14",
+      "category": "通信",
+      "name_cn": "通讯方式",
+      "label_ja": "通信方式",
+      "youth_raw": "wifi、蓝牙",
+      "flagship_raw": "wifi、蓝牙 4G/5G模块",
+      "source_file": "X2.html",
+      "source_table_row": 17,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-15",
+      "category": "対話・表示",
+      "name_cn": "语音",
+      "label_ja": "音声",
+      "youth_raw": "麦克风阵列、 迷你无线麦克风、 扬声器",
+      "flagship_raw": "麦克风阵列、 迷你无线麦克风、 扬声器",
+      "source_file": "X2.html",
+      "source_table_row": 19,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-16",
+      "category": "対話・表示",
+      "name_cn": "显示",
+      "label_ja": "表示",
+      "youth_raw": "交互屏、灯效",
+      "flagship_raw": "交互屏、灯效",
+      "source_file": "X2.html",
+      "source_table_row": 20,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-17",
+      "category": "運動・性能",
+      "name_cn": "关节峰值扭矩",
+      "label_ja": "関節ピークトルク",
+      "youth_raw": "120N·m",
+      "flagship_raw": "120N·m",
+      "source_file": "X2.html",
+      "source_table_row": 22,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-18",
+      "category": "運動・性能",
+      "name_cn": "速度",
+      "label_ja": "歩行速度",
+      "youth_raw": "日常行走最大速度：1.8 m/s 日常行走速度≤0.8 m/s 实验室最大速度：2 m/s",
+      "flagship_raw": "日常行走最大速度：1.8 m/s 日常行走速度≤0.8 m/s 实验室最大速度：2 m/s",
+      "source_file": "X2.html",
+      "source_table_row": 23,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-19",
+      "category": "運動・性能",
+      "name_cn": "负载",
+      "label_ja": "積載荷重",
+      "youth_raw": "最大负载（特定姿态）： 3kg 不含末端执行器 全空间负载： ≤1kg 不含末端执行器",
+      "flagship_raw": "最大负载（特定姿态）： 3kg 不含末端执行器 全空间负载： ≤1kg 不含末端执行器",
+      "source_file": "X2.html",
+      "source_table_row": 24,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-20",
+      "category": "電源・電池",
+      "name_cn": "电池容量",
+      "label_ja": "バッテリー容量",
+      "youth_raw": "约500Wh",
+      "flagship_raw": "约500Wh",
+      "source_file": "X2.html",
+      "source_table_row": 26,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-21",
+      "category": "電源・電池",
+      "name_cn": "续航时间",
+      "label_ja": "連続歩行時間",
+      "youth_raw": "0.5m/s连续 行走约2h",
+      "flagship_raw": "0.5m/s连续 行走约2h",
+      "source_file": "X2.html",
+      "source_table_row": 27,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-22",
+      "category": "電源・電池",
+      "name_cn": "补能方式",
+      "label_ja": "充電・交換方式",
+      "youth_raw": "支持直充、换电",
+      "flagship_raw": "支持直充、换电",
+      "source_file": "X2.html",
+      "source_table_row": 28,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-23",
+      "category": "電源・電池",
+      "name_cn": "充电时间",
+      "label_ja": "充電時間",
+      "youth_raw": "≤1.5h",
+      "flagship_raw": "≤1.5h",
+      "source_file": "X2.html",
+      "source_table_row": 29,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-24",
+      "category": "電源・電池",
+      "name_cn": "充电电压",
+      "label_ja": "充電電圧",
+      "youth_raw": "100~220V",
+      "flagship_raw": "100~220V",
+      "source_file": "X2.html",
+      "source_table_row": 30,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-25",
+      "category": "電源・電池",
+      "name_cn": "充电器输出",
+      "label_ja": "充電器出力",
+      "youth_raw": "54.6V 10A",
+      "flagship_raw": "54.6V 10A",
+      "source_file": "X2.html",
+      "source_table_row": 31,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-26",
+      "category": "演算・制御",
+      "name_cn": "基础算力板",
+      "label_ja": "基本計算ボード",
+      "youth_raw": "RK3588*2",
+      "flagship_raw": "RK3588*2",
+      "source_file": "X2.html",
+      "source_table_row": 33,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-27",
+      "category": "演算・制御",
+      "name_cn": "高算力板/ 二次开发板",
+      "label_ja": "高性能・二次開発ボード",
+      "youth_raw": "/",
+      "flagship_raw": "Orin NX 157 TOPS",
+      "source_file": "X2.html",
+      "source_table_row": 34,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-28",
+      "category": "拡張インターフェース",
+      "name_cn": "USB Host",
+      "label_ja": "USB Host",
+      "youth_raw": "USB Type-A*1 USB Type-C*1",
+      "flagship_raw": "USB Type-A*2 USB Type-C*2",
+      "source_file": "X2.html",
+      "source_table_row": 36,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-29",
+      "category": "拡張インターフェース",
+      "name_cn": "以太网",
+      "label_ja": "イーサネット",
+      "youth_raw": "/",
+      "flagship_raw": "RJ45*2",
+      "source_file": "X2.html",
+      "source_table_row": 37,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-30",
+      "category": "拡張インターフェース",
+      "name_cn": "供电接口",
+      "label_ja": "電源出力端子",
+      "youth_raw": "12V/3A*1 48V/5A*1",
+      "flagship_raw": "12V/3A*1 48V/5A*1",
+      "source_file": "X2.html",
+      "source_table_row": 38,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-31",
+      "category": "その他",
+      "name_cn": "手持式遥控器",
+      "label_ja": "手持ちリモコン",
+      "youth_raw": "具备",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 40,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-32",
+      "category": "その他",
+      "name_cn": "智能OTA升级",
+      "label_ja": "OTAアップデート",
+      "youth_raw": "具备",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 41,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-33",
+      "category": "その他",
+      "name_cn": "移动端APP",
+      "label_ja": "スマートフォンアプリ",
+      "youth_raw": "具备",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 42,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    },
+    {
+      "id": "spec-34",
+      "category": "その他",
+      "name_cn": "二次开发",
+      "label_ja": "二次開発",
+      "youth_raw": "/",
+      "flagship_raw": "具备",
+      "source_file": "X2.html",
+      "source_table_row": 43,
+      "evidence_type": "manufacturer_saved_html",
+      "source_url": "https://www.agibot.com.cn/products/X2",
+      "review_status": "source_extracted_not_sku_verified"
+    }
+  ],
+  "legacy_cn_20261028_parameter_count": 35,
+  "official_japanese_source": {
+    "url": "https://agibot.com/jp/products/X2",
+    "retrieved_at": "2026-11-08T16:18:26.156622+00:00",
+    "html_sha256": "c42886fb403940e002f5cff3f49324dd843d5343450b1d525ceee32f0bdea6e9",
+    "spec_table_sha256": "498cdda0f997c7ab8d46271c15199d711bacbdfcc14858e011e2f82c8f45e974",
+    "model_header": [
+      "X2",
+      "X2 Ultra"
+    ],
+    "items": 36
+  },
+  "source_reconciliation": {
+    "legacy_cn_items": 35,
+    "jp_items": 36,
+    "source_of_truth": "current official JP page",
+    "legacy_cn_preserved": true,
+    "differences": [
+      "X2 25→27 DOF",
+      "X2 neck 0→2 DOF",
+      "X2 arm reach 558→437mm",
+      "maximum walking speed 1.8/2→1.5m/s",
+      "映像出力 new JP row"
+    ]
+  }
+}

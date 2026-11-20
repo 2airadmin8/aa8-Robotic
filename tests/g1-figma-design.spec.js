@@ -273,19 +273,19 @@ test('Figma remaining SP-only content design contract',async ({page})=>{
     await expect(e).toBeVisible();
     await expect(e).toHaveText(txt);
   }
-  await expect(page.locator('.g1-related .g1-heading h2 .g1-sp-only')).toContainText('ほかの宇樹ロボットも、');
+  await expect(page.locator('.g1-related .g1-heading h2 .g1-sp-only')).toHaveText('あわせて比較したい製品');
   for (const selector of ['#architecture h2','#readiness h2','.g1-support h2','.g1-related .g1-heading h2']){
     await expect(page.locator(selector+' .g1-pc-only')).toBeHidden();
   }
 });
-test('PC existing architecture/readiness/support wording unaffected',async ({page})=>{
+test('PC architecture/readiness/support unchanged and related heading aligns to Product Factory',async ({page})=>{
   await page.setViewportSize({width:1440,height:900});
   await page.goto(url,{waitUntil:'networkidle'});
   for (const [selector,txt] of [
     ['#architecture h2 .g1-pc-only','研究と産業、それぞれの「実証環境」を設計する。'],
     ['#readiness h2 .g1-pc-only','導入前に確認したいこと。'],
     ['.g1-support h2 .g1-pc-only','AirAdmin8と、社会実装を目指す。'],
-    ['.g1-related .g1-heading h2 .g1-pc-only','目的に合う、次のUnitreeロボットを。']
+    ['.g1-related .g1-heading h2 .g1-pc-only','あわせて比較したい製品']
   ]){
     await expect(page.locator(selector)).toBeVisible();
     await expect(page.locator(selector)).toHaveText(txt);
