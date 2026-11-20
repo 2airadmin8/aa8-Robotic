@@ -103,6 +103,14 @@ class X2PilotContractTest(unittest.TestCase):
         for rid in self.item["pageFactory"]["relatedProductIds"]:
             self.assertIn('src="/'+next(x["image"] for x in catalog(ROOT) if x["id"]==rid)+'"',markup)
 
+    def test_x2_preview_footer_is_exact_corporate_ssot(self):
+        preview=render(ROOT,self.item,"preview")
+        official=(ROOT/'includes/site-footer.html').read_text(encoding='utf-8')
+        legacy='<footer class="footer" data-shared-layout="footer"><div class="wrap">© AirAdmin8 Inc.</div></footer>'
+        self.assertEqual(preview.count(official),1,"X2 Preview must embed one exact official shared Footer")
+        self.assertNotIn(legacy,preview,"placeholder Footer must never ship in X2 Preview")
+        self.assertEqual(preview.count('data-aa8-menu-runtime="true"'),1,"no duplicate mobile menu handlers")
+
     def test_cli_draft_preview_only_and_refuses_conflicting_master(self):
         with tempfile.TemporaryDirectory() as temp:
             out=Path(temp)/'x2-preview.html'
