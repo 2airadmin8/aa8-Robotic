@@ -1,91 +1,215 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-07-16",
+  "updatedAt": "2026-11-01",
   "measurementId": "G-XJYBMMPWWX",
-  "privacyRule": "氏名、メールアドレス、電話番号、会社名、自由記述本文は送信しない",
+  "privacyRule": "姓名、邮件、电话、自由文本、送信管理ID/rid等可关联客户的标识不得发送到GA4或dataLayer；仅发送到受签名保护的内部SSOT",
   "events": [
     {
       "name": "compare_product_add",
       "purpose": "比較候補への製品追加",
-      "parameters": ["page_path", "page_type", "product_id", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "product_id",
+        "selected_count"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "compare_product_remove",
       "purpose": "比較候補からの製品削除",
-      "parameters": ["page_path", "page_type", "product_id", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "product_id",
+        "selected_count"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "compare_open",
       "purpose": "2〜3製品の比較表表示",
-      "parameters": ["page_path", "page_type", "selected_count", "theme"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "selected_count",
+        "theme"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "compare_link_copy",
       "purpose": "比較URLの共有",
-      "parameters": ["page_path", "page_type", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "selected_count"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "compare_pdf_print",
       "purpose": "比較表の印刷・PDF保存",
-      "parameters": ["page_path", "page_type", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "selected_count"
+      ],
       "conversionCandidate": true
     },
     {
       "name": "compare_consult_click",
       "purpose": "比較結果から問い合わせへ移動",
-      "parameters": ["page_path", "page_type", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "selected_count"
+      ],
       "conversionCandidate": true
     },
     {
       "name": "compare_clear",
       "purpose": "比較候補の一括解除",
-      "parameters": ["page_path", "page_type", "selected_count"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "selected_count"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "checklist_progress",
       "purpose": "導入前チェックの進捗",
-      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "checked_count",
+        "total_count",
+        "completion_rate"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "checklist_copy",
       "purpose": "チェック結果のコピー",
-      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "checked_count",
+        "total_count",
+        "completion_rate"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "checklist_reset",
       "purpose": "チェック内容の消去",
-      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "checked_count",
+        "total_count",
+        "completion_rate"
+      ],
       "conversionCandidate": false
     },
     {
       "name": "checklist_consult_click",
       "purpose": "チェック結果から問い合わせへ移動",
-      "parameters": ["page_path", "page_type", "checked_count", "total_count", "completion_rate"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "checked_count",
+        "total_count",
+        "completion_rate"
+      ],
       "conversionCandidate": true
     },
     {
       "name": "contact_review",
       "purpose": "問い合わせ確認画面の表示",
-      "parameters": ["page_path", "page_type", "inquiry_category", "source_service", "source_theme", "has_product", "has_budget", "has_schedule"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "inquiry_category",
+        "source_service",
+        "source_theme",
+        "has_product",
+        "has_budget",
+        "has_schedule"
+      ],
       "conversionCandidate": true
     },
     {
       "name": "contact_mail_open",
       "purpose": "入力確認後のメールアプリ起動",
-      "parameters": ["page_path", "page_type", "inquiry_category", "source_service", "source_theme"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "inquiry_category",
+        "source_service",
+        "source_theme"
+      ],
       "conversionCandidate": true
     },
     {
       "name": "contact_copy_mail",
       "purpose": "メール文面のコピー",
-      "parameters": ["page_path", "page_type", "inquiry_category"],
+      "parameters": [
+        "page_path",
+        "page_type",
+        "inquiry_category"
+      ],
+      "conversionCandidate": true
+    },
+    {
+      "name": "lead_page_view",
+      "purpose": "配信RIDが有効なユーザーの公式サイトページ閲覧（実人確認ではない）",
+      "parameters": [
+        "page_path",
+        "page_type",
+        "product_id"
+      ],
+      "conversionCandidate": false
+    },
+    {
+      "name": "product_view",
+      "purpose": "配信RIDに紐づく製品詳細ページ到達",
+      "parameters": [
+        "page_path",
+        "page_type",
+        "product_id"
+      ],
+      "conversionCandidate": false
+    },
+    {
+      "name": "lead_product_click",
+      "purpose": "配信RIDに紐づく具体製品リンクの選択",
+      "parameters": [
+        "page_path",
+        "page_type",
+        "target_product_id",
+        "target_path"
+      ],
+      "conversionCandidate": true
+    },
+    {
+      "name": "lead_contact_click",
+      "purpose": "配信RIDから問い合わせ画面への移動",
+      "parameters": [
+        "page_path",
+        "page_type",
+        "target_path"
+      ],
+      "conversionCandidate": true
+    },
+    {
+      "name": "lead_inquiry_success",
+      "purpose": "既存問い合わせAPIが保存成功を応答した後の追跡イベント",
+      "parameters": [
+        "page_path",
+        "page_type"
+      ],
       "conversionCandidate": true
     }
   ]

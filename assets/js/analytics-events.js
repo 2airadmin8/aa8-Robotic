@@ -4,6 +4,9 @@
   const pagePath = window.location.pathname;
   const pageType = detectPageType();
   const RID_STORAGE_KEY = 'aa8_delivery_id';
+  const RID_AT_KEY = 'aa8_delivery_id_at';
+  const RID_TTL_MS = 30 * 60 * 1000; // No cross-session customer misattribution.
+  const RID_RE = /^(?:DLV|RSJ)-[A-Za-z0-9._-]{5,153}$/;
   const WEB_EVENT_ENDPOINT = 'https://hikari-proxy-dev.vercel.app/api/web-event';
   const params = new URLSearchParams(window.location.search);
   const deliveryId = resolveDeliveryId();
@@ -11,46 +14,67 @@
 
   function resolveDeliveryId() {
     const fromUrl = (params.get('rid') || '').trim();
-    if (fromUrl && fromUrl.length <= 160) {
-      try { sessionStorage.setItem(RID_STORAGE_KEY, fromUrl); } catch (_) {}
+    if (fromUrl && RID_RE.test(fromUrl)) {
+      try {
+        sessionStorage.setItem(RID_STORAGE_KEY, fromUrl);
+        sessionStorage.setItem(RID_AT_KEY, String(Date.now()));
+      } catch (_) {}
       return fromUrl;
     }
+    if (fromUrl) return ''; // Invalid or injected attribution ID: do not trust stale storage.
     try {
-      return (sessionStorage.getItem(RID_STORAGE_KEY) || '').trim();
-    } catch (_) {
-      return '';
+      const id = sessionStorage.getItem(RID_STORAGE_KEY) || '';
+      const at = Number(sessionStorage.getItem(RID_AT_KEY) || 0);
+      if (RID_RE.test(id) && at > 0 && Date.now() - at <= RID_TTL_MS && Date.now() >= at) return id;
+      sessionStorage.removeItem(RID_STORAGE_KEY);
+      sessionStorage.removeItem(RID_AT_KEY);
+    } catch (_) {}
+    return '';
+  }
+
+  function campaignParam(name) {
+    const fromUrl = (params.get(name) || '').trim();
+    if (fromUrl && /^[A-Za-z0-9._-]{1,80}$/.test(fromUrl)) {
+      try { sessionStorage.setItem('aa8_' + name, fromUrl); } catch (_) {}
+      return fromUrl;
     }
+    if (!deliveryId) return '';
+    try {
+      const prior = sessionStorage.getItem('aa8_' + name) || '';
+      return /^[A-Za-z0-9._-]{1,80}$/.test(prior) ? prior : '';
+    } catch (_) { return ''; }
   }
 
   function emitWebEvent(eventName, payload) {
-    if (!deliveryId || !/^DLV-[A-Za-z0-9._-]+$/.test(deliveryId)) return;
-    if (!['lead_page_view', 'lead_product_click', 'product_view'].includes(eventName)) return;
-
+    const accepted = ['lead_page_view', 'lead_product_click', 'product_view',
+      'lead_contact_click', 'lead_inquiry_success'];
+    if (!deliveryId || !RID_RE.test(deliveryId) || !accepted.includes(eventName)) return;
+    if (!window.crypto || typeof window.crypto.randomUUID !== 'function') return;
     const body = JSON.stringify({
+      event_id: window.crypto.randomUUID(),
+      event_at: new Date().toISOString(),
       event: eventName,
       delivery_id: deliveryId,
       page_path: payload.page_path,
       page_type: payload.page_type,
       product_id: payload.product_id,
       target_product_id: payload.target_product_id,
+      target_path: payload.target_path,
     });
-
-    try {
-      if (navigator.sendBeacon) {
-        const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
-        if (navigator.sendBeacon(WEB_EVENT_ENDPOINT, blob)) return;
-      }
-    } catch (_) {}
-
+    // Browser sendBeacon=true only means queued, NOT persisted. Backend will
+    // return 202 exclusively after the existing GAS sheet acknowledges writes.
     try {
       fetch(WEB_EVENT_ENDPOINT, {
-        method: 'POST',
-        mode: 'cors',
-        keepalive: true,
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body,
+        method: 'POST', mode: 'cors', keepalive: true,
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body
       }).catch(() => {});
-    } catch (_) {}
+    } catch (_) {
+      try {
+        if (navigator.sendBeacon) navigator.sendBeacon(
+          WEB_EVENT_ENDPOINT, new Blob([body], { type: 'text/plain;charset=UTF-8' })
+        );
+      } catch (_) {}
+    }
   }
 
   function send(eventName, parameters = {}) {
@@ -62,9 +86,14 @@
       ...sanitize(parameters),
     };
 
+    // Never expose delivery_id (a customer-join key) or full rid-bearing URL
+    // to GA4 or shared dataLayer; send those only to our own signed sink.
+    const gaPayload = { ...payload };
+    delete gaPayload.delivery_id;
+    delete gaPayload.page_location;
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: eventName, ...payload });
-    if (typeof window.gtag === 'function') window.gtag('event', eventName, payload);
+    window.dataLayer.push({ event: eventName, ...gaPayload });
+    if (typeof window.gtag === 'function') window.gtag('event', eventName, gaPayload);
     emitWebEvent(eventName, payload);
   }
 
@@ -103,13 +132,25 @@
         if (url.origin !== window.location.origin) return;
         if (url.pathname.startsWith('/assets/')) return;
         if (!url.searchParams.get('rid')) url.searchParams.set('rid', deliveryId);
+        ['utm_source', 'utm_medium', 'utm_campaign'].forEach((key) => {
+          const campaign = campaignParam(key);
+          if (campaign && !url.searchParams.get(key)) url.searchParams.set(key, campaign);
+        });
         anchor.href = url.pathname + url.search + url.hash;
       } catch (_) {}
     });
   }
 
   if (deliveryId) {
+    // Read and validate campaign attribution before rewriting internal links.
+    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(campaignParam);
     decorateInternalLinks();
+    // Product cards are sometimes reconstructed asynchronously after our defer
+    // loader runs. Never rely only on the initial static DOM snapshot.
+    document.querySelectorAll('[data-product-list], [data-resource-list]').forEach((root) => {
+      const observer = new MutationObserver(() => decorateInternalLinks());
+      observer.observe(root, { childList: true, subtree: true });
+    });
     send('lead_page_view', {
       page_title: document.title,
       page_location: window.location.href,
@@ -161,6 +202,14 @@
       } catch (_) {}
     }
 
+    if (target.tagName === 'A' && deliveryId) {
+      try {
+        const destination = new URL(target.href, window.location.href);
+        if (destination.origin === window.location.origin && destination.pathname === '/contact.html') {
+          send('lead_contact_click', {target_path: '/contact.html'});
+        }
+      } catch (_) {}
+    }
     if (target.matches('[data-compare-open]')) {
       send('compare_open', {
         selected_count: document.querySelectorAll('[data-compare-checkbox]:checked').length,
@@ -206,6 +255,11 @@
       has_schedule: Boolean(form.elements.namedItem('schedule')?.value),
     });
   }, true);
+
+  document.addEventListener('aa8:inquiry-confirmed', () => {
+    // This event is emitted ONLY after the original inquiry GAS confirms persistence.
+    if (deliveryId && pagePath === '/contact.html') send('lead_inquiry_success');
+  });
 
   function selectedProductCount() {
     return document.querySelectorAll('[data-compare-checkbox]:checked').length;

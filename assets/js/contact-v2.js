@@ -149,6 +149,9 @@
       cleanup();
       sessionStorage.removeItem(submissionKey);
       localStorage.removeItem(draftKey);
+      // Publish only after the original inquiry GAS acknowledges persistence.
+      // No name, email, phone or free text is included in this event.
+      document.dispatchEvent(new CustomEvent('aa8:inquiry-confirmed'));
       const destination = new URL('/contact-thanks.html', window.location.origin);
       destination.searchParams.set('status', 'success');
       destination.searchParams.set('inquiry_id', data.inquiryId);
@@ -174,6 +177,43 @@
     return token;
   }
 
+  function salesAttribution() {
+    const rid = (params.get('rid') || '').trim();
+    let fromSession = '', at = 0;
+    try {
+      fromSession = (sessionStorage.getItem('aa8_delivery_id') || '').trim();
+      at = Number(sessionStorage.getItem('aa8_delivery_id_at') || 0);
+    } catch (_) { /* Storage blocked: preserve inquiry without attribution. */ }
+    const valid = /^(?:DLV|RSJ)-[A-Za-z0-9._-]{5,153}$/;
+    const oldEnough = at > 0 && Date.now() >= at && Date.now() - at <= 30 * 60 * 1000;
+    return valid.test(rid) ? rid : (oldEnough && valid.test(fromSession) ? fromSession : '');
+  }
+
+  function sourcePageWithAttribution(source) {
+    const rid = salesAttribution();
+    try {
+      const url = new URL(source || window.location.href, window.location.href);
+      if (rid) {
+        // External referrers cannot carry an internal delivery ID. Retain the
+        // authoritative first-party landing URL for inquiry attribution.
+        const safe = url.origin === window.location.origin ? url : new URL(window.location.href);
+        safe.searchParams.set('rid', rid);
+        return safe.href;
+      }
+      return url.href;
+    } catch (_) { return window.location.origin + window.location.pathname; }
+  }
+
+  function campaignValue(key) {
+    const value = (params.get(key) || '').trim();
+    if (/^[A-Za-z0-9._-]{1,80}$/.test(value)) return value;
+    if (!salesAttribution()) return '';
+    try {
+      const cached = sessionStorage.getItem('aa8_' + key) || '';
+      return /^[A-Za-z0-9._-]{1,80}$/.test(cached) ? cached : '';
+    } catch (_) { return ''; }
+  }
+
   function buildPayload(submissionToken) {
     const values = new FormData(form);
     return {
@@ -188,15 +228,15 @@
       schedule: values.get('schedule') || '',
       development: values.get('development') || '',
       message: values.get('message') || '',
-      source_page: values.get('source_page') || window.location.href,
+      source_page: sourcePageWithAttribution(values.get('source_page')),
       source_product: values.get('source_product') || '',
       source_maker: values.get('source_maker') || '',
       source_service: values.get('source_service') || '',
       source_theme: values.get('source_theme') || '',
       source_case: values.get('source_case') || '',
-      utm_source: params.get('utm_source') || '',
-      utm_medium: params.get('utm_medium') || '',
-      utm_campaign: params.get('utm_campaign') || '',
+      utm_source: campaignValue('utm_source'),
+      utm_medium: campaignValue('utm_medium'),
+      utm_campaign: campaignValue('utm_campaign'),
       ga_client_id: getGaClientId(),
       submission_token: submissionToken,
       response_token: '',

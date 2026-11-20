@@ -1,0 +1,64 @@
+function syncWebEngagementFromLog_() {
+  const ss = getSalesSpreadsheet_();
+  const webSh = ss.getSheetByName('Web行動ログ');
+  const queueSh = ss.getSheetByName(SALES_IMPORT_APP.QUEUE_SHEET);
+  if (!webSh || !queueSh) return {rows:0, mapped:0, updated:0, warning:'Web行動ログなし'};
+
+  const webValues = webSh.getDataRange().getValues();
+  if (webValues.length <= 1) {
+    PropertiesService.getScriptProperties().setProperty('WEB_ENGAGEMENT_LAST_SYNC', formatNow_());
+    return {rows:0, mapped:0, updated:0, warning:''};
+  }
+
+  const wh = headerMap_(webValues[0]);
+  validateHeaders_(wh, ['送信管理ID','イベント日時','ページ種別','ページパス','データソース'], 'Web行動ログ');
+
+  const byId = {};
+  let mapped = 0;
+  for (let i = 1; i < webValues.length; i++) {
+    const row = webValues[i];
+    const deliveryId = clean_(value_(row, wh, '送信管理ID'));
+    if (!deliveryId) continue;
+
+    const eventAt = asDate_(value_(row, wh, 'イベント日時'));
+    if (!eventAt) continue;
+
+    const pageType = clean_(value_(row, wh, 'ページ種別'));
+    const pagePath = clean_(value_(row, wh, 'ページパス'));
+    const dataSource = clean_(value_(row, wh, 'データソース'));
+    // TEST events remain in existing Web行動ログ for audit, but never
+    // advance live customer last-reaction timestamps or sales KPIs.
+    if (pageType.startsWith('TEST_') || dataSource === 'VERCEL_WEB_EVENT_TEST') continue;
+    if (!byId[deliveryId]) byId[deliveryId] = {count:0,last:null,lastType:'',lastPath:''};
+    byId[deliveryId].count++;
+    mapped++;
+
+    if (!byId[deliveryId].last || eventAt.getTime() > byId[deliveryId].last.getTime()) {
+      byId[deliveryId].last = eventAt;
+      byId[deliveryId].lastType = pageType;
+      byId[deliveryId].lastPath = pagePath;
+    }
+  }
+
+  const queueValues = queueSh.getDataRange().getValues();
+  const qh = headerMap_(queueValues[0]);
+  validateHeaders_(qh, ['送信管理ID','最終反応日時'], SALES_IMPORT_APP.QUEUE_SHEET);
+
+  let updated = 0;
+  for (let i = 1; i < queueValues.length; i++) {
+    const deliveryId = clean_(value_(queueValues[i], qh, '送信管理ID'));
+    const stat = byId[deliveryId];
+    if (!deliveryId || !stat || !stat.last) continue;
+
+    const current = asDate_(value_(queueValues[i], qh, '最終反応日時'));
+    if (!current || stat.last.getTime() > current.getTime()) {
+      setQueueValue_(queueSh, i + 1, qh, '最終反応日時', stat.last);
+      updated++;
+    }
+  }
+
+  PropertiesService.getScriptProperties().setProperty('WEB_ENGAGEMENT_LAST_SYNC', formatNow_());
+  PropertiesService.getScriptProperties().setProperty('WEB_ENGAGEMENT_SUMMARY_JSON', JSON.stringify(byId));
+  SpreadsheetApp.flush();
+  return {rows:webValues.length - 1, mapped:mapped, updated:updated, warning:''};
+}

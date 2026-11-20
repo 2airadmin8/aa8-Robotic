@@ -26,6 +26,8 @@
       window.gtag('config', 'G-XJYBMMPWWX', {
         anonymize_ip: true,
         send_page_view: true,
+        // Query may include a customer-linkable rid. Never send it to GA4.
+        page_location: window.location.origin + window.location.pathname,
       });
     }
   }
