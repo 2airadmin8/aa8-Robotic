@@ -91,3 +91,29 @@ test('G1+ appears once in source-of-truth catalog and product list',async({reque
  await expect(page.locator('[data-product-list] #unitree-g1-plus')).toHaveCount(1);
  await expect(page.locator('[data-product-list] #unitree-g1-plus a[href*="unitree-g1-plus.html"]').first()).toBeVisible();
 });
+
+
+// Regression: the global V3.3 white/gray specification heading rule must
+// not turn embedded DARK editorial cards into dark-on-dark unreadable text.
+for(const width of [1440,390,360]){
+ test('G1+ V3.3 technical dark card keeps readable white title at '+width+'px',async({page})=>{
+  await page.setViewportSize({width,height:950});
+  await page.goto(base+route,{waitUntil:'domcontentloaded'});
+  const panel=page.locator('#specifications .g1p-technical-image');
+  const title=panel.locator('h3');
+  await expect(panel).toBeVisible();
+  await expect(title).toBeVisible();
+  const facts=await title.evaluate(node=>{
+   const pane=node.closest('.g1p-technical-image'),st=getComputedStyle(node),bg=getComputedStyle(pane);
+   const toRgb=text=>[...text.matchAll(/[\d.]+/g)].slice(0,3).map(x=>Number(x[0])/255);
+   const lum=rgb=>rgb.map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((a,x,i)=>a+x*[.2126,.7152,.0722][i],0);
+   const a=lum(toRgb(st.color)),b=lum(toRgb(bg.backgroundColor));
+   return {text:st.color,background:bg.backgroundColor,contrast:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};
+  });
+  expect(facts.background).toBe('rgb(16, 42, 73)');
+  expect(facts.text).toBe('rgb(255, 255, 255)');
+  expect(facts.contrast).toBeGreaterThanOrEqual(4.5);
+  const headerColor=await page.locator('#specifications .g1-heading h2').evaluate(x=>getComputedStyle(x).color);
+  expect(headerColor).toBe('rgb(51, 51, 51)');
+ });
+}
