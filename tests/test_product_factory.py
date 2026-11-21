@@ -374,6 +374,15 @@ class StrictV33QuadrupedDesignContractQA(unittest.TestCase):
         self.assertNotIn('data-gtm',page)
         self.assertTrue(item["pageFactory"]["releaseReady"] is False)
 
+    def test_strict_candidate_blocks_stale_design_snapshot_before_html(self):
+        from unittest.mock import patch
+        import hp_governance_quality_gate as design
+        item=copy.deepcopy(self.product)
+        with patch.object(design,"validate_v33_design_snapshot",
+                          side_effect=ValueError("design version drift")):
+            with self.assertRaisesRegex(ContractError,"DESIGN_HOLD"):
+                validate_page_factory(ROOT,item)
+
     def test_missing_required_v33_content_is_rejected(self):
         for mutation in ("missing-v3","missing-autonomy","missing-safety",
                          "missing-sdk","missing-process","wrong-family",

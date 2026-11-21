@@ -42,6 +42,90 @@ def ensure(condition: bool, reason: str) -> None:
         raise ValueError("AA8_GOVERNANCE_HOLD: " + reason)
 
 
+
+def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
+    """Fail closed on stale pinned Figma/Drive design manifests in existing CI.
+
+    This validates consistency of the version-pinned source review, NOT remote
+    Figma live node status or completion of prototype-only component variants.
+    """
+    trace = json.loads((root / TRACE).read_text("utf-8"))
+    visual = json.loads((root / "ops/brand-preview/corporate-product-visual-v33.json")
+                        .read_text("utf-8"))
+    tokens = json.loads((root / "ops/brand-preview/figma-product-v33-tokens.json")
+                        .read_text("utf-8"))
+    cand = trace["designSources"]["visualCandidateV33"]
+    pin = cand["latestDesignEvidence"]
+    mirror = visual["latestDesignEvidence"]
+    native = visual["figmaNative"]
+    evidence = pin["designEvidence"]
+    ensure(pin == mirror, "V3.3 design snapshot drift between trace and visual contract")
+    ensure(evidence == tokens["$sourceEvidence"],
+           "V3.3 source evidence drift between trace and tokens")
+    ensure(evidence["documentId"] == "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX"
+           and evidence["documentUrl"].startswith("https://drive.google.com/file/d/")
+           and re.fullmatch(r"[0-9a-f]{64}", evidence["normalizedUtf8Sha256"])
+           and evidence["status"] == "SOURCE_DOCUMENT_REVIEWED_NOT_LIVE_FIGMA_REVALIDATED",
+           "V3.3 source must be pinned, never fabricated as live Figma verified")
+    ensure(pin["nativeComponentsTotal"] == 14
+           and pin["baselineComponents"] == 8
+           and pin["addedReferenceComponents"] == 6
+           and pin["nativeVariablesTotal"] == 38
+           and pin["legacyVariables"] == 8
+           and pin["v33BaseVariables"] == 20
+           and pin["spacingVariables"] == 10,
+           "2026-11-21 Figma component/variable manifest count drift")
+    ensure(native["componentsCount"] == 14
+           and native["componentTopLevel"] == 14
+           and len(native["components"]) == 14
+           and cand["figmaNodes"] == native["components"]
+           and cand["figmaVariables"]["count"] == 38
+           and native["nativeVariablesTotal"] == 38,
+           "Figma node IDs or design trace out of sync")
+    ensure(pin["componentVariantsStatus"] == "NOT_FULLY_VERIFIED_REFERENCE_ONLY"
+           and pin["spacingVariableDetailReadback"] == "HOLD_STARTER_TEAM_LOCK"
+           and native["componentVariantsStatus"] == pin["componentVariantsStatus"]
+           and native["spacingVariableDetailReadback"] ==
+               pin["spacingVariableDetailReadback"]
+           and native["newReferenceOnlyComponents"] == 6,
+           "unverified component variants or spacing must not be promoted")
+    values = [4,8,12,16,24,32,40,48,64,80]
+    ensure(pin["spacingValuesPx"] == values and native["spacingValuesPx"] == values
+           and pin["spacingGroup"] == "v33/spacing/",
+           "Spacing 10-token source contract drift")
+    spacing = tokens["dimension"]["spacing"]
+    ensure(list(spacing) == [str(v) for v in values] and all(
+        spacing[str(v)] == {"$type": "dimension", "$value": f"{v}px"}
+        for v in values), "Figma tokens spacing values/order are stale")
+    entries = visual["htmlComponentManagement"]
+    ensure(len(entries) == 20 and [x["id"] for x in entries] ==
+           [f"C{i:02d}" for i in range(1,21)],
+           "20 HTML component roles required, no duplicates or omissions")
+    states = [x["status"] for x in entries]
+    ensure(states.count("IMPLEMENTED") == 6
+           and states.count("TOKEN_DETAIL_READBACK_HOLD") == 1
+           and states.count("REFERENCE_ONLY") == 12
+           and states.count("NOT_SHARED") == 1,
+           "HTML component readiness must not be misrepresented")
+    ensure(all(x["role"] and x["codeOwner"] and
+               (root / x["codeOwner"]).is_file() for x in entries),
+           "HTML component owner must be an existing code file")
+    management = cand["commonHtmlManagement"]
+    ensure((management["total"],management["implemented"],
+            management["tokenDetailHold"],management["referenceOnly"],
+            management["notShared"]) == (20,6,1,12,1),
+           "design/code HTML inventory stale")
+    ensure(management["warnOnlySpacingEmptyPx"] == {"pc":160,"sp":120}
+           and management["all20AreNotFinished"] is True,
+           "spacing warnings are review-only, not auto-red CI")
+    ensure(pin["productionDesignRelease"] == "HOLD_CEO"
+           and visual["release"] == "NO_GO_UNTIL_ALL_REQUIRED_GATES",
+           "design metadata cannot authorize publishing")
+    return {"status":"PINNED_DESIGN_CONSISTENT_NOT_FIGMA_LIVE",
+            "figmaComponents":14,"figmaVariables":38,
+            "htmlComponents":20,"referenceOnly":12,"release":"HOLD"}
+
+
 def load(root: Path = ROOT) -> dict:
     c = json.loads((root / TRACE).read_text("utf-8"))
     ensure(c.get("schemaVersion") == "aa8-hp-design-code-trace-v1",
@@ -61,6 +145,7 @@ def load(root: Path = ROOT) -> dict:
     ensure("NOT_AUTOMATIC_FIGMA_PIXEL_PARITY" in
            c["designSources"]["visual"]["verification"],
            "must not claim automated Figma pixel proof")
+    validate_v33_design_snapshot(root)
     semantic_doc = root / c["designSources"]["content"]["path"]
     renderer_doc = root / c["designSources"]["factory"]["path"]
     ensure(semantic_doc.is_file() and renderer_doc.is_file(),

@@ -151,6 +151,13 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
     if spec.get("visualContract") not in (None, "corporate-v33-strict"):
         raise ContractError(f"{pid}: unknown design contract")
     if strict:
+        # Candidate Factory must consume the same pinned V3.3 contract
+        # enforced by the existing governance CI, never a stale Figma summary.
+        from hp_governance_quality_gate import validate_v33_design_snapshot
+        try:
+            validate_v33_design_snapshot(root)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            raise ContractError(f"{pid}: DESIGN_HOLD stale V3.3 manifest: {exc}") from exc
         standard = product.get("pageStandard") or {}
         if standard.get("version") != "3.1" or standard.get("showBridge") is not False:
             raise ContractError(f"{pid}: V3.3 requires V3.1 content with no redundant bridge")
