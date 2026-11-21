@@ -84,10 +84,11 @@ class GovernanceQualityGateTests(unittest.TestCase):
             "docs/governance/hp-design-code-trace-v1.json",
             "ops/brand-preview/corporate-product-visual-v33.json",
             "ops/brand-preview/figma-product-v33-tokens.json",
+            "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
         )
         for mutation in (
             "old-8-20", "missing-component", "spacing-number", "falsely-approved",
-            "cross-file-drift", "missing-src-proof"
+            "cross-file-drift", "missing-src-proof", "stale-policy-doc"
         ):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
                 t = Path(td)
@@ -117,6 +118,10 @@ class GovernanceQualityGateTests(unittest.TestCase):
                     visual["latestDesignEvidence"]["nativeComponentsTotal"]=8
                 elif mutation=="missing-src-proof":
                     tokens["$sourceEvidence"]["normalizedUtf8Sha256"]="unverified"
+                elif mutation=="stale-policy-doc":
+                    f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "14 = previous eight","8 = old"),encoding="utf-8")
                 visual_file.write_text(json.dumps(visual,ensure_ascii=False),encoding="utf-8")
                 trace_file.write_text(json.dumps(trace,ensure_ascii=False),encoding="utf-8")
                 tok_file.write_text(json.dumps(tokens,ensure_ascii=False),encoding="utf-8")

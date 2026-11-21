@@ -62,6 +62,12 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
     ensure(pin == mirror, "V3.3 design snapshot drift between trace and visual contract")
     ensure(evidence == tokens["$sourceEvidence"],
            "V3.3 source evidence drift between trace and tokens")
+    doc = (root / "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md").read_text("utf-8")
+    ensure(("Source SHA256:** " + evidence["normalizedUtf8Sha256"]) in doc
+           and "14 = previous eight" in doc
+           and "38 = eight V3.2" in doc
+           and "REFERENCE_ONLY" in doc,
+           "original V3.3 design doc stale against pinned evidence")
     ensure(evidence["documentId"] == "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX"
            and evidence["documentUrl"].startswith("https://drive.google.com/file/d/")
            and re.fullmatch(r"[0-9a-f]{64}", evidence["normalizedUtf8Sha256"])
