@@ -120,6 +120,13 @@ for (const width of [1440,390,360]) {
       return {
         heroHeight:qs('main > .g1-hero').getBoundingClientRect().height,
         sectionPadding:parseFloat(style(qs('#capabilities')).paddingTop),
+        gridColumns: {
+          features:style(qs('#capabilities .g1-factory-facts')).gridTemplateColumns.split(' ').length,
+          applications:style(qs('#applications .g1-factory-applications')).gridTemplateColumns.split(' ').length,
+          media:style(qs('#media .g1-factory-media-grid')).gridTemplateColumns.split(' ').length,
+          decisions:style(qs('#decision-checks .g1-factory-decision-grid')).gridTemplateColumns.split(' ').length,
+          sdk:style(qs('#development .g1-factory-applications')).gridTemplateColumns.split(' ').length,
+        },
         heroBG:rgba(qs('main > .g1-hero')),
         specBG:rgba(qs('#specifications')),
         specHeaderBG:rgba(spec.querySelector('thead tr')),
@@ -134,6 +141,10 @@ for (const width of [1440,390,360]) {
       };
     });
     expect(metric.heroHeight).toBeLessThan(width===1440?740:850);
+    expect(metric.gridColumns).toEqual(
+      Object.fromEntries(['features','applications','media','decisions','sdk']
+        .map(key=>[key,width===1440?2:1]))
+    );
     expect(metric.sectionPadding).toBeGreaterThan(26);
     expect(metric.sectionPadding).toBeLessThanOrEqual(width===1440?60:42);
     expect(metric.heroBG).toBe('rgb(255, 255, 255)');
@@ -148,6 +159,23 @@ for (const width of [1440,390,360]) {
     expect(metric.allMediaSrc).toHaveLength(1);
     expect(metric.sectionIds).toEqual(['capabilities','applications','decision-checks','media',
       'specifications','development','solutions','introduction','faq','related','contact-product']);
+    // Real anchor click after smooth scrolling must not hide headings behind sticky nav.
+    for(const target of ['#decision-checks','#specifications','#development']){
+      await page.locator('.g1-anchor-nav a[href="'+target+'"]').click();
+      await expect.poll(async()=>page.locator(target).evaluate(el=>{
+        const top=el.getBoundingClientRect().top;
+        const margin=parseFloat(getComputedStyle(el).scrollMarginTop);
+        return Math.abs(top-margin);
+      }),{timeout:6500,intervals:[100,200,350,550]}).toBeLessThanOrEqual(3);
+      const layout=await page.evaluate(target=>{
+        const rect=s=>document.querySelector(s).getBoundingClientRect();
+        return {headingTop:rect(target+' h2').top,
+                headerBottom:rect('header.site-header').bottom,
+                navBottom:rect('nav.g1-anchor-nav').bottom};
+      },target);
+      expect(layout.headingTop).toBeGreaterThan(layout.headerBottom+10);
+      expect(layout.headingTop).toBeGreaterThan(layout.navBottom+10);
+    }
     expect(bad).toEqual([]);
   });
 }

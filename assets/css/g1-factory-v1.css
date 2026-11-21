@@ -264,8 +264,8 @@ main.g1-page[data-page-design-v33="strict"] .g1-factory-applications,
 main.g1-page[data-page-design-v33="strict"] .g1-factory-media-grid,
 main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0,1fr));
-  gap: var(--aa8-v33-factory-card-gap);
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: var(--aa8-v33-factory-card-gap) !important;
   margin-top: 24px;
 }
 main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article {
@@ -290,7 +290,7 @@ main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid p {
   margin: 0;
 }
 main.g1-page[data-page-design-v33="strict"] .g1-factory-videos {
-  grid-template-columns: minmax(0, 720px);
+  grid-template-columns: minmax(0, 720px) !important;
   margin-top: 24px;
 }
 main.g1-page[data-page-design-v33="strict"] .g1-factory-videos video {
@@ -321,8 +321,8 @@ main.g1-page[data-page-design-v33="strict"] .g1-final-cta {
   main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid,
   main.g1-page[data-page-design-v33="strict"] .g1-factory-videos,
   main.g1-page[data-page-design-v33="strict"] .g1-factory-related-grid {
-    grid-template-columns: minmax(0,1fr);
-    gap: 14px;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 14px !important;
     margin-top: 18px;
   }
   main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article:last-child:nth-child(odd) {
