@@ -84,6 +84,15 @@ class GitTrackedOnlyBuildRegression(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "BUILD_SOURCE_HOLD"):
                     build.iter_source_files()
 
+    def test_indexed_but_missing_file_fails_closed(self):
+        missing = self._write("products/missing-after-git-add.html", "<html>temp</html>")
+        subprocess.run(["git", "add", "--", "products/missing-after-git-add.html"],
+                       cwd=self.root, check=True, capture_output=True)
+        missing.unlink()
+        with patch.object(build, "ROOT", self.root):
+            with self.assertRaisesRegex(RuntimeError, "indexed source missing"):
+                build.iter_source_files()
+
     def test_staged_public_file_allowed_without_broad_scanning(self):
         staged = self._write("products/new-approved.html", "<html>STAGED CANDIDATE</html>")
         subprocess.run(["git", "add", "--", "products/new-approved.html"],
