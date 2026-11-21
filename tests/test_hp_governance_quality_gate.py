@@ -69,6 +69,65 @@ class GovernanceQualityGateTests(unittest.TestCase):
         self.assertIn("NOT_AUTOMATIC_FIGMA_PIXEL_PARITY",
                       c["designSources"]["visual"]["verification"])
 
+    def test_v33_20261121_native_and_html_inventory_is_pinned_not_fully_approved(self):
+        result = gate.validate_v33_design_snapshot(ROOT)
+        self.assertEqual(result["status"], "PINNED_DESIGN_CONSISTENT_NOT_FIGMA_LIVE")
+        self.assertEqual(result["figmaComponents"], 14)
+        self.assertEqual(result["figmaVariables"], 38)
+        self.assertEqual(result["htmlComponents"], 20)
+        self.assertEqual(result["referenceOnly"], 12)
+        self.assertEqual(result["release"], "HOLD")
+
+    def test_v33_stale_figma_tokens_reference_components_fail_closed(self):
+        import shutil
+        file_names = (
+            "docs/governance/hp-design-code-trace-v1.json",
+            "ops/brand-preview/corporate-product-visual-v33.json",
+            "ops/brand-preview/figma-product-v33-tokens.json",
+            "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
+        )
+        for mutation in (
+            "old-8-20", "missing-component", "spacing-number", "falsely-approved",
+            "cross-file-drift", "missing-src-proof", "stale-policy-doc"
+        ):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
+                t = Path(td)
+                for name in file_names:
+                    dest = t / name
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(ROOT/name, dest)
+                visual_file=t/"ops/brand-preview/corporate-product-visual-v33.json"
+                trace_file=t/"docs/governance/hp-design-code-trace-v1.json"
+                tok_file=t/"ops/brand-preview/figma-product-v33-tokens.json"
+                visual=json.loads(visual_file.read_text("utf-8"))
+                trace=json.loads(trace_file.read_text("utf-8"))
+                tokens=json.loads(tok_file.read_text("utf-8"))
+                for entry in visual["htmlComponentManagement"]:
+                    f=t/entry["codeOwner"]
+                    f.parent.mkdir(parents=True, exist_ok=True)
+                    f.touch(exist_ok=True)
+                if mutation=="old-8-20":
+                    trace["designSources"]["visualCandidateV33"]["figmaVariables"]["count"]=20
+                elif mutation=="missing-component":
+                    visual["htmlComponentManagement"].pop()
+                elif mutation=="spacing-number":
+                    tokens["dimension"]["spacing"]["24"]["$value"]="25px"
+                elif mutation=="falsely-approved":
+                    visual["htmlComponentManagement"][7]["status"]="IMPLEMENTED"
+                elif mutation=="cross-file-drift":
+                    visual["latestDesignEvidence"]["nativeComponentsTotal"]=8
+                elif mutation=="missing-src-proof":
+                    tokens["$sourceEvidence"]["normalizedUtf8Sha256"]="unverified"
+                elif mutation=="stale-policy-doc":
+                    f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "14 = previous eight","8 = old"),encoding="utf-8")
+                visual_file.write_text(json.dumps(visual,ensure_ascii=False),encoding="utf-8")
+                trace_file.write_text(json.dumps(trace,ensure_ascii=False),encoding="utf-8")
+                tok_file.write_text(json.dumps(tokens,ensure_ascii=False),encoding="utf-8")
+                with self.assertRaisesRegex(ValueError,"AA8_GOVERNANCE_HOLD"):
+                    gate.validate_v33_design_snapshot(t)
+
     def test_new_pr_uses_existing_template_and_impact_matrix(self):
         files = [{"filename": "includes/site-header.html"},
                  {"filename": "docs/governance/01_HP_ADAPTER_V1.md"},

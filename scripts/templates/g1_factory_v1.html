@@ -25,7 +25,7 @@ $hero_actions
 </div><p class="g1-fine">取扱状況：$status ／ 価格：$price_label ／ 納期：$lead_time。SDK・保証・仕様は購入構成に応じて確認します。</p>
 </div><div class="g1-hero-media"><div class="g1-hero-image">
 <img src="$hero_image" alt="$hero_alt" decoding="async" fetchpriority="high">
-</div><p class="g1-image-caption">メーカー製品画像。<a href="$official_source" target="_blank" rel="noopener noreferrer">メーカー公式情報 ↗</a></p>
+</div>$hero_caption
 </div></div></div></section>
 <nav class="g1-anchor-nav" aria-label="$name のページ内メニュー"><div class="g1-shell">
 $anchor_navigation
@@ -36,7 +36,7 @@ $anchor_navigation
 <section class="g1-section g1-factory-section" id="applications"><div class="g1-shell">
 <p class="g1-kicker">RESEARCH / APPLICATIONS</p><h2>研究・活用用途</h2>
 <div class="g1-factory-applications">$applications</div></div></section>
-<section class="g1-section g1-factory-section" id="media"><div class="g1-shell">
+$family_checks<section class="g1-section g1-factory-section" id="media"><div class="g1-shell">
 <p class="g1-kicker">OFFICIAL MEDIA</p><h2>$media_title</h2>
 <div class="g1-factory-media-grid">$images</div>
 $video_section
@@ -44,7 +44,7 @@ $video_section
 $v3_model_section
 <section class="g1-section g1-factory-section" id="specifications"><div class="g1-shell">
 <p class="g1-kicker">SPECIFICATIONS</p><h2>$spec_heading</h2>
-<table class="g1-factory-spec-table"><caption>$name 製品仕様</caption><tbody>$specifications</tbody></table>
+<table class="g1-factory-spec-table"><caption>$name 製品仕様</caption>$spec_table_header<tbody>$specifications</tbody></table>
 <p class="g1-fine">仕様確認日：$verified_at。出典：
 <a href="$official_source" target="_blank" rel="noopener noreferrer">メーカー公式ページ ↗</a>。</p>
 $spec_origin

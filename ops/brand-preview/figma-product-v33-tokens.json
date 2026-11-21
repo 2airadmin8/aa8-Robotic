@@ -1,6 +1,6 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
-  "$description": "V3.3 Figma import CANDIDATE, not native Figma nodes. Verified mother-site color/font plus CEO-required white/grey specifications. See corporate-product-visual-v33.json.",
+  "$description": "Corporate V3.3 pinned token proposal consistent with 2026-11-21 design evidence. Figma 14 native top-level components, including six reference-only samples, and 38 recorded variables (8 legacy+20 v33 base+10 spacing); spacing detail readback HOLD. This JSON does not assert Figma live binding/variant completion.",
   "color": {
     "brand": {
       "deep": {
@@ -87,6 +87,56 @@
     "footerPanelRadius": {
       "$type": "dimension",
       "$value": "18px"
+    },
+    "spacing": {
+      "4": {
+        "$type": "dimension",
+        "$value": "4px"
+      },
+      "8": {
+        "$type": "dimension",
+        "$value": "8px"
+      },
+      "12": {
+        "$type": "dimension",
+        "$value": "12px"
+      },
+      "16": {
+        "$type": "dimension",
+        "$value": "16px"
+      },
+      "24": {
+        "$type": "dimension",
+        "$value": "24px"
+      },
+      "32": {
+        "$type": "dimension",
+        "$value": "32px"
+      },
+      "40": {
+        "$type": "dimension",
+        "$value": "40px"
+      },
+      "48": {
+        "$type": "dimension",
+        "$value": "48px"
+      },
+      "64": {
+        "$type": "dimension",
+        "$value": "64px"
+      },
+      "80": {
+        "$type": "dimension",
+        "$value": "80px"
+      }
     }
+  },
+  "$sourceEvidence": {
+    "documentId": "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX",
+    "documentUrl": "https://drive.google.com/file/d/1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX/view",
+    "documentModifiedUtc": "2026-11-21T04:32:57.505Z",
+    "normalizedUtf8Sha256": "3133543f919e9f4c1a87af8f0cb7e1950a8a86418cd9bbb9cfcfe3d50e02cf09",
+    "status": "SOURCE_DOCUMENT_REVIEWED_NOT_LIVE_FIGMA_REVALIDATED",
+    "refreshRule": "Review source/Figma readback, update these pinned JSON contracts in an existing PR, then run existing CI; no automatic Figma live polling"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schema": "AA8_CORPORATE_PRODUCT_VISUAL_V3.3",
-  "status": "FIGMA_NATIVE_COMPONENTS_8_VARIABLES_20_VERIFIED_AUTO_VISUAL_139_PASS_CEO_RELEASE_HOLD",
+  "status": "FIGMA_NATIVE_14_COMPONENTS_38_VARIABLES_SOURCE_PINNED_12_HTML_REFERENCE_ONLY_CEO_RELEASE_HOLD",
   "effectiveDesign": "3.3",
   "contentAndBuyerJourney": "Product Page Standard V3.1 preserved",
   "manufacturerAndPriceFacts": "data/products.json unchanged",
@@ -102,8 +102,8 @@
     "fileKey": "uo56l51NgUqit4976LV6P2",
     "fileUrl": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
     "designPage": "02｜AA8 CORPORATE V3.3｜HEADER FOOTER SPECS｜PC SP",
-    "status": "PASS_READBACK_AFTER_BROWSER_RELOAD",
-    "componentsCount": 8,
+    "status": "BASE_8_READBACK_PASS_NEW_6_REFERENCE_ONLY_SPACING_DETAIL_HOLD",
+    "componentsCount": 14,
     "components": {
       "tokens": "173:2",
       "pcFooter": "174:2",
@@ -112,14 +112,196 @@
       "spHeader": "181:2",
       "spFooter": "182:2",
       "spOpenMenu": "183:2",
-      "spSpecifications": "172:261"
+      "spSpecifications": "172:261",
+      "buttonsCTA": "217:73",
+      "cardsContent": "217:127",
+      "formsFeedback": "217:180",
+      "sectionsResources": "217:217",
+      "spacingDensity": "217:288",
+      "componentQaMatrix": "217:353"
     },
-    "componentTopLevel": 8,
+    "componentTopLevel": 14,
     "nativeVariablesV33": 20,
     "originalVariablesV32Untouched": 8,
     "variableStorage": "Existing AA8 Robotics V3.2 / Core Colors collection, group prefix v33/",
     "collectionNote": "Figma Starter prevented creating variables in second collection; empty unused new collection was removed. Existing eight V3.2 variable values remain unchanged.",
-    "nativeReadbackEvidence": "https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG"
+    "nativeReadbackEvidence": "https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG",
+    "baselineVerifiedComponents": 8,
+    "newReferenceOnlyComponents": 6,
+    "nativeVariablesTotal": 38,
+    "spacingVariables": 10,
+    "spacingGroup": "v33/spacing/",
+    "spacingValuesPx": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      40,
+      48,
+      64,
+      80
+    ],
+    "componentVariantsStatus": "NOT_FULLY_VERIFIED_REFERENCE_ONLY",
+    "spacingVariableDetailReadback": "HOLD_STARTER_TEAM_LOCK"
   },
-  "evidenceStatus": "Figma source and independent visual evidence PASS at documented code SHA; latest HEAD must re-run CI and independent QA after any commit"
+  "evidenceStatus": "Figma source and independent visual evidence PASS at documented code SHA; latest HEAD must re-run CI and independent QA after any commit",
+  "latestDesignEvidence": {
+    "designEvidence": {
+      "documentId": "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX",
+      "documentUrl": "https://drive.google.com/file/d/1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX/view",
+      "documentModifiedUtc": "2026-11-21T04:32:57.505Z",
+      "normalizedUtf8Sha256": "3133543f919e9f4c1a87af8f0cb7e1950a8a86418cd9bbb9cfcfe3d50e02cf09",
+      "status": "SOURCE_DOCUMENT_REVIEWED_NOT_LIVE_FIGMA_REVALIDATED",
+      "refreshRule": "Review source/Figma readback, update these pinned JSON contracts in an existing PR, then run existing CI; no automatic Figma live polling"
+    },
+    "baselineComponents": 8,
+    "addedReferenceComponents": 6,
+    "nativeComponentsTotal": 14,
+    "legacyVariables": 8,
+    "v33BaseVariables": 20,
+    "spacingVariables": 10,
+    "nativeVariablesTotal": 38,
+    "spacingValuesPx": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      40,
+      48,
+      64,
+      80
+    ],
+    "spacingGroup": "v33/spacing/",
+    "componentVariantsStatus": "NOT_FULLY_VERIFIED_REFERENCE_ONLY",
+    "spacingVariableDetailReadback": "HOLD_STARTER_TEAM_LOCK",
+    "productionDesignRelease": "HOLD_CEO",
+    "semanticStandard": "3.1",
+    "visualStandard": "3.3"
+  },
+  "htmlComponentManagement": [
+    {
+      "id": "C01",
+      "role": "Logo PC/SP/Footer",
+      "codeOwner": "assets/img/airadmin8-robotics-logo-pc.svg",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C02",
+      "role": "Header PC/SP + nav",
+      "codeOwner": "includes/site-header.html",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C03",
+      "role": "Footer PC/SP + 4 groups",
+      "codeOwner": "includes/site-footer.html",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C04",
+      "role": "SP hamburger menu",
+      "codeOwner": "assets/js/mobile-qa.js",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C05",
+      "role": "Product specification tables",
+      "codeOwner": "assets/css/product-standard-v33.css",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C06",
+      "role": "Color/font/radius",
+      "codeOwner": "assets/css/site.css",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "id": "C07",
+      "role": "Spacing 10 native variables",
+      "codeOwner": "ops/brand-preview/figma-product-v33-tokens.json",
+      "status": "TOKEN_DETAIL_READBACK_HOLD"
+    },
+    {
+      "id": "C08",
+      "role": "Buttons CTA",
+      "codeOwner": "assets/css/site.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C09",
+      "role": "Button states",
+      "codeOwner": "assets/js/contact-v2.js",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C10",
+      "role": "Product related cards",
+      "codeOwner": "assets/css/product-cards-v2.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C11",
+      "role": "Resource SDK use case cards",
+      "codeOwner": "assets/css/resource-center.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C12",
+      "role": "Input/select/textarea",
+      "codeOwner": "contact.html",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C13",
+      "role": "Error/success/confirmation",
+      "codeOwner": "assets/js/contact-v2.js",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C14",
+      "role": "Hero/eyebrow/section title",
+      "codeOwner": "assets/css/main-site-experience.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C15",
+      "role": "Grid/content spacing",
+      "codeOwner": "assets/css/site.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C16",
+      "role": "Component QA matrix",
+      "codeOwner": "tests/hp-shared-governance.spec.js",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C17",
+      "role": "Breadcrumb/back-to-top",
+      "codeOwner": "assets/css/site.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C18",
+      "role": "FAQ accordion",
+      "codeOwner": "assets/css/site.css",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C19",
+      "role": "Search/filter/empty",
+      "codeOwner": "assets/js/site.js",
+      "status": "REFERENCE_ONLY"
+    },
+    {
+      "id": "C20",
+      "role": "Common icon/motion/skeleton",
+      "codeOwner": "assets/img/airadmin8-robotics-logo-pc.svg",
+      "status": "NOT_SHARED"
+    }
+  ]
 }

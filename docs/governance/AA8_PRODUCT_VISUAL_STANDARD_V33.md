@@ -1,6 +1,21 @@
 # AirAdmin8 Robotics｜Product Visual Standard V3.3（DRAFT / NOT RELEASE APPROVED）
-**基準日:** 2026-11-20 JST  
-**状态:** FIGMA_NATIVE_8_COMPONENTS_20_VARIABLES_PASS / AUTO_VISUAL_139_PASS / CEO_RELEASE_APPROVAL_PENDING / PRODUCTION_NO_GO.
+**基準日:** 2026-11-21 JST (latest pinned evidence, no production change)
+**現行Design Snapshot:** FIGMA_NATIVE_14_COMPONENTS_38_VARIABLES_PINNED / NEW6_REFERENCE_ONLY / SPACING_DETAIL_READBACK_HOLD / CEO_RELEASE_HOLD / PRODUCTION_NO_GO.
+
+
+## CURRENT SNAPSHOT | 2026-11-21 design-to-code baseline (historical checkpoints below)
+
+- **Source:** https://drive.google.com/file/d/1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX/view
+- **Source SHA256:** 3133543f919e9f4c1a87af8f0cb7e1950a8a86418cd9bbb9cfcfe3d50e02cf09 (normalized UTF-8).
+- **Native components:** 14 = previous eight Header/Footer/Specs/Menu/Tokens plus six design samples (Buttons, Cards, Forms, Sections, Spacing, QA). These six are REFERENCE_ONLY; they do not prove finished Variants, interactions, nested instances or token binding.
+- **Variables:** 38 = eight V3.2 legacy + twenty V3.3 base + ten V3.3 spacing variables. Spacing values are 4, 8, 12, 16, 24, 32, 40, 48, 64, 80 px. Figma Starter detail re-read is HOLD.
+- **HTML management:** 20 categories = six implemented, one spacing-detail HOLD, twelve partial/reference-only, one not shared. A green static check is NOT release approval.
+- **Whitespace:** 160px PC / 120px SP empty zones trigger WARN and visual review, NOT automatic CSS rewrites. Keep approved Hero geometry.
+- **Machine sources:** docs/governance/hp-design-code-trace-v1.json; ops/brand-preview/corporate-product-visual-v33.json; ops/brand-preview/figma-product-v33-tokens.json. Existing governance CI checks agreement; existing Python Product Factory checks this pinned design snapshot for strict V3.3 SKU.
+- **Limitations:** Live Figma MCP read is unavailable under the current Starter limit. The review is pinned to the cited design document, not a live Figma API poll. New Figma edits require evidence update and exact-SHA CI rerun. New six components and Spacing detail cannot be asserted fully approved; CEO release, business E2E and Japanese manufacturer fact gates stay HOLD.
+
+**Historical note:** Older lines dated 2026-11-19/20 containing 8 components / 20 variables are records of previous states and DO NOT supersede this current pinned snapshot.
+
 
 ## 唯一产品与设计边界
 - 母站真实视觉正本：`https://www.air-admin8.co.jp/`；G盘正式 WordPress `themes/AirAdmin8/style.css`；记录 SHA256 和源码清单：`docs/governance/AA8_MOTHER_R41_SOURCE_TRACE_20261119.md`。

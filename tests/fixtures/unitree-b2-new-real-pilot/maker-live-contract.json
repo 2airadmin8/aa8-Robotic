@@ -1,0 +1,229 @@
+{
+  "schema": "aa8-maker-source-contract-v1",
+  "source_url": "https://www.unitree.com/b2/",
+  "manufacturer_id": "unitree",
+  "adapter": "unitree-b2-html-v1",
+  "models": [
+    "B2"
+  ],
+  "categories": [
+    {
+      "source_name": "B2 Official Parameters",
+      "rows": [
+        {
+          "id": "unitree-b2-01-01",
+          "source_label": "Size(Standing)",
+          "models": {
+            "B2": "≈ 1098mm×450mm×645mm"
+          },
+          "approved_display": {
+            "B2": "≈ 1098mm×450mm×645mm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-02",
+          "source_label": "Size(Lying Prone)",
+          "models": {
+            "B2": "≈ 880mm×460mm×330mm"
+          },
+          "approved_display": {
+            "B2": "≈ 880mm×460mm×330mm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-03",
+          "source_label": "Weight",
+          "models": {
+            "B2": "≈ 60kg Total weight (battery included)"
+          },
+          "approved_display": {
+            "B2": "≈ 60kg Total weight (battery included)"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-04",
+          "source_label": "Battery Performance",
+          "models": {
+            "B2": "Battery capacity 45Ah(2250Wh)，voltage 58V"
+          },
+          "approved_display": {
+            "B2": "Battery capacity 45Ah(2250Wh)，voltage 58V"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-05",
+          "source_label": "Endurance Ability",
+          "models": {
+            "B2": "Battery life 4-6h Walking without load > 5h, and the mileage > 20km Walking with 20kg load > 4h, and the mileage> 15km"
+          },
+          "approved_display": {
+            "B2": "Battery life 4-6h Walking without load > 5h, and the mileage > 20km Walking with 20kg load > 4h, and the mileage> 15km"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-06",
+          "source_label": "Wheeled Foot",
+          "models": {
+            "B2": "Optional"
+          },
+          "approved_display": {
+            "B2": "Optional"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-07",
+          "source_label": "Load(Standing)",
+          "models": {
+            "B2": "≥ 120kg"
+          },
+          "approved_display": {
+            "B2": "≥ 120kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-08",
+          "source_label": "Load(Walking)",
+          "models": {
+            "B2": "> 40kg"
+          },
+          "approved_display": {
+            "B2": "> 40kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-09",
+          "source_label": "Continuous Stair Climbing",
+          "models": {
+            "B2": "Stairs of 20~25cm"
+          },
+          "approved_display": {
+            "B2": "Stairs of 20~25cm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-10",
+          "source_label": "Climbing Ability",
+          "models": {
+            "B2": "Climb up and down stairs of 40cm in forward direction"
+          },
+          "approved_display": {
+            "B2": "Climb up and down stairs of 40cm in forward direction"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-11",
+          "source_label": "Operating Temperature",
+          "models": {
+            "B2": "-20℃ ~ 55℃"
+          },
+          "approved_display": {
+            "B2": "-20℃ ~ 55℃"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-12",
+          "source_label": "Climbing Angle",
+          "models": {
+            "B2": "> 45°"
+          },
+          "approved_display": {
+            "B2": "> 45°"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-13",
+          "source_label": "Running Speed",
+          "models": {
+            "B2": "> 6m/s [1]"
+          },
+          "approved_display": {
+            "B2": "> 6m/s [1]"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-14",
+          "source_label": "Ditch Jumping Width",
+          "models": {
+            "B2": "0.5~1.2m"
+          },
+          "approved_display": {
+            "B2": "0.5~1.2m"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-15",
+          "source_label": "Max Jump Distance",
+          "models": {
+            "B2": "> 1.6m"
+          },
+          "approved_display": {
+            "B2": "> 1.6m"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-16",
+          "source_label": "Ingress Protection",
+          "models": {
+            "B2": "IP67"
+          },
+          "approved_display": {
+            "B2": "IP67"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-17",
+          "source_label": "Control and Perception",
+          "models": {
+            "B2": "Standard Configuration: Intel Core i5 (Platform Function), Intel Core i7 (User Development) Optional Configuration: Multiple brands and models available, Intel Core i7 or Orin NX (Maximum up to 3 devices)"
+          },
+          "approved_display": {
+            "B2": "Standard Configuration: Intel Core i5 (Platform Function), Intel Core i7 (User Development) Optional Configuration: Multiple brands and models available, Intel Core i7 or Orin NX (Maximum up to 3 devices)"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-18",
+          "source_label": "Sensing Sensor",
+          "models": {
+            "B2": "3D LiDAR ×1 + Depth camera ×2 + Optical camera ×2 (Varies with different configurations)"
+          },
+          "approved_display": {
+            "B2": "3D LiDAR ×1 + Depth camera ×2 + Optical camera ×2 (Varies with different configurations)"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-b2-01-19",
+          "source_label": "External Interface",
+          "models": {
+            "B2": "1000M-Base-Ethernet×4 USB3.0×4 12V×4 5V×1 24V×4 BAT×1"
+          },
+          "approved_display": {
+            "B2": "1000M-Base-Ethernet×4 USB3.0×4 12V×4 5V×1 24V×4 BAT×1"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    }
+  ],
+  "baseline_status": "ORIGINAL_ENGLISH_RAW_ONLY_JAPANESE_HUMAN_FACT_REVIEW_PENDING",
+  "observed_raw_sha256": "de81b23be24275f0f99e537a46ee58e087e9b4692413169bfb6695ac281b1e43",
+  "original_captured_utc": "2026-11-21T11:29:46.797476+00:00",
+  "publication": "HOLD"
+}
