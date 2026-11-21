@@ -61,6 +61,9 @@ for(const viewport of sizes){
     await page.setViewportSize(viewport);
     const res=await page.goto(target('products.html'),{waitUntil:'networkidle'});
     expect(res.status()).toBe(200);
+    // Product cards are populated asynchronously from data/products.json by site.js.
+    // Wait for the real 12 public catalog cards; never weaken the count assertion.
+    await expect(page.locator('[data-product-list] .research-product-card')).toHaveCount(12);
     const m=await page.evaluate(()=>{
       const hero=document.querySelector('.product-page-hero');
       const cards=[...document.querySelectorAll('.priority-category')];
