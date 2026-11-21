@@ -223,37 +223,19 @@ class MakerSourceWatchTests(unittest.TestCase):
             if url.endswith("/A2/"):
                 return self._synthetic_page()
             data=maker.load_contract(
-                ROOT/"tests"/"fixtures"/(
-                    "unitree-b2-new-real-pilot" if url.endswith("/b2/")
-                    else "unitree-r1-new-real-pilot")/"maker-live-contract.json")
+                ROOT/"tests"/"fixtures"/"unitree-b2-new-real-pilot"/"maker-live-contract.json")
             if url.endswith("/b2/"):
                 return ('<ul class="parameter b2">' + "".join(
                     '<li><div class="name">' + escape(row["source_label"]) +
                     '</div><div class="value"><p>' +
                     escape(row["models"]["B2"]) + '</p></div></li>'
                     for row in data["categories"][0]["rows"]) + '</ul>').encode()
-            self.assertTrue(url.endswith("/R1/"))
-            models=data["models"]
-            header='<ul class="versions">' + "".join(
-                '<li><p>' + escape(m) + '</p></li>' for m in models) + '</ul>'
-            parts=[]
-            for group in data["categories"]:
-                rows=[]
-                for row in group["rows"]:
-                    cells=[row["source_label"]]+[row["models"][m] for m in models]
-                    rows.append('<li>' + ''.join(
-                        '<div class="valPart"><p>' + escape(c) + '</p></div>'
-                        for c in cells) + '</li>')
-                parts.append('<div class="part"><div class="category">' +
-                    escape(group["source_name"]) + '</div><ul class="value">' +
-                    ''.join(rows) + '</ul></div>')
-            return ('<div class="decompose">' + header + '<div class="params">' +
-                    ''.join(parts) + '</div></div>').encode()
+            raise AssertionError("Unexpected manufacturer source: "+url)
         with patch.object(maker,'fetch',side_effect=source_for):
             result=maker.monitor_all(ROOT)
-        self.assertEqual(len(result),3)
+        self.assertEqual(len(result),2)
         self.assertEqual([(x["parameter_rows"],x["cells_checked"]) for x in result],
-                         [(37,74),(19,19),(31,93)])
+                         [(37,74),(19,19)])
         self.assertTrue(all(x["status"]=="SOURCE_MATCH_TRANSLATION_REVIEW_PENDING"
                             for x in result))
 

@@ -275,7 +275,7 @@ class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
         self.maker = maker
         self.contracts = {}
         self.products = {}
-        for pid in ("unitree-b2", "unitree-r1"):
+        for pid in ("unitree-b2",):
             directory = ROOT / "tests" / "fixtures" / (pid + "-new-real-pilot")
             self.contracts[pid] = json.loads(
                 (directory / "maker-live-contract.json").read_text("utf-8"))
@@ -292,24 +292,10 @@ class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
                     escape(row["source_label"]) + '</div><div class="value"><p>' +
                     escape(row["models"]["B2"]) + '</p></div></li>')
             return ('<ul class="parameter b2">' + "".join(entries) + '</ul>').encode()
-        headers = '<ul class="versions">' + "".join(
-            "<li><p>" + escape(m) + "</p></li>" for m in name) + "</ul>"
-        groups = []
-        for group in contract["categories"]:
-            rows = []
-            for row in group["rows"]:
-                values = [row["source_label"]] + [row["models"][m] for m in name]
-                rows.append("<li>" + "".join(
-                    '<div class="valPart"><p>' + escape(v) + '</p></div>'
-                    for v in values) + "</li>")
-            groups.append('<div class="part"><div class="category">' +
-                escape(group["source_name"]) + '</div><ul class="value">' +
-                "".join(rows) + '</ul></div>')
-        return ('<div class="decompose">' + headers + '<div class="params">' +
-                "".join(groups) + '</div></div>').encode()
+        raise AssertionError("Unsupported family under this B2-only pilot")
 
     def test_full_real_model_grid_round_trip_offline(self):
-        for pid, size, cells in (("unitree-b2", 19, 19), ("unitree-r1", 31, 93)):
+        for pid, size, cells in (("unitree-b2", 19, 19),):
             with self.subTest(pid=pid):
                 contract = self.contracts[pid]
                 actual = self.maker.parse_source(self.offline_source_html(contract), contract)
@@ -323,7 +309,7 @@ class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
                 self.assertIn('data-product-factory="g1-v1"', html)
 
     def test_missing_row_and_wrong_model_cell_fail_closed(self):
-        for pid in ("unitree-b2", "unitree-r1"):
+        for pid in ("unitree-b2",):
             contract = self.contracts[pid]
             original = self.offline_source_html(contract)
             parsed = self.maker.parse_source(original, contract)
@@ -339,7 +325,7 @@ class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
 
     def test_wrong_maker_url_or_unrecognized_adapter_is_rejected(self):
         import copy
-        for pid in ("unitree-b2", "unitree-r1"):
+        for pid in ("unitree-b2",):
             original = self.contracts[pid]
             contract = copy.deepcopy(original)
             contract["source_url"] = "https://www.unitree.com/A2/"
@@ -349,6 +335,71 @@ class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
             contract["adapter"] = "unregistered-maker-parser-v1"
             with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
                 self.maker.enforce_source_trust(contract)
+
+
+
+class StrictV33QuadrupedDesignContractQA(unittest.TestCase):
+    """Genuine new SKU must meet its buyer, family, visual and source contracts."""
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        cls.product=json.loads((ROOT/"tests/fixtures/unitree-b2-new-real-pilot/product.json").read_text("utf-8"))
+
+    def test_all_modules_have_buyer_content_and_correct_render_order(self):
+        item=copy.deepcopy(self.product)
+        validate_page_factory(ROOT,item)
+        page=render(ROOT,item,"preview")
+        required_ids=["capabilities","applications","decision-checks","media",
+                      "specifications","development","solutions","introduction",
+                      "faq","related","contact-product"]
+        positions=[page.index('id="'+s+'"') for s in required_ids]
+        self.assertEqual(positions,sorted(positions),"V3.3 buyer reading order cannot drift")
+        self.assertIn('data-page-design-v33="strict"',page)
+        self.assertIn('data-aa8-visual-version="3.3"',page)
+        self.assertIn('class="aa8-corporate-v1"',page)
+        self.assertIn('product-standard-v33.css',page)
+        self.assertIn('fonts.googleapis.com',page)
+        self.assertEqual(page.count('class="g1-factory-decision-grid"'),1)
+        self.assertIn("積載・機体構成",page)
+        self.assertIn("通信・取得データ",page)
+        self.assertIn("安全・運用責任",page)
+        self.assertEqual(page.count('class="g1-cta-card"'),3)
+        self.assertIn('scope="col">仕様項目',page)
+        self.assertIn("メーカー公表値",page)
+        self.assertNotIn("非公開プレビュー",page)
+        self.assertNotIn("メーカー製品画像。",page)
+        self.assertNotIn("仕様出典 ↗",page)
+        self.assertIn('name="robots" content="noindex,nofollow"',page)
+        self.assertNotIn('data-gtm',page)
+        self.assertTrue(item["pageFactory"]["releaseReady"] is False)
+
+    def test_missing_required_v33_content_is_rejected(self):
+        for mutation in ("missing-v3","missing-autonomy","missing-safety",
+                         "missing-sdk","missing-process","wrong-family",
+                         "redundant-bridge","dev-only-hero","unrelated-product"):
+            item=copy.deepcopy(self.product)
+            spec=item["pageFactory"]
+            if mutation=="missing-v3": spec.pop("v3")
+            elif mutation=="missing-autonomy": spec["familyEvidence"].pop("autonomy")
+            elif mutation=="missing-safety": spec["familyEvidence"].pop("safety")
+            elif mutation=="missing-sdk": spec["v3"]["sdk"]=[]
+            elif mutation=="missing-process": spec["v3"]["process"]=[]
+            elif mutation=="wrong-family": item["pageStandard"]["family"]="humanoid"
+            elif mutation=="redundant-bridge": item["pageStandard"]["showBridge"]=True
+            elif mutation=="dev-only-hero": spec["heroLead"]="メーカー公開資料に基づき、非公開プレビュー"
+            elif mutation=="unrelated-product": spec["relatedProductIds"]=["unitree-g1"]
+            with self.subTest(mutation=mutation):
+                with self.assertRaisesRegex(ContractError, "V3.3|quadruped|family|hero|unrelated"):
+                    validate_page_factory(ROOT,item)
+
+    def test_one_relevant_related_model_no_fabricated_three(self):
+        item=copy.deepcopy(self.product)
+        self.assertEqual(item["pageFactory"]["relatedProductIds"],["unitree-go2-edu"])
+        page=render(ROOT,item,"preview")
+        self.assertEqual(page.count('class="g1-factory-related-card"'),1)
+        self.assertIn("Unitree Go2 EDU",page)
+        self.assertNotIn("Unitree H2-D",page)
 
 
 if __name__ == "__main__":

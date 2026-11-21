@@ -236,3 +236,102 @@ main.g1-page[data-product-factory="g1-v1"] > .g1-section:not(.g1-final-cta) {
     font-size:12px; font-weight:800; margin-bottom:8px;
   }
 }
+
+/* AA8 Product Factory corporate V3.3 STRICT candidate only.
+ * Spacing is an explicit preview contract, NOT another CSS owner.
+ * Never changes legacy production SKUs or the approved G1 layout.
+ * PC: sections 52px / cards 20px; SP: sections 36px / cards 14px.
+ */
+main.g1-page[data-page-design-v33="strict"] {
+  --aa8-v33-factory-section-pc: 52px;
+  --aa8-v33-factory-section-sp: 36px;
+  --aa8-v33-factory-card-gap: 20px;
+}
+main.g1-page[data-page-design-v33="strict"] > .g1-hero {
+  padding: 24px 0 40px;
+  min-height: 0;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-hero-image {
+  height: 420px;
+  max-height: 420px;
+}
+main.g1-page[data-page-design-v33="strict"] > section.g1-section:not(.g1-final-cta) {
+  padding: var(--aa8-v33-factory-section-pc) 0;
+  min-height: 0;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-facts,
+main.g1-page[data-page-design-v33="strict"] .g1-factory-applications,
+main.g1-page[data-page-design-v33="strict"] .g1-factory-media-grid,
+main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: var(--aa8-v33-factory-card-gap);
+  margin-top: 24px;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article {
+  border-top: 3px solid #009bd2;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 18px 20px;
+  min-width: 0;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid h3 {
+  color: #333;
+  font-size: 19px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin: 0;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-videos {
+  grid-template-columns: minmax(0, 720px);
+  margin-top: 24px;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-videos video {
+  max-height: 405px;
+  object-fit: contain;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-factory-related-grid {
+  grid-template-columns: minmax(270px, 360px);
+  gap: 20px;
+}
+main.g1-page[data-page-design-v33="strict"] .g1-final-cta {
+  padding: 56px 0 58px;
+}
+@media (max-width: 780px) {
+  main.g1-page[data-page-design-v33="strict"] > .g1-hero {
+    padding: 16px 0 28px;
+  }
+  main.g1-page[data-page-design-v33="strict"] .g1-hero-image {
+    height: 270px;
+    max-height: 270px;
+  }
+  main.g1-page[data-page-design-v33="strict"] > section.g1-section:not(.g1-final-cta) {
+    padding: var(--aa8-v33-factory-section-sp) 0;
+  }
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-facts,
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-applications,
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-media-grid,
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid,
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-videos,
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-related-grid {
+    grid-template-columns: minmax(0,1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+  main.g1-page[data-page-design-v33="strict"] .g1-factory-decision-grid article {
+    padding: 14px 0;
+  }
+  main.g1-page[data-page-design-v33="strict"] .g1-final-cta {
+    padding: 40px 0 44px;
+  }
+}

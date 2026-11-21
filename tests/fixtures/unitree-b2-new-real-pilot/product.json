@@ -8,7 +8,7 @@
   "status": "preview_only",
   "statusLabel": "資料照合・型番相談",
   "visibility": "hidden",
-  "summary": "Unitreeが公開する産業用四足ロボットB2。積載・走破・稼働条件は構成と実環境により要確認。",
+  "summary": "産業設備の巡検や階段・不整地の走行検証に向けた四足プラットフォーム。歩行時40kg超の積載などはメーカー所定条件の公表値であり、日本の現場での達成を保証するものではありません。",
   "filterGroups": [
     "quadruped"
   ],
@@ -26,19 +26,19 @@
   "pageStandard": {
     "version": "3.1",
     "family": "quadruped",
-    "customerValue": "研究・PoCの条件に合わせた製品選定",
+    "customerValue": "産業施設の巡検・不整地PoCを、積載条件・走行経路・安全要件から検討",
     "preserveSectionIds": [],
     "resourcesHref": "/resources.html",
     "supportHref": "/support.html#poc",
-    "showBridge": true
+    "showBridge": false
   },
   "pageFactory": {
     "template": "g1-v1",
     "releaseReady": false,
     "officialSource": "https://www.unitree.com/b2/",
-    "title": "Unitree B2｜メーカー公式情報による技術検討｜AirAdmin8 Robotics",
-    "metaDescription": "Unitree B2のメーカー公開情報・仕様をもとに、研究・PoCで確認すべき条件を整理。型番・価格・納期・構成は導入前に個別照合します。",
-    "heroLead": "メーカー公開資料に基づき、仕様・用途・導入前確認事項を整理した非公開プレビュー。",
+    "title": "Unitree B2｜産業用四足ロボットの巡検・不整地PoC相談｜AirAdmin8 Robotics",
+    "metaDescription": "Unitree B2の公式仕様、巡検・階段・不整地での適用検討、研究・PoCに必要な構成・通信・安全条件を整理。日本向けの構成・価格・納期は個別確認。",
+    "heroLead": "産業巡検・不整地PoCを、実際の走行条件から設計。",
     "facts": [
       {
         "label": "最大関節トルク",
@@ -316,10 +316,95 @@
     ],
     "contactService": "industrial-poc",
     "relatedProductIds": [
-      "unitree-go2-edu",
-      "unitree-g1",
-      "unitree-h2-d"
+      "unitree-go2-edu"
     ],
-    "inheritSourcePage": true
+    "inheritSourcePage": true,
+    "visualContract": "corporate-v33-strict",
+    "familyEvidence": {
+      "payload": {
+        "title": "積載・機体構成",
+        "description": "メーカー公表の立位120kg以上と歩行時40kg超は異なる試験条件です。機材重量、バッテリー、連続運転条件を用途別に照合します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "terrain": {
+        "title": "階段・斜面・不整地",
+        "description": "メーカーは階段・岩場・傾斜地の例を掲載。段差、路面、気象条件、許容転倒リスクは現場PoCで確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "autonomy": {
+        "title": "遠隔操作・自律性",
+        "description": "巡検シナリオの実装は自律走行機能の保証ではありません。巡回ルート、障害物回避、監視者の介入方式を設計前に確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "communication": {
+        "title": "通信・取得データ",
+        "description": "無線接続、センサー構成、遠隔監視、記録・保管要件は選択構成で異なるため、正式な技術資料と現場の通信条件で照合します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "safety": {
+        "title": "安全・運用責任",
+        "description": "IP67の公表値だけでは現場安全性を保証しません。立入制限、停止操作、転倒対策、保険・保守の責任分界をPoC前に確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    },
+    "v3": {
+      "resourceSearchUrl": "/resources.html",
+      "resourceLinkLabel": "関連技術資料・SDK情報",
+      "developerDocsCaution": "SDK・ROS2・外部制御APIの利用可否、対応OS、ライセンスはメーカー・選択SKUごとに確認する必要があります。",
+      "sdkDownloadNote": "未検証SDKのダウンロード提供や使用可能保証は行っていません。",
+      "sdk": [
+        {
+          "title": "SDKと二次開発の範囲",
+          "description": "メーカーが提供する開発機能の種類・配布条件・対応SDK/OSを個別確認。ROS2対応は未検証のため断定しません。"
+        },
+        {
+          "title": "センサー・計算構成",
+          "description": "標準・オプションの搭載計算機、LiDAR、カメラ、通信機器を正式SKUに紐づけて確認。"
+        },
+        {
+          "title": "計測データと責任範囲",
+          "description": "ログ取得、遠隔監視、実験データの保持・権限、保守体制はPoC設計時に確認します。"
+        }
+      ],
+      "solutions": [
+        {
+          "title": "工場・設備の巡検PoC",
+          "description": "通路幅、設備障害物、点検対象、通信死角、運用者の介入条件から導入適合を確認。",
+          "supportSectionId": "poc"
+        },
+        {
+          "title": "階段・屋外不整地の走破評価",
+          "description": "メーカー実演の走破性能を実環境にそのまま保証せず、段差・斜度・走行速度・転倒リスクを試験で検証。",
+          "supportSectionId": "poc"
+        },
+        {
+          "title": "追加センサー・積載の構成",
+          "description": "必要な機材重量と稼働時間を整理し、積載位置、通信、安全対策を含む選定支援を検討。",
+          "supportSectionId": "setup"
+        }
+      ],
+      "process": [
+        {
+          "title": "01｜運用目的を確認",
+          "description": "巡検・走行研究の対象経路、点検頻度、必要な記録を明確化。"
+        },
+        {
+          "title": "02｜実機構成を照合",
+          "description": "B2本体と付属機材、計算機・センサー・通信方式をメーカー資料で確認。"
+        },
+        {
+          "title": "03｜安全・PoC条件を設計",
+          "description": "立入区域、緊急停止、操作者、評価指標と試験中止条件を決定。"
+        },
+        {
+          "title": "04｜見積・納期・支援範囲を確認",
+          "description": "日本向け価格、在庫、輸入、保守・保証の提供条件を個別に確認。"
+        },
+        {
+          "title": "05｜実証・評価を開始",
+          "description": "条件が揃い次第、狭い対象区画で走行・通信・データ取得の適合性を検証。"
+        }
+      ]
+    }
   }
 }
