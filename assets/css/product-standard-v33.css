@@ -48,6 +48,16 @@ body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
   :is(#specifications,#spec,#specs,.g1-specifications) :is(h2,h3) {
   color: var(--aa8-v33-spec-ink) !important;
 }
+/* AA8_V33_DARK_PANEL_HEADING_CONTRAST_GUARD
+ * Neutral #333 headings apply to white spec backgrounds only. The G1+
+ * manufacturer rear-view editorial panel lives INSIDE #specifications and
+ * keeps its dark #102a49 backdrop. Protect the panel's white headings from
+ * the generic white-table heading rule above; do not alter facts or tables.
+ * Keep this scoped to the existing single V3.3 CSS owner. */
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  #specifications .g1p-technical-image :is(h2,h3) {
+  color: #ffffff !important;
+}
 body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
   :is(.g1-table-wrap,.h2-table-scroll,.g1d-spec) {
   border-color: var(--aa8-v33-spec-border) !important;

@@ -37,6 +37,21 @@ for(const width of [1440,390,360]){
     hasFootnote:document.querySelector('.h2d-spec-foot')?.innerText.includes('Unitree H2-D')
    };
   });
+  // Exact H2-D source-derived regression: former bright cyan (#0ba5d0)
+  // gave white normal-sized CTA text only 2.87:1. Require corporate deep
+  // blue and >=4.5:1 for PC/SP; never change the CTA target or the G1 template.
+  const heroCta=await page.locator('.h2d-hero-buttons .g1-button.primary').evaluate(node=>{
+    const style=getComputedStyle(node);
+    const parse=value=>(value.match(/[\d.]+/g)||[]).slice(0,3).map(Number);
+    const luminosity=rgb=>rgb.map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4)
+      .reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
+    const bg=luminosity(parse(style.backgroundColor)),fg=luminosity(parse(style.color));
+    return {background:style.backgroundColor,color:style.color,
+      ratio:(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05)};
+  });
+  expect(heroCta.background).toBe('rgb(0, 105, 181)');
+  expect(heroCta.color).toBe('rgb(255, 255, 255)');
+  expect(heroCta.ratio).toBeGreaterThanOrEqual(4.5);
   expect(visual.heroBg).toContain('linear-gradient');
   expect(visual.heroTitle).toBe('rgb(255, 255, 255)');
   expect(visual.useBg).toBe('rgb(241, 247, 251)');

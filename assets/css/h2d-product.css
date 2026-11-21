@@ -14,7 +14,8 @@ main.g1-page.h2d-page > section.g1-section.h2d-application{background:#f1f7fb!im
 main.g1-page.h2d-page > section.g1-section.h2d-development{background:#f4f8fb!important}
 main.g1-page.h2d-page > section.g1-section.h2d-cta{background:linear-gradient(115deg,#075880,#088cb8 70%,#08709e)!important;color:#fff}
 .h2d-page .g1-button{border-radius:6px;min-height:54px}
-.h2d-page .g1-button.primary{background:#0ba5d0;color:#fff}
+/* Corporate V3.3 deep-blue primary CTA: white 13px text must be >=4.5:1; the previous #0ba5d0 was 2.87:1. Scoped to H2-D only. */
+.h2d-page .g1-button.primary{background:var(--aa8-corp-deep,#0069b5);color:#fff}
 .h2d-page .g1-button.secondary{background:transparent;border:1px solid rgba(210,236,248,.62);color:#fff}
 .h2d-page .g1-button.secondary:hover{background:rgba(255,255,255,.09)}
 /* Main hero adapts G1's two-column module to a full-height factory manipulator. */
