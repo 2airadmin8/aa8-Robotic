@@ -107,7 +107,14 @@ def safe_url(url: str, *, contract: dict | None = None) -> None:
         raise ValueError("SOURCE_HOLD: source is not registered maker origin")
     # A2 remains path-pinned; other manufacturers require an independently
     # verified adapter + exact source URL in the frozen contract.
-    if maker_id == "unitree" and parts.path == "/A2/":
+    pinned_unitree_adapters = {
+        "/A2/": "unitree-a2-html-v1",
+        "/b2/": "unitree-b2-html-v1",
+        "/R1/": "unitree-r1-html-v1",
+    }
+    if maker_id == "unitree" and parts.path in pinned_unitree_adapters:
+        if contract.get("adapter") != pinned_unitree_adapters[parts.path]:
+            raise ValueError("SOURCE_HOLD: Unitree product path and parser mismatch")
         return
     if contract.get("adapter") != "html-table-v1":
         raise ValueError("SOURCE_HOLD: new maker adapter not independently verified")
@@ -170,12 +177,84 @@ def parse_unitree_a2(blob: bytes):
     return {"models":models,"categories":categories}
 
 
+def parse_unitree_b2(blob: bytes) -> dict:
+    """Pin the actual B2 maker DOM: ul.parameter.b2, li > div.name + div.value."""
+    page=Tree()
+    page.feed(blob.decode("utf-8","replace"))
+    matches=[u for u in page.root.find("ul","parameter")
+             if "b2" in u.attrs.get("class","").split()]
+    if len(matches)!=1:
+        raise ValueError("SOURCE_HOLD: unique Unitree B2 official parameter list missing")
+    rows=[]
+    for li in matches[0].kids:
+        if not isinstance(li,Node) or li.tag!="li":
+            continue
+        names=[x for x in li.kids if isinstance(x,Node) and x.matches("div","name")]
+        values=[x for x in li.kids if isinstance(x,Node) and x.matches("div","value")]
+        if len(names)!=1 or len(values)!=1:
+            raise ValueError("SOURCE_HOLD: unexpected Unitree B2 maker DOM row")
+        label,value=norm(names[0].text()),norm(values[0].text())
+        if not label or not value or any(r["source_label"]==label for r in rows):
+            raise ValueError("SOURCE_HOLD: empty or duplicate Unitree B2 specification")
+        rows.append({"source_label":label,"models":{"B2":value}})
+    if len(rows)<18:
+        raise ValueError("SOURCE_HOLD: Unitree B2 maker parameter list incomplete")
+    return {"models":["B2"],"categories":[{"name":"B2 Official Parameters","rows":rows}]}
+
+
+def parse_unitree_r1(blob: bytes) -> dict:
+    """Pin actual three-model R1 div.decompose and its complete category/row grid."""
+    page=Tree()
+    page.feed(blob.decode("utf-8","replace"))
+    matches=page.root.find("div","decompose")
+    if len(matches)!=1:
+        raise ValueError("SOURCE_HOLD: unique Unitree R1 three-model comparison missing")
+    container=matches[0]
+    models=[]
+    headers=container.find("ul","versions")
+    if len(headers)!=1:
+        raise ValueError("SOURCE_HOLD: Unitree R1 model heading missing")
+    for li in headers[0].find("li"):
+        labels=[norm(x.text()) for x in li.kids
+                if isinstance(x,Node) and x.tag=="p"]
+        if labels and labels[0] in ("R1 AIR","R1","R1 EDU"):
+            models.append(labels[0])
+    if models!=["R1 AIR","R1","R1 EDU"]:
+        raise ValueError("SOURCE_HOLD: Unitree R1 official model order changed")
+    categories=[]
+    seen=set()
+    for part in container.find("div","part"):
+        headings=[norm(x.text()) for x in part.kids
+                  if isinstance(x,Node) and x.matches("div","category")]
+        value_uls=[x for x in part.kids
+                   if isinstance(x,Node) and x.matches("ul","value")]
+        if len(headings)!=1 or len(value_uls)!=1 or headings[0] in seen:
+            raise ValueError("SOURCE_HOLD: Unitree R1 category drift")
+        seen.add(headings[0])
+        rows=[]
+        for li in value_uls[0].kids:
+            if not isinstance(li,Node) or li.tag!="li":
+                continue
+            cells=[norm(x.text()) for x in li.find("div","valPart")]
+            if len(cells)!=4 or not cells[0] or any(not x for x in cells[1:]):
+                raise ValueError("SOURCE_HOLD: Unitree R1 comparison cell count drift")
+            if any(r["source_label"]==cells[0] for r in rows):
+                raise ValueError("SOURCE_HOLD: repeated R1 row heading")
+            rows.append({"source_label":cells[0],"models":dict(zip(models,cells[1:]))})
+        if not rows:
+            raise ValueError("SOURCE_HOLD: empty Unitree R1 category")
+        categories.append({"name":headings[0],"rows":rows})
+    if len(categories)<2 or sum(len(g["rows"]) for g in categories)<12:
+        raise ValueError("SOURCE_HOLD: Unitree R1 official model grid incomplete")
+    return {"models":models,"categories":categories}
+
+
 def load_contract(path: Path) -> dict:
     data = json.loads(path.read_text("utf-8"))
     if data.get("schema") != "aa8-maker-source-contract-v1":
         raise ValueError("SOURCE_HOLD: contract schema missing")
     enforce_source_trust(data)
-    if data["adapter"] not in {"unitree-a2-html-v1", "html-table-v1"}:
+    if data["adapter"] not in {"unitree-a2-html-v1", "unitree-b2-html-v1", "unitree-r1-html-v1", "html-table-v1"}:
         raise ValueError("SOURCE_HOLD: manufacturer adapter not verified")
     return data
 
@@ -222,6 +301,10 @@ def parse_html_table(blob: bytes, contract: dict) -> dict:
 def parse_source(blob: bytes, contract: dict) -> dict:
     if contract["adapter"]=="unitree-a2-html-v1":
         return parse_unitree_a2(blob)
+    if contract["adapter"]=="unitree-b2-html-v1":
+        return parse_unitree_b2(blob)
+    if contract["adapter"]=="unitree-r1-html-v1":
+        return parse_unitree_r1(blob)
     if contract["adapter"]=="html-table-v1":
         return parse_html_table(blob,contract)
     raise ValueError("SOURCE_HOLD: unsupported maker source parser")

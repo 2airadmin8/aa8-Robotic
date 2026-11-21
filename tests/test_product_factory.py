@@ -265,5 +265,91 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn("画像・動画出典", source)
         self.assertIn("動きを見て、仕様を比べ", source)
 
+
+class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
+    """Only actual official B2/R1 raw model cells may enter a preview candidate."""
+
+    def setUp(self):
+        import json
+        import maker_spec_watch as maker
+        self.maker = maker
+        self.contracts = {}
+        self.products = {}
+        for pid in ("unitree-b2", "unitree-r1"):
+            directory = ROOT / "tests" / "fixtures" / (pid + "-new-real-pilot")
+            self.contracts[pid] = json.loads(
+                (directory / "maker-live-contract.json").read_text("utf-8"))
+            self.products[pid] = json.loads((directory / "product.json").read_text("utf-8"))
+
+    @staticmethod
+    def offline_source_html(contract):
+        from html import escape
+        name = contract["models"]
+        if name == ["B2"]:
+            entries = []
+            for row in contract["categories"][0]["rows"]:
+                entries.append('<li><div class="name">' +
+                    escape(row["source_label"]) + '</div><div class="value"><p>' +
+                    escape(row["models"]["B2"]) + '</p></div></li>')
+            return ('<ul class="parameter b2">' + "".join(entries) + '</ul>').encode()
+        headers = '<ul class="versions">' + "".join(
+            "<li><p>" + escape(m) + "</p></li>" for m in name) + "</ul>"
+        groups = []
+        for group in contract["categories"]:
+            rows = []
+            for row in group["rows"]:
+                values = [row["source_label"]] + [row["models"][m] for m in name]
+                rows.append("<li>" + "".join(
+                    '<div class="valPart"><p>' + escape(v) + '</p></div>'
+                    for v in values) + "</li>")
+            groups.append('<div class="part"><div class="category">' +
+                escape(group["source_name"]) + '</div><ul class="value">' +
+                "".join(rows) + '</ul></div>')
+        return ('<div class="decompose">' + headers + '<div class="params">' +
+                "".join(groups) + '</div></div>').encode()
+
+    def test_full_real_model_grid_round_trip_offline(self):
+        for pid, size, cells in (("unitree-b2", 19, 19), ("unitree-r1", 31, 93)):
+            with self.subTest(pid=pid):
+                contract = self.contracts[pid]
+                actual = self.maker.parse_source(self.offline_source_html(contract), contract)
+                self.assertEqual(sum(len(g["rows"]) for g in actual["categories"]), size)
+                self.assertEqual(len(self.maker.flatten(actual)), cells)
+                self.assertEqual(self.maker.compare(actual, contract), [])
+                self.maker.verify_display(self.products[pid], contract, actual)
+                self.assertFalse(self.products[pid]["pageFactory"]["releaseReady"])
+                html = render(ROOT, self.products[pid], "preview")
+                self.assertIn('content="noindex,nofollow"', html)
+                self.assertIn('data-product-factory="g1-v1"', html)
+
+    def test_missing_row_and_wrong_model_cell_fail_closed(self):
+        for pid in ("unitree-b2", "unitree-r1"):
+            contract = self.contracts[pid]
+            original = self.offline_source_html(contract)
+            parsed = self.maker.parse_source(original, contract)
+            import copy
+            changed = copy.deepcopy(parsed)
+            model = contract["models"][0]
+            changed["categories"][0]["rows"][0]["models"][model] = "UNVERIFIED 999"
+            self.assertEqual(len(self.maker.compare(changed, contract)), 1, pid)
+            changed = copy.deepcopy(parsed)
+            changed["categories"][0]["rows"].pop()
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.compare(changed, contract)
+
+    def test_wrong_maker_url_or_unrecognized_adapter_is_rejected(self):
+        import copy
+        for pid in ("unitree-b2", "unitree-r1"):
+            original = self.contracts[pid]
+            contract = copy.deepcopy(original)
+            contract["source_url"] = "https://www.unitree.com/A2/"
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.enforce_source_trust(contract)
+            contract = copy.deepcopy(original)
+            contract["adapter"] = "unregistered-maker-parser-v1"
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.enforce_source_trust(contract)
+
+
 if __name__ == "__main__":
     unittest.main()

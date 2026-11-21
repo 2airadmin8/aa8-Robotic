@@ -1,0 +1,507 @@
+{
+  "id": "unitree-r1",
+  "name": "Unitree R1",
+  "manufacturerId": "unitree",
+  "manufacturerName": "Unitree",
+  "categoryId": "humanoid",
+  "categoryLabel": "小型ヒューマノイド",
+  "status": "preview_only",
+  "statusLabel": "資料照合・型番相談",
+  "visibility": "hidden",
+  "summary": "軽量型ヒューマノイドUnitree R1の公開仕様と研究・用途検討。R1 AIR・R1 EDUのモデル差には注意。",
+  "filterGroups": [
+    "humanoid"
+  ],
+  "detailPage": "products/unitree-r1.html",
+  "image": "assets/img/products/unitree/r1-factory-pilot/r1-hero.png",
+  "imageAlt": "Unitree R1のモデル構成を示すメーカー公式資料",
+  "imageStatus": "official",
+  "imageSourcePage": "https://www.unitree.com/R1/",
+  "imageAssetSourceUrl": "SOURCE_URL_IN_MEDIA_PROVENANCE",
+  "priceStatus": "inquiry",
+  "priceLabel": "価格・見積確認",
+  "leadTimeStatus": "confirmation_required",
+  "leadTimeLabel": "納期確認",
+  "verifiedAt": "2026-11-21",
+  "pageStandard": {
+    "version": "3.1",
+    "family": "humanoid",
+    "customerValue": "研究・PoCの条件に合わせた製品選定",
+    "preserveSectionIds": [],
+    "resourcesHref": "/resources.html",
+    "supportHref": "/support.html#poc",
+    "showBridge": true
+  },
+  "pageFactory": {
+    "template": "g1-v1",
+    "releaseReady": false,
+    "officialSource": "https://www.unitree.com/R1/",
+    "title": "Unitree R1｜メーカー公式情報による技術検討｜AirAdmin8 Robotics",
+    "metaDescription": "Unitree R1のメーカー公開情報・仕様をもとに、研究・PoCで確認すべき条件を整理。型番・価格・納期・構成は導入前に個別照合します。",
+    "heroLead": "メーカー公開資料に基づき、仕様・用途・導入前確認事項を整理した非公開プレビュー。",
+    "facts": [
+      {
+        "label": "本体重量（R1）",
+        "value": "約29kg",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "label": "全身自由度（R1）",
+        "value": "26（メーカー公開モデル表）",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "label": "立位の高さ",
+        "value": "1230mm",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "label": "頭部自由度（R1）",
+        "value": "2",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      }
+    ],
+    "applications": [
+      {
+        "title": "運動アルゴリズムの検討",
+        "description": "公開されている動作自由度・モデル差を踏まえた研究要件の整理。",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "title": "音声・画像を使う研究",
+        "description": "メーカーが案内するマルチモーダル技術について利用条件を確認。",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      }
+    ],
+    "specifications": [
+      {
+        "parameter": "unitree-r1-01-01",
+        "category": "Mechanical Dimensions",
+        "label": "Height, Width and Thickness（Stand）",
+        "value": "R1 AIR: 1230x357x190mm / R1: 1230x357x190mm / R1 EDU: 1230x357x190mm",
+        "models": {
+          "R1 AIR": "1230x357x190mm",
+          "R1": "1230x357x190mm",
+          "R1 EDU": "1230x357x190mm"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-02",
+        "category": "Mechanical Dimensions",
+        "label": "Weight (With Battery)",
+        "value": "R1 AIR: About 27kg / R1: About 29kg / R1 EDU: About 29kg",
+        "models": {
+          "R1 AIR": "About 27kg",
+          "R1": "About 29kg",
+          "R1 EDU": "About 29kg"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-03",
+        "category": "Mechanical Dimensions",
+        "label": "Degree of Freedom(Total Joints)",
+        "value": "R1 AIR: 20 / R1: 26 / R1 EDU: 26-40",
+        "models": {
+          "R1 AIR": "20",
+          "R1": "26",
+          "R1 EDU": "26-40"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-04",
+        "category": "Mechanical Dimensions",
+        "label": "Single Leg Degrees of Freedom",
+        "value": "R1 AIR: 6 / R1: 6 / R1 EDU: 6",
+        "models": {
+          "R1 AIR": "6",
+          "R1": "6",
+          "R1 EDU": "6"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-05",
+        "category": "Mechanical Dimensions",
+        "label": "Single Arm Degrees of Freedom",
+        "value": "R1 AIR: 4 / R1: 5 / R1 EDU: 5",
+        "models": {
+          "R1 AIR": "4",
+          "R1": "5",
+          "R1 EDU": "5"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-06",
+        "category": "Mechanical Dimensions",
+        "label": "Waist Degrees of Freedom",
+        "value": "R1 AIR: / / R1: 2 / R1 EDU: 2",
+        "models": {
+          "R1 AIR": "/",
+          "R1": "2",
+          "R1 EDU": "2"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-07",
+        "category": "Mechanical Dimensions",
+        "label": "Head Degrees of Freedom",
+        "value": "R1 AIR: / / R1: 2 / R1 EDU: 2",
+        "models": {
+          "R1 AIR": "/",
+          "R1": "2",
+          "R1 EDU": "2"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-08",
+        "category": "Mechanical Dimensions",
+        "label": "Dexterous Hand",
+        "value": "R1 AIR: / / R1: / / R1 EDU: Optional",
+        "models": {
+          "R1 AIR": "/",
+          "R1": "/",
+          "R1 EDU": "Optional"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-09",
+        "category": "Mechanical Dimensions",
+        "label": "Joint output bearing",
+        "value": "R1 AIR: Crossed roller bearings, Double Hook Ball Bearings / R1: Crossed roller bearings, Double Hook Ball Bearings / R1 EDU: Crossed roller bearings, Double Hook Ball Bearings",
+        "models": {
+          "R1 AIR": "Crossed roller bearings, Double Hook Ball Bearings",
+          "R1": "Crossed roller bearings, Double Hook Ball Bearings",
+          "R1 EDU": "Crossed roller bearings, Double Hook Ball Bearings"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-10",
+        "category": "Mechanical Dimensions",
+        "label": "Joint motor",
+        "value": "R1 AIR: Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation) / R1: Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation) / R1 EDU: Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+        "models": {
+          "R1 AIR": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+          "R1": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+          "R1 EDU": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-11",
+        "category": "Mechanical Dimensions",
+        "label": "Maximum Torque of Arm Joint【1】",
+        "value": "R1 AIR: About 3~5kg / R1: About 3~5kg / R1 EDU: About 3~5kg",
+        "models": {
+          "R1 AIR": "About 3~5kg",
+          "R1": "About 3~5kg",
+          "R1 EDU": "About 3~5kg"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-12",
+        "category": "Mechanical Dimensions",
+        "label": "Calf + Thigh Length",
+        "value": "R1 AIR: 600 / R1: 600 / R1 EDU: 600",
+        "models": {
+          "R1 AIR": "600",
+          "R1": "600",
+          "R1 EDU": "600"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-13",
+        "category": "Mechanical Dimensions",
+        "label": "Forearm + Upper Arm Length",
+        "value": "R1 AIR: 420 / R1: 420 / R1 EDU: 420",
+        "models": {
+          "R1 AIR": "420",
+          "R1": "420",
+          "R1 EDU": "420"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-01-14",
+        "category": "Mechanical Dimensions",
+        "label": "Joint Movement Space",
+        "value": "R1 AIR: Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100° / R1: Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100° / R1 EDU: Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+        "models": {
+          "R1 AIR": "Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+          "R1": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+          "R1 EDU": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-01",
+        "category": "Electrical Characteristics",
+        "label": "Electrical Routing",
+        "value": "R1 AIR: Hollow + Internal Routing / R1: Hollow + Internal Routing / R1 EDU: Hollow + Internal Routing",
+        "models": {
+          "R1 AIR": "Hollow + Internal Routing",
+          "R1": "Hollow + Internal Routing",
+          "R1 EDU": "Hollow + Internal Routing"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-02",
+        "category": "Electrical Characteristics",
+        "label": "Joint Encoder",
+        "value": "R1 AIR: Dual + single encoder / R1: Dual + single encoder / R1 EDU: Dual + single encoder",
+        "models": {
+          "R1 AIR": "Dual + single encoder",
+          "R1": "Dual + single encoder",
+          "R1 EDU": "Dual + single encoder"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-03",
+        "category": "Electrical Characteristics",
+        "label": "Cooling System",
+        "value": "R1 AIR: Local air cooling / R1: Local air cooling / R1 EDU: Local air cooling",
+        "models": {
+          "R1 AIR": "Local air cooling",
+          "R1": "Local air cooling",
+          "R1 EDU": "Local air cooling"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-04",
+        "category": "Electrical Characteristics",
+        "label": "Power Supply",
+        "value": "R1 AIR: Lithium battery / R1: Lithium battery / R1 EDU: Lithium battery",
+        "models": {
+          "R1 AIR": "Lithium battery",
+          "R1": "Lithium battery",
+          "R1 EDU": "Lithium battery"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-05",
+        "category": "Electrical Characteristics",
+        "label": "Basic Computing Power",
+        "value": "R1 AIR: 8-Core High-Performance Processor / R1: 8-Core High-Performance Processor / R1 EDU: 8-Core High-Performance Processor",
+        "models": {
+          "R1 AIR": "8-Core High-Performance Processor",
+          "R1": "8-Core High-Performance Processor",
+          "R1 EDU": "8-Core High-Performance Processor"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-06",
+        "category": "Electrical Characteristics",
+        "label": "Microphone Array",
+        "value": "R1 AIR: 4-Mic Array / R1: 4-Mic Array / R1 EDU: 4-Mic Array",
+        "models": {
+          "R1 AIR": "4-Mic Array",
+          "R1": "4-Mic Array",
+          "R1 EDU": "4-Mic Array"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-07",
+        "category": "Electrical Characteristics",
+        "label": "Speaker",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-08",
+        "category": "Electrical Characteristics",
+        "label": "WiFi 6 、Bluetooth 5.2",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-02-09",
+        "category": "Electrical Characteristics",
+        "label": "Camera",
+        "value": "R1 AIR: Monocular camera / R1: Binocular camera / R1 EDU: Binocular camera",
+        "models": {
+          "R1 AIR": "Monocular camera",
+          "R1": "Binocular camera",
+          "R1 EDU": "Binocular camera"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-03-01",
+        "category": "Accessories",
+        "label": "High-Power Computing Module",
+        "value": "R1 AIR: / / R1: / / R1 EDU: Multiple brands and models available such as Orin(40-100TOPS), etc.",
+        "models": {
+          "R1 AIR": "/",
+          "R1": "/",
+          "R1 EDU": "Multiple brands and models available such as Orin(40-100TOPS), etc."
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-03-02",
+        "category": "Accessories",
+        "label": "Smart Battery (Quick Release)",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-03-03",
+        "category": "Accessories",
+        "label": "Charger",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-03-04",
+        "category": "Accessories",
+        "label": "Manual Controller",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-04-01",
+        "category": "Other",
+        "label": "Battery Life",
+        "value": "R1 AIR: About 1h / R1: About 1h / R1 EDU: About 1h",
+        "models": {
+          "R1 AIR": "About 1h",
+          "R1": "About 1h",
+          "R1 EDU": "About 1h"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-04-02",
+        "category": "Other",
+        "label": "Upgraded Intelligent OTA",
+        "value": "R1 AIR: 対応（メーカー原文 YES／日文未承認） / R1: 対応（メーカー原文 YES／日文未承認） / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+          "R1": "対応（メーカー原文 YES／日文未承認）",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-04-03",
+        "category": "Other",
+        "label": "Secondary Development【2】",
+        "value": "R1 AIR: / / R1: / / R1 EDU: 対応（メーカー原文 YES／日文未承認）",
+        "models": {
+          "R1 AIR": "/",
+          "R1": "/",
+          "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "parameter": "unitree-r1-04-04",
+        "category": "Other",
+        "label": "Warranty Period【3】",
+        "value": "R1 AIR: 6 Months / R1: 8 Months / R1 EDU: 12 Months",
+        "models": {
+          "R1 AIR": "6 Months",
+          "R1": "8 Months",
+          "R1 EDU": "12 Months"
+        },
+        "sourceUrl": "https://www.unitree.com/R1/"
+      }
+    ],
+    "faq": [
+      {
+        "question": "R1とR1 AIRは同じ仕様ですか？",
+        "answer": "異なります。重量・自由度はメーカーがモデル別に公開しています。"
+      },
+      {
+        "question": "標準R1で二次開発できますか？",
+        "answer": "SDKや開発権限はモデル別の正式利用条件をメーカーに確認します。"
+      },
+      {
+        "question": "日本での納期・価格は？",
+        "answer": "輸入・構成・保証条件を含め、正式見積時に個別確認します。"
+      }
+    ],
+    "images": [
+      {
+        "src": "assets/img/products/unitree/r1-factory-pilot/r1-hero.png",
+        "alt": "Unitree R1のモデル構成を示すメーカー公式資料",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "src": "assets/img/products/unitree/r1-factory-pilot/r1-model-01.jpg",
+        "alt": "Unitree R1公式の全身イメージ",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "src": "assets/img/products/unitree/r1-factory-pilot/r1-model-02.jpg",
+        "alt": "Unitree R1公式の実演イメージ",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      },
+      {
+        "src": "assets/img/products/unitree/r1-factory-pilot/r1-model-03.jpg",
+        "alt": "Unitree R1公式のデザイン例",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      }
+    ],
+    "videos": [
+      {
+        "src": "assets/img/products/unitree/r1-factory-pilot/r1-demo.mp4",
+        "poster": "assets/img/products/unitree/r1-factory-pilot/r1-model-02.jpg",
+        "label": "メーカー公開デモ映像",
+        "sourceUrl": "https://www.unitree.com/R1/"
+      }
+    ],
+    "ctaImageIndexes": [
+      0,
+      1,
+      2
+    ],
+    "contactService": "university-procurement",
+    "relatedProductIds": [
+      "unitree-g1",
+      "unitree-h2",
+      "unitree-g1-plus"
+    ],
+    "inheritSourcePage": true
+  }
+}

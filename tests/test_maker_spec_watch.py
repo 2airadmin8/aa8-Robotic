@@ -218,12 +218,44 @@ class MakerSourceWatchTests(unittest.TestCase):
                 maker.fetch=original
 
     def test_monitor_all_no_change_has_no_staged_candidate(self):
-        with patch.object(maker,'fetch',return_value=self._synthetic_page()):
+        from html import escape
+        def source_for(url, *, contract=None):
+            if url.endswith("/A2/"):
+                return self._synthetic_page()
+            data=maker.load_contract(
+                ROOT/"tests"/"fixtures"/(
+                    "unitree-b2-new-real-pilot" if url.endswith("/b2/")
+                    else "unitree-r1-new-real-pilot")/"maker-live-contract.json")
+            if url.endswith("/b2/"):
+                return ('<ul class="parameter b2">' + "".join(
+                    '<li><div class="name">' + escape(row["source_label"]) +
+                    '</div><div class="value"><p>' +
+                    escape(row["models"]["B2"]) + '</p></div></li>'
+                    for row in data["categories"][0]["rows"]) + '</ul>').encode()
+            self.assertTrue(url.endswith("/R1/"))
+            models=data["models"]
+            header='<ul class="versions">' + "".join(
+                '<li><p>' + escape(m) + '</p></li>' for m in models) + '</ul>'
+            parts=[]
+            for group in data["categories"]:
+                rows=[]
+                for row in group["rows"]:
+                    cells=[row["source_label"]]+[row["models"][m] for m in models]
+                    rows.append('<li>' + ''.join(
+                        '<div class="valPart"><p>' + escape(c) + '</p></div>'
+                        for c in cells) + '</li>')
+                parts.append('<div class="part"><div class="category">' +
+                    escape(group["source_name"]) + '</div><ul class="value">' +
+                    ''.join(rows) + '</ul></div>')
+            return ('<div class="decompose">' + header + '<div class="params">' +
+                    ''.join(parts) + '</div></div>').encode()
+        with patch.object(maker,'fetch',side_effect=source_for):
             result=maker.monitor_all(ROOT)
-        self.assertEqual(len(result),1)
-        self.assertEqual(result[0]['parameter_rows'],37)
-        self.assertEqual(result[0]['cells_checked'],74)
-        self.assertEqual(result[0]['status'],'SOURCE_MATCH_TRANSLATION_REVIEW_PENDING')
+        self.assertEqual(len(result),3)
+        self.assertEqual([(x["parameter_rows"],x["cells_checked"]) for x in result],
+                         [(37,74),(19,19),(31,93)])
+        self.assertTrue(all(x["status"]=="SOURCE_MATCH_TRANSLATION_REVIEW_PENDING"
+                            for x in result))
 
     def _synthetic_page(self):
         v=['<div class="decompose"><ul class="versions"><li></li>',

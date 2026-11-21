@@ -1,0 +1,38 @@
+{
+  "source_url": "https://www.unitree.com/b2/",
+  "source_html_sha256": "de81b23be24275f0f99e537a46ee58e087e9b4692413169bfb6695ac281b1e43",
+  "media": [
+    {
+      "path": "assets/img/products/unitree/b2-factory-pilot/b2-hero.png",
+      "source_url": "https://www.unitree.com/images/dd1fc7c2cc4d45518a38a04b84a46e8d_1529x883.png",
+      "bytes": 144328,
+      "sha256": "6515bbb1ef81159f267637fbbb2ad3e7fdad5a091d675c92e280fa2f7210fb00"
+    },
+    {
+      "path": "assets/img/products/unitree/b2-factory-pilot/b2-inspection-01.jpg",
+      "source_url": "https://oss-global-cdn.unitree.com/static/b19dd04b323f492285c4d56fbfe7c4a7_941x498.jpg",
+      "bytes": 261273,
+      "sha256": "d554dbde0d85babf97c89f5e271caf484c68b10b8bf8380b9713ecc4cffc0aed"
+    },
+    {
+      "path": "assets/img/products/unitree/b2-factory-pilot/b2-terrain-02.jpg",
+      "source_url": "https://oss-global-cdn.unitree.com/static/2436d184fdf04161a78b49ee1b4650e6_941x498.jpg",
+      "bytes": 267254,
+      "sha256": "7e4e1653694dc0a2b09f1e707267a0b4940b19b4a475141332af7b102ccb8839"
+    },
+    {
+      "path": "assets/img/products/unitree/b2-factory-pilot/b2-gallery-03.jpg",
+      "source_url": "https://oss-global-cdn.unitree.com/static/ce6a0559ecd94008b120f15032dd9bf9_941x498.jpg",
+      "bytes": 110408,
+      "sha256": "a90283ec3058746fbd1154aeb49dadc2c1180cf7b69a29c94ba739cd27675e15"
+    },
+    {
+      "path": "assets/img/products/unitree/b2-factory-pilot/b2-demo.mp4",
+      "source_url": "https://oss-global-cdn.unitree.com/static/a56af9b9d64a4dc1941207da76c4ec7b.mp4",
+      "bytes": 3806814,
+      "sha256": "484714519cd4a2abd9f880064a2c267ac30b04cfe8276ccdb31ff2a54066ac81"
+    }
+  ],
+  "usage": "ISOLATED_REVIEW_ONLY",
+  "manufacturer_human_fact_signoff": "PENDING"
+}\n

@@ -1,0 +1,502 @@
+{
+  "schema": "aa8-maker-source-contract-v1",
+  "source_url": "https://www.unitree.com/R1/",
+  "manufacturer_id": "unitree",
+  "adapter": "unitree-r1-html-v1",
+  "models": [
+    "R1 AIR",
+    "R1",
+    "R1 EDU"
+  ],
+  "categories": [
+    {
+      "source_name": "Mechanical Dimensions",
+      "rows": [
+        {
+          "id": "unitree-r1-01-01",
+          "source_label": "Height, Width and Thickness（Stand）",
+          "models": {
+            "R1 AIR": "1230x357x190mm",
+            "R1": "1230x357x190mm",
+            "R1 EDU": "1230x357x190mm"
+          },
+          "approved_display": {
+            "R1 AIR": "1230x357x190mm",
+            "R1": "1230x357x190mm",
+            "R1 EDU": "1230x357x190mm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-02",
+          "source_label": "Weight (With Battery)",
+          "models": {
+            "R1 AIR": "About 27kg",
+            "R1": "About 29kg",
+            "R1 EDU": "About 29kg"
+          },
+          "approved_display": {
+            "R1 AIR": "About 27kg",
+            "R1": "About 29kg",
+            "R1 EDU": "About 29kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-03",
+          "source_label": "Degree of Freedom(Total Joints)",
+          "models": {
+            "R1 AIR": "20",
+            "R1": "26",
+            "R1 EDU": "26-40"
+          },
+          "approved_display": {
+            "R1 AIR": "20",
+            "R1": "26",
+            "R1 EDU": "26-40"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-04",
+          "source_label": "Single Leg Degrees of Freedom",
+          "models": {
+            "R1 AIR": "6",
+            "R1": "6",
+            "R1 EDU": "6"
+          },
+          "approved_display": {
+            "R1 AIR": "6",
+            "R1": "6",
+            "R1 EDU": "6"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-05",
+          "source_label": "Single Arm Degrees of Freedom",
+          "models": {
+            "R1 AIR": "4",
+            "R1": "5",
+            "R1 EDU": "5"
+          },
+          "approved_display": {
+            "R1 AIR": "4",
+            "R1": "5",
+            "R1 EDU": "5"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-06",
+          "source_label": "Waist Degrees of Freedom",
+          "models": {
+            "R1 AIR": "/",
+            "R1": "2",
+            "R1 EDU": "2"
+          },
+          "approved_display": {
+            "R1 AIR": "/",
+            "R1": "2",
+            "R1 EDU": "2"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-07",
+          "source_label": "Head Degrees of Freedom",
+          "models": {
+            "R1 AIR": "/",
+            "R1": "2",
+            "R1 EDU": "2"
+          },
+          "approved_display": {
+            "R1 AIR": "/",
+            "R1": "2",
+            "R1 EDU": "2"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-08",
+          "source_label": "Dexterous Hand",
+          "models": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "Optional"
+          },
+          "approved_display": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "Optional"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-09",
+          "source_label": "Joint output bearing",
+          "models": {
+            "R1 AIR": "Crossed roller bearings, Double Hook Ball Bearings",
+            "R1": "Crossed roller bearings, Double Hook Ball Bearings",
+            "R1 EDU": "Crossed roller bearings, Double Hook Ball Bearings"
+          },
+          "approved_display": {
+            "R1 AIR": "Crossed roller bearings, Double Hook Ball Bearings",
+            "R1": "Crossed roller bearings, Double Hook Ball Bearings",
+            "R1 EDU": "Crossed roller bearings, Double Hook Ball Bearings"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-10",
+          "source_label": "Joint motor",
+          "models": {
+            "R1 AIR": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+            "R1": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+            "R1 EDU": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)"
+          },
+          "approved_display": {
+            "R1 AIR": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+            "R1": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)",
+            "R1 EDU": "Low inertia high-speed internal rotor PMSM(permanent magnet synchronous motor,better response speed and heat dissipation)"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-11",
+          "source_label": "Maximum Torque of Arm Joint【1】",
+          "models": {
+            "R1 AIR": "About 3~5kg",
+            "R1": "About 3~5kg",
+            "R1 EDU": "About 3~5kg"
+          },
+          "approved_display": {
+            "R1 AIR": "About 3~5kg",
+            "R1": "About 3~5kg",
+            "R1 EDU": "About 3~5kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-12",
+          "source_label": "Calf + Thigh Length",
+          "models": {
+            "R1 AIR": "600",
+            "R1": "600",
+            "R1 EDU": "600"
+          },
+          "approved_display": {
+            "R1 AIR": "600",
+            "R1": "600",
+            "R1 EDU": "600"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-13",
+          "source_label": "Forearm + Upper Arm Length",
+          "models": {
+            "R1 AIR": "420",
+            "R1": "420",
+            "R1 EDU": "420"
+          },
+          "approved_display": {
+            "R1 AIR": "420",
+            "R1": "420",
+            "R1 EDU": "420"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-01-14",
+          "source_label": "Joint Movement Space",
+          "models": {
+            "R1 AIR": "Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+            "R1": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+            "R1 EDU": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°"
+          },
+          "approved_display": {
+            "R1 AIR": "Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+            "R1": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°",
+            "R1 EDU": "Waist Joint：Y±150° R±30° Knee Joint：-10°~+139° Hip Joint：Y:±157° P:-168° ~+146° R:-60° ~+100°"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Electrical Characteristics",
+      "rows": [
+        {
+          "id": "unitree-r1-02-01",
+          "source_label": "Electrical Routing",
+          "models": {
+            "R1 AIR": "Hollow + Internal Routing",
+            "R1": "Hollow + Internal Routing",
+            "R1 EDU": "Hollow + Internal Routing"
+          },
+          "approved_display": {
+            "R1 AIR": "Hollow + Internal Routing",
+            "R1": "Hollow + Internal Routing",
+            "R1 EDU": "Hollow + Internal Routing"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-02",
+          "source_label": "Joint Encoder",
+          "models": {
+            "R1 AIR": "Dual + single encoder",
+            "R1": "Dual + single encoder",
+            "R1 EDU": "Dual + single encoder"
+          },
+          "approved_display": {
+            "R1 AIR": "Dual + single encoder",
+            "R1": "Dual + single encoder",
+            "R1 EDU": "Dual + single encoder"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-03",
+          "source_label": "Cooling System",
+          "models": {
+            "R1 AIR": "Local air cooling",
+            "R1": "Local air cooling",
+            "R1 EDU": "Local air cooling"
+          },
+          "approved_display": {
+            "R1 AIR": "Local air cooling",
+            "R1": "Local air cooling",
+            "R1 EDU": "Local air cooling"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-04",
+          "source_label": "Power Supply",
+          "models": {
+            "R1 AIR": "Lithium battery",
+            "R1": "Lithium battery",
+            "R1 EDU": "Lithium battery"
+          },
+          "approved_display": {
+            "R1 AIR": "Lithium battery",
+            "R1": "Lithium battery",
+            "R1 EDU": "Lithium battery"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-05",
+          "source_label": "Basic Computing Power",
+          "models": {
+            "R1 AIR": "8-Core High-Performance Processor",
+            "R1": "8-Core High-Performance Processor",
+            "R1 EDU": "8-Core High-Performance Processor"
+          },
+          "approved_display": {
+            "R1 AIR": "8-Core High-Performance Processor",
+            "R1": "8-Core High-Performance Processor",
+            "R1 EDU": "8-Core High-Performance Processor"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-06",
+          "source_label": "Microphone Array",
+          "models": {
+            "R1 AIR": "4-Mic Array",
+            "R1": "4-Mic Array",
+            "R1 EDU": "4-Mic Array"
+          },
+          "approved_display": {
+            "R1 AIR": "4-Mic Array",
+            "R1": "4-Mic Array",
+            "R1 EDU": "4-Mic Array"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-07",
+          "source_label": "Speaker",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-08",
+          "source_label": "WiFi 6 、Bluetooth 5.2",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-02-09",
+          "source_label": "Camera",
+          "models": {
+            "R1 AIR": "Monocular camera",
+            "R1": "Binocular camera",
+            "R1 EDU": "Binocular camera"
+          },
+          "approved_display": {
+            "R1 AIR": "Monocular camera",
+            "R1": "Binocular camera",
+            "R1 EDU": "Binocular camera"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Accessories",
+      "rows": [
+        {
+          "id": "unitree-r1-03-01",
+          "source_label": "High-Power Computing Module",
+          "models": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "Multiple brands and models available such as Orin(40-100TOPS), etc."
+          },
+          "approved_display": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "Multiple brands and models available such as Orin(40-100TOPS), etc."
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-03-02",
+          "source_label": "Smart Battery (Quick Release)",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-03-03",
+          "source_label": "Charger",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-03-04",
+          "source_label": "Manual Controller",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Other",
+      "rows": [
+        {
+          "id": "unitree-r1-04-01",
+          "source_label": "Battery Life",
+          "models": {
+            "R1 AIR": "About 1h",
+            "R1": "About 1h",
+            "R1 EDU": "About 1h"
+          },
+          "approved_display": {
+            "R1 AIR": "About 1h",
+            "R1": "About 1h",
+            "R1 EDU": "About 1h"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-04-02",
+          "source_label": "Upgraded Intelligent OTA",
+          "models": {
+            "R1 AIR": "YES",
+            "R1": "YES",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "対応（メーカー原文 YES／日文未承認）",
+            "R1": "対応（メーカー原文 YES／日文未承認）",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-04-03",
+          "source_label": "Secondary Development【2】",
+          "models": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "YES"
+          },
+          "approved_display": {
+            "R1 AIR": "/",
+            "R1": "/",
+            "R1 EDU": "対応（メーカー原文 YES／日文未承認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "unitree-r1-04-04",
+          "source_label": "Warranty Period【3】",
+          "models": {
+            "R1 AIR": "6 Months",
+            "R1": "8 Months",
+            "R1 EDU": "12 Months"
+          },
+          "approved_display": {
+            "R1 AIR": "6 Months",
+            "R1": "8 Months",
+            "R1 EDU": "12 Months"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    }
+  ],
+  "baseline_status": "ORIGINAL_ENGLISH_RAW_ONLY_JAPANESE_HUMAN_FACT_REVIEW_PENDING",
+  "observed_raw_sha256": "066ecc7a3ca6ababa6df04bcd8c82c0f7ae3c3c99d16c56a69b1d4119561ca82",
+  "original_captured_utc": "2026-11-21T11:29:46.942961+00:00",
+  "publication": "HOLD"
+}
