@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """General PR Factory gate router; reports only, never launches workers or releases."""
 import argparse
+from datetime import timedelta
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -129,6 +130,101 @@ def route(pr, sha, outcomes, scope, at):
         "release": "HOLD", "authorized": {"merge": False, "pages": False, "crm_write": False}
     }
 
+# READY claim runs ONLY from trusted main in the original ci.yml, once the
+# explicit AA8_FACTORY_READY_ENABLED repo variable is turned on. This parser
+# does not invoke DeepSeek, open write tokens or make GitHub changes.
+READY_TAG_RE = re.compile(
+    r"<!-- AA8-HP-READY-V1\n"
+    r"pr=(?P<pr>[0-9]+)\n"
+    r"head=(?P<head>[a-f0-9]{40})\n"
+    r"owner=(?P<owner>AA8-N-018|SES-sLLM)\n"
+    r"task=(?P<task>[A-Z0-9][A-Z0-9_-]{3,63})\n"
+    r"paths=(?P<paths>[a-zA-Z0-9_./,-]+)\n-->",
+    re.ASCII)
+LEASE_RE = re.compile(
+    r"<!-- AA8-HP-READY-LEASE issue=(?P<issue>[0-9]+) "
+    r"task=(?P<task>[A-Z0-9_-]+) "
+    r"head=(?P<head>[0-9a-f]{40}) run=(?P<run>[0-9]+) "
+    r"expires=(?P<expiry>[0-9TZ:-]+) -->")
+READY_SAFE_PREFIXES = ("assets/css/", "assets/js/", "tests/", "includes/")
+READY_BLOCKED = (
+    "assets/js/analytics-events.js", "assets/js/contact-v2.js",
+    "tests/fixtures/", ".github/", "data/", "secrets/")
+CEO_USER_ID = 211299962
+
+
+def ready_preflight(event: dict, pr: dict, prior_comments: list[dict],
+                    run_id: int, now: datetime, live_issue: dict) -> dict:
+    """No writes: accept CEO-labelled, already-authorized exact-SHA task only.
+
+    GitHub Actions must serialize all READY jobs with one global concurrency
+    group and cancel-in-progress:false; a comment marker is not itself an
+    atomic cross-run mutex. Refuse if any non-expired claim exists in the sole
+    governance Issue #129. The execution writer is deliberately not enabled.
+    """
+    check(event.get("action")=="labeled"
+          and event.get("repository",{}).get("full_name")=="2airadmin8/aa8-Robotic"
+          and event.get("label",{}).get("name")=="READY",
+          "READY event source is not the original repository/label")
+    issue=event.get("issue") or {}
+    actor=event.get("sender") or {}
+    check(not issue.get("pull_request") and type(issue.get("number")) is int
+          and issue["number"]!=129 and issue.get("state")=="open",
+          "READY task must be an authorized standalone open issue, not #129")
+    check(actor.get("id")==CEO_USER_ID and actor.get("login")=="2airadmin8"
+          and issue.get("user",{}).get("id")==CEO_USER_ID,
+          "READY task and label must originate from the verified CEO")
+    check(isinstance(live_issue,dict)
+          and live_issue.get("number")==issue["number"]
+          and live_issue.get("state")=="open"
+          and live_issue.get("user",{}).get("id")==CEO_USER_ID
+          and live_issue.get("body")==issue.get("body")
+          and "READY" in [
+              label.get("name") for label in live_issue.get("labels",[])
+              if isinstance(label,dict)],
+          "READY issue live body/state/label changed after signed GitHub event")
+    check(type(run_id) is int and run_id>0 and now.tzinfo is not None,
+          "READY requires genuine run ID and timezone")
+    matches=list(READY_TAG_RE.finditer(issue.get("body") or ""))
+    check(len(matches)==1,"READY issue needs one exact structured CEO scope")
+    scope=matches[0].groupdict()
+    check(scope["pr"]=="198" and pr.get("number")==198
+          and pr.get("state")=="open" and pr.get("draft") is True
+          and pr.get("base",{}).get("ref")=="main"
+          and pr.get("head",{}).get("repo",{}).get("full_name")
+              =="2airadmin8/aa8-Robotic"
+          and pr.get("head",{}).get("sha")==scope["head"],
+          "READY scope stale or does not match original Draft PR #198")
+    check(pr.get("head",{}).get("ref")==
+          "feat/hp-factory-b2-r1-preview-20261121",
+          "READY does not own the original protected draft branch")
+    paths=scope["paths"].split(",")
+    check(0<len(paths)<=5 and len(set(paths))==len(paths)
+          and all(p and p.startswith(READY_SAFE_PREFIXES)
+                  and not p.startswith(READY_BLOCKED)
+                  and ".." not in Path(p).parts
+                  and not p.endswith("/") and "\\" not in p
+                  and Path(p).suffix in (".css",".js",".html",".py") for p in paths),
+          "READY path list is unsafe or exceeds minimal allowed code scope")
+    check(isinstance(prior_comments,list),"READY existing leases unreadable")
+    for comment in prior_comments:
+        for match in LEASE_RE.finditer(comment.get("body") or ""):
+            expiry=datetime.fromisoformat(match.group("expiry").replace("Z","+00:00"))
+            check(expiry<=now, "READY_LEASE_HELD: existing task has active owner/run lease")
+    expires=(now+timedelta(minutes=45)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    marker=(f"<!-- AA8-HP-READY-LEASE issue={issue['number']} "
+            f"task={scope['task']} head={scope['head']} run={run_id} "
+            f"expires={expires} -->")
+    return {"status":"READY_CLAIM_PREPARED_WRITER_HOLD",
+            "source_issue":issue["number"],"pr":198,
+            "task":scope["task"],"owner":scope["owner"],
+            "head_sha":scope["head"],"allowed_paths":paths,
+            "run_id":run_id,"lease_marker":marker,
+            "lease_expiry_utc":expires,
+            "deepseek":"NOT_RUN","auto_commit":False,
+            "independent_qa":"NOT_RUN","release":"HOLD"}
+
+
 def summary(data):
     return "\n".join([
         "## Factory Gate handoff v2",
@@ -141,6 +237,33 @@ def summary(data):
         "Release: HOLD; no automatic AI worker or independent QA invoked.",
         "",
     ])
+
+def ready_main(argv: list[str]) -> int:
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--event",type=Path,required=True)
+    parser.add_argument("--pr-file",type=Path,required=True)
+    parser.add_argument("--issue-file",type=Path,required=True)
+    parser.add_argument("--lease-comments",type=Path,required=True)
+    parser.add_argument("--run-id",type=int,required=True)
+    parser.add_argument("--out",type=Path,required=True)
+    args=parser.parse_args(argv)
+    try:
+        event=json.loads(args.event.read_text("utf8"))
+        pr=json.loads(args.pr_file.read_text("utf8"))
+        issue=json.loads(args.issue_file.read_text("utf8"))
+        comments=json.loads(args.lease_comments.read_text("utf8"))
+        if comments and isinstance(comments[0],list):
+            comments=[item for page in comments for item in page]
+        result=ready_preflight(event,pr,comments,args.run_id,
+                               datetime.now(timezone.utc),issue)
+        args.out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\\n",
+                            encoding="utf8")
+        print(json.dumps({"state":result["status"],"pr":198,"release":"HOLD"}))
+        return 0
+    except (OSError,ValueError,KeyError,TypeError,json.JSONDecodeError) as exc:
+        print("READY_HOLD "+str(exc),file=sys.stderr)
+        return 2
+
 
 def main():
     a = argparse.ArgumentParser()
@@ -163,6 +286,8 @@ def main():
     print(json.dumps({"state": result["state"], "product_count": len(scope["ids"]), "release": "HOLD"}))
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["ready-preflight"]:
+        sys.exit(ready_main(sys.argv[2:]))
     try:
         main()
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
