@@ -310,5 +310,115 @@ class GovernanceQualityGateTests(unittest.TestCase):
         self.assertNotIn("\n  push:", pages)
 
 
+
+class FigmaLiveSourceTests(unittest.TestCase):
+    """No real Figma network or secret: exact REST negative contract proof."""
+
+    def _case(self):
+        import shutil
+        temp=tempfile.TemporaryDirectory()
+        root=Path(temp.name)
+        name="ops/brand-preview/corporate-product-visual-v33.json"
+        f=root/name
+        f.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT/name,f)
+        j=json.loads(f.read_text("utf-8"))
+        j["figmaLiveValidation"]["acceptedVersion"]="FIGMA_NATIVE_VERSION_20261122"
+        ids={
+          "C07":["VariableID:1:"+str(i) for i in range(101,111)],
+          "C08":["VariableID:1:201","VariableID:1:202"],
+          "C09":["VariableID:1:201","VariableID:1:202"],
+          "C10":["VariableID:1:301","VariableID:1:302","VariableID:1:303"]
+        }
+        j["figmaLiveValidation"]["requiredBindingIds"]=ids
+        f.write_text(json.dumps(j),encoding="utf-8")
+        alias=lambda v:{"type":"VARIABLE_ALIAS","id":"VariableID:1:"+str(v)}
+        comp=lambda name,a:{
+          "type":"COMPONENT","name":name,
+          "boundVariables":{"fills":[alias(a)]}
+        }
+        figma={
+          "version":"FIGMA_NATIVE_VERSION_20261122",
+          "nodes":{
+            "217:288":{"document":{
+              "id":"217:288","type":"COMPONENT",
+              "children":[{"type":"FRAME","boundVariables":{"itemSpacing":alias(i)}}
+                          for i in range(101,111)]}},
+            "217:73":{"document":{
+              "id":"217:73","type":"COMPONENT_SET",
+              "componentPropertyDefinitions":{"State":{"type":"VARIANT","defaultValue":"Default",
+                "variantOptions":["Default","Hover","Active","Focus","Disabled","Loading"]}},
+              "children":[{"type":"COMPONENT","name":str(i),
+                  "boundVariables":{"fills":[alias(201),alias(202)]}}
+                  for i in range(6)]}},
+            "217:127":{"document":{
+              "id":"217:127","type":"COMPONENT_SET",
+              "componentPropertyDefinitions":{"Kind":{"type":"VARIANT","defaultValue":"Product",
+                "variantOptions":["Product","Related","Resource"]}},
+              "children":[{"type":"COMPONENT","name":str(i),
+                  "boundVariables":{"fills":[alias(301),alias(302),alias(303)]}}
+                  for i in range(3)]}}
+          }
+        }
+        return temp,root,figma
+
+    @staticmethod
+    def _read(payload):
+        import io
+        class Response(io.BytesIO):
+            status=200
+        def opener(req,timeout=15):
+            assert req.full_url.startswith(
+                "https://api.figma.com/v1/files/uo56l51NgUqit4976LV6P2/nodes?ids=")
+            assert req.get_header("X-figma-token")=="isolated-unit-test-only"
+            assert timeout<=15
+            return Response(json.dumps(payload).encode("utf-8"))
+        return opener
+
+    def test_figma_live_no_attested_version_fails_before_network(self):
+        with self.assertRaisesRegex(ValueError,"FIGMA_LIVE_DESIGN_HOLD"):
+            gate.validate_figma_live_binding(
+                ROOT,token="isolated-unit-test-only",
+                opener=lambda *_: self.fail("must not call remote without source version"))
+
+    def test_figma_live_exact_version_native_bindings_and_formal_variants(self):
+        temp,root,figma=self._case()
+        try:
+            ok=gate.validate_figma_live_binding(
+                root,token="isolated-unit-test-only",opener=self._read(figma))
+            self.assertEqual(ok["status"],"FIGMA_LIVE_BINDING_PASS")
+            self.assertEqual(ok["productionRelease"],"HOLD_CEO")
+            figma["version"]="LIVE_CHANGED_BUT_LOCAL_JSON_NOT_UPDATED"
+            with self.assertRaisesRegex(ValueError,"version changed"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+            figma["version"]="FIGMA_NATIVE_VERSION_20261122"
+            figma["nodes"]["217:288"]["document"]["children"][0].pop("boundVariables")
+            with self.assertRaisesRegex(ValueError,"actual node variable binding missing C07"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+            figma["nodes"]["217:288"]["document"]["children"][0]["boundVariables"]={
+               "itemSpacing":{"type":"VARIABLE_ALIAS","id":"VariableID:1:101"}}
+            figma["nodes"]["217:73"]["document"]["type"]="COMPONENT"
+            with self.assertRaisesRegex(ValueError,"required formal variants C08"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+        finally:
+            temp.cleanup()
+
+    def test_figma_live_absent_token_and_remote_error_hold(self):
+        from urllib.error import HTTPError
+        temp,root,figma=self._case()
+        try:
+            with self.assertRaisesRegex(ValueError,"missing authorized"):
+                gate.validate_figma_live_binding(root,token="",opener=self._read(figma))
+            def forbid(req,timeout=15):
+                raise HTTPError(req.full_url,403,"Forbidden",{},None)
+            with self.assertRaisesRegex(ValueError,"remote read failed"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=forbid)
+        finally:
+            temp.cleanup()
+
 if __name__ == "__main__":
     unittest.main()

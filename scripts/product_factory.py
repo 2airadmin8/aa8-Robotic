@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import os
 import re
 import sys
 from datetime import date
@@ -158,6 +159,19 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
             validate_v33_design_snapshot(root)
         except (ValueError, OSError, KeyError, TypeError) as exc:
             raise ContractError(f"{pid}: DESIGN_HOLD stale V3.3 manifest: {exc}") from exc
+        # The existing Factory can run in explicit live-source-required mode
+        # without a new Runner or sync service. Never silently downgrade a
+        # requested live check to the static three-JSON snapshot gate.
+        mode=os.environ.get("AA8_FIGMA_LIVE_REQUIRED","0")
+        if mode not in ("0","1"):
+            raise ContractError(f"{pid}: DESIGN_HOLD invalid Figma live gate configuration")
+        if mode=="1":
+            from hp_governance_quality_gate import validate_figma_live_binding
+            try:
+                validate_figma_live_binding(root)
+            except (ValueError,OSError,KeyError,TypeError) as exc:
+                raise ContractError(
+                    f"{pid}: DESIGN_HOLD live Figma source/binding mismatch: {exc}") from exc
         standard = product.get("pageStandard") or {}
         if standard.get("version") != "3.1" or standard.get("showBridge") is not False:
             raise ContractError(f"{pid}: V3.3 requires V3.1 content with no redundant bridge")

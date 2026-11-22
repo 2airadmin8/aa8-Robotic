@@ -383,6 +383,28 @@ class StrictV33QuadrupedDesignContractQA(unittest.TestCase):
             with self.assertRaisesRegex(ContractError,"DESIGN_HOLD"):
                 validate_page_factory(ROOT,item)
 
+    def test_live_figma_required_is_fail_closed_without_attested_source(self):
+        from unittest.mock import patch
+        item=copy.deepcopy(self.product)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"1",
+                                      "AA8_FIGMA_FILE_READ_TOKEN":""}):
+            with self.assertRaisesRegex(ContractError,
+                                        "DESIGN_HOLD live Figma source/binding"):
+                validate_page_factory(ROOT,item)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"unexpected"}):
+            with self.assertRaisesRegex(ContractError,"invalid Figma live gate"):
+                validate_page_factory(ROOT,item)
+
+    def test_live_figma_required_calls_original_gate_not_another_factory(self):
+        from unittest.mock import patch
+        import hp_governance_quality_gate as design
+        item=copy.deepcopy(self.product)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"1"}):
+            with patch.object(design,"validate_figma_live_binding",
+                              return_value={"status":"FIGMA_LIVE_BINDING_PASS"}) as called:
+                validate_page_factory(ROOT,item)
+                called.assert_called_once_with(ROOT)
+
     def test_missing_required_v33_content_is_rejected(self):
         for mutation in ("missing-v3","missing-autonomy","missing-safety",
                          "missing-sdk","missing-process","wrong-family",

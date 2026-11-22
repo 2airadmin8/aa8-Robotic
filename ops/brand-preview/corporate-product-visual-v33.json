@@ -367,5 +367,29 @@
       "codeOwner": "assets/img/airadmin8-robotics-logo-pc.svg",
       "status": "NOT_SHARED"
     }
-  ]
+  ],
+  "figmaLiveValidation": {
+    "fileKey": "uo56l51NgUqit4976LV6P2",
+    "acceptedVersion": null,
+    "status": "DESIGN_HOLD_NO_LIVE_FIGMA_BINDING_ATTESTATION",
+    "readScope": "file_content:read",
+    "source": "official GET /v1/files/:key/nodes (Tier 1), not Enterprise variables endpoint",
+    "nativeNodes": {
+      "C07": "217:288",
+      "C08": "217:73",
+      "C09": "217:73",
+      "C10": "217:127"
+    },
+    "requiredBindingIds": {
+      "C07": [],
+      "C08": [],
+      "C09": [],
+      "C10": []
+    },
+    "requireFormalVariants": [
+      "C08",
+      "C09",
+      "C10"
+    ]
+  }
 }

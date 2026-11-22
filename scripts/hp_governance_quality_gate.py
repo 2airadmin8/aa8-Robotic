@@ -13,6 +13,10 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import os
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
 from pathlib import Path
 import re
 import sys
@@ -220,6 +224,95 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
             "figmaComponents":14,"figmaVariables":38,
             "htmlComponents":20,"referenceOnly":12,"release":"HOLD"}
 
+
+
+def validate_figma_live_binding(root: Path = ROOT, *,
+                                token: str | None = None,
+                                opener=None) -> dict:
+    """Read exact remote Figma node/binding evidence, never a local JSON clone.
+
+    Unlike the existing pinned snapshot check, this fails closed when token,
+    accepted file version, actual variable aliases or real component variants
+    are absent. No Enterprise-only Variables API and no Figma write access.
+    """
+    manifest=json.loads((root/"ops/brand-preview/corporate-product-visual-v33.json")
+                        .read_text("utf-8")).get("figmaLiveValidation",{})
+    key=manifest.get("fileKey")
+    version=manifest.get("acceptedVersion")
+    refs=manifest.get("nativeNodes",{})
+    aliases=manifest.get("requiredBindingIds",{})
+    ensure(key=="uo56l51NgUqit4976LV6P2"
+           and refs=={"C07":"217:288","C08":"217:73",
+                      "C09":"217:73","C10":"217:127"},
+           "FIGMA_LIVE_DESIGN_HOLD wrong original Figma source or node IDs")
+    ensure(isinstance(version,str) and len(version)>=8
+           and version.upper() not in ("UNKNOWN","UNVERIFIED","PENDING"),
+           "FIGMA_LIVE_DESIGN_HOLD original file acceptedVersion is not attested")
+    counts={"C07":10,"C08":2,"C09":2,"C10":3}
+    for role,min_count in counts.items():
+        ids=aliases.get(role)
+        ensure(isinstance(ids,list) and len(ids)>=min_count
+               and len(ids)==len(set(ids))
+               and all(isinstance(x,str) and x.startswith("VariableID:")
+                       for x in ids),
+               "FIGMA_LIVE_DESIGN_HOLD incomplete native variable IDs for "+role)
+    credential=token if token is not None else os.environ.get("AA8_FIGMA_FILE_READ_TOKEN","")
+    ensure(bool(credential),
+           "FIGMA_LIVE_DESIGN_HOLD missing authorized file_content:read token")
+    uri="https://api.figma.com/v1/files/"+key+"/nodes?ids="+quote(
+        ",".join(dict.fromkeys(refs.values())),safe=",:")
+    req=Request(uri,headers={"X-Figma-Token":credential,"Accept":"application/json"})
+    try:
+        response=(opener or urlopen)(req,timeout=15)
+        with response as stream:
+            ensure(getattr(stream,"status",200)==200,
+                   "FIGMA_LIVE_DESIGN_HOLD remote source HTTP not 200")
+            result=json.loads(stream.read().decode("utf-8"))
+    except (HTTPError,URLError,TimeoutError,UnicodeDecodeError,
+            json.JSONDecodeError) as exc:
+        raise ValueError("AA8_GOVERNANCE_HOLD: FIGMA_LIVE_DESIGN_HOLD remote read failed") from exc
+    ensure(result.get("version")==version,
+           "FIGMA_LIVE_DESIGN_HOLD real Figma version changed; contract is stale")
+    nodes=result.get("nodes") or {}
+    def visit(node):
+        if not isinstance(node,dict):return []
+        return [node]+[x for child in node.get("children",[]) for x in visit(child)]
+    def bound_ids(node):
+        out=set()
+        for n in visit(node):
+            # Real REST file node boundVariables, not a local variable table.
+            stack=[n.get("boundVariables") or {}]
+            while stack:
+                item=stack.pop()
+                if isinstance(item,dict):
+                    if item.get("type")=="VARIABLE_ALIAS" and isinstance(item.get("id"),str):
+                        out.add(item["id"])
+                    stack.extend(item.values())
+                elif isinstance(item,list):stack.extend(item)
+        return out
+    for role,node_id in refs.items():
+        item=(nodes.get(node_id) or {}).get("document")
+        ensure(isinstance(item,dict) and item.get("id")==node_id,
+               "FIGMA_LIVE_DESIGN_HOLD remote node missing "+role)
+        present=bound_ids(item)
+        ensure(set(aliases[role]).issubset(present),
+               "FIGMA_LIVE_DESIGN_HOLD actual node variable binding missing "+role)
+        if role in manifest.get("requireFormalVariants",[]):
+            props=item.get("componentPropertyDefinitions") or {}
+            desired=({"C08":{"Default","Hover","Active","Focus","Disabled","Loading"},
+                      "C09":{"Default","Hover","Active","Focus","Disabled","Loading"},
+                      "C10":{"Product","Related","Resource"}})[role]
+            listed={str(v) for p in props.values()
+                    if p.get("type")=="VARIANT"
+                    for v in p.get("variantOptions",[])}
+            children=[n for n in item.get("children",[])
+                      if n.get("type")=="COMPONENT"]
+            ensure(item.get("type")=="COMPONENT_SET"
+                   and desired.issubset(listed)
+                   and len(children)>=len(desired),
+                   "FIGMA_LIVE_DESIGN_HOLD static sample not the required formal variants "+role)
+    return {"status":"FIGMA_LIVE_BINDING_PASS","fileKey":key,
+            "version":version,"nodes":refs,"productionRelease":"HOLD_CEO"}
 
 def load(root: Path = ROOT) -> dict:
     c = json.loads((root / TRACE).read_text("utf-8"))
@@ -524,7 +617,7 @@ def a2_visual_evidence(head_sha: str, screenshots: Path, out: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("audit", "pr", "visual-evidence"))
+    parser.add_argument("mode", choices=("audit", "pr", "visual-evidence", "figma-live"))
     parser.add_argument("--event", type=Path)
     parser.add_argument("--files", type=Path)
     parser.add_argument("--head-sha")
@@ -533,7 +626,9 @@ def main() -> int:
     args = parser.parse_args()
     try:
         c = load()
-        if args.mode == "visual-evidence":
+        if args.mode == "figma-live":
+            print(json.dumps(validate_figma_live_binding(),ensure_ascii=False))
+        elif args.mode == "visual-evidence":
             ensure(args.head_sha and args.screenshots and args.out,
                    "A2 exact SHA, screenshots and output required")
             result = a2_visual_evidence(args.head_sha,
