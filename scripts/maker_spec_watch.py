@@ -107,7 +107,13 @@ def safe_url(url: str, *, contract: dict | None = None) -> None:
         raise ValueError("SOURCE_HOLD: source is not registered maker origin")
     # A2 remains path-pinned; other manufacturers require an independently
     # verified adapter + exact source URL in the frozen contract.
-    if maker_id == "unitree" and parts.path == "/A2/":
+    pinned_unitree_adapters = {
+        "/A2/": "unitree-a2-html-v1",
+        "/b2/": "unitree-b2-html-v1",
+    }
+    if maker_id == "unitree" and parts.path in pinned_unitree_adapters:
+        if contract.get("adapter") != pinned_unitree_adapters[parts.path]:
+            raise ValueError("SOURCE_HOLD: Unitree product path and parser mismatch")
         return
     if contract.get("adapter") != "html-table-v1":
         raise ValueError("SOURCE_HOLD: new maker adapter not independently verified")
@@ -170,12 +176,37 @@ def parse_unitree_a2(blob: bytes):
     return {"models":models,"categories":categories}
 
 
+def parse_unitree_b2(blob: bytes) -> dict:
+    """Pin the actual B2 maker DOM: ul.parameter.b2, li > div.name + div.value."""
+    page=Tree()
+    page.feed(blob.decode("utf-8","replace"))
+    matches=[u for u in page.root.find("ul","parameter")
+             if "b2" in u.attrs.get("class","").split()]
+    if len(matches)!=1:
+        raise ValueError("SOURCE_HOLD: unique Unitree B2 official parameter list missing")
+    rows=[]
+    for li in matches[0].kids:
+        if not isinstance(li,Node) or li.tag!="li":
+            continue
+        names=[x for x in li.kids if isinstance(x,Node) and x.matches("div","name")]
+        values=[x for x in li.kids if isinstance(x,Node) and x.matches("div","value")]
+        if len(names)!=1 or len(values)!=1:
+            raise ValueError("SOURCE_HOLD: unexpected Unitree B2 maker DOM row")
+        label,value=norm(names[0].text()),norm(values[0].text())
+        if not label or not value or any(r["source_label"]==label for r in rows):
+            raise ValueError("SOURCE_HOLD: empty or duplicate Unitree B2 specification")
+        rows.append({"source_label":label,"models":{"B2":value}})
+    if len(rows)<18:
+        raise ValueError("SOURCE_HOLD: Unitree B2 maker parameter list incomplete")
+    return {"models":["B2"],"categories":[{"name":"B2 Official Parameters","rows":rows}]}
+
+
 def load_contract(path: Path) -> dict:
     data = json.loads(path.read_text("utf-8"))
     if data.get("schema") != "aa8-maker-source-contract-v1":
         raise ValueError("SOURCE_HOLD: contract schema missing")
     enforce_source_trust(data)
-    if data["adapter"] not in {"unitree-a2-html-v1", "html-table-v1"}:
+    if data["adapter"] not in {"unitree-a2-html-v1", "unitree-b2-html-v1", "html-table-v1"}:
         raise ValueError("SOURCE_HOLD: manufacturer adapter not verified")
     return data
 
@@ -222,6 +253,8 @@ def parse_html_table(blob: bytes, contract: dict) -> dict:
 def parse_source(blob: bytes, contract: dict) -> dict:
     if contract["adapter"]=="unitree-a2-html-v1":
         return parse_unitree_a2(blob)
+    if contract["adapter"]=="unitree-b2-html-v1":
+        return parse_unitree_b2(blob)
     if contract["adapter"]=="html-table-v1":
         return parse_html_table(blob,contract)
     raise ValueError("SOURCE_HOLD: unsupported maker source parser")
@@ -402,6 +435,18 @@ def audit_new_intake(root: Path) -> dict:
         if not source.is_file():
             raise ValueError(f"SOURCE_HOLD: new SKU {product['id']} lacks maker-live-contract.json")
         contract=load_contract(source)
+        # New real SKU is not grandfathered merely because it renders or
+        # its manufacturer raw values match. V3.3 buyer/design gate is separate.
+        if product.get("id") != "unitree-a2":
+            standard = product.get("pageStandard") or {}
+            factory = product.get("pageFactory") or {}
+            if (factory.get("visualContract") != "corporate-v33-strict"
+                or standard.get("version") != "3.1"
+                or standard.get("showBridge") is not False
+                or standard.get("family") != "quadruped"
+                or not isinstance(factory.get("v3"),dict)
+                or not isinstance(factory.get("familyEvidence"),dict)):
+                raise ValueError("DESIGN_HOLD: new Factory SKU missing required V3.3 buyer/family contract")
         if contract["source_url"]!=product["pageFactory"]["officialSource"]:
             raise ValueError(f"SOURCE_HOLD: new SKU {product['id']} official URL mismatch")
         verified+=1

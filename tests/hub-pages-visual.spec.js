@@ -193,3 +193,71 @@ for(const width of [1440,390]){
   });
  }
 }
+
+
+// C18/C20 accessibility component regression: real Chrome, PC/SP.
+for(const width of [1440,390]){
+  test('C18 FAQ keyboard open close and focus '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(base+'/products/unitree-g1-plus.html',{waitUntil:'domcontentloaded'});
+    const item=page.locator('[data-faq-item]').first();
+    const summary=item.locator('summary');
+    await expect(summary).toBeVisible();
+    await summary.focus();
+    await page.keyboard.press('Enter');
+    await expect(item).toHaveAttribute('open','');
+    await page.keyboard.press('Enter');
+    await expect(item).not.toHaveAttribute('open','');
+    const focus=await summary.evaluate(el=>getComputedStyle(el).outlineStyle);
+    expect(focus).not.toBe('none');
+  });
+  test('C20 real site honors reduced-motion preference '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
+    const css=await page.locator('.hero .button').first().evaluate(el=>({
+      transition:getComputedStyle(el).transitionDuration,
+      scroll:getComputedStyle(document.documentElement).scrollBehavior
+    }));
+    // Existing V3.3 accessibility CSS uses 0.00001s, effectively zero.
+    expect(parseFloat(css.transition)).toBeLessThanOrEqual(0.01);
+    expect(css.scroll).toBe('auto');
+  });
+}
+
+// C08 shared CTA: real HTML and existing Figma V3.3 brand token contrast.
+// Pure CSS/anchor component; no new JS required for native link activation.
+const c08Contrast=(a,b)=>{
+  const rgb=s=>s.match(/[0-9.]+/g).slice(0,3).map(Number);
+  const lum=s=>rgb(s).map(x=>{x/=255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4})
+    .reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+  const x=lum(a),y=lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+};
+for(const width of [1440,390,360]){
+  test('C08 shared CTA primary secondary AA contrast focus routes '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(target('index.html'),{waitUntil:'domcontentloaded'});
+    const primary=page.locator('.hero .actions a.button.primary');
+    const secondary=page.locator('.hero .actions a.button.secondary');
+    await expect(primary).toBeVisible();
+    await expect(secondary).toBeVisible();
+    for(const link of [primary,secondary]){
+      const v=await link.evaluate(e=>{
+        const cs=getComputedStyle(e),r=e.getBoundingClientRect();
+        return{color:cs.color,background:cs.backgroundColor,minHeight:r.height,href:e.getAttribute('href')};
+      });
+      expect(v.minHeight).toBeGreaterThanOrEqual(44);
+      expect(c08Contrast(v.color,v.background),v.href+' accessible contrast').toBeGreaterThanOrEqual(4.5);
+      await link.focus();
+      const focus=await link.evaluate(e=>({style:getComputedStyle(e).outlineStyle,width:parseFloat(getComputedStyle(e).outlineWidth)}));
+      expect(focus.style).not.toBe('none');
+      expect(focus.width).toBeGreaterThanOrEqual(2);
+    }
+    await expect(primary).toHaveAttribute('href','products.html');
+    await expect(secondary).toHaveAttribute('href','contact.html?service=use-case-review');
+    await primary.click();
+    await expect(page).toHaveURL(/\/products\.html$/);
+    await expect(page.locator('main h1').first()).toBeVisible();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  });
+}

@@ -1,14 +1,22 @@
 :root{--navy:#0069b5;--blue:#009bd2;--blue-dark:#0069b5;--ink:#333333;--muted:#555555;--line:#d9d9d9;--soft:#f5f5f5;--white:#fff;--max:1180px;--radius:18px;--shadow:0 16px 44px rgba(11,49,67,.09)}
+/* V3.3 pinned Figma v33/spacing/* -> CSS bridge; live bindings remain separately HOLD. */
+:root{--aa8-v33-spacing-4:4px;--aa8-v33-spacing-8:8px;--aa8-v33-spacing-12:12px;--aa8-v33-spacing-16:16px;--aa8-v33-spacing-24:24px;--aa8-v33-spacing-32:32px;--aa8-v33-spacing-40:40px;--aa8-v33-spacing-48:48px;--aa8-v33-spacing-64:64px;--aa8-v33-spacing-80:80px;}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:"Noto Sans JP","Montserrat","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:var(--ink);line-height:1.65;background:#fff}
 a{text-decoration:none;color:inherit}
 img{max-width:100%;display:block}
 .wrap{width:min(var(--max),calc(100% - 40px));margin:auto}
-.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border-radius:999px;font-weight:900;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
-.button.primary{color:#fff;background:var(--blue)}
-.button.primary:hover{background:var(--blue-dark);box-shadow:0 10px 24px rgba(0,154,210,.22);transform:translateY(-1px)}
-.button.secondary{border:1px solid var(--navy);color:var(--navy);background:#fff}
+/* C08 shared Button / CTA: existing anchor component, Corporate V3.3 deep token.
+   Keep link navigation native; no duplicate JS event owner or Figma-variant claim. */
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:999px;font-weight:900;text-align:center;text-decoration:none;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+.button.primary{color:#fff;background:var(--blue-dark)}
+.button.primary:hover{background:var(--blue-dark);box-shadow:0 10px 24px rgba(0,105,181,.22);transform:translateY(-1px)}
+.button.secondary{border-color:var(--navy);color:var(--navy);background:#fff}
+.button.secondary:hover{background:var(--soft)}
+.button:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+.button:active{transform:translateY(1px)}
+button.button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;transform:none}
 .hero{padding:76px 0 68px;background:radial-gradient(circle at 84% 12%,#dff7ff 0,#f5fbfd 34%,#fff 72%)}
 .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
 .eyebrow{margin:0 0 10px;color:var(--blue);font-size:.8rem;font-weight:900;letter-spacing:.14em}
@@ -16,7 +24,7 @@ img{max-width:100%;display:block}
 .hero h1{font-size:clamp(3.15rem,6.7vw,5.8rem)}
 .hero h1 span{font-size:.58em;color:var(--blue);letter-spacing:-.025em}
 .lead{max-width:720px;color:var(--muted);font-size:1.12rem}
-.actions{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0}
+.actions{display:flex;gap:var(--aa8-v33-spacing-12);flex-wrap:wrap;margin:26px 0}
 .centered-actions{justify-content:center}
 .proof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .proof span{display:flex;align-items:center;gap:10px;padding:14px 15px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.82);font-size:.9rem;font-weight:800}
@@ -35,7 +43,7 @@ img{max-width:100%;display:block}
 .muted{background:var(--soft)}
 .dark{background:var(--navy);color:#fff}
 .dark .eyebrow{color:#78ddff}
-.section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:30px}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:var(--aa8-v33-spacing-24);margin-bottom:30px}
 .section h2{font-size:clamp(2.1rem,4vw,3.8rem)}
 .section-intro{margin:12px 0 0;color:var(--muted)}
 .grid{display:grid;gap:18px}
@@ -58,7 +66,7 @@ img{max-width:100%;display:block}
 .product-topline{display:flex;justify-content:space-between;gap:12px;align-items:center}
 .product-maker{margin:0;color:var(--blue);font-size:.78rem;font-weight:900;letter-spacing:.11em}
 .tag,.status{display:inline-flex;padding:6px 10px;border-radius:999px;background:#e5f8ff;color:#0f6d8a;font-size:.76rem;font-weight:900}
-.meta{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.meta{display:flex;gap:var(--aa8-v33-spacing-8);flex-wrap:wrap;margin:14px 0}
 .product-link,.text-link{display:inline-flex;margin-top:18px;color:var(--blue);font-weight:900}
 .case-feature{display:grid;grid-template-columns:.9fr 1.1fr;gap:36px;padding:34px;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:rgba(255,255,255,.07)}
 .case-feature h3{margin:12px 0 0;font-size:clamp(1.7rem,3vw,2.5rem)}

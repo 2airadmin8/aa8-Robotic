@@ -17,7 +17,7 @@
     },
     "visualCandidateV33": {
       "version": "3.3",
-      "status": "FIGMA_NATIVE_8_COMPONENTS_20_VARIABLES_PASS_AUTO_VISUAL_139_PASS_CEO_HOLD",
+      "status": "SOURCE_PINNED_14_NATIVE_COMPONENTS_38_VARIABLES_6_REFERENCE_ONLY_SPACING_DETAIL_HOLD_CEO_HOLD",
       "designDoc": "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
       "figmaTarget": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2",
       "motherVerified": "ops/brand-preview/mother-site-contract-v1.json",
@@ -32,13 +32,24 @@
         "spHeader": "181:2",
         "spFooter": "182:2",
         "spOpenMenu": "183:2",
-        "spSpecifications": "172:261"
+        "spSpecifications": "172:261",
+        "buttonsCTA": "217:73",
+        "cardsContent": "217:127",
+        "formsFeedback": "217:180",
+        "sectionsResources": "217:217",
+        "spacingDensity": "217:288",
+        "componentQaMatrix": "217:353"
       },
       "figmaVariables": {
-        "count": 20,
+        "count": 38,
         "legacyIntact": 8,
         "groupPrefix": "v33/",
-        "collection": "AA8 Robotics V3.2 / Core Colors"
+        "collection": "AA8 Robotics V3.2 / Core Colors",
+        "legacyV32": 8,
+        "v33Base": 20,
+        "v33Spacing": 10,
+        "spacingGroup": "v33/spacing/",
+        "spacingDetailReadback": "HOLD_STARTER_TEAM_LOCK"
       },
       "evidenceFolder": "https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG",
       "reviewPolicy": "Human independent visual signature NOT_REQUIRED_BY_CEO; same HEAD CI + different-device QA remains compulsory",
@@ -47,6 +58,54 @@
         "ciRunId": 44494212204,
         "independentQA": "AA8-N-012 139/139 PASS",
         "realMotherSitePcSp": true
+      },
+      "latestDesignEvidence": {
+        "designEvidence": {
+          "documentId": "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX",
+          "documentUrl": "https://drive.google.com/file/d/1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX/view",
+          "documentModifiedUtc": "2026-11-21T04:32:57.505Z",
+          "normalizedUtf8Sha256": "3133543f919e9f4c1a87af8f0cb7e1950a8a86418cd9bbb9cfcfe3d50e02cf09",
+          "status": "SOURCE_DOCUMENT_REVIEWED_NOT_LIVE_FIGMA_REVALIDATED",
+          "refreshRule": "Review source/Figma readback, update these pinned JSON contracts in an existing PR, then run existing CI; no automatic Figma live polling"
+        },
+        "baselineComponents": 8,
+        "addedReferenceComponents": 6,
+        "nativeComponentsTotal": 14,
+        "legacyVariables": 8,
+        "v33BaseVariables": 20,
+        "spacingVariables": 10,
+        "nativeVariablesTotal": 38,
+        "spacingValuesPx": [
+          4,
+          8,
+          12,
+          16,
+          24,
+          32,
+          40,
+          48,
+          64,
+          80
+        ],
+        "spacingGroup": "v33/spacing/",
+        "componentVariantsStatus": "NOT_FULLY_VERIFIED_REFERENCE_ONLY",
+        "spacingVariableDetailReadback": "HOLD_STARTER_TEAM_LOCK",
+        "productionDesignRelease": "HOLD_CEO",
+        "semanticStandard": "3.1",
+        "visualStandard": "3.3"
+      },
+      "commonHtmlManagement": {
+        "total": 20,
+        "implemented": 6,
+        "tokenDetailHold": 1,
+        "referenceOnly": 12,
+        "notShared": 1,
+        "all20AreNotFinished": true,
+        "warnOnlySpacingEmptyPx": {
+          "pc": 160,
+          "sp": 120
+        },
+        "important": "Blank-space threshold is WARN only; never auto-fail or rewrite approved Hero"
       }
     }
   },

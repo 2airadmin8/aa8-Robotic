@@ -69,6 +69,128 @@ class GovernanceQualityGateTests(unittest.TestCase):
         self.assertIn("NOT_AUTOMATIC_FIGMA_PIXEL_PARITY",
                       c["designSources"]["visual"]["verification"])
 
+    def test_v33_20261121_native_and_html_inventory_is_pinned_not_fully_approved(self):
+        result = gate.validate_v33_design_snapshot(ROOT)
+        self.assertEqual(result["status"], "PINNED_DESIGN_CONSISTENT_NOT_FIGMA_LIVE")
+        self.assertEqual(result["figmaComponents"], 14)
+        self.assertEqual(result["figmaVariables"], 38)
+        self.assertEqual(result["htmlComponents"], 20)
+        self.assertEqual(result["referenceOnly"], 12)
+        self.assertEqual(result["release"], "HOLD")
+
+    def test_v33_stale_figma_tokens_reference_components_fail_closed(self):
+        import shutil
+        file_names = (
+            "docs/governance/hp-design-code-trace-v1.json",
+            "ops/brand-preview/corporate-product-visual-v33.json",
+            "ops/brand-preview/figma-product-v33-tokens.json",
+            "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
+            "assets/css/site.css",
+            "tests/hub-pages-visual.spec.js",
+            "assets/css/contact-v2.css",
+            "assets/js/contact-v2.js",
+            "contact.html",
+            "tests/contact-inquiry.spec.js",
+            "assets/css/product-cards-v2.css",
+            "assets/js/product-cards-v2.js",
+            "assets/js/site.js",
+            "tests/product-list-visual.spec.js",
+        )
+        for mutation in (
+            "old-8-20", "missing-component", "spacing-number", "falsely-approved",
+            "cross-file-drift", "missing-src-proof", "stale-policy-doc",
+            "spacing-css-drift", "spacing-css-no-usage", "c08-owner-drift", "c08-variant-false-pass",
+            "c09-css-drift", "c09-fake-variant-pass", "c09-owner-drift",
+            "c10-css-no-focus", "c10-js-no-fallback", "c10-fake-figma-pass", "c10-ssot-drift", "c10-media-aspect-drift", "c10-detail-contrast", "c10-prefix-contrast"
+        ):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
+                t = Path(td)
+                for name in file_names:
+                    dest = t / name
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(ROOT/name, dest)
+                visual_file=t/"ops/brand-preview/corporate-product-visual-v33.json"
+                trace_file=t/"docs/governance/hp-design-code-trace-v1.json"
+                tok_file=t/"ops/brand-preview/figma-product-v33-tokens.json"
+                visual=json.loads(visual_file.read_text("utf-8"))
+                trace=json.loads(trace_file.read_text("utf-8"))
+                tokens=json.loads(tok_file.read_text("utf-8"))
+                for entry in visual["htmlComponentManagement"]:
+                    f=t/entry["codeOwner"]
+                    f.parent.mkdir(parents=True, exist_ok=True)
+                    f.touch(exist_ok=True)
+                if mutation=="old-8-20":
+                    trace["designSources"]["visualCandidateV33"]["figmaVariables"]["count"]=20
+                elif mutation=="missing-component":
+                    visual["htmlComponentManagement"].pop()
+                elif mutation=="spacing-number":
+                    tokens["dimension"]["spacing"]["24"]["$value"]="25px"
+                elif mutation=="falsely-approved":
+                    visual["htmlComponentManagement"][7]["status"]="IMPLEMENTED"
+                elif mutation=="cross-file-drift":
+                    visual["latestDesignEvidence"]["nativeComponentsTotal"]=8
+                elif mutation=="missing-src-proof":
+                    tokens["$sourceEvidence"]["normalizedUtf8Sha256"]="unverified"
+                elif mutation=="spacing-css-drift":
+                    f=t/"assets/css/site.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "--aa8-v33-spacing-24:24px;",
+                        "--aa8-v33-spacing-24:25px;"),encoding="utf-8")
+                elif mutation=="spacing-css-no-usage":
+                    f=t/"assets/css/site.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "var(--aa8-v33-spacing-24)","24px"),encoding="utf-8")
+                elif mutation=="c08-owner-drift":
+                    visual["htmlComponentManagement"][7]["figmaNode"]="999:1"
+                elif mutation=="c08-variant-false-pass":
+                    visual["htmlComponentManagement"][7]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c09-css-drift":
+                    f=t/"assets/css/contact-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "background: var(--blue-dark, #0069b5);",
+                        "background: #009ad2;"),encoding="utf-8")
+                elif mutation=="c09-fake-variant-pass":
+                    visual["htmlComponentManagement"][8]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c09-owner-drift":
+                    visual["htmlComponentManagement"][8]["jsOwner"]="scripts/other_factory.js"
+                elif mutation=="c10-css-no-focus":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        ".research-product-card:focus-within",
+                        ".research-product-card:focus-removed"),encoding="utf-8")
+                elif mutation=="c10-media-aspect-drift":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "aspect-ratio: 16 / 9;", "aspect-ratio: 16 / 10;"),encoding="utf-8")
+                elif mutation=="c10-detail-contrast":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "  min-height: 42px;\n  color: #0069b5;\n}",
+                        "  min-height: 42px;\n  color: #008fbd;\n}"),encoding="utf-8")
+                elif mutation=="c10-prefix-contrast":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "  color: #37515d;\n  font-size: .62rem;",
+                        "  color: #7b9099;\n  font-size: .62rem;"),encoding="utf-8")
+                elif mutation=="c10-js-no-fallback":
+                    f=t/"assets/js/product-cards-v2.js"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "image.addEventListener('error', showFallback, { once: true })",
+                        "/* error listener removed */"),encoding="utf-8")
+                elif mutation=="c10-fake-figma-pass":
+                    visual["htmlComponentManagement"][9]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c10-ssot-drift":
+                    visual["htmlComponentManagement"][9]["productFactsSource"]="data/other-products.json"
+                elif mutation=="stale-policy-doc":
+                    f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "14 = previous eight","8 = old"),encoding="utf-8")
+                visual_file.write_text(json.dumps(visual,ensure_ascii=False),encoding="utf-8")
+                trace_file.write_text(json.dumps(trace,ensure_ascii=False),encoding="utf-8")
+                tok_file.write_text(json.dumps(tokens,ensure_ascii=False),encoding="utf-8")
+                with self.assertRaisesRegex(ValueError,"AA8_GOVERNANCE_HOLD"):
+                    gate.validate_v33_design_snapshot(t)
+
     def test_new_pr_uses_existing_template_and_impact_matrix(self):
         files = [{"filename": "includes/site-header.html"},
                  {"filename": "docs/governance/01_HP_ADAPTER_V1.md"},
@@ -88,6 +210,27 @@ class GovernanceQualityGateTests(unittest.TestCase):
             with self.subTest(body=body[:40]), self.assertRaises(ValueError):
                 gate.check_pr(event(body=body),
                               [{"filename": "includes/site-header.html"}])
+
+    def test_declared_exact_three_files_refuses_unauthorized_fourth(self):
+        declared = (GOOD_BODY + "\n### Exactly three changed files\n"
+                    "1. `scripts/hp_governance_quality_gate.py` - governance\n"
+                    "2. `.github/workflows/ci.yml` - existing workflow\n"
+                    "3. `tests/test_hp_governance_quality_gate.py` - regression\n"
+                    "### Verified safe preflight\n")
+        three = [{"filename": x} for x in (
+            "scripts/hp_governance_quality_gate.py",
+            ".github/workflows/ci.yml",
+            "tests/test_hp_governance_quality_gate.py",
+        )]
+        self.assertEqual(gate.check_pr(event(body=declared), three)["changed"], 3)
+        with self.assertRaisesRegex(ValueError, "declared changed files"):
+            gate.check_pr(event(body=declared), three + [
+                {"filename": ".github/workflows/pages.yml"}])
+        tampered = declared.replace(
+            "`tests/test_hp_governance_quality_gate.py`",
+            "`tests/pretend_approved.py`")
+        with self.assertRaisesRegex(ValueError, "declared changed files"):
+            gate.check_pr(event(body=tampered), three)
 
     def test_shared_change_without_all_13_and_pc_sp_holds(self):
         body = GOOD_BODY.replace("All 13 products PC1440/SP390",
@@ -187,6 +330,116 @@ class GovernanceQualityGateTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:", pages)
         self.assertNotIn("\n  push:", pages)
 
+
+
+class FigmaLiveSourceTests(unittest.TestCase):
+    """No real Figma network or secret: exact REST negative contract proof."""
+
+    def _case(self):
+        import shutil
+        temp=tempfile.TemporaryDirectory()
+        root=Path(temp.name)
+        name="ops/brand-preview/corporate-product-visual-v33.json"
+        f=root/name
+        f.parent.mkdir(parents=True)
+        shutil.copyfile(ROOT/name,f)
+        j=json.loads(f.read_text("utf-8"))
+        j["figmaLiveValidation"]["acceptedVersion"]="FIGMA_NATIVE_VERSION_20261122"
+        ids={
+          "C07":["VariableID:1:"+str(i) for i in range(101,111)],
+          "C08":["VariableID:1:201","VariableID:1:202"],
+          "C09":["VariableID:1:201","VariableID:1:202"],
+          "C10":["VariableID:1:301","VariableID:1:302","VariableID:1:303"]
+        }
+        j["figmaLiveValidation"]["requiredBindingIds"]=ids
+        f.write_text(json.dumps(j),encoding="utf-8")
+        alias=lambda v:{"type":"VARIABLE_ALIAS","id":"VariableID:1:"+str(v)}
+        comp=lambda name,a:{
+          "type":"COMPONENT","name":name,
+          "boundVariables":{"fills":[alias(a)]}
+        }
+        figma={
+          "version":"FIGMA_NATIVE_VERSION_20261122",
+          "nodes":{
+            "217:288":{"document":{
+              "id":"217:288","type":"COMPONENT",
+              "children":[{"type":"FRAME","boundVariables":{"itemSpacing":alias(i)}}
+                          for i in range(101,111)]}},
+            "217:73":{"document":{
+              "id":"217:73","type":"COMPONENT_SET",
+              "componentPropertyDefinitions":{"State":{"type":"VARIANT","defaultValue":"Default",
+                "variantOptions":["Default","Hover","Active","Focus","Disabled","Loading"]}},
+              "children":[{"type":"COMPONENT","name":str(i),
+                  "boundVariables":{"fills":[alias(201),alias(202)]}}
+                  for i in range(6)]}},
+            "217:127":{"document":{
+              "id":"217:127","type":"COMPONENT_SET",
+              "componentPropertyDefinitions":{"Kind":{"type":"VARIANT","defaultValue":"Product",
+                "variantOptions":["Product","Related","Resource"]}},
+              "children":[{"type":"COMPONENT","name":str(i),
+                  "boundVariables":{"fills":[alias(301),alias(302),alias(303)]}}
+                  for i in range(3)]}}
+          }
+        }
+        return temp,root,figma
+
+    @staticmethod
+    def _read(payload):
+        import io
+        class Response(io.BytesIO):
+            status=200
+        def opener(req,timeout=15):
+            assert req.full_url.startswith(
+                "https://api.figma.com/v1/files/uo56l51NgUqit4976LV6P2/nodes?ids=")
+            assert req.get_header("X-figma-token")=="isolated-unit-test-only"
+            assert timeout<=15
+            return Response(json.dumps(payload).encode("utf-8"))
+        return opener
+
+    def test_figma_live_no_attested_version_fails_before_network(self):
+        with self.assertRaisesRegex(ValueError,"FIGMA_LIVE_DESIGN_HOLD"):
+            gate.validate_figma_live_binding(
+                ROOT,token="isolated-unit-test-only",
+                opener=lambda *_: self.fail("must not call remote without source version"))
+
+    def test_figma_live_exact_version_native_bindings_and_formal_variants(self):
+        temp,root,figma=self._case()
+        try:
+            ok=gate.validate_figma_live_binding(
+                root,token="isolated-unit-test-only",opener=self._read(figma))
+            self.assertEqual(ok["status"],"FIGMA_LIVE_BINDING_PASS")
+            self.assertEqual(ok["productionRelease"],"HOLD_CEO")
+            figma["version"]="LIVE_CHANGED_BUT_LOCAL_JSON_NOT_UPDATED"
+            with self.assertRaisesRegex(ValueError,"version changed"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+            figma["version"]="FIGMA_NATIVE_VERSION_20261122"
+            figma["nodes"]["217:288"]["document"]["children"][0].pop("boundVariables")
+            with self.assertRaisesRegex(ValueError,"actual node variable binding missing C07"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+            figma["nodes"]["217:288"]["document"]["children"][0]["boundVariables"]={
+               "itemSpacing":{"type":"VARIABLE_ALIAS","id":"VariableID:1:101"}}
+            figma["nodes"]["217:73"]["document"]["type"]="COMPONENT"
+            with self.assertRaisesRegex(ValueError,"required formal variants C08"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=self._read(figma))
+        finally:
+            temp.cleanup()
+
+    def test_figma_live_absent_token_and_remote_error_hold(self):
+        from urllib.error import HTTPError
+        temp,root,figma=self._case()
+        try:
+            with self.assertRaisesRegex(ValueError,"missing authorized"):
+                gate.validate_figma_live_binding(root,token="",opener=self._read(figma))
+            def forbid(req,timeout=15):
+                raise HTTPError(req.full_url,403,"Forbidden",{},None)
+            with self.assertRaisesRegex(ValueError,"remote read failed"):
+                gate.validate_figma_live_binding(
+                    root,token="isolated-unit-test-only",opener=forbid)
+        finally:
+            temp.cleanup()
 
 if __name__ == "__main__":
     unittest.main()

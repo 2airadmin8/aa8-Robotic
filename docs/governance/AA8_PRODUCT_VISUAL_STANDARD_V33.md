@@ -1,6 +1,76 @@
 # AirAdmin8 Robotics｜Product Visual Standard V3.3（DRAFT / NOT RELEASE APPROVED）
-**基準日:** 2026-11-20 JST  
-**状态:** FIGMA_NATIVE_8_COMPONENTS_20_VARIABLES_PASS / AUTO_VISUAL_139_PASS / CEO_RELEASE_APPROVAL_PENDING / PRODUCTION_NO_GO.
+**基準日:** 2026-11-21 JST (latest pinned evidence, no production change)
+**現行Design Snapshot:** FIGMA_NATIVE_14_COMPONENTS_38_VARIABLES_PINNED / NEW6_REFERENCE_ONLY / SPACING_DETAIL_READBACK_HOLD / CEO_RELEASE_HOLD / PRODUCTION_NO_GO.
+
+
+## CURRENT SNAPSHOT | 2026-11-21 design-to-code baseline (historical checkpoints below)
+
+- **Source:** https://drive.google.com/file/d/1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX/view
+- **Source SHA256:** 3133543f919e9f4c1a87af8f0cb7e1950a8a86418cd9bbb9cfcfe3d50e02cf09 (normalized UTF-8).
+- **Native components:** 14 = previous eight Header/Footer/Specs/Menu/Tokens plus six design samples (Buttons, Cards, Forms, Sections, Spacing, QA). These six are REFERENCE_ONLY; they do not prove finished Variants, interactions, nested instances or token binding.
+- **Variables:** 38 = eight V3.2 legacy + twenty V3.3 base + ten V3.3 spacing variables. Spacing values are 4, 8, 12, 16, 24, 32, 40, 48, 64, 80 px. Native numeric values were read in the editor on 2026-11-22; component-level variable bindings remain HOLD.
+- **HTML management:** 20 categories = six implemented, one spacing-detail HOLD, twelve partial/reference-only, one not shared. A green static check is NOT release approval.
+- **Whitespace:** 160px PC / 120px SP empty zones trigger WARN and visual review, NOT automatic CSS rewrites. Keep approved Hero geometry.
+- **Machine sources:** docs/governance/hp-design-code-trace-v1.json; ops/brand-preview/corporate-product-visual-v33.json; ops/brand-preview/figma-product-v33-tokens.json. Existing governance CI checks agreement; existing Python Product Factory checks this pinned design snapshot for strict V3.3 SKU.
+- **Limitations:** Live Figma MCP read is unavailable under the current Starter limit. The review is pinned to the cited design document, not a live Figma API poll. New Figma edits require evidence update and exact-SHA CI rerun. New six components and Spacing detail cannot be asserted fully approved; CEO release, business E2E and Japanese manufacturer fact gates stay HOLD.
+
+**Historical note:** Older lines dated 2026-11-19/20 containing 8 components / 20 variables are records of previous states and DO NOT supersede this current pinned snapshot.
+
+### 2026-11-22 P0 Design live-probe owner-bound gate (implemented / native signoff HOLD)
+
+- **Actual Figma native editor finding:** Original node 217:288 Spacing and Density still renders the 4px sample ruler as a static Vector path with literal #009BD2 fill. It is not an Auto Layout frame with native variable-bound gap/padding. Ten native variable values were previously read, but a static visual ruler is not a bound spacing component. A temporary blank Frame was created during native UI sanity testing, but immediately deleted on finding it was inserted into the neighboring Sections component. No temporary Frame remains, and no second Figma design source was created.
+- **C08/C09/C10:** Original 217:73 and 217:127 are editable visual state/card examples, not yet verified formal State/Kind ComponentSets with bound token aliases. Existing code CSS/JS technical Chrome PASS does not make native design PASS.
+- **New read-only capability inside the existing governance script:** hp_governance_quality_gate.py figma-live invokes official Tier-1 Figma GET /v1/files/{key}/nodes with file_content:read. It reads actual file version and original node subtrees including boundVariables; it rejects stale version, missing C07 ten alias IDs, missing C08/C09 deep/surface token IDs and six state variants, or missing C10 three token aliases and three kind variants. It does not use Figma private browser endpoints or Enterprise-only Variables REST.
+- **Original Product Factory integration:** product_factory.py strict V3.3 candidate supports AA8_FIGMA_LIVE_REQUIRED=1. When enabled, missing authorization or stale original Figma automatically raises DESIGN_HOLD before rendering HTML. When not enabled, isolated preview operation keeps its existing behavior and cannot claim Figma-live validation. No new Runner, Factory, Workflow or parallel Design Contract was added.
+- **Current real negative test:** Original contract figmaLiveValidation.acceptedVersion=null, binding IDs empty, and the existing SES-sLLM machine has no AA8_FIGMA_FILE_READ_TOKEN. Real CLI returns FIGMA_LIVE_DESIGN_HOLD with exit 2. Offline REST mock tests prove a remote version change, missing binding, inadequate formal variants, absent source version or HTTP403 cannot pass, but mock PASS does not establish real Figma synchronization.
+- **Exact minimum unblock:** Within the original Figma file convert static vector demos into genuine bound Auto Layout components and formal C08/C09 State and C10 Kind variants. Authorize least-privilege Figma file_content:read on an existing protected Factory/CI credential, not in chat or repo. Pin authenticated original version and native alias IDs in existing corporate-product-visual-v33.json and turn on AA8_FIGMA_LIVE_REQUIRED=1. Then prove actual changed original Figma file -> stale code contract DESIGN_HOLD -> authorized re-pin -> exact SHA CI/independent QA, without new services. The native Figma plugin/MCP path is quota-blocked on Starter; official REST access must be tested separately against the account plan.
+- **Existing AI Factory:** Actual GitHub query of open issues labelled READY returned zero. factory_gate_router.py explicitly describes auto_wakeup=NOT_CONNECTED and auto_commit=false; last AI-autofix jobs were skipped. Two authorized real READY tasks and a connected existing Runner with Owner Lease/RunID are still prerequisites. Do not simulate tasks or claim two-job unattended execution.
+
+**C07-C10 final native design signoff, real automatic Figma change detection and unattended AI handoff remain HOLD.** Code-level tests and fake API fixture success must not be reported as completed source authentication.
+
+
+### 2026-11-22 C07-C10 native editor five-layer follow-up (no fictitious signoff)
+| ID | Actual Figma editor readback | Code and Chrome | Mandatory remaining design evidence |
+|---|---|---|---|
+| C07 | Existing collection AA8 Robotics V3.2 / Core Colors, v33/spacing 10 native Number values 4/8/12/16/24/32/40/48/64/80 | Existing site.css mappings, three-viewport computed CSS verified | Prove actual Frame padding/gap Variable Binding, not just native number list. HOLD |
+| C08 | Selected node 217:73, 1120x800 Buttons and CTA States, three design columns Primary/Secondary/Text Link and visible demo Default/Hover/Focus/Disabled/Loading rows. No trustworthy named Variant property matrix or token-binding manifest was established from the selected top-level Properties panel. | Existing .button code, contrast/focus/navigation QA | Bind active Corporate deep-blue token to real Primary Variant and verify code-design visual comparison; default visual sample remains bright-blue vs approved accessible code. HOLD |
+| C09 | Reuses same native 217:73 visual state examples; layer tree reveals individual Text/Vector samples, not proven keyed Button state component properties. | Real confirm button uses existing JS busy/disabled/retry and strict Chrome QA | Prove usable formal State Variants/Props, Loading/Focus relationships and Variable Binding to original CSS/JS. HOLD |
+| C10 | Selected native 217:127, 1120x830 Cards and Content reference containing Product/Related/Resource visual examples; 16:9 MEDIA SLOT labelled; selected top-level Properties pane has no verified named prop bindings | Existing C10 card renderer and image fallback, 16:9 desktop CSS and PC/SP QA | Bind actual component fields/tokens, demonstrate a real main component/instance and independent Figma readback. HOLD |
+
+Figma Starter MCP metadata calls were explicitly rate-limited; normal logged-in Figma editor could still inspect these existing nodes. This does not establish continuous machine change detection. Minimal unblock on the **same original Figma file**: for C07 apply native Number variables to real gap/padding properties; for C08/C09 formalize their state variants and apply existing deep/surface tokens; for C10 connect native card fields to their source/variant properties and token bindings. Capture node and Variable IDs, then version-update the **existing** Design Contract and run exact-SHA CI. Do not create a parallel design source or workflow.
+
+### 2026-11-22 C10 actual product card QA (code/Chrome PASS, Figma Binding HOLD)
+- Original Figma native reference 217:127 Cards and Content remains an editable reference sample, NOT proven full production variant/property/variable-bound component. Figma Starter tool metadata was rate-limited. Selected parent Properties panel did not establish named Variant/Component Property bindings, so C10 DESIGN_HOLD.
+- Product truth stays data/products.json. Existing assets/js/site.js renders the product card from the same Master. Existing assets/js/product-cards-v2.js enriches it, now binding image error only once and adding an honest accessible text fallback when a maker image fails. Original image source, product model, title, status and links remain intact.
+- Additional Figma native UI readback: node 217:127 is a 1120x830 editable reference component-set-like sample showing three columns Product Card, Related Product, Resource/SDK. Its media slots explicitly say 16:9; PC product-cards-v2.css was 16:10. Red exact computed aspect ratio 16/10 versus Figma 16/9, corrected to 16/9 in existing CSS and guarded against reverting. Its top-level Properties panel does not show documented Variant/Component Property links, and child layers include TEXT/VECTOR examples, not independently verified named formal Variants. This is evidence of the sample structure, NOT proof of all component bindings.
+- Actual RED at PC1440/SP390/SP360: no focus-within card outline and no missing-image fallback. Fix in existing assets/css/product-cards-v2.css: Corporate deep blue visible outline and card action link color, neutral fallback area with hidden broken img. Existing JS enhancer inserts the fallback without manufacturing an unapproved image or new product fact.
+- Additional real RED: the existing catalog detail link #008fbd on white had computed contrast 3.708:1, below WCAG AA for regular text; original small grey meta-prefix also needed stronger color. Change both only in existing C10 CSS Owner to Corporate deep-blue #0069B5 and #37515d, with new per-card real Chrome contrast checks; no font/content change.
+- Existing tests/product-list-visual.spec.js tests manufacturer/model/title/status/source/link, hover transition, keyboard focus and Enter navigation, and intercepts one real image URL to prove fallback on PC1440/SP390/SP360. No production customer submission. Governance tests now reject falsely approved Figma variants, code-owner mismatch, loss of focus, loss of fallback and Product SSOT substitution.
+- C07/C08/C09 component-level Figma bindings, Figma live change detection, exact-SHA independent QA and automated two-READY-task Runner E2E remain separate HOLD gates. No main merge, Pages deployment or CRM/ERP writes.
+
+
+### 2026-11-22 C09 button states (isolation only / Figma Variant HOLD)
+- **Existing UI ownership:** The confirmation button `dialog[data-contact-confirm] button[data-confirm-send]` uses the existing `assets/js/contact-v2.js::setSendingState` for real in-flight disable, `aria-busy`, loading text and failure restoration; no second event handler/Factory was added.
+- **Actual RED:** In real Chrome PC1440/SP390/SP360, confirmation button white text against old `#009ad2` was only **3.2047:1**, below the normal-text 4.5:1 accessibility baseline.
+- **Minimal CSS correction:** Existing `assets/css/contact-v2.css` now uses approved Corporate deep blue `#0069b5` for normal and hover, adds explicit `:focus-visible` and `:active`, retains disabled and loading visual states. Contact form routing, endpoint, submission token and origin checks remain unchanged.
+- **Applicable single-component QA:** Original `tests/contact-inquiry.spec.js` C09 test covers keyboard Tab/focus visible, hover, contrast, 44px touch target, actual JS in-flight disable/busy/loading, blocked duplicate click and negative-ack recovery at 1440/390/360. It intercepts all Apps Script requests in the browser and replies negative only; this is **not** a real inquiry/CRM E2E nor evidence of sent mail.
+- **Design limitation:** Reference Figma Node `217:73` is a sample; Button States Variants/Properties/Token Binding have NOT been natively validated. C09 remains `REFERENCE_ONLY`, no 20/20 claim until all layers and separate device SHA attestation.
+
+
+### 2026-11-22 C08 CTA AA contrast correction (SOURCE/CSS/HTML QA, Figma Variant HOLD)
+- **Scope and Figma reference:** Existing `AA8 V3.3 / P1 / Buttons and CTA States` reference Node `217:73` (still sample-only; no verified Figma Variant/Component Property Binding). No redesign of product-specific `.g1-button` or shared Header `.nav-cta`.
+- **Real RED:** Main-site shared `.button.primary` was white text on brand-primary `#009BD2`, computed text/background contrast **3.17:1** at PC1440, SP390, SP360; ordinary 4.5:1 accessibility threshold FAIL. This is a production-like isolated HTML screenshot/browser finding, not a claim about customer feedback.
+- **Minimal source fix:** Existing `assets/css/site.css` uses approved Corporate `color.brand.deep=#0069B5` for primary CTA with white text; keeps 48px min-height, native link navigation, responsive width and existing form prefill. Adds explicit keyboard `:focus-visible` outline, secondary hover and native disabled-button styling. No new JS or second component factory.
+- **Real QA:** `tests/hub-pages-visual.spec.js` C08 verifies contrast ≥4.5, primary/secondary visibility, 44px touch height, focus ring and genuine local navigation at 1440/390/360. All Figma Properties/Variants and exact SHA independent QA remain separate gates; C08 manifest is explicitly `REFERENCE_ONLY` until Native Figma linkage is actually proven.
+
+
+### 2026-11-22 C07 native variable readback and CSS bridge (PARTIAL / HOLD)
+- **Actual Figma UI readback:** Existing file `uo56l51NgUqit4976LV6P2`, original native variable collection `AA8 Robotics V3.2 / Core Colors` = 38 variables; filtered group `v33/spacing` displays ten native number variables and values: `4, 8, 12, 16, 24, 32, 40, 48, 64, 80`. This is a human-operated editor readback, not the Figma API, source-change polling, or independent device attestation. Reference component `217:288` is a design sample, not binding proof.
+- **Actual code bridge:** Existing `assets/css/site.css` defines `--aa8-v33-spacing-{4,8,12,16,24,32,40,48,64,80}` with the identical pixel values; existing `.actions`, `.meta`, `.section-heading` now consume 12/8/24 respectively without changing their numerical values. The existing strict-design validator checks all ten CSS definitions against the one pinned token JSON, verifies real usage, and fails closed on CSS drift or missing usage; original regression tests contain negative cases.
+- **Actual browser result:** PC1440/SP390 custom properties ten-of-ten match computed values, with no horizontal overflow. Homepage PC hero `.actions` gap resolves to 12px; SP390 retains an **existing approved page-specific override** of 10px, not a token-pinning failure. The 13 public products must retain their exact existing PC1440/SP390/SP360 QA; this does not authorize a shared-layout redesign.
+- **Unverified = HOLD:** Figma per-component **Variable Binding / applied padding and gap property chips**, true live remote-change-trigger detection, and independent Figma binding readback remain unverified. Native variable existence plus contract/CSS match **does not** make C07 5-layer PASS. Keep existing status HOLD; do not upgrade manifest to IMPLEMENTED or claim 20/20.
+
+
 
 ## 唯一产品与设计边界
 - 母站真实视觉正本：`https://www.air-admin8.co.jp/`；G盘正式 WordPress `themes/AirAdmin8/style.css`；记录 SHA256 和源码清单：`docs/governance/AA8_MOTHER_R41_SOURCE_TRACE_20261119.md`。
@@ -78,3 +148,17 @@
 - **CEO确认简化审批：** 独立人员人工美工签名为 **NOT_REQUIRED_BY_CEO**，不是假定存在或伪造他人签字。自动设备QA是通过的验收依据。最后一次集中上线批准只由CEO对精确最终HEAD进行业务决定。
 - **最终证据及SHA：** https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG （Figma Components8、Variables20、Legacy8 unchanged、独立实机139条测试、源母站截图/HTML实际渲染比较和全部SHA256）。
 - **Production仍HOLD：** Figma/视觉设计门禁PASS不等于CEO批准上线；原PR #180仍Draft。当前仅追记治理文件，形成新HEAD后须重新确认CI/独立设备QA；所有安全及回滚门禁满足时，才对CEO提交一次集中批准。A2仍独立releaseReady=false/noindex，绝不作为额外新公开SKU随此次上线。
+
+
+### 2026-11-22 P0 last-mile Figma native and READY bootstrap evidence
+
+**Figma original file real edit, partial only**:
+- Native editable QA node [288:1537](https://www.figma.com/design/uo56l51NgUqit4976LV6P2?node-id=288-1537) on existing V3.3 page 02 is a genuine Auto Layout Frame named AA8V3.3C07SpacingBindingQA. It has two actual Rectangle children with native item spacing bound via the original variable picker to v33/spacing/16 (16px). Reopening exact node in a new Chrome tab verified it persisted. Original source sample node 217:288 was not modified; original values were not changed.
+- This proves only a SINGLE native bound gap in an isolated QA Frame, not all 10 values and not the original C07 production component. Exact VariableID and official API REST boundVariables readback remain unverified, and C08/C09/C10 formal Variant/Property/Binding remain HOLD. Existing Design Contract statuses are NOT promoted.
+
+**One existing original PR #198 trusted-bootstrap candidate**:
+- Current candidate HEAD 3a83f72d891ec76684fe966260887b5b5b99b8bd comprises existing .github/workflows/ci.yml, scripts/factory_gate_router.py, and tests/test_factory_gate_router.py to enable an opt-in trusted-main READY event, CEO-only issue-body/label/repo exact-SHA preflight, a single global serialized Lease against Issue #129 and explicitly NO automatic Writer/DeepSeek.
+- This code is still in the Draft PR, not deployed on protected main. Default repo variable AA8_FACTORY_READY_ENABLED is not enabled. A later CEO approval must explicitly authorize a 3-file-only bootstrap commit on the trusted main, NOT wholesale merge of PR #198; verify main immediately before applying, and retain rollback of that commit and variable OFF switch. No new Workflow or Runner.
+- Live GitHub READY issues found: 0. No true labeled issue wakeup RunID, no DeepSeek auto-commit, no two-task unattended execution. Unit tests are synthetic negatives and must not be labeled production E2E.
+- The official Figma File Nodes read-only gate is implemented already in scripts/hp_governance_quality_gate.py but cannot complete authenticated positive proof without existing Figma file_content:read, real file version and alias IDs. Figma Starter specialized tool quota and absence of authorized read credential are actual remaining blockers.
+- All C07-C10 final five-layer design signoffs remain HOLD. Preview CI success is source/asset integrity only, never production merge authorization.

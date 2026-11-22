@@ -2,7 +2,7 @@
 // across all 13 product pages. Never submit an actual inquiry.
 const { test, expect } = require('@playwright/test');
 const master = require('../data/products.json');
-const ROOT = 'http://127.0.0.1:4173';
+const ROOT = process.env.AA8_TEST_BASE || 'http://127.0.0.1:4173';
 const PUBLIC = 'https://robotics.air-admin8.co.jp';
 
 for (const width of [1440, 390, 360]) {
@@ -118,4 +118,28 @@ for (const width of [1440, 390, 360]) {
       // Never submit the form or write a customer record.
     });
   }
+}
+
+
+// C07 V3.3 spacing CSS mapping: native Figma variables 4..80 read back;
+// component-level Figma variable binding is NOT attested by this browser test.
+for (const width of [1440, 390, 360]) {
+  test('C07 V3.3 spacing CSS mapping '+width+'px',async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    await page.goto(ROOT+'/index.html',{waitUntil:'domcontentloaded'});
+    const result=await page.evaluate(()=>{
+      const root=getComputedStyle(document.documentElement);
+      const space=[4,8,12,16,24,32,40,48,64,80];
+      return {
+        variables:space.map(n=>root.getPropertyValue('--aa8-v33-spacing-'+n).trim()),
+        heroGap:getComputedStyle(document.querySelector('.hero .actions')).gap,
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(result.variables).toEqual(
+      [4,8,12,16,24,32,40,48,64,80].map(n=>n+'px'));
+    // Current approved SP hero overrides the generic 12px gap with 10px.
+    expect(result.heroGap).toBe(width===1440?'12px':'10px');
+    expect(result.overflow).toBeLessThanOrEqual(1);
+  });
 }

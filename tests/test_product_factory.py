@@ -265,5 +265,173 @@ class ProductFactoryContractTests(unittest.TestCase):
         self.assertIn("画像・動画出典", source)
         self.assertIn("動きを見て、仕様を比べ", source)
 
+
+class TwoNewRealSkuMakerSourceRegression(unittest.TestCase):
+    """Only actual official B2/R1 raw model cells may enter a preview candidate."""
+
+    def setUp(self):
+        import json
+        import maker_spec_watch as maker
+        self.maker = maker
+        self.contracts = {}
+        self.products = {}
+        for pid in ("unitree-b2",):
+            directory = ROOT / "tests" / "fixtures" / (pid + "-new-real-pilot")
+            self.contracts[pid] = json.loads(
+                (directory / "maker-live-contract.json").read_text("utf-8"))
+            self.products[pid] = json.loads((directory / "product.json").read_text("utf-8"))
+
+    @staticmethod
+    def offline_source_html(contract):
+        from html import escape
+        name = contract["models"]
+        if name == ["B2"]:
+            entries = []
+            for row in contract["categories"][0]["rows"]:
+                entries.append('<li><div class="name">' +
+                    escape(row["source_label"]) + '</div><div class="value"><p>' +
+                    escape(row["models"]["B2"]) + '</p></div></li>')
+            return ('<ul class="parameter b2">' + "".join(entries) + '</ul>').encode()
+        raise AssertionError("Unsupported family under this B2-only pilot")
+
+    def test_full_real_model_grid_round_trip_offline(self):
+        for pid, size, cells in (("unitree-b2", 19, 19),):
+            with self.subTest(pid=pid):
+                contract = self.contracts[pid]
+                actual = self.maker.parse_source(self.offline_source_html(contract), contract)
+                self.assertEqual(sum(len(g["rows"]) for g in actual["categories"]), size)
+                self.assertEqual(len(self.maker.flatten(actual)), cells)
+                self.assertEqual(self.maker.compare(actual, contract), [])
+                self.maker.verify_display(self.products[pid], contract, actual)
+                self.assertFalse(self.products[pid]["pageFactory"]["releaseReady"])
+                html = render(ROOT, self.products[pid], "preview")
+                self.assertIn('content="noindex,nofollow"', html)
+                self.assertIn('data-product-factory="g1-v1"', html)
+
+    def test_missing_row_and_wrong_model_cell_fail_closed(self):
+        for pid in ("unitree-b2",):
+            contract = self.contracts[pid]
+            original = self.offline_source_html(contract)
+            parsed = self.maker.parse_source(original, contract)
+            import copy
+            changed = copy.deepcopy(parsed)
+            model = contract["models"][0]
+            changed["categories"][0]["rows"][0]["models"][model] = "UNVERIFIED 999"
+            self.assertEqual(len(self.maker.compare(changed, contract)), 1, pid)
+            changed = copy.deepcopy(parsed)
+            changed["categories"][0]["rows"].pop()
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.compare(changed, contract)
+
+    def test_wrong_maker_url_or_unrecognized_adapter_is_rejected(self):
+        import copy
+        for pid in ("unitree-b2",):
+            original = self.contracts[pid]
+            contract = copy.deepcopy(original)
+            contract["source_url"] = "https://www.unitree.com/A2/"
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.enforce_source_trust(contract)
+            contract = copy.deepcopy(original)
+            contract["adapter"] = "unregistered-maker-parser-v1"
+            with self.assertRaisesRegex(ValueError, "SOURCE_HOLD"):
+                self.maker.enforce_source_trust(contract)
+
+
+
+class StrictV33QuadrupedDesignContractQA(unittest.TestCase):
+    """Genuine new SKU must meet its buyer, family, visual and source contracts."""
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+        cls.product=json.loads((ROOT/"tests/fixtures/unitree-b2-new-real-pilot/product.json").read_text("utf-8"))
+
+    def test_all_modules_have_buyer_content_and_correct_render_order(self):
+        item=copy.deepcopy(self.product)
+        validate_page_factory(ROOT,item)
+        page=render(ROOT,item,"preview")
+        required_ids=["capabilities","applications","decision-checks","media",
+                      "specifications","development","solutions","introduction",
+                      "faq","related","contact-product"]
+        positions=[page.index('id="'+s+'"') for s in required_ids]
+        self.assertEqual(positions,sorted(positions),"V3.3 buyer reading order cannot drift")
+        self.assertIn('data-page-design-v33="strict"',page)
+        self.assertIn('data-aa8-visual-version="3.3"',page)
+        self.assertIn('class="aa8-corporate-v1"',page)
+        self.assertIn('product-standard-v33.css',page)
+        self.assertIn('fonts.googleapis.com',page)
+        self.assertEqual(page.count('class="g1-factory-decision-grid"'),1)
+        self.assertIn("積載・機体構成",page)
+        self.assertIn("通信・取得データ",page)
+        self.assertIn("安全・運用責任",page)
+        self.assertEqual(page.count('class="g1-cta-card"'),3)
+        self.assertIn('scope="col">仕様項目',page)
+        self.assertIn("メーカー公表値",page)
+        self.assertNotIn("非公開プレビュー",page)
+        self.assertNotIn("メーカー製品画像。",page)
+        self.assertNotIn("仕様出典 ↗",page)
+        self.assertIn('name="robots" content="noindex,nofollow"',page)
+        self.assertNotIn('data-gtm',page)
+        self.assertTrue(item["pageFactory"]["releaseReady"] is False)
+
+    def test_strict_candidate_blocks_stale_design_snapshot_before_html(self):
+        from unittest.mock import patch
+        import hp_governance_quality_gate as design
+        item=copy.deepcopy(self.product)
+        with patch.object(design,"validate_v33_design_snapshot",
+                          side_effect=ValueError("design version drift")):
+            with self.assertRaisesRegex(ContractError,"DESIGN_HOLD"):
+                validate_page_factory(ROOT,item)
+
+    def test_live_figma_required_is_fail_closed_without_attested_source(self):
+        from unittest.mock import patch
+        item=copy.deepcopy(self.product)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"1",
+                                      "AA8_FIGMA_FILE_READ_TOKEN":""}):
+            with self.assertRaisesRegex(ContractError,
+                                        "DESIGN_HOLD live Figma source/binding"):
+                validate_page_factory(ROOT,item)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"unexpected"}):
+            with self.assertRaisesRegex(ContractError,"invalid Figma live gate"):
+                validate_page_factory(ROOT,item)
+
+    def test_live_figma_required_calls_original_gate_not_another_factory(self):
+        from unittest.mock import patch
+        import hp_governance_quality_gate as design
+        item=copy.deepcopy(self.product)
+        with patch.dict("os.environ",{"AA8_FIGMA_LIVE_REQUIRED":"1"}):
+            with patch.object(design,"validate_figma_live_binding",
+                              return_value={"status":"FIGMA_LIVE_BINDING_PASS"}) as called:
+                validate_page_factory(ROOT,item)
+                called.assert_called_once_with(ROOT)
+
+    def test_missing_required_v33_content_is_rejected(self):
+        for mutation in ("missing-v3","missing-autonomy","missing-safety",
+                         "missing-sdk","missing-process","wrong-family",
+                         "redundant-bridge","dev-only-hero","unrelated-product"):
+            item=copy.deepcopy(self.product)
+            spec=item["pageFactory"]
+            if mutation=="missing-v3": spec.pop("v3")
+            elif mutation=="missing-autonomy": spec["familyEvidence"].pop("autonomy")
+            elif mutation=="missing-safety": spec["familyEvidence"].pop("safety")
+            elif mutation=="missing-sdk": spec["v3"]["sdk"]=[]
+            elif mutation=="missing-process": spec["v3"]["process"]=[]
+            elif mutation=="wrong-family": item["pageStandard"]["family"]="humanoid"
+            elif mutation=="redundant-bridge": item["pageStandard"]["showBridge"]=True
+            elif mutation=="dev-only-hero": spec["heroLead"]="メーカー公開資料に基づき、非公開プレビュー"
+            elif mutation=="unrelated-product": spec["relatedProductIds"]=["unitree-g1"]
+            with self.subTest(mutation=mutation):
+                with self.assertRaisesRegex(ContractError, "V3.3|quadruped|family|hero|unrelated"):
+                    validate_page_factory(ROOT,item)
+
+    def test_one_relevant_related_model_no_fabricated_three(self):
+        item=copy.deepcopy(self.product)
+        self.assertEqual(item["pageFactory"]["relatedProductIds"],["unitree-go2-edu"])
+        page=render(ROOT,item,"preview")
+        self.assertEqual(page.count('class="g1-factory-related-card"'),1)
+        self.assertIn("Unitree Go2 EDU",page)
+        self.assertNotIn("Unitree H2-D",page)
+
+
 if __name__ == "__main__":
     unittest.main()

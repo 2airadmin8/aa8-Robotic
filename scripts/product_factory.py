@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import os
 import re
 import sys
 from datetime import date
@@ -147,6 +148,56 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
                 required(fact.get(key), f"{pid}.{field}[{i}].{key}")
             if field != "faq":
                 official_url(fact.get("sourceUrl"), f"{pid}.{field}[{i}].sourceUrl")
+    strict = spec.get("visualContract") == "corporate-v33-strict"
+    if spec.get("visualContract") not in (None, "corporate-v33-strict"):
+        raise ContractError(f"{pid}: unknown design contract")
+    if strict:
+        # Candidate Factory must consume the same pinned V3.3 contract
+        # enforced by the existing governance CI, never a stale Figma summary.
+        from hp_governance_quality_gate import validate_v33_design_snapshot
+        try:
+            validate_v33_design_snapshot(root)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            raise ContractError(f"{pid}: DESIGN_HOLD stale V3.3 manifest: {exc}") from exc
+        # The existing Factory can run in explicit live-source-required mode
+        # without a new Runner or sync service. Never silently downgrade a
+        # requested live check to the static three-JSON snapshot gate.
+        mode=os.environ.get("AA8_FIGMA_LIVE_REQUIRED","0")
+        if mode not in ("0","1"):
+            raise ContractError(f"{pid}: DESIGN_HOLD invalid Figma live gate configuration")
+        if mode=="1":
+            from hp_governance_quality_gate import validate_figma_live_binding
+            try:
+                validate_figma_live_binding(root)
+            except (ValueError,OSError,KeyError,TypeError) as exc:
+                raise ContractError(
+                    f"{pid}: DESIGN_HOLD live Figma source/binding mismatch: {exc}") from exc
+        standard = product.get("pageStandard") or {}
+        if standard.get("version") != "3.1" or standard.get("showBridge") is not False:
+            raise ContractError(f"{pid}: V3.3 requires V3.1 content with no redundant bridge")
+        if standard.get("family") != "quadruped":
+            raise ContractError(f"{pid}: quadruped strict profile requires quadruped family")
+        if not isinstance(spec.get("v3"), dict):
+            raise ContractError(f"{pid}: V3.3 requires complete V3 content")
+        if len(spec.get("relatedProductIds") or []) < 1:
+            raise ContractError(f"{pid}: at least one truly related model required")
+        evidence = spec.get("familyEvidence")
+        required_keys = {"payload", "terrain", "autonomy", "communication", "safety"}
+        if not isinstance(evidence, dict) or set(evidence) != required_keys:
+            raise ContractError(f"{pid}: quadruped evidence roles must be complete")
+        for role in sorted(required_keys):
+            item = evidence[role]
+            if not isinstance(item, dict):
+                raise ContractError(f"{pid}: invalid familyEvidence.{role}")
+            required(item.get("title"), f"{pid}.familyEvidence.{role}.title")
+            required(item.get("description"), f"{pid}.familyEvidence.{role}.description")
+            official_url(item.get("sourceUrl"), f"{pid}.familyEvidence.{role}.sourceUrl")
+        for field, minimum in (("sdk", 3), ("solutions", 3), ("process", 5)):
+            if not isinstance(spec["v3"].get(field), list) or len(spec["v3"][field]) < minimum:
+                raise ContractError(f"{pid}: incomplete V3.3 {field} semantic module")
+        for value in (spec.get("heroLead",""),product.get("summary","")):
+            if "非公開プレビュー" in value or "メーカー公開資料に基づき" in value:
+                raise ContractError(f"{pid}: hero must communicate buyer value, not dev metadata")
     v3 = spec.get("v3")
     if v3 is not None:
         if not isinstance(v3, dict):
@@ -173,11 +224,18 @@ def validate_page_factory(root: Path, product: dict, *, allow_original_preview: 
                 if field == "solutions" and item.get("supportSectionId") is not None:
                     if item.get("supportSectionId") not in {"university", "poc", "vla", "procurement", "setup", "maintenance"}:
                         raise ContractError(f"{pid}.v3.solutions[{i}]: unsafe supportSectionId")
-    related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds", 3)
+    related = _strings(spec.get("relatedProductIds"), f"{pid}.relatedProductIds",
+                       1 if strict else 3)
     related_ids = {p.get("id") for p in catalog(root)}
     if (len(related) != len(set(related)) or len(related)>6 or pid in related
         or any(not isinstance(x,str) or x not in related_ids for x in related)):
         raise ContractError(f"{pid}: invalid relatedProductIds or self-reference")
+    if strict:
+        candidates = {p["id"]:p for p in catalog(root)}
+        for rid in related:
+            family=(candidates[rid].get("pageStandard") or {}).get("family")
+            if family != product["pageStandard"]["family"]:
+                raise ContractError(f"{pid}: unrelated {rid} product family {family}")
     if type(spec.get("releaseReady")) is not bool:
         raise ContractError(f"{pid}: explicit releaseReady boolean required")
     try:
@@ -356,6 +414,11 @@ def render_variant_compare_specs(product: dict, spec: dict) -> str:
             raise ContractError("A2 maker 10/15/9/3 parameter count mismatch")
         return "\n".join(rendered)
     if product["id"] != "agibot-x2-series":
+        if spec.get("visualContract") == "corporate-v33-strict":
+            return "\n".join(
+                '<tr><th scope="row">' + esc(r["label"]) + '</th><td>' +
+                esc(r["value"]) + '</td></tr>' for r in rows
+            )
         return _item_html(rows, "specifications")
     if len(rows) != 36:
         raise ContractError("X2 JP current source must have exactly 36 compared specs")
@@ -603,7 +666,60 @@ def render(root: Path, product: dict, mode: str) -> str:
          '<a href="#specifications">仕様</a>\n'
          '<a href="#faq">FAQ</a><a href="#related">関連製品</a><a href="#contact-product">導入相談</a>')
     )
+    family_checks = ""
+    if spec.get("visualContract") == "corporate-v33-strict":
+        hero_actions = (
+            '<a class="g1-button primary" data-factory-cta="hero" href="' +
+            esc(contact) + '">導入・PoCを相談する →</a>'
+            '<a class="g1-button secondary" href="#media">公式実演・画像を見る ↓</a>'
+        )
+        # A video CTA must lead to the contextual media section, not an MP4
+        # download detached from source/usage context.
+        card_data[0] = (
+            "01 / OFFICIAL DEMO", "#media", "メーカー実演・画像を確認",
+            "メーカー公表の動画と写真で機体と実演条件を確認します。",
+        )
+        cards = "\n".join(
+            '<a class="g1-cta-card" href="' + esc(card_data[i][1]) +
+            '" data-factory-cta="' + str(i + 1) + '">' +
+            '<span class="g1-cta-photo"><img loading="lazy" src="' + cta_img[i] +
+            '" alt="' + esc(card_data[i][2]) + '"></span>' +
+            '<span class="g1-cta-number">' + esc(card_data[i][0]) +
+            '</span><strong>' + esc(card_data[i][2]) + '</strong>' +
+            '<small>' + esc(card_data[i][3]) +
+            '</small><em>詳細を見る →</em></a>' for i in card_order
+        )
+        cards_html = "\n".join(
+            '<article><h3>' + esc(spec["familyEvidence"][key]["title"]) +
+            '</h3><p>' + esc(spec["familyEvidence"][key]["description"]) +
+            '</p></article>'
+            for key in ("payload", "terrain", "autonomy", "communication", "safety")
+        )
+        family_checks = (
+            '<section class="g1-section g1-factory-section g1-factory-decision" '
+            'id="decision-checks"><div class="g1-shell">'
+            '<p class="g1-kicker">IMPLEMENTATION CHECK</p>'
+            '<h2>産業用四足ロボットの導入前確認</h2>'
+            '<div class="g1-factory-decision-grid">' + cards_html +
+            '</div></div></section>\n'
+        )
+        anchor_navigation = anchor_navigation.replace(
+            '<a href="#media">', '<a href="#decision-checks">導入条件</a><a href="#media">', 1)
+    hero_caption = (
+        "" if spec.get("visualContract") == "corporate-v33-strict"
+        else '<p class="g1-image-caption">メーカー製品画像。'
+             '<a href="' + source + '" target="_blank" rel="noopener noreferrer">'
+             'メーカー公式情報 ↗</a></p>'
+    )
+    spec_table_header = (
+        '<thead><tr><th scope="col">仕様項目</th><th scope="col">' +
+        name + '（メーカー公表値）</th></tr></thead>'
+        if spec.get("visualContract") == "corporate-v33-strict" else ""
+    )
     mapping = {
+        "spec_table_header": spec_table_header,
+        "hero_caption": hero_caption,
+        "family_checks": family_checks,
         "anchor_navigation": anchor_navigation,
         "hero_actions": hero_actions,
         "related": related,
@@ -719,6 +835,21 @@ def render(root: Path, product: dict, mode: str) -> str:
         mapping["shared_footer"] = original_factory_footer
     mapping["factory_nav_script"] = ""
     page = Template(TEMPLATE.read_text(encoding="utf-8")).substitute(mapping)
+    if spec.get("visualContract") == "corporate-v33-strict":
+        page = page.replace('<body>', '<body class="aa8-corporate-v1">', 1)
+        page = page.replace(
+            'data-product-factory="g1-v1"',
+            'data-product-factory="g1-v1" data-aa8-visual-version="3.3" '
+            'data-page-design-v33="strict"', 1,
+        )
+        page = page.replace('</head>',
+            '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+            '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?'
+            'family=Noto+Sans+JP:wght@400;500;700;900&amp;'
+            'family=Poppins:wght@400;500;700;900&amp;display=swap">\n'
+            '<link rel="stylesheet" href="/assets/css/product-standard-v33.css">\n'
+            '</head>', 1)
     if mode == "preview":
         # CI/local preview is not a public page: never emit production
         # analytics page_view from site.js (GA4) or other site bootstrap.

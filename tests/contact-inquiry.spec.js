@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE = 'http://127.0.0.1:4173';
+const BASE = (process.env.AA8_TEST_BASE || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const API = '**/macros/s/**/exec';
 
 async function fillForm(page, suffix = 'A') {
@@ -154,5 +154,69 @@ for (const width of [1440, 390]) {
     await expect(page.locator('[data-contact-receipt-heading]')).toHaveText('お問い合わせを受け付けました。');
     const secondEvents=await page.evaluate(()=>(window.dataLayer||[]).map(x=>Array.from(x)).filter(x=>x[0]==='event'&&x[1]==='generate_lead'));
     expect(secondEvents).toHaveLength(0);
+  });
+}
+
+
+// C09 confirmation button state: browser-only intercepted negative acknowledgement,
+// no outbound request reaches the real Apps Script endpoint and no fake inquiry ID.
+const c09Contrast=(a,b)=>{
+  const linear=v=>{v/=255; return v<=.04045?v/12.92:((v+.055)/1.055)**2.4};
+  const lum=s=>(s.match(/[0-9.]+/g)||[]).slice(0,3).map(Number)
+    .reduce((sum,value,i)=>sum+linear(value)*[.2126,.7152,.0722][i],0);
+  const x=lum(a),y=lum(b);
+  return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+};
+for (const width of [1440,390,360]){
+  test('C09 confirmation focus hover loading disabled failure retry '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    let blocked=0;
+    await page.route(API,async route=>{
+      blocked++;
+      await new Promise(resolve=>setTimeout(resolve,1100));
+      const payload=new URLSearchParams(route.request().postData()||'');
+      await route.fulfill({status:200,contentType:'text/html',
+        body:reply(payload.get('response_token'),'',false)});
+    });
+    await fillForm(page,'C09-negative-no-outbound');
+    const button=page.locator('[data-confirm-send]');
+    await expect(button).toBeEnabled();
+    // Exercise actual keyboard navigation; programmatic focus after a mouse
+    // click is not guaranteed to match the CSS :focus-visible state.
+    let keyboardFocused=false;
+    for(let i=0;i<4;i++){
+      await page.keyboard.press('Tab');
+      keyboardFocused=await button.evaluate(el=>document.activeElement===el);
+      if(keyboardFocused) break;
+    }
+    expect(keyboardFocused).toBe(true);
+    const normal=await button.evaluate(el=>{
+      const s=getComputedStyle(el),r=el.getBoundingClientRect();
+      return{color:s.color,bg:s.backgroundColor,height:r.height,outline:s.outlineStyle,
+        outlineWidth:parseFloat(s.outlineWidth)};
+    });
+    expect(normal.height).toBeGreaterThanOrEqual(44);
+    expect(c09Contrast(normal.color,normal.bg)).toBeGreaterThanOrEqual(4.5);
+    expect(normal.outline).not.toBe('none');
+    expect(normal.outlineWidth).toBeGreaterThanOrEqual(2);
+    await button.hover();
+    const hovered=await button.evaluate(el=>({
+      color:getComputedStyle(el).color,bg:getComputedStyle(el).backgroundColor
+    }));
+    expect(c09Contrast(hovered.color,hovered.bg)).toBeGreaterThanOrEqual(4.5);
+    await submit(page); // Intercepted by page.route: real GAS POST is impossible.
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveAttribute('aria-busy','true');
+    await expect(button).toHaveText('送信中…');
+    await expect(page.locator('[data-contact-confirm]')).toHaveJSProperty('open',true);
+    await button.evaluate(el=>el.click()); // Disabled duplicate must be ignored.
+    await expect(page.locator('[data-form-error]')).toBeVisible();
+    await expect(button).toBeEnabled();
+    await expect(button).toHaveAttribute('aria-busy','false');
+    await expect(button).toHaveText('この内容で送信する');
+    expect(blocked).toBe(1);
+    expect(page.url()).toContain('/contact.html');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth))
+      .toBeLessThanOrEqual(1);
   });
 }

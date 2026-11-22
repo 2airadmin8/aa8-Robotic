@@ -218,12 +218,26 @@ class MakerSourceWatchTests(unittest.TestCase):
                 maker.fetch=original
 
     def test_monitor_all_no_change_has_no_staged_candidate(self):
-        with patch.object(maker,'fetch',return_value=self._synthetic_page()):
+        from html import escape
+        def source_for(url, *, contract=None):
+            if url.endswith("/A2/"):
+                return self._synthetic_page()
+            data=maker.load_contract(
+                ROOT/"tests"/"fixtures"/"unitree-b2-new-real-pilot"/"maker-live-contract.json")
+            if url.endswith("/b2/"):
+                return ('<ul class="parameter b2">' + "".join(
+                    '<li><div class="name">' + escape(row["source_label"]) +
+                    '</div><div class="value"><p>' +
+                    escape(row["models"]["B2"]) + '</p></div></li>'
+                    for row in data["categories"][0]["rows"]) + '</ul>').encode()
+            raise AssertionError("Unexpected manufacturer source: "+url)
+        with patch.object(maker,'fetch',side_effect=source_for):
             result=maker.monitor_all(ROOT)
-        self.assertEqual(len(result),1)
-        self.assertEqual(result[0]['parameter_rows'],37)
-        self.assertEqual(result[0]['cells_checked'],74)
-        self.assertEqual(result[0]['status'],'SOURCE_MATCH_TRANSLATION_REVIEW_PENDING')
+        self.assertEqual(len(result),2)
+        self.assertEqual([(x["parameter_rows"],x["cells_checked"]) for x in result],
+                         [(37,74),(19,19)])
+        self.assertTrue(all(x["status"]=="SOURCE_MATCH_TRANSLATION_REVIEW_PENDING"
+                            for x in result))
 
     def _synthetic_page(self):
         v=['<div class="decompose"><ul class="versions"><li></li>',

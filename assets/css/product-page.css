@@ -456,3 +456,7 @@ body:has(.product-page-hero) .compact-dark-cta h2{
   body:has(.product-page-hero) .priority-category-main{grid-column:auto;min-height:205px}
   body:has(.product-page-hero) .compact-dark-cta h2{font-size:clamp(25px,6.4vw,28px)!important}
 }
+
+/* C19/C20: catalog filtering empty/loading states (no new animation/skeleton). */
+.product-list-loading,.product-filter-empty{margin:20px 0;padding:16px 20px;border:1px solid #d9d9d9;border-radius:10px;color:#333;background:#fff;font-size:14px;line-height:1.6}
+.product-filter button:focus-visible{outline:3px solid #0069b5;outline-offset:3px}

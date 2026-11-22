@@ -19,6 +19,27 @@
       if (!cards.length) return false;
 
       cards.forEach((card) => {
+        // One-time, product-fact-preserving fallback for broken manufacturer
+        // media. Never substitute or silently relabel a different robot photo.
+        const visual = card.querySelector('.product-visual');
+        const image = visual?.querySelector('img');
+        if (image && !image.dataset.aa8FallbackBound) {
+          image.dataset.aa8FallbackBound = 'true';
+          const showFallback = () => {
+            if (image.naturalWidth !== 0) return;
+            visual.classList.add('has-image-error');
+            image.hidden = true;
+            if (!visual.querySelector('.product-image-fallback')) {
+              const fallback = document.createElement('span');
+              fallback.className = 'product-image-fallback';
+              fallback.setAttribute('role', 'status');
+              fallback.textContent = '画像を表示できません。製品の詳細をご確認ください。';
+              visual.appendChild(fallback);
+            }
+          };
+          image.addEventListener('error', showFallback, { once: true });
+          if (image.complete && image.naturalWidth === 0) showFallback();
+        }
         const config = priorityMap[card.id] || { order: 99, label: '比較対象' };
         card.dataset.productOrder = String(config.order);
 

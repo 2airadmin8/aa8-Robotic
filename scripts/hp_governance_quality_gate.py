@@ -13,6 +13,10 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import os
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
 from pathlib import Path
 import re
 import sys
@@ -42,6 +46,274 @@ def ensure(condition: bool, reason: str) -> None:
         raise ValueError("AA8_GOVERNANCE_HOLD: " + reason)
 
 
+
+def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
+    """Fail closed on stale pinned Figma/Drive design manifests in existing CI.
+
+    This validates consistency of the version-pinned source review, NOT remote
+    Figma live node status or completion of prototype-only component variants.
+    """
+    trace = json.loads((root / TRACE).read_text("utf-8"))
+    visual = json.loads((root / "ops/brand-preview/corporate-product-visual-v33.json")
+                        .read_text("utf-8"))
+    tokens = json.loads((root / "ops/brand-preview/figma-product-v33-tokens.json")
+                        .read_text("utf-8"))
+    cand = trace["designSources"]["visualCandidateV33"]
+    pin = cand["latestDesignEvidence"]
+    mirror = visual["latestDesignEvidence"]
+    native = visual["figmaNative"]
+    evidence = pin["designEvidence"]
+    ensure(pin == mirror, "V3.3 design snapshot drift between trace and visual contract")
+    ensure(evidence == tokens["$sourceEvidence"],
+           "V3.3 source evidence drift between trace and tokens")
+    doc = (root / "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md").read_text("utf-8")
+    ensure(("Source SHA256:** " + evidence["normalizedUtf8Sha256"]) in doc
+           and "14 = previous eight" in doc
+           and "38 = eight V3.2" in doc
+           and "REFERENCE_ONLY" in doc,
+           "original V3.3 design doc stale against pinned evidence")
+    ensure(evidence["documentId"] == "1SMjAR3RL1gQRhbAWefENBi6QXypLw4xX"
+           and evidence["documentUrl"].startswith("https://drive.google.com/file/d/")
+           and re.fullmatch(r"[0-9a-f]{64}", evidence["normalizedUtf8Sha256"])
+           and evidence["status"] == "SOURCE_DOCUMENT_REVIEWED_NOT_LIVE_FIGMA_REVALIDATED",
+           "V3.3 source must be pinned, never fabricated as live Figma verified")
+    ensure(pin["nativeComponentsTotal"] == 14
+           and pin["baselineComponents"] == 8
+           and pin["addedReferenceComponents"] == 6
+           and pin["nativeVariablesTotal"] == 38
+           and pin["legacyVariables"] == 8
+           and pin["v33BaseVariables"] == 20
+           and pin["spacingVariables"] == 10,
+           "2026-11-21 Figma component/variable manifest count drift")
+    ensure(native["componentsCount"] == 14
+           and native["componentTopLevel"] == 14
+           and len(native["components"]) == 14
+           and cand["figmaNodes"] == native["components"]
+           and cand["figmaVariables"]["count"] == 38
+           and native["nativeVariablesTotal"] == 38,
+           "Figma node IDs or design trace out of sync")
+    ensure(pin["componentVariantsStatus"] == "NOT_FULLY_VERIFIED_REFERENCE_ONLY"
+           and pin["spacingVariableDetailReadback"] == "HOLD_STARTER_TEAM_LOCK"
+           and native["componentVariantsStatus"] == pin["componentVariantsStatus"]
+           and native["spacingVariableDetailReadback"] ==
+               pin["spacingVariableDetailReadback"]
+           and native["newReferenceOnlyComponents"] == 6,
+           "unverified component variants or spacing must not be promoted")
+    values = [4,8,12,16,24,32,40,48,64,80]
+    ensure(pin["spacingValuesPx"] == values and native["spacingValuesPx"] == values
+           and pin["spacingGroup"] == "v33/spacing/",
+           "Spacing 10-token source contract drift")
+    spacing = tokens["dimension"]["spacing"]
+    ensure(list(spacing) == [str(v) for v in values] and all(
+        spacing[str(v)] == {"$type": "dimension", "$value": f"{v}px"}
+        for v in values), "Figma tokens spacing values/order are stale")
+    # CSS mapping is checked against pinned native-variable values, without
+    # claiming live Figma component property binding or a remote change webhook.
+    site_css = (root / "assets/css/site.css").read_text("utf-8")
+    css_spacing = re.findall(
+        r"--aa8-v33-spacing-([0-9]+)\s*:\s*([0-9]+)px\s*;", site_css)
+    ensure(css_spacing == [(str(v),str(v)) for v in values],
+           "C07 Figma spacing-to-CSS values/count/order drift")
+    ensure(all(f"var(--aa8-v33-spacing-{v})" in site_css
+               for v in (8,12,24)),
+           "C07 spacing bridge must be used by existing components")
+    entries = visual["htmlComponentManagement"]
+    ensure(len(entries) == 20 and [x["id"] for x in entries] ==
+           [f"C{i:02d}" for i in range(1,21)],
+           "20 HTML component roles required, no duplicates or omissions")
+    c08 = entries[7]
+    ensure(c08["id"] == "C08"
+           and c08.get("figmaNode") == cand["figmaNodes"]["buttonsCTA"]
+           and c08.get("figmaVariantStatus") == "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c08.get("designTokenRefs") == ["color.brand.deep","color.surface.page"]
+           and c08.get("htmlPattern") == "a.button.primary / a.button.secondary"
+           and c08.get("jsOwner") == "N/A_NATIVE_ANCHOR"
+           and c08.get("unitQA","").startswith("tests/hub-pages-visual.spec.js")
+           and c08.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C08 source-to-code/QA trace must remain pinned, Figma variants not attested")
+    site_css = (root / "assets/css/site.css").read_text("utf-8")
+    ensure(tokens["color"]["brand"]["deep"]["$value"] == "#0069B5"
+           and "--blue-dark:#0069b5" in site_css.lower()
+           and ".button.primary{color:#fff;background:var(--blue-dark)}" in site_css
+           and ".button:focus-visible{outline:3px solid var(--navy)" in site_css
+           and (root / "tests/hub-pages-visual.spec.js").is_file(),
+           "C08 Corporate deep-blue CTA style or keyboard focus mapping drift")
+    c09 = entries[8]
+    ensure(c09["id"] == "C09"
+           and c09.get("figmaNode") == cand["figmaNodes"]["buttonsCTA"]
+           and c09.get("figmaVariantStatus") == "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c09.get("codeOwner") == "assets/js/contact-v2.js"
+           and c09.get("cssOwner") == "assets/css/contact-v2.css"
+           and c09.get("designTokenRefs") == ["color.brand.deep","color.surface.page"]
+           and c09.get("htmlPattern") ==
+               "dialog[data-contact-confirm] button[data-confirm-send]"
+           and c09.get("jsOwner") == "assets/js/contact-v2.js::setSendingState"
+           and c09.get("qaSafetyBoundary") == "NEGATIVE_ACK_INTERCEPT_ONLY_NO_REAL_POST"
+           and c09.get("unitQA","").startswith("tests/contact-inquiry.spec.js")
+           and c09.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C09 native Figma variants remain unverified; existing JS/CSS/QA owners required")
+    c09_css = (root / "assets/css/contact-v2.css").read_text("utf-8")
+    c09_js = (root / "assets/js/contact-v2.js").read_text("utf-8")
+    c09_html = (root / "contact.html").read_text("utf-8")
+    ensure("background: var(--blue-dark, #0069b5);" in c09_css
+           and ".confirm-open-mail:hover:not(:disabled)" in c09_css
+           and ".confirm-open-mail:focus-visible" in c09_css
+           and '.confirm-open-mail[aria-busy="true"]' in c09_css
+           and "function setSendingState(button, sending)" in c09_js
+           and "button.disabled = sending" in c09_js
+           and "button.setAttribute('aria-busy', String(sending))" in c09_js
+           and "data-confirm-send" in c09_html
+           and (root / "tests/contact-inquiry.spec.js").is_file(),
+           "C09 UI state CSS/JS/HTML QA contract drift")
+    c10 = entries[9]
+    ensure(c10["id"] == "C10"
+           and c10.get("figmaNode") == cand["figmaNodes"]["cardsContent"]
+           and c10.get("figmaVariantStatus") ==
+               "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c10.get("codeOwner") == "assets/css/product-cards-v2.css"
+           and c10.get("cssOwner") == c10.get("codeOwner")
+           and c10.get("designTokenRefs") ==
+               ["color.brand.deep","color.text.body","color.spec.even"]
+           and c10.get("productFactsSource") == "data/products.json"
+           and c10.get("jsOwner") ==
+               "assets/js/site.js::data-product-list + assets/js/product-cards-v2.js::enhance"
+           and c10.get("unitQA","").startswith("tests/product-list-visual.spec.js")
+           and c10.get("qaSafetyBoundary") == "NO_PRODUCT_MASTER_CHANGE_NO_INQUIRY_POST"
+           and c10.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C10 Figma/SSOT/code/QA trace unverified")
+    c10_css = (root / "assets/css/product-cards-v2.css").read_text("utf-8")
+    c10_js = (root / "assets/js/product-cards-v2.js").read_text("utf-8")
+    c10_html = (root / "assets/js/site.js").read_text("utf-8")
+    ensure(tokens["color"]["brand"]["deep"]["$value"] == "#0069B5"
+           and tokens["color"]["text"]["body"]["$value"] == "#333333"
+           and tokens["color"]["spec"]["even"]["$value"] == "#F5F5F5"
+           and ".research-product-card:focus-within" in c10_css
+           and ".research-product-card .product-image-fallback" in c10_css
+           and ".research-product-card .product-visual img[hidden]" in c10_css
+           and "aspect-ratio: 16 / 9;" in c10_css
+           and "outline: 3px solid #0069b5" in c10_css
+           and re.search(r"(?s)\.product-card-actions \.product-link\s*\{[^}]*color:\s*#0069b5", c10_css)
+           and re.search(r"(?s)\.product-condition-meta \.tag::before\s*\{[^}]*color:\s*#37515d", c10_css)
+           and "image.addEventListener('error', showFallback, { once: true })" in c10_js
+           and "fallback.textContent = '画像を表示できません" in c10_js
+           and "image.dataset.aa8FallbackBound" in c10_js
+           and "data-product-groups=" in c10_html
+           and (root / "tests/product-list-visual.spec.js").is_file(),
+           "C10 card focus/image fallback/Product SSOT implementation drift")
+    states = [x["status"] for x in entries]
+    ensure(states.count("IMPLEMENTED") == 6
+           and states.count("TOKEN_DETAIL_READBACK_HOLD") == 1
+           and states.count("REFERENCE_ONLY") == 12
+           and states.count("NOT_SHARED") == 1,
+           "HTML component readiness must not be misrepresented")
+    ensure(all(x["role"] and x["codeOwner"] and
+               (root / x["codeOwner"]).is_file() for x in entries),
+           "HTML component owner must be an existing code file")
+    management = cand["commonHtmlManagement"]
+    ensure((management["total"],management["implemented"],
+            management["tokenDetailHold"],management["referenceOnly"],
+            management["notShared"]) == (20,6,1,12,1),
+           "design/code HTML inventory stale")
+    ensure(management["warnOnlySpacingEmptyPx"] == {"pc":160,"sp":120}
+           and management["all20AreNotFinished"] is True,
+           "spacing warnings are review-only, not auto-red CI")
+    ensure(pin["productionDesignRelease"] == "HOLD_CEO"
+           and visual["release"] == "NO_GO_UNTIL_ALL_REQUIRED_GATES",
+           "design metadata cannot authorize publishing")
+    return {"status":"PINNED_DESIGN_CONSISTENT_NOT_FIGMA_LIVE",
+            "figmaComponents":14,"figmaVariables":38,
+            "htmlComponents":20,"referenceOnly":12,"release":"HOLD"}
+
+
+
+def validate_figma_live_binding(root: Path = ROOT, *,
+                                token: str | None = None,
+                                opener=None) -> dict:
+    """Read exact remote Figma node/binding evidence, never a local JSON clone.
+
+    Unlike the existing pinned snapshot check, this fails closed when token,
+    accepted file version, actual variable aliases or real component variants
+    are absent. No Enterprise-only Variables API and no Figma write access.
+    """
+    manifest=json.loads((root/"ops/brand-preview/corporate-product-visual-v33.json")
+                        .read_text("utf-8")).get("figmaLiveValidation",{})
+    key=manifest.get("fileKey")
+    version=manifest.get("acceptedVersion")
+    refs=manifest.get("nativeNodes",{})
+    aliases=manifest.get("requiredBindingIds",{})
+    ensure(key=="uo56l51NgUqit4976LV6P2"
+           and refs=={"C07":"217:288","C08":"217:73",
+                      "C09":"217:73","C10":"217:127"},
+           "FIGMA_LIVE_DESIGN_HOLD wrong original Figma source or node IDs")
+    ensure(isinstance(version,str) and len(version)>=8
+           and version.upper() not in ("UNKNOWN","UNVERIFIED","PENDING"),
+           "FIGMA_LIVE_DESIGN_HOLD original file acceptedVersion is not attested")
+    counts={"C07":10,"C08":2,"C09":2,"C10":3}
+    for role,min_count in counts.items():
+        ids=aliases.get(role)
+        ensure(isinstance(ids,list) and len(ids)>=min_count
+               and len(ids)==len(set(ids))
+               and all(isinstance(x,str) and x.startswith("VariableID:")
+                       for x in ids),
+               "FIGMA_LIVE_DESIGN_HOLD incomplete native variable IDs for "+role)
+    credential=token if token is not None else os.environ.get("AA8_FIGMA_FILE_READ_TOKEN","")
+    ensure(bool(credential),
+           "FIGMA_LIVE_DESIGN_HOLD missing authorized file_content:read token")
+    uri="https://api.figma.com/v1/files/"+key+"/nodes?ids="+quote(
+        ",".join(dict.fromkeys(refs.values())),safe=",:")
+    req=Request(uri,headers={"X-Figma-Token":credential,"Accept":"application/json"})
+    try:
+        response=(opener or urlopen)(req,timeout=15)
+        with response as stream:
+            ensure(getattr(stream,"status",200)==200,
+                   "FIGMA_LIVE_DESIGN_HOLD remote source HTTP not 200")
+            result=json.loads(stream.read().decode("utf-8"))
+    except (HTTPError,URLError,TimeoutError,UnicodeDecodeError,
+            json.JSONDecodeError) as exc:
+        raise ValueError("AA8_GOVERNANCE_HOLD: FIGMA_LIVE_DESIGN_HOLD remote read failed") from exc
+    ensure(result.get("version")==version,
+           "FIGMA_LIVE_DESIGN_HOLD real Figma version changed; contract is stale")
+    nodes=result.get("nodes") or {}
+    def visit(node):
+        if not isinstance(node,dict):return []
+        return [node]+[x for child in node.get("children",[]) for x in visit(child)]
+    def bound_ids(node):
+        out=set()
+        for n in visit(node):
+            # Real REST file node boundVariables, not a local variable table.
+            stack=[n.get("boundVariables") or {}]
+            while stack:
+                item=stack.pop()
+                if isinstance(item,dict):
+                    if item.get("type")=="VARIABLE_ALIAS" and isinstance(item.get("id"),str):
+                        out.add(item["id"])
+                    stack.extend(item.values())
+                elif isinstance(item,list):stack.extend(item)
+        return out
+    for role,node_id in refs.items():
+        item=(nodes.get(node_id) or {}).get("document")
+        ensure(isinstance(item,dict) and item.get("id")==node_id,
+               "FIGMA_LIVE_DESIGN_HOLD remote node missing "+role)
+        present=bound_ids(item)
+        ensure(set(aliases[role]).issubset(present),
+               "FIGMA_LIVE_DESIGN_HOLD actual node variable binding missing "+role)
+        if role in manifest.get("requireFormalVariants",[]):
+            props=item.get("componentPropertyDefinitions") or {}
+            desired=({"C08":{"Default","Hover","Active","Focus","Disabled","Loading"},
+                      "C09":{"Default","Hover","Active","Focus","Disabled","Loading"},
+                      "C10":{"Product","Related","Resource"}})[role]
+            listed={str(v) for p in props.values()
+                    if p.get("type")=="VARIANT"
+                    for v in p.get("variantOptions",[])}
+            children=[n for n in item.get("children",[])
+                      if n.get("type")=="COMPONENT"]
+            ensure(item.get("type")=="COMPONENT_SET"
+                   and desired.issubset(listed)
+                   and len(children)>=len(desired),
+                   "FIGMA_LIVE_DESIGN_HOLD static sample not the required formal variants "+role)
+    return {"status":"FIGMA_LIVE_BINDING_PASS","fileKey":key,
+            "version":version,"nodes":refs,"productionRelease":"HOLD_CEO"}
+
 def load(root: Path = ROOT) -> dict:
     c = json.loads((root / TRACE).read_text("utf-8"))
     ensure(c.get("schemaVersion") == "aa8-hp-design-code-trace-v1",
@@ -61,6 +333,7 @@ def load(root: Path = ROOT) -> dict:
     ensure("NOT_AUTOMATIC_FIGMA_PIXEL_PARITY" in
            c["designSources"]["visual"]["verification"],
            "must not claim automated Figma pixel proof")
+    validate_v33_design_snapshot(root)
     semantic_doc = root / c["designSources"]["content"]["path"]
     renderer_doc = root / c["designSources"]["factory"]["path"]
     ensure(semantic_doc.is_file() and renderer_doc.is_file(),
@@ -143,6 +416,29 @@ def field(sections: dict[str, str], section: str, label: str) -> str:
     return answer
 
 
+def verify_declared_exact_files(body: str, files: list[str]) -> None:
+    """Optional bounded-file declaration in the existing PR body; never an approval."""
+    headings = list(re.finditer(
+        r"(?im)^###\s+Exactly\s+(one|two|three|four|five|six|seven|eight|nine|ten|[1-9][0-9]*)\s+changed files\s*$",
+        body))
+    if not headings:
+        return
+    ensure(len(headings) == 1, "duplicate declared changed files section")
+    names = {"one": 1, "two": 2, "three": 3, "four": 4,
+             "five": 5, "six": 6, "seven": 7, "eight": 8,
+             "nine": 9, "ten": 10}
+    declared = headings[0].group(1).lower()
+    count = names[declared] if declared in names else int(declared)
+    tail = body[headings[0].end():]
+    next_heading = re.search(r"(?m)^#{2,3}\s+", tail)
+    block = tail[:next_heading.start()] if next_heading else tail
+    listed = re.findall(r"(?m)^[ \t]*[0-9]+\.[ \t]*`([^`\r\n]+)`", block)
+    ensure(count > 0 and len(listed) == count
+           and len(set(listed)) == count
+           and set(listed) == set(files),
+           "declared changed files do not equal GitHub verified PR Diff")
+
+
 def normalized_files(file_list: object) -> list[str]:
     if isinstance(file_list, dict):
         ensure(isinstance(file_list.get("files"), list), "invalid file list")
@@ -190,6 +486,7 @@ def check_pr(event: dict, file_list: object, root: Path = ROOT,
            (pr.get("head") or {}).get("repo", {}).get("full_name") == REPO,
            "wrong repository or fork")
     files = normalized_files(file_list)
+    verify_declared_exact_files(pr.get('body') or '', files)
     scope = [f for f in files if f in SCOPED_FILES or f.startswith(SCOPED_ROOTS)]
     created = datetime.fromisoformat(str(pr["created_at"]).replace("Z", "+00:00"))
     effective = datetime.fromisoformat(c["effectiveFromUtc"])
@@ -344,7 +641,7 @@ def a2_visual_evidence(head_sha: str, screenshots: Path, out: Path) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("audit", "pr", "visual-evidence"))
+    parser.add_argument("mode", choices=("audit", "pr", "visual-evidence", "figma-live"))
     parser.add_argument("--event", type=Path)
     parser.add_argument("--files", type=Path)
     parser.add_argument("--head-sha")
@@ -353,7 +650,9 @@ def main() -> int:
     args = parser.parse_args()
     try:
         c = load()
-        if args.mode == "visual-evidence":
+        if args.mode == "figma-live":
+            print(json.dumps(validate_figma_live_binding(),ensure_ascii=False))
+        elif args.mode == "visual-evidence":
             ensure(args.head_sha and args.screenshots and args.out,
                    "A2 exact SHA, screenshots and output required")
             result = a2_visual_evidence(args.head_sha,

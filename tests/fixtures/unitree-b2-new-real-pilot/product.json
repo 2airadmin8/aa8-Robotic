@@ -1,0 +1,410 @@
+{
+  "id": "unitree-b2",
+  "name": "Unitree B2",
+  "manufacturerId": "unitree",
+  "manufacturerName": "Unitree",
+  "categoryId": "quadruped",
+  "categoryLabel": "産業用四足ロボット",
+  "status": "preview_only",
+  "statusLabel": "資料照合・型番相談",
+  "visibility": "hidden",
+  "summary": "産業設備の巡検や階段・不整地の走行検証に向けた四足プラットフォーム。歩行時40kg超の積載などはメーカー所定条件の公表値であり、日本の現場での達成を保証するものではありません。",
+  "filterGroups": [
+    "quadruped"
+  ],
+  "detailPage": "products/unitree-b2.html",
+  "image": "assets/img/products/unitree/b2-factory-pilot/b2-hero.png",
+  "imageAlt": "Unitree B2の本体とセンサー構成を示すメーカー資料",
+  "imageStatus": "official",
+  "imageSourcePage": "https://www.unitree.com/b2/",
+  "imageAssetSourceUrl": "SOURCE_URL_IN_MEDIA_PROVENANCE",
+  "priceStatus": "inquiry",
+  "priceLabel": "価格・見積確認",
+  "leadTimeStatus": "confirmation_required",
+  "leadTimeLabel": "納期確認",
+  "verifiedAt": "2026-11-21",
+  "pageStandard": {
+    "version": "3.1",
+    "family": "quadruped",
+    "customerValue": "産業施設の巡検・不整地PoCを、積載条件・走行経路・安全要件から検討",
+    "preserveSectionIds": [],
+    "resourcesHref": "/resources.html",
+    "supportHref": "/support.html#poc",
+    "showBridge": false
+  },
+  "pageFactory": {
+    "template": "g1-v1",
+    "releaseReady": false,
+    "officialSource": "https://www.unitree.com/b2/",
+    "title": "Unitree B2｜産業用四足ロボットの巡検・不整地PoC相談｜AirAdmin8 Robotics",
+    "metaDescription": "Unitree B2の公式仕様、巡検・階段・不整地での適用検討、研究・PoCに必要な構成・通信・安全条件を整理。日本向けの構成・価格・納期は個別確認。",
+    "heroLead": "産業巡検・不整地PoCを、実際の走行条件から設計。",
+    "facts": [
+      {
+        "label": "最大関節トルク",
+        "value": "約360N·m",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "label": "機体重量",
+        "value": "約60kg（バッテリー込み）",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "label": "防塵防水等級",
+        "value": "IP67（公開資料値）",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "label": "歩行時の連続積載",
+        "value": "40kg超（メーカー公称条件下）",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    ],
+    "applications": [
+      {
+        "title": "産業施設の巡検",
+        "description": "電力・産業設備の巡検用途例。実環境への適合、操縦方式は別途確認。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "title": "不整地・階段環境の検証",
+        "description": "メーカーの階段・障害物走行例に基づくPoC条件の検討。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    ],
+    "specifications": [
+      {
+        "parameter": "unitree-b2-01-01",
+        "category": "B2 Official Parameters",
+        "label": "Size(Standing)",
+        "value": "B2: ≈ 1098mm×450mm×645mm",
+        "models": {
+          "B2": "≈ 1098mm×450mm×645mm"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-02",
+        "category": "B2 Official Parameters",
+        "label": "Size(Lying Prone)",
+        "value": "B2: ≈ 880mm×460mm×330mm",
+        "models": {
+          "B2": "≈ 880mm×460mm×330mm"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-03",
+        "category": "B2 Official Parameters",
+        "label": "Weight",
+        "value": "B2: ≈ 60kg Total weight (battery included)",
+        "models": {
+          "B2": "≈ 60kg Total weight (battery included)"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-04",
+        "category": "B2 Official Parameters",
+        "label": "Battery Performance",
+        "value": "B2: Battery capacity 45Ah(2250Wh)，voltage 58V",
+        "models": {
+          "B2": "Battery capacity 45Ah(2250Wh)，voltage 58V"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-05",
+        "category": "B2 Official Parameters",
+        "label": "Endurance Ability",
+        "value": "B2: Battery life 4-6h Walking without load > 5h, and the mileage > 20km Walking with 20kg load > 4h, and the mileage> 15km",
+        "models": {
+          "B2": "Battery life 4-6h Walking without load > 5h, and the mileage > 20km Walking with 20kg load > 4h, and the mileage> 15km"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-06",
+        "category": "B2 Official Parameters",
+        "label": "Wheeled Foot",
+        "value": "B2: Optional",
+        "models": {
+          "B2": "Optional"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-07",
+        "category": "B2 Official Parameters",
+        "label": "Load(Standing)",
+        "value": "B2: ≥ 120kg",
+        "models": {
+          "B2": "≥ 120kg"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-08",
+        "category": "B2 Official Parameters",
+        "label": "Load(Walking)",
+        "value": "B2: > 40kg",
+        "models": {
+          "B2": "> 40kg"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-09",
+        "category": "B2 Official Parameters",
+        "label": "Continuous Stair Climbing",
+        "value": "B2: Stairs of 20~25cm",
+        "models": {
+          "B2": "Stairs of 20~25cm"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-10",
+        "category": "B2 Official Parameters",
+        "label": "Climbing Ability",
+        "value": "B2: Climb up and down stairs of 40cm in forward direction",
+        "models": {
+          "B2": "Climb up and down stairs of 40cm in forward direction"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-11",
+        "category": "B2 Official Parameters",
+        "label": "Operating Temperature",
+        "value": "B2: -20℃ ~ 55℃",
+        "models": {
+          "B2": "-20℃ ~ 55℃"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-12",
+        "category": "B2 Official Parameters",
+        "label": "Climbing Angle",
+        "value": "B2: > 45°",
+        "models": {
+          "B2": "> 45°"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-13",
+        "category": "B2 Official Parameters",
+        "label": "Running Speed",
+        "value": "B2: > 6m/s [1]",
+        "models": {
+          "B2": "> 6m/s [1]"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-14",
+        "category": "B2 Official Parameters",
+        "label": "Ditch Jumping Width",
+        "value": "B2: 0.5~1.2m",
+        "models": {
+          "B2": "0.5~1.2m"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-15",
+        "category": "B2 Official Parameters",
+        "label": "Max Jump Distance",
+        "value": "B2: > 1.6m",
+        "models": {
+          "B2": "> 1.6m"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-16",
+        "category": "B2 Official Parameters",
+        "label": "Ingress Protection",
+        "value": "B2: IP67",
+        "models": {
+          "B2": "IP67"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-17",
+        "category": "B2 Official Parameters",
+        "label": "Control and Perception",
+        "value": "B2: Standard Configuration: Intel Core i5 (Platform Function), Intel Core i7 (User Development) Optional Configuration: Multiple brands and models available, Intel Core i7 or Orin NX (Maximum up to 3 devices)",
+        "models": {
+          "B2": "Standard Configuration: Intel Core i5 (Platform Function), Intel Core i7 (User Development) Optional Configuration: Multiple brands and models available, Intel Core i7 or Orin NX (Maximum up to 3 devices)"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-18",
+        "category": "B2 Official Parameters",
+        "label": "Sensing Sensor",
+        "value": "B2: 3D LiDAR ×1 + Depth camera ×2 + Optical camera ×2 (Varies with different configurations)",
+        "models": {
+          "B2": "3D LiDAR ×1 + Depth camera ×2 + Optical camera ×2 (Varies with different configurations)"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "parameter": "unitree-b2-01-19",
+        "category": "B2 Official Parameters",
+        "label": "External Interface",
+        "value": "B2: 1000M-Base-Ethernet×4 USB3.0×4 12V×4 5V×1 24V×4 BAT×1",
+        "models": {
+          "B2": "1000M-Base-Ethernet×4 USB3.0×4 12V×4 5V×1 24V×4 BAT×1"
+        },
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    ],
+    "faq": [
+      {
+        "question": "B2と車輪構成の違いは？",
+        "answer": "メーカーは車輪脚構成をオプションとして案内しています。適用可能な構成は見積時に確認します。"
+      },
+      {
+        "question": "巡検を完全自動で行えますか？",
+        "answer": "実際の自律走行・センサー・安全条件・二次開発の要否は現場ごとに確認します。"
+      },
+      {
+        "question": "価格・納期は確定していますか？",
+        "answer": "日本向け構成・価格・納期・保守条件は確認中です。"
+      }
+    ],
+    "images": [
+      {
+        "src": "assets/img/products/unitree/b2-factory-pilot/b2-hero.png",
+        "alt": "Unitree B2の本体とセンサー構成を示すメーカー資料",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "src": "assets/img/products/unitree/b2-factory-pilot/b2-inspection-01.jpg",
+        "alt": "Unitree B2公式ページ掲載の階段・巡検環境",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "src": "assets/img/products/unitree/b2-factory-pilot/b2-terrain-02.jpg",
+        "alt": "Unitree B2公式ページ掲載の不整地走行例",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      {
+        "src": "assets/img/products/unitree/b2-factory-pilot/b2-gallery-03.jpg",
+        "alt": "Unitree B2公式ページ掲載の赤外線検証例",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    ],
+    "videos": [
+      {
+        "src": "assets/img/products/unitree/b2-factory-pilot/b2-demo.mp4",
+        "poster": "assets/img/products/unitree/b2-factory-pilot/b2-inspection-01.jpg",
+        "label": "メーカー公開デモ映像",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    ],
+    "ctaImageIndexes": [
+      0,
+      1,
+      2
+    ],
+    "contactService": "industrial-poc",
+    "relatedProductIds": [
+      "unitree-go2-edu"
+    ],
+    "inheritSourcePage": true,
+    "visualContract": "corporate-v33-strict",
+    "familyEvidence": {
+      "payload": {
+        "title": "積載・機体構成",
+        "description": "メーカー公表の立位120kg以上と歩行時40kg超は異なる試験条件です。機材重量、バッテリー、連続運転条件を用途別に照合します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "terrain": {
+        "title": "階段・斜面・不整地",
+        "description": "メーカーは階段・岩場・傾斜地の例を掲載。段差、路面、気象条件、許容転倒リスクは現場PoCで確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "autonomy": {
+        "title": "遠隔操作・自律性",
+        "description": "巡検シナリオの実装は自律走行機能の保証ではありません。巡回ルート、障害物回避、監視者の介入方式を設計前に確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "communication": {
+        "title": "通信・取得データ",
+        "description": "無線接続、センサー構成、遠隔監視、記録・保管要件は選択構成で異なるため、正式な技術資料と現場の通信条件で照合します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      },
+      "safety": {
+        "title": "安全・運用責任",
+        "description": "IP67の公表値だけでは現場安全性を保証しません。立入制限、停止操作、転倒対策、保険・保守の責任分界をPoC前に確認します。",
+        "sourceUrl": "https://www.unitree.com/b2/"
+      }
+    },
+    "v3": {
+      "resourceSearchUrl": "/resources.html",
+      "resourceLinkLabel": "関連技術資料・SDK情報",
+      "developerDocsCaution": "SDK・ROS2・外部制御APIの利用可否、対応OS、ライセンスはメーカー・選択SKUごとに確認する必要があります。",
+      "sdkDownloadNote": "未検証SDKのダウンロード提供や使用可能保証は行っていません。",
+      "sdk": [
+        {
+          "title": "SDKと二次開発の範囲",
+          "description": "メーカーが提供する開発機能の種類・配布条件・対応SDK/OSを個別確認。ROS2対応は未検証のため断定しません。"
+        },
+        {
+          "title": "センサー・計算構成",
+          "description": "標準・オプションの搭載計算機、LiDAR、カメラ、通信機器を正式SKUに紐づけて確認。"
+        },
+        {
+          "title": "計測データと責任範囲",
+          "description": "ログ取得、遠隔監視、実験データの保持・権限、保守体制はPoC設計時に確認します。"
+        }
+      ],
+      "solutions": [
+        {
+          "title": "工場・設備の巡検PoC",
+          "description": "通路幅、設備障害物、点検対象、通信死角、運用者の介入条件から導入適合を確認。",
+          "supportSectionId": "poc"
+        },
+        {
+          "title": "階段・屋外不整地の走破評価",
+          "description": "メーカー実演の走破性能を実環境にそのまま保証せず、段差・斜度・走行速度・転倒リスクを試験で検証。",
+          "supportSectionId": "poc"
+        },
+        {
+          "title": "追加センサー・積載の構成",
+          "description": "必要な機材重量と稼働時間を整理し、積載位置、通信、安全対策を含む選定支援を検討。",
+          "supportSectionId": "setup"
+        }
+      ],
+      "process": [
+        {
+          "title": "01｜運用目的を確認",
+          "description": "巡検・走行研究の対象経路、点検頻度、必要な記録を明確化。"
+        },
+        {
+          "title": "02｜実機構成を照合",
+          "description": "B2本体と付属機材、計算機・センサー・通信方式をメーカー資料で確認。"
+        },
+        {
+          "title": "03｜安全・PoC条件を設計",
+          "description": "立入区域、緊急停止、操作者、評価指標と試験中止条件を決定。"
+        },
+        {
+          "title": "04｜見積・納期・支援範囲を確認",
+          "description": "日本向け価格、在庫、輸入、保守・保証の提供条件を個別に確認。"
+        },
+        {
+          "title": "05｜実証・評価を開始",
+          "description": "条件が揃い次第、狭い対象区画で走行・通信・データ取得の適合性を検証。"
+        }
+      ]
+    }
+  }
+}

@@ -10,6 +10,42 @@
   transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 
+/* C10: same card instance stays keyboard-discoverable as pointer hover.
+   Corporate deep-blue token, visible even if the image cannot be loaded. */
+.research-product-card:focus-within {
+  outline: 3px solid #0069b5;
+  outline-offset: 2px;
+}
+.research-product-card a:focus-visible {
+  outline: 3px solid #0069b5;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.research-product-card .product-visual img[hidden] {
+  display: none !important;
+}
+.research-product-card .product-visual.has-image-error {
+  background: #f5f5f5;
+}
+.research-product-card .product-image-fallback {
+  position: absolute;
+  inset: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  color: #333333;
+  font-size: .82rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.6;
+}
+/* Body-action text needs AA contrast on its existing white surface. */
+.research-product-card .product-link,
+.research-product-card .product-consult-link {
+  color: #0069b5;
+}
+
 .research-product-card:hover {
   transform: translateY(-3px);
   border-color: #9fcfdf;
@@ -45,7 +81,7 @@
 .research-product-card .product-visual {
   position: relative;
   display: block;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-bottom: 1px solid #dce8ed;
   background:
@@ -106,7 +142,7 @@
 .product-condition-meta .tag::before {
   content: "要確認";
   margin-right: 6px;
-  color: #7b9099;
+  color: #37515d;
   font-size: .62rem;
   font-weight: 800;
 }
@@ -119,7 +155,7 @@
   display: inline-flex;
   align-items: center;
   min-height: 42px;
-  color: #008fbd;
+  color: #0069b5;
 }
 
 .product-consult-link {
