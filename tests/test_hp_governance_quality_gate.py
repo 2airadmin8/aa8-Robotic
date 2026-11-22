@@ -211,6 +211,27 @@ class GovernanceQualityGateTests(unittest.TestCase):
                 gate.check_pr(event(body=body),
                               [{"filename": "includes/site-header.html"}])
 
+    def test_declared_exact_three_files_refuses_unauthorized_fourth(self):
+        declared = (GOOD_BODY + "\n### Exactly three changed files\n"
+                    "1. `scripts/hp_governance_quality_gate.py` - governance\n"
+                    "2. `.github/workflows/ci.yml` - existing workflow\n"
+                    "3. `tests/test_hp_governance_quality_gate.py` - regression\n"
+                    "### Verified safe preflight\n")
+        three = [{"filename": x} for x in (
+            "scripts/hp_governance_quality_gate.py",
+            ".github/workflows/ci.yml",
+            "tests/test_hp_governance_quality_gate.py",
+        )]
+        self.assertEqual(gate.check_pr(event(body=declared), three)["changed"], 3)
+        with self.assertRaisesRegex(ValueError, "declared changed files"):
+            gate.check_pr(event(body=declared), three + [
+                {"filename": ".github/workflows/pages.yml"}])
+        tampered = declared.replace(
+            "`tests/test_hp_governance_quality_gate.py`",
+            "`tests/pretend_approved.py`")
+        with self.assertRaisesRegex(ValueError, "declared changed files"):
+            gate.check_pr(event(body=tampered), three)
+
     def test_shared_change_without_all_13_and_pc_sp_holds(self):
         body = GOOD_BODY.replace("All 13 products PC1440/SP390",
                                  "This single page only")

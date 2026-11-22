@@ -416,6 +416,29 @@ def field(sections: dict[str, str], section: str, label: str) -> str:
     return answer
 
 
+def verify_declared_exact_files(body: str, files: list[str]) -> None:
+    """Optional bounded-file declaration in the existing PR body; never an approval."""
+    headings = list(re.finditer(
+        r"(?im)^###\s+Exactly\s+(one|two|three|four|five|six|seven|eight|nine|ten|[1-9][0-9]*)\s+changed files\s*$",
+        body))
+    if not headings:
+        return
+    ensure(len(headings) == 1, "duplicate declared changed files section")
+    names = {"one": 1, "two": 2, "three": 3, "four": 4,
+             "five": 5, "six": 6, "seven": 7, "eight": 8,
+             "nine": 9, "ten": 10}
+    declared = headings[0].group(1).lower()
+    count = names[declared] if declared in names else int(declared)
+    tail = body[headings[0].end():]
+    next_heading = re.search(r"(?m)^#{2,3}\s+", tail)
+    block = tail[:next_heading.start()] if next_heading else tail
+    listed = re.findall(r"(?m)^[ \t]*[0-9]+\.[ \t]*`([^`\r\n]+)`", block)
+    ensure(count > 0 and len(listed) == count
+           and len(set(listed)) == count
+           and set(listed) == set(files),
+           "declared changed files do not equal GitHub verified PR Diff")
+
+
 def normalized_files(file_list: object) -> list[str]:
     if isinstance(file_list, dict):
         ensure(isinstance(file_list.get("files"), list), "invalid file list")
@@ -463,6 +486,7 @@ def check_pr(event: dict, file_list: object, root: Path = ROOT,
            (pr.get("head") or {}).get("repo", {}).get("full_name") == REPO,
            "wrong repository or fork")
     files = normalized_files(file_list)
+    verify_declared_exact_files(pr.get('body') or '', files)
     scope = [f for f in files if f in SCOPED_FILES or f.startswith(SCOPED_ROOTS)]
     created = datetime.fromisoformat(str(pr["created_at"]).replace("Z", "+00:00"))
     effective = datetime.fromisoformat(c["effectiveFromUtc"])
