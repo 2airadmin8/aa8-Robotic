@@ -148,3 +148,17 @@ Figma Starter MCP metadata calls were explicitly rate-limited; normal logged-in 
 - **CEO确认简化审批：** 独立人员人工美工签名为 **NOT_REQUIRED_BY_CEO**，不是假定存在或伪造他人签字。自动设备QA是通过的验收依据。最后一次集中上线批准只由CEO对精确最终HEAD进行业务决定。
 - **最终证据及SHA：** https://drive.google.com/drive/folders/1FwqkSmAkTyscLAX0tls2uBqh9ZSO0jvG （Figma Components8、Variables20、Legacy8 unchanged、独立实机139条测试、源母站截图/HTML实际渲染比较和全部SHA256）。
 - **Production仍HOLD：** Figma/视觉设计门禁PASS不等于CEO批准上线；原PR #180仍Draft。当前仅追记治理文件，形成新HEAD后须重新确认CI/独立设备QA；所有安全及回滚门禁满足时，才对CEO提交一次集中批准。A2仍独立releaseReady=false/noindex，绝不作为额外新公开SKU随此次上线。
+
+
+### 2026-11-22 P0 last-mile Figma native and READY bootstrap evidence
+
+**Figma original file real edit, partial only**:
+- Native editable QA node [288:1537](https://www.figma.com/design/uo56l51NgUqit4976LV6P2?node-id=288-1537) on existing V3.3 page 02 is a genuine Auto Layout Frame named AA8V3.3C07SpacingBindingQA. It has two actual Rectangle children with native item spacing bound via the original variable picker to v33/spacing/16 (16px). Reopening exact node in a new Chrome tab verified it persisted. Original source sample node 217:288 was not modified; original values were not changed.
+- This proves only a SINGLE native bound gap in an isolated QA Frame, not all 10 values and not the original C07 production component. Exact VariableID and official API REST boundVariables readback remain unverified, and C08/C09/C10 formal Variant/Property/Binding remain HOLD. Existing Design Contract statuses are NOT promoted.
+
+**One existing original PR #198 trusted-bootstrap candidate**:
+- Current candidate HEAD 3a83f72d891ec76684fe966260887b5b5b99b8bd comprises existing .github/workflows/ci.yml, scripts/factory_gate_router.py, and tests/test_factory_gate_router.py to enable an opt-in trusted-main READY event, CEO-only issue-body/label/repo exact-SHA preflight, a single global serialized Lease against Issue #129 and explicitly NO automatic Writer/DeepSeek.
+- This code is still in the Draft PR, not deployed on protected main. Default repo variable AA8_FACTORY_READY_ENABLED is not enabled. A later CEO approval must explicitly authorize a 3-file-only bootstrap commit on the trusted main, NOT wholesale merge of PR #198; verify main immediately before applying, and retain rollback of that commit and variable OFF switch. No new Workflow or Runner.
+- Live GitHub READY issues found: 0. No true labeled issue wakeup RunID, no DeepSeek auto-commit, no two-task unattended execution. Unit tests are synthetic negatives and must not be labeled production E2E.
+- The official Figma File Nodes read-only gate is implemented already in scripts/hp_governance_quality_gate.py but cannot complete authenticated positive proof without existing Figma file_content:read, real file version and alias IDs. Figma Starter specialized tool quota and absence of authorized read credential are actual remaining blockers.
+- All C07-C10 final five-layer design signoffs remain HOLD. Preview CI success is source/asset integrity only, never production merge authorization.
