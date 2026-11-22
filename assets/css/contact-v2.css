@@ -259,10 +259,22 @@
   background: #ffffff;
 }
 
+/* C09: send confirmation states use the approved Corporate deep token.
+   The existing contact-v2.js remains the only submission state owner. */
 .confirm-open-mail {
   border: 0;
   color: #ffffff;
-  background: #009ad2;
+  background: var(--blue-dark, #0069b5);
+}
+.confirm-open-mail:hover:not(:disabled) {
+  background: var(--blue-dark, #0069b5);
+  box-shadow: 0 8px 20px rgba(0,105,181,.18);
+}
+.confirm-open-mail:active:not(:disabled) { transform: translateY(1px); }
+.confirm-back:focus-visible,
+.confirm-open-mail:focus-visible {
+  outline: 3px solid var(--blue-dark, #0069b5);
+  outline-offset: 3px;
 }
 
 .confirm-open-mail[aria-busy="true"],

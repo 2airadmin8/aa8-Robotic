@@ -252,7 +252,35 @@
       "id": "C09",
       "role": "Button states",
       "codeOwner": "assets/js/contact-v2.js",
-      "status": "REFERENCE_ONLY"
+      "status": "REFERENCE_ONLY",
+      "figmaNode": "217:73",
+      "figmaVariantStatus": "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES",
+      "designTokenRefs": [
+        "color.brand.deep",
+        "color.surface.page"
+      ],
+      "cssOwner": "assets/css/contact-v2.css",
+      "cssSelectors": [
+        ".confirm-open-mail",
+        ".confirm-open-mail:hover:not(:disabled)",
+        ".confirm-open-mail:active:not(:disabled)",
+        ".confirm-open-mail:focus-visible",
+        ".confirm-open-mail[aria-busy=\"true\"]"
+      ],
+      "htmlPattern": "dialog[data-contact-confirm] button[data-confirm-send]",
+      "jsOwner": "assets/js/contact-v2.js::setSendingState",
+      "statesVerifiedBySource": [
+        "default",
+        "hover",
+        "focus-visible",
+        "active",
+        "disabled",
+        "loading",
+        "failure-reset"
+      ],
+      "unitQA": "tests/contact-inquiry.spec.js :: C09 confirmation focus hover loading disabled failure retry",
+      "qaSafetyBoundary": "NEGATIVE_ACK_INTERCEPT_ONLY_NO_REAL_POST",
+      "independentQAGate": "PENDING_EXACT_SHA_SEPARATE_DEVICE"
     },
     {
       "id": "C10",

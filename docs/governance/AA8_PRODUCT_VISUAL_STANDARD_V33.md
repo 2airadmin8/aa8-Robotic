@@ -16,6 +16,14 @@
 
 **Historical note:** Older lines dated 2026-11-19/20 containing 8 components / 20 variables are records of previous states and DO NOT supersede this current pinned snapshot.
 
+### 2026-11-22 C09 button states (isolation only / Figma Variant HOLD)
+- **Existing UI ownership:** The confirmation button `dialog[data-contact-confirm] button[data-confirm-send]` uses the existing `assets/js/contact-v2.js::setSendingState` for real in-flight disable, `aria-busy`, loading text and failure restoration; no second event handler/Factory was added.
+- **Actual RED:** In real Chrome PC1440/SP390/SP360, confirmation button white text against old `#009ad2` was only **3.2047:1**, below the normal-text 4.5:1 accessibility baseline.
+- **Minimal CSS correction:** Existing `assets/css/contact-v2.css` now uses approved Corporate deep blue `#0069b5` for normal and hover, adds explicit `:focus-visible` and `:active`, retains disabled and loading visual states. Contact form routing, endpoint, submission token and origin checks remain unchanged.
+- **Applicable single-component QA:** Original `tests/contact-inquiry.spec.js` C09 test covers keyboard Tab/focus visible, hover, contrast, 44px touch target, actual JS in-flight disable/busy/loading, blocked duplicate click and negative-ack recovery at 1440/390/360. It intercepts all Apps Script requests in the browser and replies negative only; this is **not** a real inquiry/CRM E2E nor evidence of sent mail.
+- **Design limitation:** Reference Figma Node `217:73` is a sample; Button States Variants/Properties/Token Binding have NOT been natively validated. C09 remains `REFERENCE_ONLY`, no 20/20 claim until all layers and separate device SHA attestation.
+
+
 ### 2026-11-22 C08 CTA AA contrast correction (SOURCE/CSS/HTML QA, Figma Variant HOLD)
 - **Scope and Figma reference:** Existing `AA8 V3.3 / P1 / Buttons and CTA States` reference Node `217:73` (still sample-only; no verified Figma Variant/Component Property Binding). No redesign of product-specific `.g1-button` or shared Header `.nav-cta`.
 - **Real RED:** Main-site shared `.button.primary` was white text on brand-primary `#009BD2`, computed text/background contrast **3.17:1** at PC1440, SP390, SP360; ordinary 4.5:1 accessibility threshold FAIL. This is a production-like isolated HTML screenshot/browser finding, not a claim about customer feedback.

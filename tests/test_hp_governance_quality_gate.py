@@ -87,11 +87,16 @@ class GovernanceQualityGateTests(unittest.TestCase):
             "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
             "assets/css/site.css",
             "tests/hub-pages-visual.spec.js",
+            "assets/css/contact-v2.css",
+            "assets/js/contact-v2.js",
+            "contact.html",
+            "tests/contact-inquiry.spec.js",
         )
         for mutation in (
             "old-8-20", "missing-component", "spacing-number", "falsely-approved",
             "cross-file-drift", "missing-src-proof", "stale-policy-doc",
-            "spacing-css-drift", "spacing-css-no-usage", "c08-owner-drift", "c08-variant-false-pass"
+            "spacing-css-drift", "spacing-css-no-usage", "c08-owner-drift", "c08-variant-false-pass",
+            "c09-css-drift", "c09-fake-variant-pass", "c09-owner-drift"
         ):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
                 t = Path(td)
@@ -134,6 +139,15 @@ class GovernanceQualityGateTests(unittest.TestCase):
                     visual["htmlComponentManagement"][7]["figmaNode"]="999:1"
                 elif mutation=="c08-variant-false-pass":
                     visual["htmlComponentManagement"][7]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c09-css-drift":
+                    f=t/"assets/css/contact-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "background: var(--blue-dark, #0069b5);",
+                        "background: #009ad2;"),encoding="utf-8")
+                elif mutation=="c09-fake-variant-pass":
+                    visual["htmlComponentManagement"][8]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c09-owner-drift":
+                    visual["htmlComponentManagement"][8]["jsOwner"]="scripts/other_factory.js"
                 elif mutation=="stale-policy-doc":
                     f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
                     f.write_text(f.read_text("utf-8").replace(

@@ -134,6 +134,33 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
            and ".button:focus-visible{outline:3px solid var(--navy)" in site_css
            and (root / "tests/hub-pages-visual.spec.js").is_file(),
            "C08 Corporate deep-blue CTA style or keyboard focus mapping drift")
+    c09 = entries[8]
+    ensure(c09["id"] == "C09"
+           and c09.get("figmaNode") == cand["figmaNodes"]["buttonsCTA"]
+           and c09.get("figmaVariantStatus") == "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c09.get("codeOwner") == "assets/js/contact-v2.js"
+           and c09.get("cssOwner") == "assets/css/contact-v2.css"
+           and c09.get("designTokenRefs") == ["color.brand.deep","color.surface.page"]
+           and c09.get("htmlPattern") ==
+               "dialog[data-contact-confirm] button[data-confirm-send]"
+           and c09.get("jsOwner") == "assets/js/contact-v2.js::setSendingState"
+           and c09.get("qaSafetyBoundary") == "NEGATIVE_ACK_INTERCEPT_ONLY_NO_REAL_POST"
+           and c09.get("unitQA","").startswith("tests/contact-inquiry.spec.js")
+           and c09.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C09 native Figma variants remain unverified; existing JS/CSS/QA owners required")
+    c09_css = (root / "assets/css/contact-v2.css").read_text("utf-8")
+    c09_js = (root / "assets/js/contact-v2.js").read_text("utf-8")
+    c09_html = (root / "contact.html").read_text("utf-8")
+    ensure("background: var(--blue-dark, #0069b5);" in c09_css
+           and ".confirm-open-mail:hover:not(:disabled)" in c09_css
+           and ".confirm-open-mail:focus-visible" in c09_css
+           and '.confirm-open-mail[aria-busy="true"]' in c09_css
+           and "function setSendingState(button, sending)" in c09_js
+           and "button.disabled = sending" in c09_js
+           and "button.setAttribute('aria-busy', String(sending))" in c09_js
+           and "data-confirm-send" in c09_html
+           and (root / "tests/contact-inquiry.spec.js").is_file(),
+           "C09 UI state CSS/JS/HTML QA contract drift")
     states = [x["status"] for x in entries]
     ensure(states.count("IMPLEMENTED") == 6
            and states.count("TOKEN_DETAIL_READBACK_HOLD") == 1
