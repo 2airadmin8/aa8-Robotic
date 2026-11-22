@@ -193,3 +193,34 @@ for(const width of [1440,390]){
   });
  }
 }
+
+
+// C18/C20 accessibility component regression: real Chrome, PC/SP.
+for(const width of [1440,390]){
+  test('C18 FAQ keyboard open close and focus '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(base+'/products/unitree-g1-plus.html',{waitUntil:'domcontentloaded'});
+    const item=page.locator('[data-faq-item]').first();
+    const summary=item.locator('summary');
+    await expect(summary).toBeVisible();
+    await summary.focus();
+    await page.keyboard.press('Enter');
+    await expect(item).toHaveAttribute('open','');
+    await page.keyboard.press('Enter');
+    await expect(item).not.toHaveAttribute('open','');
+    const focus=await summary.evaluate(el=>getComputedStyle(el).outlineStyle);
+    expect(focus).not.toBe('none');
+  });
+  test('C20 real site honors reduced-motion preference '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
+    const css=await page.locator('.hero .button').first().evaluate(el=>({
+      transition:getComputedStyle(el).transitionDuration,
+      scroll:getComputedStyle(document.documentElement).scrollBehavior
+    }));
+    // Existing V3.3 accessibility CSS uses 0.00001s, effectively zero.
+    expect(parseFloat(css.transition)).toBeLessThanOrEqual(0.01);
+    expect(css.scroll).toBe('auto');
+  });
+}
