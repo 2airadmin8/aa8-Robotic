@@ -120,11 +120,15 @@
   // 公開HTMLに事前描画済みの場合は、その内容をそのまま利用する。
   // ------------------------------------------------------------
   document.querySelectorAll('[data-product-list]').forEach(async (root) => {
+    const loadingStatus = document.querySelector('[data-product-loading]');
+    root.setAttribute('aria-busy', 'true');
     const hasPrerenderedCards = root.dataset.prerenderedProducts === 'true'
       && root.querySelector('.research-product-card');
 
     if (hasPrerenderedCards) {
       initialiseProductFilter(root);
+      root.removeAttribute('aria-busy');
+      if (loadingStatus) loadingStatus.hidden = true;
       return;
     }
 
@@ -184,13 +188,17 @@
     } catch (error) {
       console.error('製品情報の読み込みに失敗しました。', error);
       if (!root.querySelector('.research-product-card')) {
-        root.innerHTML = '<p>製品情報を読み込めませんでした。</p>';
+        root.innerHTML = '<p role="alert">製品情報を読み込めませんでした。時間をおいて再度お試しください。</p>';
       }
+    } finally {
+      root.removeAttribute('aria-busy');
+      if (loadingStatus) loadingStatus.hidden = true;
     }
   });
 
   function initialiseProductFilter(productRoot) {
     const filterButtons = [...document.querySelectorAll('[data-product-filter]')];
+    const emptyStatus = document.querySelector('[data-product-empty]');
     if (!filterButtons.length || productRoot.dataset.filterReady === 'true') return;
     productRoot.dataset.filterReady = 'true';
 
@@ -202,15 +210,20 @@
 
     const applyFilter = (selectedGroup, shouldTrack = false) => {
       filterButtons.forEach((button) => {
-        button.classList.toggle('is-active', button.dataset.productFilter === selectedGroup);
+        const active = button.dataset.productFilter === selectedGroup;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
       });
 
+      let visibleCount = 0;
       productRoot.querySelectorAll('[data-product-groups]').forEach((card) => {
         const groups = card.dataset.productGroups.split(' ');
         const groupMatch = selectedGroup === 'all' || groups.includes(selectedGroup);
         const makerMatch = maker === 'all' || card.dataset.productMaker === maker;
         card.hidden = !(groupMatch && makerMatch);
+        if (!card.hidden) visibleCount += 1;
       });
+      if (emptyStatus) emptyStatus.hidden = visibleCount !== 0;
 
       const url = new URL(window.location.href);
       if (selectedGroup === 'all') url.searchParams.delete('filter');

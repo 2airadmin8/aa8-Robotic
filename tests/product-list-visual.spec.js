@@ -45,3 +45,35 @@ for(const width of [1440,390]){
     expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
   });
 }
+
+
+for(const width of [1440,390]){
+  test('C19 catalog filter states and accessible empty result '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.goto(base+'/products.html?filter=quadruped',{waitUntil:'networkidle'});
+    const root=page.locator('[data-product-list]');
+    await expect(root).not.toHaveAttribute('aria-busy','true');
+    await expect(page.locator('[data-product-loading]')).toBeHidden();
+    const quad=page.locator('[data-product-filter="quadruped"]');
+    await expect(quad).toHaveAttribute('aria-pressed','true');
+    await expect(page.locator('[data-product-filter="all"]')).toHaveAttribute('aria-pressed','false');
+    expect(await root.locator('.research-product-card:visible').count()).toBeGreaterThan(0);
+    await page.locator('[data-product-filter="all"]').click();
+    await expect(page.locator('[data-product-filter="all"]')).toHaveAttribute('aria-pressed','true');
+    await page.goto(base+'/products.html?maker=not-a-maker&filter=humanoid',{waitUntil:'networkidle'});
+    await expect(root.locator('.research-product-card')).toHaveCount(12);
+    await expect(root.locator('.research-product-card:visible')).toHaveCount(0);
+    await expect(page.locator('[data-product-empty]')).toBeVisible();
+    await expect(page.locator('[data-product-filter="humanoid"]')).toHaveAttribute('aria-pressed','true');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  });
+  test('C20 loading completes and C13 catalog fetch failure is visible '+width+'px',async({page})=>{
+    await page.setViewportSize({width,height:900});
+    await page.route('**/data/products.json',route=>route.abort('failed'));
+    await page.goto(base+'/products.html',{waitUntil:'networkidle'});
+    await expect(page.locator('[data-product-list] [role="alert"]')).toContainText('読み込めませんでした');
+    await expect(page.locator('[data-product-loading]')).toBeHidden();
+    await expect(page.locator('[data-product-list]')).not.toHaveAttribute('aria-busy','true');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(1);
+  });
+}
