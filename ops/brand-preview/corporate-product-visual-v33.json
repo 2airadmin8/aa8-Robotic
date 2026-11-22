@@ -286,7 +286,26 @@
       "id": "C10",
       "role": "Product related cards",
       "codeOwner": "assets/css/product-cards-v2.css",
-      "status": "REFERENCE_ONLY"
+      "status": "REFERENCE_ONLY",
+      "figmaNode": "217:127",
+      "figmaVariantStatus": "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES",
+      "designTokenRefs": [
+        "color.brand.deep",
+        "color.text.body",
+        "color.spec.even"
+      ],
+      "cssOwner": "assets/css/product-cards-v2.css",
+      "cssSelectors": [
+        ".research-product-card:focus-within",
+        ".research-product-card .product-image-fallback",
+        ".research-product-card .product-visual.has-image-error"
+      ],
+      "htmlPattern": "article.research-product-card[data-product-groups] > a.product-visual + div.product-body",
+      "jsOwner": "assets/js/site.js::data-product-list + assets/js/product-cards-v2.js::enhance",
+      "productFactsSource": "data/products.json",
+      "unitQA": "tests/product-list-visual.spec.js :: C10 related product card content hover focus keyboard + C10 image failure shows honest accessible fallback",
+      "independentQAGate": "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+      "qaSafetyBoundary": "NO_PRODUCT_MASTER_CHANGE_NO_INQUIRY_POST"
     },
     {
       "id": "C11",

@@ -91,12 +91,17 @@ class GovernanceQualityGateTests(unittest.TestCase):
             "assets/js/contact-v2.js",
             "contact.html",
             "tests/contact-inquiry.spec.js",
+            "assets/css/product-cards-v2.css",
+            "assets/js/product-cards-v2.js",
+            "assets/js/site.js",
+            "tests/product-list-visual.spec.js",
         )
         for mutation in (
             "old-8-20", "missing-component", "spacing-number", "falsely-approved",
             "cross-file-drift", "missing-src-proof", "stale-policy-doc",
             "spacing-css-drift", "spacing-css-no-usage", "c08-owner-drift", "c08-variant-false-pass",
-            "c09-css-drift", "c09-fake-variant-pass", "c09-owner-drift"
+            "c09-css-drift", "c09-fake-variant-pass", "c09-owner-drift",
+            "c10-css-no-focus", "c10-js-no-fallback", "c10-fake-figma-pass", "c10-ssot-drift", "c10-media-aspect-drift", "c10-detail-contrast", "c10-prefix-contrast"
         ):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
                 t = Path(td)
@@ -148,6 +153,34 @@ class GovernanceQualityGateTests(unittest.TestCase):
                     visual["htmlComponentManagement"][8]["figmaVariantStatus"]="PASS_VERIFIED"
                 elif mutation=="c09-owner-drift":
                     visual["htmlComponentManagement"][8]["jsOwner"]="scripts/other_factory.js"
+                elif mutation=="c10-css-no-focus":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        ".research-product-card:focus-within",
+                        ".research-product-card:focus-removed"),encoding="utf-8")
+                elif mutation=="c10-media-aspect-drift":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "aspect-ratio: 16 / 9;", "aspect-ratio: 16 / 10;"),encoding="utf-8")
+                elif mutation=="c10-detail-contrast":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "  min-height: 42px;\n  color: #0069b5;\n}",
+                        "  min-height: 42px;\n  color: #008fbd;\n}"),encoding="utf-8")
+                elif mutation=="c10-prefix-contrast":
+                    f=t/"assets/css/product-cards-v2.css"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "  color: #37515d;\n  font-size: .62rem;",
+                        "  color: #7b9099;\n  font-size: .62rem;"),encoding="utf-8")
+                elif mutation=="c10-js-no-fallback":
+                    f=t/"assets/js/product-cards-v2.js"
+                    f.write_text(f.read_text("utf-8").replace(
+                        "image.addEventListener('error', showFallback, { once: true })",
+                        "/* error listener removed */"),encoding="utf-8")
+                elif mutation=="c10-fake-figma-pass":
+                    visual["htmlComponentManagement"][9]["figmaVariantStatus"]="PASS_VERIFIED"
+                elif mutation=="c10-ssot-drift":
+                    visual["htmlComponentManagement"][9]["productFactsSource"]="data/other-products.json"
                 elif mutation=="stale-policy-doc":
                     f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
                     f.write_text(f.read_text("utf-8").replace(

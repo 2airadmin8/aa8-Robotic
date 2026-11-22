@@ -161,6 +161,41 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
            and "data-confirm-send" in c09_html
            and (root / "tests/contact-inquiry.spec.js").is_file(),
            "C09 UI state CSS/JS/HTML QA contract drift")
+    c10 = entries[9]
+    ensure(c10["id"] == "C10"
+           and c10.get("figmaNode") == cand["figmaNodes"]["cardsContent"]
+           and c10.get("figmaVariantStatus") ==
+               "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c10.get("codeOwner") == "assets/css/product-cards-v2.css"
+           and c10.get("cssOwner") == c10.get("codeOwner")
+           and c10.get("designTokenRefs") ==
+               ["color.brand.deep","color.text.body","color.spec.even"]
+           and c10.get("productFactsSource") == "data/products.json"
+           and c10.get("jsOwner") ==
+               "assets/js/site.js::data-product-list + assets/js/product-cards-v2.js::enhance"
+           and c10.get("unitQA","").startswith("tests/product-list-visual.spec.js")
+           and c10.get("qaSafetyBoundary") == "NO_PRODUCT_MASTER_CHANGE_NO_INQUIRY_POST"
+           and c10.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C10 Figma/SSOT/code/QA trace unverified")
+    c10_css = (root / "assets/css/product-cards-v2.css").read_text("utf-8")
+    c10_js = (root / "assets/js/product-cards-v2.js").read_text("utf-8")
+    c10_html = (root / "assets/js/site.js").read_text("utf-8")
+    ensure(tokens["color"]["brand"]["deep"]["$value"] == "#0069B5"
+           and tokens["color"]["text"]["body"]["$value"] == "#333333"
+           and tokens["color"]["spec"]["even"]["$value"] == "#F5F5F5"
+           and ".research-product-card:focus-within" in c10_css
+           and ".research-product-card .product-image-fallback" in c10_css
+           and ".research-product-card .product-visual img[hidden]" in c10_css
+           and "aspect-ratio: 16 / 9;" in c10_css
+           and "outline: 3px solid #0069b5" in c10_css
+           and re.search(r"(?s)\.product-card-actions \.product-link\s*\{[^}]*color:\s*#0069b5", c10_css)
+           and re.search(r"(?s)\.product-condition-meta \.tag::before\s*\{[^}]*color:\s*#37515d", c10_css)
+           and "image.addEventListener('error', showFallback, { once: true })" in c10_js
+           and "fallback.textContent = '画像を表示できません" in c10_js
+           and "image.dataset.aa8FallbackBound" in c10_js
+           and "data-product-groups=" in c10_html
+           and (root / "tests/product-list-visual.spec.js").is_file(),
+           "C10 card focus/image fallback/Product SSOT implementation drift")
     states = [x["status"] for x in entries]
     ensure(states.count("IMPLEMENTED") == 6
            and states.count("TOKEN_DETAIL_READBACK_HOLD") == 1

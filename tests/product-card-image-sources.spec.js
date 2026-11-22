@@ -1,6 +1,6 @@
 const { createHash } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
-const base='http://127.0.0.1:4173';
+const base=(process.env.AA8_TEST_BASE||'http://127.0.0.1:4173').replace(/\/$/,'');
 const originals={
   'unitree-g1-d':{file:'assets/img/products/unitree/catalog/unitree-g1-d.png',sha:'fe461d3c3195d5821c42fd5eca3731e0a36fd522bbe4b0b4b5c370dd7a8c2cc1',w:801,h:800},
   'unitree-g1':{file:'assets/img/products/unitree/catalog/28_g1.png',sha:'9d7cc68a7b6e53f337c7bf92ba942bd8d115d56cec63a7f79aaee8fee79ecbd7',w:500,h:500}
