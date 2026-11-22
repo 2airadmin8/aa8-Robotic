@@ -229,7 +229,24 @@
       "id": "C08",
       "role": "Buttons CTA",
       "codeOwner": "assets/css/site.css",
-      "status": "REFERENCE_ONLY"
+      "status": "REFERENCE_ONLY",
+      "figmaNode": "217:73",
+      "figmaVariantStatus": "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES",
+      "designTokenRefs": [
+        "color.brand.deep",
+        "color.surface.page"
+      ],
+      "cssSelectors": [
+        ".button",
+        ".button.primary",
+        ".button.secondary",
+        ".button:focus-visible"
+      ],
+      "htmlPattern": "a.button.primary / a.button.secondary",
+      "jsOwner": "N/A_NATIVE_ANCHOR",
+      "unitQA": "tests/hub-pages-visual.spec.js :: C08 shared CTA primary secondary AA contrast focus routes",
+      "independentQAGate": "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+      "ownerBoundary": "No change to header .nav-cta or product-only .g1-button"
     },
     {
       "id": "C09",

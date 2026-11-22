@@ -7,10 +7,16 @@ body{margin:0;font-family:"Noto Sans JP","Montserrat","Hiragino Kaku Gothic ProN
 a{text-decoration:none;color:inherit}
 img{max-width:100%;display:block}
 .wrap{width:min(var(--max),calc(100% - 40px));margin:auto}
-.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border-radius:999px;font-weight:900;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
-.button.primary{color:#fff;background:var(--blue)}
-.button.primary:hover{background:var(--blue-dark);box-shadow:0 10px 24px rgba(0,154,210,.22);transform:translateY(-1px)}
-.button.secondary{border:1px solid var(--navy);color:var(--navy);background:#fff}
+/* C08 shared Button / CTA: existing anchor component, Corporate V3.3 deep token.
+   Keep link navigation native; no duplicate JS event owner or Figma-variant claim. */
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 20px;border:1px solid transparent;border-radius:999px;font-weight:900;text-align:center;text-decoration:none;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+.button.primary{color:#fff;background:var(--blue-dark)}
+.button.primary:hover{background:var(--blue-dark);box-shadow:0 10px 24px rgba(0,105,181,.22);transform:translateY(-1px)}
+.button.secondary{border-color:var(--navy);color:var(--navy);background:#fff}
+.button.secondary:hover{background:var(--soft)}
+.button:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+.button:active{transform:translateY(1px)}
+button.button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;transform:none}
 .hero{padding:76px 0 68px;background:radial-gradient(circle at 84% 12%,#dff7ff 0,#f5fbfd 34%,#fff 72%)}
 .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center}
 .eyebrow{margin:0 0 10px;color:var(--blue);font-size:.8rem;font-weight:900;letter-spacing:.14em}

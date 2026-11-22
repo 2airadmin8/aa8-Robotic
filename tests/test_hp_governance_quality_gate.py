@@ -86,11 +86,12 @@ class GovernanceQualityGateTests(unittest.TestCase):
             "ops/brand-preview/figma-product-v33-tokens.json",
             "docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md",
             "assets/css/site.css",
+            "tests/hub-pages-visual.spec.js",
         )
         for mutation in (
             "old-8-20", "missing-component", "spacing-number", "falsely-approved",
             "cross-file-drift", "missing-src-proof", "stale-policy-doc",
-            "spacing-css-drift", "spacing-css-no-usage"
+            "spacing-css-drift", "spacing-css-no-usage", "c08-owner-drift", "c08-variant-false-pass"
         ):
             with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as td:
                 t = Path(td)
@@ -129,6 +130,10 @@ class GovernanceQualityGateTests(unittest.TestCase):
                     f=t/"assets/css/site.css"
                     f.write_text(f.read_text("utf-8").replace(
                         "var(--aa8-v33-spacing-24)","24px"),encoding="utf-8")
+                elif mutation=="c08-owner-drift":
+                    visual["htmlComponentManagement"][7]["figmaNode"]="999:1"
+                elif mutation=="c08-variant-false-pass":
+                    visual["htmlComponentManagement"][7]["figmaVariantStatus"]="PASS_VERIFIED"
                 elif mutation=="stale-policy-doc":
                     f=t/"docs/governance/AA8_PRODUCT_VISUAL_STANDARD_V33.md"
                     f.write_text(f.read_text("utf-8").replace(

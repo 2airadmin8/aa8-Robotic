@@ -117,6 +117,23 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
     ensure(len(entries) == 20 and [x["id"] for x in entries] ==
            [f"C{i:02d}" for i in range(1,21)],
            "20 HTML component roles required, no duplicates or omissions")
+    c08 = entries[7]
+    ensure(c08["id"] == "C08"
+           and c08.get("figmaNode") == cand["figmaNodes"]["buttonsCTA"]
+           and c08.get("figmaVariantStatus") == "REFERENCE_ONLY_NO_VERIFIED_PROPERTIES"
+           and c08.get("designTokenRefs") == ["color.brand.deep","color.surface.page"]
+           and c08.get("htmlPattern") == "a.button.primary / a.button.secondary"
+           and c08.get("jsOwner") == "N/A_NATIVE_ANCHOR"
+           and c08.get("unitQA","").startswith("tests/hub-pages-visual.spec.js")
+           and c08.get("independentQAGate") == "PENDING_EXACT_SHA_SEPARATE_DEVICE",
+           "C08 source-to-code/QA trace must remain pinned, Figma variants not attested")
+    site_css = (root / "assets/css/site.css").read_text("utf-8")
+    ensure(tokens["color"]["brand"]["deep"]["$value"] == "#0069B5"
+           and "--blue-dark:#0069b5" in site_css.lower()
+           and ".button.primary{color:#fff;background:var(--blue-dark)}" in site_css
+           and ".button:focus-visible{outline:3px solid var(--navy)" in site_css
+           and (root / "tests/hub-pages-visual.spec.js").is_file(),
+           "C08 Corporate deep-blue CTA style or keyboard focus mapping drift")
     states = [x["status"] for x in entries]
     ensure(states.count("IMPLEMENTED") == 6
            and states.count("TOKEN_DETAIL_READBACK_HOLD") == 1

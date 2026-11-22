@@ -16,6 +16,13 @@
 
 **Historical note:** Older lines dated 2026-11-19/20 containing 8 components / 20 variables are records of previous states and DO NOT supersede this current pinned snapshot.
 
+### 2026-11-22 C08 CTA AA contrast correction (SOURCE/CSS/HTML QA, Figma Variant HOLD)
+- **Scope and Figma reference:** Existing `AA8 V3.3 / P1 / Buttons and CTA States` reference Node `217:73` (still sample-only; no verified Figma Variant/Component Property Binding). No redesign of product-specific `.g1-button` or shared Header `.nav-cta`.
+- **Real RED:** Main-site shared `.button.primary` was white text on brand-primary `#009BD2`, computed text/background contrast **3.17:1** at PC1440, SP390, SP360; ordinary 4.5:1 accessibility threshold FAIL. This is a production-like isolated HTML screenshot/browser finding, not a claim about customer feedback.
+- **Minimal source fix:** Existing `assets/css/site.css` uses approved Corporate `color.brand.deep=#0069B5` for primary CTA with white text; keeps 48px min-height, native link navigation, responsive width and existing form prefill. Adds explicit keyboard `:focus-visible` outline, secondary hover and native disabled-button styling. No new JS or second component factory.
+- **Real QA:** `tests/hub-pages-visual.spec.js` C08 verifies contrast ≥4.5, primary/secondary visibility, 44px touch height, focus ring and genuine local navigation at 1440/390/360. All Figma Properties/Variants and exact SHA independent QA remain separate gates; C08 manifest is explicitly `REFERENCE_ONLY` until Native Figma linkage is actually proven.
+
+
 ### 2026-11-22 C07 native variable readback and CSS bridge (PARTIAL / HOLD)
 - **Actual Figma UI readback:** Existing file `uo56l51NgUqit4976LV6P2`, original native variable collection `AA8 Robotics V3.2 / Core Colors` = 38 variables; filtered group `v33/spacing` displays ten native number variables and values: `4, 8, 12, 16, 24, 32, 40, 48, 64, 80`. This is a human-operated editor readback, not the Figma API, source-change polling, or independent device attestation. Reference component `217:288` is a design sample, not binding proof.
 - **Actual code bridge:** Existing `assets/css/site.css` defines `--aa8-v33-spacing-{4,8,12,16,24,32,40,48,64,80}` with the identical pixel values; existing `.actions`, `.meta`, `.section-heading` now consume 12/8/24 respectively without changing their numerical values. The existing strict-design validator checks all ten CSS definitions against the one pinned token JSON, verifies real usage, and fails closed on CSS drift or missing usage; original regression tests contain negative cases.
