@@ -103,6 +103,16 @@ def validate_v33_design_snapshot(root: Path = ROOT) -> dict:
     ensure(list(spacing) == [str(v) for v in values] and all(
         spacing[str(v)] == {"$type": "dimension", "$value": f"{v}px"}
         for v in values), "Figma tokens spacing values/order are stale")
+    # CSS mapping is checked against pinned native-variable values, without
+    # claiming live Figma component property binding or a remote change webhook.
+    site_css = (root / "assets/css/site.css").read_text("utf-8")
+    css_spacing = re.findall(
+        r"--aa8-v33-spacing-([0-9]+)\s*:\s*([0-9]+)px\s*;", site_css)
+    ensure(css_spacing == [(str(v),str(v)) for v in values],
+           "C07 Figma spacing-to-CSS values/count/order drift")
+    ensure(all(f"var(--aa8-v33-spacing-{v})" in site_css
+               for v in (8,12,24)),
+           "C07 spacing bridge must be used by existing components")
     entries = visual["htmlComponentManagement"]
     ensure(len(entries) == 20 and [x["id"] for x in entries] ==
            [f"C{i:02d}" for i in range(1,21)],

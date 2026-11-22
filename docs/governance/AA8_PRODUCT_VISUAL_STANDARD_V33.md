@@ -16,6 +16,13 @@
 
 **Historical note:** Older lines dated 2026-11-19/20 containing 8 components / 20 variables are records of previous states and DO NOT supersede this current pinned snapshot.
 
+### 2026-11-22 C07 native variable readback and CSS bridge (PARTIAL / HOLD)
+- **Actual Figma UI readback:** Existing file `uo56l51NgUqit4976LV6P2`, original native variable collection `AA8 Robotics V3.2 / Core Colors` = 38 variables; filtered group `v33/spacing` displays ten native number variables and values: `4, 8, 12, 16, 24, 32, 40, 48, 64, 80`. This is a human-operated editor readback, not the Figma API, source-change polling, or independent device attestation. Reference component `217:288` is a design sample, not binding proof.
+- **Actual code bridge:** Existing `assets/css/site.css` defines `--aa8-v33-spacing-{4,8,12,16,24,32,40,48,64,80}` with the identical pixel values; existing `.actions`, `.meta`, `.section-heading` now consume 12/8/24 respectively without changing their numerical values. The existing strict-design validator checks all ten CSS definitions against the one pinned token JSON, verifies real usage, and fails closed on CSS drift or missing usage; original regression tests contain negative cases.
+- **Actual browser result:** PC1440/SP390 custom properties ten-of-ten match computed values, with no horizontal overflow. Homepage PC hero `.actions` gap resolves to 12px; SP390 retains an **existing approved page-specific override** of 10px, not a token-pinning failure. The 13 public products must retain their exact existing PC1440/SP390/SP360 QA; this does not authorize a shared-layout redesign.
+- **Unverified = HOLD:** Figma per-component **Variable Binding / applied padding and gap property chips**, true live remote-change-trigger detection, and independent Figma binding readback remain unverified. Native variable existence plus contract/CSS match **does not** make C07 5-layer PASS. Keep existing status HOLD; do not upgrade manifest to IMPLEMENTED or claim 20/20.
+
+
 
 ## 唯一产品与设计边界
 - 母站真实视觉正本：`https://www.air-admin8.co.jp/`；G盘正式 WordPress `themes/AirAdmin8/style.css`；记录 SHA256 和源码清单：`docs/governance/AA8_MOTHER_R41_SOURCE_TRACE_20261119.md`。
