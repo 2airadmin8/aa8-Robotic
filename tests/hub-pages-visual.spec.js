@@ -224,6 +224,14 @@ for (const width of [1440, 1280, 390, 360]) {
         invisibleDuplicate:cards.every(x=>getComputedStyle(x.querySelector('.product-consult-link')).display==='none'),
         invisiblePills:cards.every(x=>getComputedStyle(x.querySelector('.product-condition-meta')).display==='none'),
         makerCount:cards.map(x=>x.querySelectorAll('.product-maker').length),
+        makerBadges:cards.map(x=>x.querySelector('.product-visual .home-product-maker')?.textContent.trim()),
+        makerBadgePlacement:cards.every(x=>{
+          const image=x.querySelector('.product-visual').getBoundingClientRect();
+          const maker=x.querySelector('.home-product-maker').getBoundingClientRect();
+          return maker.left>=image.left+image.width*.45 && maker.right<=image.right+1
+            && maker.top>=image.top && maker.bottom<=image.top+65;
+        }),
+        bodyMakerHidden:cards.every(x=>getComputedStyle(x.querySelector('.product-maker')).display==='none'),
         noCategoryDuplicate:cards.every(x=>!x.querySelector('.product-category-label')),
         introAllVisible:cards.every(x=>getComputedStyle(x.querySelector('.product-summary')).overflow==='visible'),
         caseContrast:contrast,
@@ -241,6 +249,9 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(details.invisiblePills).toBe(true);
     expect(details.noCategoryDuplicate).toBe(true);
     expect(details.makerCount).toEqual([1,1,1]);
+    expect(details.makerBadges).toEqual(['Unitree','AgiBot','Unitree']);
+    expect(details.makerBadgePlacement).toBe(true);
+    expect(details.bodyMakerHidden).toBe(true);
     expect(details.introAllVisible).toBe(true);
     expect(details.caseContrast).toBeGreaterThanOrEqual(4.5);
     expect(details.caseUrl).toBe('cases/keio-selection.html');
