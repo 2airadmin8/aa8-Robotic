@@ -30,6 +30,14 @@ on:
         description: 'Exact PR base SHA'
         type: string
         required: false
+      ready_issue:
+        description: 'Original CEO-owned READY Issue number, verified against signed global lease'
+        type: string
+        required: false
+      ready_claim_run:
+        description: 'Trusted READY wakeup run ID, not user-generated authorization'
+        type: string
+        required: false
       feedback_comment_id:
         description: 'Authenticated CEO rejection comment ID for any eligible Draft product PR'
         type: string
@@ -61,7 +69,8 @@ jobs:
           github.event.action == 'labeled' &&
           github.event.label.name == 'READY' &&
           github.actor == '2airadmin8' &&
-          vars.AA8_FACTORY_READY_ENABLED == 'true' }}
+          vars.AA8_FACTORY_READY_ENABLED == 'true' &&
+          vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' }}
     concurrency:
       group: aa8-hp-ready-global-claim
       cancel-in-progress: false
@@ -70,6 +79,7 @@ jobs:
     permissions:
       contents: read
       issues: write
+      actions: write
       pull-requests: read
     steps:
       - name: Checkout trusted protected main only, no persistent credentials
@@ -97,7 +107,14 @@ jobs:
           gh api -X POST "repos/$GITHUB_REPOSITORY/issues/129/comments"             -f body="$lease CEO-authenticated READY claim prepared on trusted main. DeepSeek NOT_RUN; auto_commit=false; Production HOLD."             > /tmp/aa8_ready_receipt.json
           # This job is intentionally not a writer or model executor. Bootstrapping
           # only the trusted entry cannot silently start arbitrary AI edits.
-          echo 'READY_CLAIM_PREPARED_WRITER_HOLD: single issue lease recorded; no commit, no dispatch.' >> "$GITHUB_STEP_SUMMARY"
+          # Explicit CEO event / global Lease was checked on trusted main.
+          # The downstream workflow must re-fetch and verify this claim before AI.
+          head="$(python -c 'import json;print(json.load(open("/tmp/aa8_ready_preflight.json"))["head_sha"])')"
+          base="$(python -c 'import json;print(json.load(open("/tmp/aa8_ready_pr.json"))["base"]["sha"])')"
+          gh workflow run ci.yml --ref main -f autofix_pr=198 \
+            -f autofix_head="$head" -f autofix_base="$base" \
+            -f ready_issue="$READY_ISSUE" -f ready_claim_run="$GITHUB_RUN_ID"
+          echo 'READY_CLAIM_DISPATCHED_WRITER_HOLD: signed claim dispatched to original isolated proposal/QA chain. No commit yet.' >> "$GITHUB_STEP_SUMMARY"
 
   # POLICY-TRUSTED: BASE branch only, never untrusted candidate code.
   # Require this status in branch protection after its first live execution.
@@ -834,6 +851,16 @@ jobs:
             needs.build-and-verify.outputs.factory_scope != '' &&
             needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
             (github.actor == '2airadmin8' || github.actor == 'github-actions[bot]')
+          ) ||
+          (
+            vars.AA8_FACTORY_READY_ENABLED == 'true' &&
+            vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' &&
+            github.event_name == 'workflow_dispatch' &&
+            inputs.autofix_pr == '198' &&
+            inputs.ready_issue != '' && inputs.ready_claim_run != '' &&
+            inputs.feedback_comment_id == '' &&
+            needs.build-and-verify.result == 'success' &&
+            (github.actor == '2airadmin8' || github.actor == 'github-actions[bot]')
           )
         )
       }}
@@ -880,7 +907,7 @@ jobs:
             PR_BRANCH="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.ref')"
           fi
           mkdir -p /tmp/aa8_trusted_factory
-          for name in factory_autofix_policy.py deepseek_factory_autofix.py factory_feedback_rework.py; do
+          for name in factory_autofix_policy.py deepseek_factory_autofix.py factory_feedback_rework.py factory_gate_router.py; do
             git show "${PR_BASE}:scripts/$name" > "/tmp/aa8_trusted_factory/$name"
           done
           git log --format=%B "$PR_BASE..HEAD" > repair-history.txt
@@ -891,6 +918,27 @@ jobs:
             --out repair-preflight.json
           test -s failed-gate/gate-handoff.json
           cp /tmp/aa8_trusted_factory/factory_autofix_policy.py /tmp/aa8_autofix_policy.py
+      - name: Verify CEO READY task, signed GitHub claim and exact file scope
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.ready_issue != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          READY_ISSUE: ${{ inputs.ready_issue }}
+          READY_CLAIM_RUN: ${{ inputs.ready_claim_run }}
+        run: |
+          set -euo pipefail
+          [[ "$READY_ISSUE" =~ ^[1-9][0-9]*$ ]]
+          [[ "$READY_CLAIM_RUN" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/issues/$READY_ISSUE" > /tmp/aa8_live_ready_issue.json
+          gh api "repos/$GITHUB_REPOSITORY/pulls/198" > /tmp/aa8_live_ready_pr.json
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/129/comments?per_page=100" > /tmp/aa8_live_ready_leases.json
+          python /tmp/aa8_trusted_factory/factory_gate_router.py ready-verify \
+            --issue-file /tmp/aa8_live_ready_issue.json \
+            --pr-file /tmp/aa8_live_ready_pr.json \
+            --lease-comments /tmp/aa8_live_ready_leases.json \
+            --claim-run "$READY_CLAIM_RUN" --out verified-ready.json
+          test -s verified-ready.json
+
       - name: Verify CEO rework comment and exact PR SHA
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.feedback_comment_id != '' }}
         shell: bash
@@ -907,7 +955,7 @@ jobs:
             --comment-id "$FEEDBACK_ID" --sha "$EXPECTED_SHA" --pr "$PR_NUMBER" --out verified-feedback.json
           test -s verified-feedback.json
       - name: Reproduce CI failure without AI credentials
-        if: ${{ inputs.feedback_comment_id == '' }}
+        if: ${{ inputs.feedback_comment_id == '' && inputs.ready_issue == '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -931,10 +979,15 @@ jobs:
           DEEPSEEK_AUTOFIX_MODEL: deepseek-flash
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
           FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
+          READY_ISSUE: ${{ inputs.ready_issue }}
         run: |
           set -euo pipefail
           test -n "$DEEPSEEK_API_KEY" || { echo 'HOLD: DEEPSEEK_API_KEY missing'; exit 2; }
-          if test -n "${FEEDBACK_ID:-}"; then
+          if test -n "${READY_ISSUE:-}"; then
+            python /tmp/aa8_trusted_factory/deepseek_factory_autofix.py --root . \
+              --base-sha "$PR_BASE" --ready-json verified-ready.json \
+              --out deepseek-proposal.json --patch-out candidate-fix.patch
+          elif test -n "${FEEDBACK_ID:-}"; then
             python /tmp/aa8_trusted_factory/factory_feedback_rework.py propose --root . \
               --base-sha "$PR_BASE" --feedback-json verified-feedback.json \
               --out deepseek-proposal.json --patch-out candidate-fix.patch
@@ -963,6 +1016,7 @@ jobs:
             candidate-fix.patch
             candidate-policy.json
             deepseek-proposal.json
+            verified-ready.json
           if-no-files-found: error
           retention-days: 14
 
@@ -974,6 +1028,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      issues: read
+      pull-requests: read
     outputs:
       accepted: ${{ steps.validate.outputs.accepted }}
     steps:
@@ -997,12 +1053,37 @@ jobs:
         shell: bash
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          GH_TOKEN: ${{ github.token }}
+          READY_ISSUE: ${{ inputs.ready_issue }}
+          READY_CLAIM_RUN: ${{ inputs.ready_claim_run }}
         run: |
           set -euo pipefail
           git show "${PR_BASE}:scripts/factory_autofix_policy.py" > /tmp/aa8_trusted_patch_policy.py
           python /tmp/aa8_trusted_patch_policy.py patch-check \
             --patch proposed-fix/candidate-fix.patch --out validated-policy.json
           git apply --check proposed-fix/candidate-fix.patch
+          if test -n "${READY_ISSUE:-}"; then
+            test -s proposed-fix/verified-ready.json
+            git show "${PR_BASE}:scripts/factory_gate_router.py" > /tmp/aa8_trusted_ready_router.py
+            gh api "repos/$GITHUB_REPOSITORY/issues/$READY_ISSUE" > /tmp/aa8_ready_current_issue.json
+            gh api "repos/$GITHUB_REPOSITORY/pulls/198" > /tmp/aa8_ready_current_pr.json
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/129/comments?per_page=100" > /tmp/aa8_ready_current_leases.json
+            python /tmp/aa8_trusted_ready_router.py ready-verify \
+              --issue-file /tmp/aa8_ready_current_issue.json \
+              --pr-file /tmp/aa8_ready_current_pr.json \
+              --lease-comments /tmp/aa8_ready_current_leases.json \
+              --claim-run "$READY_CLAIM_RUN" --out /tmp/aa8_ready_current_verified.json
+            python - <<'PY'
+          import json
+          ready=json.load(open('/tmp/aa8_ready_current_verified.json'))
+          original=json.load(open('proposed-fix/verified-ready.json'))
+          patch=json.load(open('validated-policy.json'))
+          assert ready==original, 'READY authorization changed during proposal'
+          files=set(patch['files'])
+          assert files and files <= set(ready['allowed_paths']), 'READY patch escaped task scope'
+          assert any(f.startswith('tests/') for f in files), 'READY regression missing'
+          PY
+          fi
           git apply --index proposed-fix/candidate-fix.patch
           python -m unittest discover -s tests -p 'test_product_factory.py' -q
           python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -q
@@ -1032,6 +1113,7 @@ jobs:
     permissions:
       contents: write
       actions: write
+      issues: read
       pull-requests: read
     steps:
       - name: Checkout original PR HEAD
@@ -1056,6 +1138,8 @@ jobs:
           EXPECTED_SHA: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
           FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
           FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
+          READY_ISSUE: ${{ inputs.ready_issue }}
+          READY_CLAIM_RUN: ${{ inputs.ready_claim_run }}
         run: |
           set -euo pipefail
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > /tmp/aa8_live_pr.json
@@ -1078,6 +1162,27 @@ jobs:
           git apply --check validated/validated-fix.patch
           git apply --index validated/validated-fix.patch
           git diff --cached --check
+          if test -n "${READY_ISSUE:-}"; then
+            base_sha="$(python -c "import json;print(json.load(open('/tmp/aa8_live_pr.json'))['base']['sha'])")"
+            git show "${base_sha}:scripts/factory_gate_router.py" > /tmp/aa8_writer_ready_router.py
+            gh api "repos/$GITHUB_REPOSITORY/issues/$READY_ISSUE" > /tmp/aa8_writer_issue.json
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/129/comments?per_page=100" > /tmp/aa8_writer_leases.json
+            python /tmp/aa8_writer_ready_router.py ready-verify \
+              --issue-file /tmp/aa8_writer_issue.json \
+              --pr-file /tmp/aa8_live_pr.json \
+              --lease-comments /tmp/aa8_writer_leases.json \
+              --claim-run "$READY_CLAIM_RUN" --out /tmp/aa8_writer_ready.json
+            python - <<'PY_READY_WRITER'
+          import json,subprocess
+          ready=json.load(open('/tmp/aa8_writer_ready.json'))
+          patch=json.load(open('validated/validated-policy.json'))
+          staged=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
+          assert ready['sha']==subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert staged and set(staged)==set(patch['files'])
+          assert set(staged)<=set(ready['allowed_paths'])
+          assert any(p.startswith('tests/') for p in staged)
+          PY_READY_WRITER
+          fi
           # No repository-controlled Python or tests are executed in this
           # privileged writer job. Only the independently validated patch is
           # read as data; provenance and retry counts are rechecked inline.

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """General PR Factory gate router; reports only, never launches workers or releases."""
 import argparse
+import hashlib
 from datetime import timedelta
 from datetime import datetime, timezone
 import json
@@ -145,8 +146,8 @@ LEASE_RE = re.compile(
     r"<!-- AA8-HP-READY-LEASE issue=(?P<issue>[0-9]+) "
     r"task=(?P<task>[A-Z0-9_-]+) "
     r"head=(?P<head>[0-9a-f]{40}) run=(?P<run>[0-9]+) "
-    r"expires=(?P<expiry>[0-9TZ:-]+) -->")
-READY_SAFE_PREFIXES = ("assets/css/", "assets/js/", "tests/", "includes/")
+    r"expires=(?P<expiry>[0-9TZ:-]+)(?: body=(?P<bodyhash>[0-9a-f]{64}))? -->")
+READY_SAFE_PREFIXES = ("assets/css/", "assets/js/", "tests/")
 READY_BLOCKED = (
     "assets/js/analytics-events.js", "assets/js/contact-v2.js",
     "tests/fixtures/", ".github/", "data/", "secrets/")
@@ -214,7 +215,7 @@ def ready_preflight(event: dict, pr: dict, prior_comments: list[dict],
     expires=(now+timedelta(minutes=45)).strftime("%Y-%m-%dT%H:%M:%SZ")
     marker=(f"<!-- AA8-HP-READY-LEASE issue={issue['number']} "
             f"task={scope['task']} head={scope['head']} run={run_id} "
-            f"expires={expires} -->")
+            f"expires={expires} body={hashlib.sha256(issue['body'].encode('utf-8')).hexdigest()} -->")
     return {"status":"READY_CLAIM_PREPARED_WRITER_HOLD",
             "source_issue":issue["number"],"pr":198,
             "task":scope["task"],"owner":scope["owner"],
@@ -223,6 +224,112 @@ def ready_preflight(event: dict, pr: dict, prior_comments: list[dict],
             "lease_expiry_utc":expires,
             "deepseek":"NOT_RUN","auto_commit":False,
             "independent_qa":"NOT_RUN","release":"HOLD"}
+
+
+def ready_verify(issue: dict, pr: dict, comments: list[dict],
+                 claim_run: int, now: datetime) -> dict:
+    """Verify an actual bot claim, exact CEO scope, and current GitHub state.
+
+    No synthetic READY event may enter this path. The claim must have been
+    minted by trusted main after the CEO's actual issues:labeled event.
+    """
+    check(type(claim_run) is int and claim_run > 0 and now.tzinfo is not None,
+          "Invalid READY claim run")
+    check(isinstance(issue, dict) and isinstance(pr, dict)
+          and isinstance(comments, list), "Missing live GitHub evidence")
+    check(issue.get("state") == "open" and issue.get("number") != 129
+          and issue.get("user", {}).get("id") == CEO_USER_ID
+          and "READY" in [x.get("name") for x in issue.get("labels", [])
+                          if isinstance(x, dict)], "READY issue is no longer CEO-authorized")
+    body = issue.get("body") or ""
+    check(isinstance(body, str) and len(body) <= 5000,
+          "Invalid READY issue body")
+    scopes = list(READY_TAG_RE.finditer(body))
+    check(len(scopes) == 1, "READY requires one CEO scope marker")
+    scope = scopes[0].groupdict()
+    check(scope["pr"] == "198" and pr.get("number") == 198
+          and pr.get("state") == "open" and pr.get("draft") is True
+          and pr.get("base", {}).get("ref") == "main"
+          and re.fullmatch("[a-f0-9]{40}", pr.get("base", {}).get("sha", "")) is not None
+          and pr.get("head", {}).get("repo", {}).get("full_name")
+          == "2airadmin8/aa8-Robotic"
+          and pr.get("head", {}).get("ref")
+          == "feat/hp-factory-b2-r1-preview-20261121"
+          and pr.get("head", {}).get("sha") == scope["head"],
+          "Original Draft PR or exact SHA changed")
+    paths = scope["paths"].split(",")
+    check(len(paths) >= 2 and len(paths) <= 5 and len(paths) == len(set(paths)),
+          "READY task must include bounded unique source and regression paths")
+    for path in paths:
+        check(path and path.startswith(READY_SAFE_PREFIXES)
+              and not path.startswith(READY_BLOCKED)
+              and not path.endswith("/") and ".." not in Path(path).parts
+              and "\\" not in path and Path(path).suffix in (".css", ".js", ".html", ".py"),
+              "READY unauthorized path")
+    check(any(x.startswith("tests/") and (x.endswith(".py") or x.endswith(".js"))
+              for x in paths) and any(not x.startswith("tests/") for x in paths),
+          "READY must authorize a source and a regression test")
+    task = (body[:scopes[0].start()] + body[scopes[0].end():]).strip()
+    check(40 <= len(task) <= 2800 and
+          any(label in task.lower() for label in ("acceptance", "验收", "完了条件")),
+          "READY missing explicit scoped task and acceptance criteria")
+    check(not re.search(r"(?i)(?:ghp_|ghu_|sk-[a-z0-9_-]{16,})", task),
+          "READY text resembles a credential")
+    digest = hashlib.sha256(body.encode("utf-8")).hexdigest()
+    claims = []
+    for comment in comments:
+        if not isinstance(comment, dict):
+            continue
+        for match in LEASE_RE.finditer(comment.get("body") or ""):
+            entry = match.groupdict()
+            if (int(entry["issue"]) == issue["number"]
+                    and int(entry["run"]) == claim_run
+                    and entry["head"] == scope["head"]
+                    and entry["task"] == scope["task"]):
+                user = comment.get("user") or {}
+                check(user.get("id") == 41898282
+                      and user.get("login") == "github-actions[bot]",
+                      "READY claim not made by GitHub Actions bot")
+                check(entry.get("bodyhash") == digest,
+                      "READY issue body changed after signed claim")
+                expiry = datetime.fromisoformat(
+                    entry["expiry"].replace("Z", "+00:00"))
+                check(now <= expiry, "READY lease expired")
+                claims.append(entry)
+    check(len(claims) == 1, "Missing or duplicate authenticated READY claim")
+    return {
+        "schema": "aa8-ready-bridge-v1", "status": "READY_TASK_VERIFIED",
+        "issue": issue["number"], "pr": 198, "sha": scope["head"],
+        "base": pr["base"]["sha"], "task_id": scope["task"],
+        "owner": scope["owner"], "claim_run": claim_run,
+        "allowed_paths": paths, "acceptance": task,
+        "release": "HOLD", "max_repairs_per_pr": 3
+    }
+
+
+def ready_verify_main(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--issue-file", type=Path, required=True)
+    parser.add_argument("--pr-file", type=Path, required=True)
+    parser.add_argument("--lease-comments", type=Path, required=True)
+    parser.add_argument("--claim-run", type=int, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        comments = json.loads(args.lease_comments.read_text("utf8"))
+        if comments and isinstance(comments[0], list):
+            comments = [item for page in comments for item in page]
+        result = ready_verify(
+            json.loads(args.issue_file.read_text("utf8")),
+            json.loads(args.pr_file.read_text("utf8")),
+            comments, args.claim_run, datetime.now(timezone.utc))
+        args.out.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
+        print(json.dumps({"status": result["status"], "issue": result["issue"],
+                          "pr": 198, "release": "HOLD"}))
+        return 0
+    except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError) as error:
+        print("READY_BRIDGE_HOLD " + str(error), file=sys.stderr)
+        return 2
 
 
 def summary(data):
@@ -288,6 +395,8 @@ def main():
 if __name__ == "__main__":
     if sys.argv[1:2] == ["ready-preflight"]:
         sys.exit(ready_main(sys.argv[2:]))
+    if sys.argv[1:2] == ["ready-verify"]:
+        sys.exit(ready_verify_main(sys.argv[2:]))
     try:
         main()
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:

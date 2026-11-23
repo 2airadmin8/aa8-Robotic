@@ -135,4 +135,62 @@ class TestDeepSeekAutofix(unittest.TestCase):
                 propose(ROOT,"f"*40,{"state":"WAIT_DESIGN_QA","release":"HOLD",
                                      "blocking_gate":"G2"}, "FAIL", "testkey", "deepseek-v4-pro")
             called.assert_not_called()
+    def test_ready_scoped_two_file_proposal_and_invalid_authorization(self):
+        import subprocess
+        from deepseek_factory_autofix import propose_ready
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td)
+            (root/"assets/css").mkdir(parents=True)
+            (root/"tests").mkdir()
+            style=root/"assets/css/ready-probe.css"
+            testfile=root/"tests/test_ready_probe.py"
+            style.write_text(".panel{color:#222}\n",encoding="utf-8")
+            testfile.write_text("EXPECTED='#222'\n",encoding="utf-8")
+            def git(*args):
+                return subprocess.check_output(["git","-C",str(root),*args],
+                                               text=True).strip()
+            git("init","-q")
+            git("config","user.name","QA")
+            git("config","user.email","qa@example.invalid")
+            git("add","assets/css/ready-probe.css","tests/test_ready_probe.py")
+            git("commit","-qm","signed READY baseline")
+            base=git("rev-parse","HEAD")
+            ready={
+                "schema":"aa8-ready-bridge-v1","status":"READY_TASK_VERIFIED",
+                "pr":198,"release":"HOLD","sha":base,"base":base,
+                "claim_run":123456,"issue":400,"task_id":"READY-TEST",
+                "allowed_paths":["assets/css/ready-probe.css",
+                                 "tests/test_ready_probe.py"],
+                "acceptance":"Acceptance: fix contrast and update regression. "
+                             "No other files can change."
+            }
+            mock=json.dumps({"edits":[
+                {"path":"assets/css/ready-probe.css",
+                 "find":"color:#222","replace":"color:#fff"},
+                {"path":"tests/test_ready_probe.py",
+                 "find":"EXPECTED='#222'","replace":"EXPECTED='#fff'"}]})
+            dest=root/"ready.patch"
+            with patch("deepseek_factory_autofix.request_deepseek",
+                       return_value=mock) as called:
+                result=propose_ready(root,base,ready,"mock-only","deepseek-flash",
+                                     patch_out=dest)
+            self.assertTrue(called.called)
+            self.assertEqual(result["scope"],"CEO_AUTHORIZED_READY")
+            self.assertEqual(result["issue"],400)
+            self.assertEqual(set(validate_patch(dest.read_bytes())["files"]),
+                             set(ready["allowed_paths"]))
+            wrong={**ready,"allowed_paths":["assets/css/ready-probe.css",
+                                            ".github/workflows/pages.yml"]}
+            with patch("deepseek_factory_autofix.request_deepseek") as called:
+                with self.assertRaises(ValueError):
+                    propose_ready(root,base,wrong,"mock-only","deepseek-flash")
+                called.assert_not_called()
+            no_test=json.dumps({"edits":[
+                {"path":"assets/css/ready-probe.css",
+                 "find":"color:#222","replace":"color:#fff"}]})
+            with patch("deepseek_factory_autofix.request_deepseek",
+                       return_value=no_test):
+                with self.assertRaisesRegex(ValueError,"regression test"):
+                    propose_ready(root,base,ready,"mock-only","deepseek-flash")
+
 if __name__=="__main__":unittest.main()

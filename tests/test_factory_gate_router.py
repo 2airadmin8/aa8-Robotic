@@ -93,7 +93,7 @@ class TrustedReadyLeaseTests(unittest.TestCase):
   from datetime import datetime,timezone
   self.now=datetime(2026,11,22,12,0,tzinfo=timezone.utc)
   self.sha="7e270dc6b4b9d922ccee7e561535b1e83b65d071"
-  self.pr={"number":198,"draft":True,"state":"open","base":{"ref":"main"},
+  self.pr={"number":198,"draft":True,"state":"open","base":{"ref":"main","sha":"a"*40},
     "head":{"sha":self.sha,"ref":"feat/hp-factory-b2-r1-preview-20261121",
             "repo":{"full_name":"2airadmin8/aa8-Robotic"}}}
   self.event={"action":"labeled","repository":{"full_name":"2airadmin8/aa8-Robotic"},
@@ -157,6 +157,42 @@ class TrustedReadyLeaseTests(unittest.TestCase):
     live={**self.event["issue"],"labels":[{"name":"READY"}],**changes}
     with self.assertRaisesRegex(ValueError,"live body/state/label"):
      ready_preflight(self.event,self.pr,[],1212001,self.now,live)
+ def test_signed_ready_claim_to_model_bridge_and_negative_cases(self):
+  import copy
+  from factory_gate_router import ready_preflight,ready_verify
+  event=copy.deepcopy(self.event)
+  event["issue"]["body"]=event["issue"]["body"].replace(
+   "Authorized isolated task",
+   "### Acceptance\nThe main site menu should preserve keyboard navigation and focus. "
+   "Update only shared CSS and its scoped regression test; no production writes.")
+  issue={**event["issue"],"labels":[{"name":"READY"}]}
+  claim=ready_preflight(event,self.pr,[],1212001,self.now,issue)
+  signed={"body":claim["lease_marker"],
+          "user":{"id":41898282,"login":"github-actions[bot]"}}
+  verified=ready_verify(issue,self.pr,[signed],1212001,self.now)
+  self.assertEqual(verified["status"],"READY_TASK_VERIFIED")
+  self.assertEqual(verified["claim_run"],1212001)
+  self.assertEqual(verified["allowed_paths"],
+                   ["assets/css/site.css","tests/hp-shared-governance.spec.js"])
+  with self.assertRaisesRegex(ValueError,"body changed"):
+   ready_verify({**issue,"body":issue["body"]+" changed"},self.pr,
+                [signed],1212001,self.now)
+  with self.assertRaisesRegex(ValueError,"not made by"):
+   ready_verify(issue,self.pr,[{**signed,"user":{"id":211299962,
+                 "login":"2airadmin8"}}],1212001,self.now)
+  with self.assertRaisesRegex(ValueError,"Missing or duplicate"):
+   ready_verify(issue,self.pr,[],1212001,self.now)
+  with self.assertRaisesRegex(ValueError,"exact SHA changed"):
+   ready_verify(issue,{**self.pr,"head":{**self.pr["head"],
+                "sha":"f"*40}},[signed],1212001,self.now)
+  with self.assertRaisesRegex(ValueError,"lease expired"):
+   from datetime import timedelta
+   ready_verify(issue,self.pr,[signed],1212001,self.now+timedelta(minutes=46))
+  wrong=copy.deepcopy(issue)
+  wrong["body"]=wrong["body"].replace("assets/css/site.css","data/products.json")
+  with self.assertRaisesRegex(ValueError,"unauthorized path"):
+   ready_verify(wrong,self.pr,[signed],1212001,self.now)
+
  def test_workflow_bootstrap_is_separate_and_default_off(self):
   text=(ROOT/".github/workflows/ci.yml").read_text("utf8")
   if "factory-ready-wakeup:" not in text:
@@ -168,6 +204,10 @@ class TrustedReadyLeaseTests(unittest.TestCase):
   self.assertIn("AA8_FACTORY_READY_ENABLED == 'true'",text)
   self.assertIn("factory-ready-wakeup:",text)
   self.assertIn("cancel-in-progress: false",text)
-  self.assertNotIn("gh workflow run ci.yml",text.split("  factory-ready-wakeup:",1)[1].split("  # POLICY-TRUSTED",1)[0])
+  wakeup=text.split("  factory-ready-wakeup:",1)[1].split("  # POLICY-TRUSTED",1)[0]
+  self.assertIn("vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true'",wakeup)
+  self.assertIn("gh workflow run ci.yml",wakeup)
+  self.assertNotIn("DEEPSEEK_API_KEY:",wakeup)
+  self.assertNotIn("git push",wakeup)
 
 if __name__=="__main__":unittest.main()
