@@ -173,10 +173,10 @@ for(const width of [1440,390]){
     expect(formTitle).toBeLessThanOrEqual(width===1440?36.1:29.1);
    }
    if(def.hasDark){
-    expect(m.darkColor).toBe('rgb(255, 255, 255)');
+    expect(m.darkColor).toBe(def.path==='index.html'?'rgb(23, 51, 66)':'rgb(255, 255, 255)');
     expect(m.darkSize).toBeLessThanOrEqual(width===1440?38.1:27.1);
    }
-   if(def.path==='index.html')expect(m.darkCaseColor).toBe('rgb(255, 255, 255)');
+   if(def.path==='index.html')expect(m.darkCaseColor).toBe('rgb(23, 51, 66)');
    if(def.path==='cases.html'){
     expect(m.casesAxisCount).toBe(4);
     expect(m.casesAxis).toBe(width===1440?4:1);
@@ -291,3 +291,37 @@ test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({
     }
   }
 });
+
+// HOME-18 / MARK-032: pure-white homepage background contract.
+for (const width of [1440, 1280, 390, 360]) {
+  test('HOME #200 pure-white main backgrounds / '+width, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    const result=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
+    expect(result.status()).toBe(200);
+    const styles=await page.evaluate(()=>{
+      const bg=(s)=>getComputedStyle(document.querySelector(s)).backgroundColor;
+      const color=(s)=>getComputedStyle(document.querySelector(s)).color;
+      return {
+        allSections:[...document.querySelectorAll('main > section')].map(x=>getComputedStyle(x).backgroundColor),
+        hero:bg('main > section.hero'),
+        caseSection:bg('main > section.dark'),
+        casePanel:bg('main .case-feature'),
+        process:bg('main .home-process article'),
+        contact:bg('main .contact-panel'),
+        productVisual:bg('main .home-product-grid .product-visual'),
+        caseHeading:color('main > section.dark h2'),
+        caseBody:color('main .case-feature p'),
+        ctaBg:bg('main .case-feature .text-link'),
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(styles.allSections.every(x=>x==='rgb(255, 255, 255)')).toBe(true);
+    for (const key of ['hero','caseSection','casePanel','process','contact','productVisual']) {
+      expect(styles[key],key).toBe('rgb(255, 255, 255)');
+    }
+    expect(styles.caseHeading).toBe('rgb(23, 51, 66)');
+    expect(styles.caseBody).not.toBe('rgb(255, 255, 255)');
+    expect(styles.ctaBg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.overflow).toBeLessThanOrEqual(1);
+  });
+}
