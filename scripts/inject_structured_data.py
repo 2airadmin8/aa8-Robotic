@@ -51,7 +51,7 @@ PAGE_MAP = {
     "manufacturers/agibot.html": {"name": "AgiBot", "type": "Brand"},
     "use-cases/vla-data-collection.html": {"name": "VLA・模倣学習データ収集", "type": "Service"},
     "support/university-procurement.html": {"name": "大学研究用AIロボット導入・購買支援", "type": "Service"},
-    "cases/keio-selection.html": {"name": "慶應義塾大学向け選定・見積支援", "type": "Article"},
+    "cases/keio-selection.html": {"name": "大学研究向けロボット選定・納品支援", "type": "Article"},
 }
 
 TITLE_PATTERN = re.compile(r"<title>(.*?)</title>", re.IGNORECASE | re.DOTALL)
