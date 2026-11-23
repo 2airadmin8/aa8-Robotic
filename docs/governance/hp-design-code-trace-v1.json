@@ -152,11 +152,13 @@
       "designDoc": "docs/governance/03_MEASUREMENT_BASELINE.md",
       "implementation": [
         "scripts/hp_growth_evidence.py",
-        "scripts/hp_factory_efficiency.py"
+        "scripts/hp_factory_efficiency.py",
+        "assets/js/seo.js"
       ],
       "tests": [
         "tests/test_hp_growth_evidence.py",
-        "tests/test_hp_factory_efficiency.py"
+        "tests/test_hp_factory_efficiency.py",
+        "tests/hub-pages-visual.spec.js"
       ]
     },
     {
