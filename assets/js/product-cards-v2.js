@@ -60,6 +60,13 @@
           if (detailLink) detailLink.textContent = '製品詳細を見る →';
         }
         if (isHomeGrid) {
+          const image = card.querySelector('.product-visual');
+          if (image && maker && !image.querySelector('.home-product-maker')) {
+            const name = document.createElement('span');
+            name.className = 'home-product-maker';
+            name.textContent = maker.textContent.trim();
+            image.appendChild(name);
+          }
           const detailLink = card.querySelector('.product-link');
           if (detailLink) detailLink.textContent = '製品詳細を見る →';
         }
