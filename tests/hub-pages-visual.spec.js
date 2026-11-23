@@ -248,3 +248,33 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(details.overflow).toBeLessThanOrEqual(1);
   });
 }
+
+// HOME-13 P0: one public case SSOT, no unsupported delivery/completion assertion.
+// This test fails on the prior home/cases/detail pages claiming "納品済み".
+test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({page}) => {
+  const response=await page.request.get(base+'/data/case-evidence.json');
+  expect(response.status()).toBe(200);
+  const master=await response.json();
+  const record=master.cases.find(x=>x.id==='keio-selection');
+  expect(record).toBeTruthy();
+  expect(record.status).toBe('in_progress');
+  expect(record.statusLabel).toBe('進行中');
+  expect(record.progress.filter(x=>x.state==='done').length).toBe(2);
+  for (const path of ['index.html','cases.html','cases/keio-selection.html']) {
+    const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
+    expect(res.status()).toBe(200);
+    await expect(page.locator('main .status.status-preparing').first()).toHaveText(record.statusLabel);
+    const html=await page.locator('main').innerText();
+    expect(html).not.toContain('現在は納品済みです');
+    expect(html).not.toContain('正式発注を経て現在は納品済み');
+    if(path!=='index.html') {
+      const steps=page.locator('.case-progress-panel .progress-list li.is-done');
+      await expect(steps.first()).toBeVisible();
+      expect(await steps.count()).toBe(2);
+      await expect(page.locator('.case-caution')).toContainText('未確認');
+    }
+    if(path==='cases/keio-selection.html') {
+      await expect(page.locator('.specs tr').filter({hasText:'納品状況'})).toContainText('未確認');
+    }
+  }
+});
