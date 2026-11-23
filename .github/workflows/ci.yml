@@ -9,6 +9,9 @@ on:
     branches: [main]
   issue_comment:
     types: [created]
+  # Trusted-main-only opt-in CEO issue READY intake, not a new workflow.
+  issues:
+    types: [labeled]
   # Reuse Vercel's native Git integration notification, not a second webhook,
   # scheduler, Runner or Workflow. Repository dispatch runs from trusted main.
   repository_dispatch:
@@ -45,9 +48,57 @@ env:
 concurrency:
   group: pr-ci-${{ github.event_name }}-${{ github.event.client_payload.id || github.event.pull_request.number || github.event.issue.number || github.ref }}
   # CEO comment events for one PR are serialized; no duplicate dispatch races.
-  cancel-in-progress: ${{ github.event_name != 'issue_comment' && github.event_name != 'repository_dispatch' }}
+  cancel-in-progress: ${{ github.event_name != 'issue_comment' && github.event_name != 'issues' && github.event_name != 'repository_dispatch' }}
 
 jobs:
+  # P0-B: Existing ci.yml only. Bootstrap to protected main is separately
+  # CEO-controlled; disabled by default and does not run DeepSeek or a writer.
+  # Global concurrency serializes claims ACROSS issues; independent workers
+  # must never treat the comment marker as an atomic mutex by itself.
+  factory-ready-wakeup:
+    if: >-
+      ${{ github.event_name == 'issues' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'READY' &&
+          github.actor == '2airadmin8' &&
+          vars.AA8_FACTORY_READY_ENABLED == 'true' }}
+    concurrency:
+      group: aa8-hp-ready-global-claim
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout trusted protected main only, no persistent credentials
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate CEO READY scope and reserve single global lease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          READY_ISSUE: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/198" > /tmp/aa8_ready_pr.json
+          gh api "repos/$GITHUB_REPOSITORY/issues/$READY_ISSUE" > /tmp/aa8_ready_issue.json
+          # Review all governance leases; no fresh marker means a free claim.
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/129/comments?per_page=100" > /tmp/aa8_ready_leases.json
+          python scripts/factory_gate_router.py ready-preflight             --event "$GITHUB_EVENT_PATH"             --pr-file /tmp/aa8_ready_pr.json             --issue-file /tmp/aa8_ready_issue.json             --lease-comments /tmp/aa8_ready_leases.json             --run-id "$GITHUB_RUN_ID"             --out /tmp/aa8_ready_preflight.json
+          lease="$(python -c 'import json;print(json.load(open("/tmp/aa8_ready_preflight.json"))["lease_marker"])')"
+          gh api -X POST "repos/$GITHUB_REPOSITORY/issues/129/comments"             -f body="$lease CEO-authenticated READY claim prepared on trusted main. DeepSeek NOT_RUN; auto_commit=false; Production HOLD."             > /tmp/aa8_ready_receipt.json
+          # This job is intentionally not a writer or model executor. Bootstrapping
+          # only the trusted entry cannot silently start arbitrary AI edits.
+          echo 'READY_CLAIM_PREPARED_WRITER_HOLD: single issue lease recorded; no commit, no dispatch.' >> "$GITHUB_STEP_SUMMARY"
+
   # POLICY-TRUSTED: BASE branch only, never untrusted candidate code.
   # Require this status in branch protection after its first live execution.
   policy-independent-gate:
