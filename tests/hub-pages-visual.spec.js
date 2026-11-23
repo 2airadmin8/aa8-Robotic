@@ -276,7 +276,12 @@ test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({
   for (const path of ['index.html','cases.html','cases/keio-selection.html']) {
     const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
     expect(res.status()).toBe(200);
-    await expect(page.locator('main .status.status-active').first()).toHaveText(record.statusLabel);
+    const caseStatusSelector=path==='index.html'
+      ? '.case-feature .status'
+      : path==='cases.html'
+        ? '.case-proof-featured .case-status-line .status'
+        : '.hub-hero .status';
+    await expect(page.locator(caseStatusSelector)).toHaveText(record.statusLabel);
     const html=await page.locator('main').innerText();
     expect(html).not.toContain('現在は納品済みです');
     expect(html).not.toContain('慶應義塾大学');
