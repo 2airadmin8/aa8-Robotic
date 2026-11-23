@@ -366,7 +366,10 @@ for(const width of [1440,390]){
       });
       expect(d.org, 'organization schema missing').toBeTruthy();
       expect(d.org.url).toBe('https://robotics.air-admin8.co.jp/');
-      expect(d.org.address).toBeUndefined();
+      // The release meta injector may supply the verified Corporate address.
+      // Reject the former hardcoded Otemachi office rather than deleting it.
+      expect(JSON.stringify(d.org.address || {})).not.toContain('大手町');
+      expect(JSON.stringify(d.org.address || {})).not.toContain('千代田区');
       expect(d.canonical).toBe('https://robotics.air-admin8.co.jp/'+(path==='index.html'?'':path));
       expect([...d.scripts,...d.styles].some(u=>u.startsWith('/aa8-Robotic/assets/'))).toBe(false);
       expect(JSON.stringify(d.pageData)).not.toContain('慶應義塾大学');
