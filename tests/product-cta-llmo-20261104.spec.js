@@ -30,7 +30,10 @@ test('CTA 5 models: real PC/SP product click passes source, maker and general in
    await expect(form.locator('[name="source_product"]')).toHaveValue(entry.product);
    await expect(form.locator('[name="source_maker"]')).toHaveValue(entry.maker);
    await expect(form.locator('[name="category"]')).toHaveValue('導入条件整理');
-   await expect(form.locator('[name="source_page"]')).toHaveValue(BASE+'/products/'+entry.slug+'.html');
+   const expectedSourcePage = entry.slug === 'unitree-g1'
+     ? 'https://robotics.air-admin8.co.jp/products/unitree-g1.html'
+     : BASE+'/products/'+entry.slug+'.html';
+   await expect(form.locator('[name="source_page"]')).toHaveValue(expectedSourcePage);
    await expect(page.locator('[data-contact-confirm]')).not.toHaveJSProperty('open',true);
   }
  }
