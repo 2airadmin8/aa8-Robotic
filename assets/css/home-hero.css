@@ -94,6 +94,7 @@ main > section.section {
    Colored CTAs/labels remain functional contrast accents, not backgrounds.
    Do not alter shared Corporate header/footer or product page styling. */
 body { background: #fff; }
+main > section { background: #fff; }
 main > section.hero,
 main > section.section,
 main > section.section.muted,
