@@ -70,3 +70,21 @@
   outline: 3px solid #fff;
   outline-offset: 3px;
 }
+
+/* HOME-17: homepage section rhythm. Do not override shared header/footer
+   or the other pages' design contracts. */
+main > section.section .section-heading h2,
+main > section.section .contact-panel h2 {
+  font-size: clamp(1.65rem, 2.5vw, 2.375rem);
+  line-height: 1.25;
+}
+main > section.section {
+  padding-top: 44px;
+  padding-bottom: 44px;
+}
+@media(max-width:640px){
+  main > section.section {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+}
