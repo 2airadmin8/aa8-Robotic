@@ -61,6 +61,10 @@ for(const viewport of sizes){
     await page.setViewportSize(viewport);
     const res=await page.goto(target('products.html'),{waitUntil:'networkidle'});
     expect(res.status()).toBe(200);
+    // Data-backed cards render asynchronously after the document. A zero-card
+    // result is still a failure after a bounded wait, never accepted as PASS.
+    await expect.poll(async()=>page.locator('[data-product-list] .research-product-card').count(),
+      {timeout:15000,intervals:[150,300,700,1200]}).toBeGreaterThanOrEqual(6);
     const m=await page.evaluate(()=>{
       const hero=document.querySelector('.product-page-hero');
       const cards=[...document.querySelectorAll('.priority-category')];
@@ -308,6 +312,9 @@ for (const width of [1440, 1280, 390, 360]) {
     await page.setViewportSize({width, height:900});
     const result=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
     expect(result.status()).toBe(200);
+    // The actual product image is inserted by async SSOT renderer. Wait until
+    // present instead of evaluating a null node under multi-worker CI load.
+    await expect(page.locator('.home-product-grid .product-visual').first()).toBeVisible({timeout:15000});
     const styles=await page.evaluate(()=>{
       const bg=(s)=>getComputedStyle(document.querySelector(s)).backgroundColor;
       const color=(s)=>getComputedStyle(document.querySelector(s)).color;
