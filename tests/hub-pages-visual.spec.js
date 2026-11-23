@@ -277,6 +277,8 @@ test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({
     await expect(page.locator('main .status.status-preparing').first()).toHaveText(record.statusLabel);
     const html=await page.locator('main').innerText();
     expect(html).not.toContain('現在は納品済みです');
+    expect(html).not.toContain('慶應義塾大学');
+    expect(await page.title()).not.toContain('慶應義塾大学');
     expect(html).not.toContain('正式発注を経て現在は納品済み');
     if(path!=='index.html') {
       const steps=page.locator('.case-progress-panel .progress-list li.is-done');
