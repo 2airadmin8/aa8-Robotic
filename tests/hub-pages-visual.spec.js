@@ -335,3 +335,42 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(styles.overflow).toBeLessThanOrEqual(1);
   });
 }
+
+// HOME #200 P0: Final release artifact must not load legacy GitHub Pages
+// assets or publish stale customer identity/address through browser JSON-LD.
+for(const width of [1440,390]){
+  test('HOME #200 SEO asset status + canonical schema / '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const paths=['index.html','cases/keio-selection.html','products/unitree-g1.html'];
+    const broken=[];
+    page.on('response',r=>{
+      const url=new URL(r.url());
+      if(url.origin===new URL(base).origin && url.pathname.includes('/assets/') && r.status()===404){
+        broken.push(url.pathname);
+      }
+    });
+    for(const path of paths){
+      const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
+      expect(res.status()).toBe(200);
+      const d=await page.evaluate(()=>{
+        const parse=id=>{const n=document.getElementById(id);return n?JSON.parse(n.textContent):null};
+        const org=parse('organization-schema');
+        const pageData=parse('page-schema');
+        return {
+          scripts:[...document.querySelectorAll('script[src]')].map(x=>new URL(x.src).pathname),
+          styles:[...document.querySelectorAll('link[rel=stylesheet]')].map(x=>new URL(x.href).pathname),
+          canonical:document.querySelector('link[rel=canonical]')?.href,
+          org,
+          pageData
+        };
+      });
+      expect(d.org, 'organization schema missing').toBeTruthy();
+      expect(d.org.url).toBe('https://robotics.air-admin8.co.jp/');
+      expect(d.org.address).toBeUndefined();
+      expect(d.canonical).toBe('https://robotics.air-admin8.co.jp/'+(path==='index.html'?'':path));
+      expect([...d.scripts,...d.styles].some(u=>u.startsWith('/aa8-Robotic/assets/'))).toBe(false);
+      expect(JSON.stringify(d.pageData)).not.toContain('慶應義塾大学');
+    }
+    expect(broken,'404 assets in public site build').toEqual([]);
+  });
+}
