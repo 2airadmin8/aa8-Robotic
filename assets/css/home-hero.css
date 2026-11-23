@@ -88,3 +88,42 @@ main > section.section {
     padding-bottom: 32px;
   }
 }
+
+/* HOME-18 / MARK-032 — CEO background contract (2026-11-23).
+   HOME PAGE only: every main section and major surface is solid #fff.
+   Colored CTAs/labels remain functional contrast accents, not backgrounds.
+   Do not alter shared Corporate header/footer or product page styling. */
+body { background: #fff; }
+main > section.hero,
+main > section.section,
+main > section.section.muted,
+main > section.section.dark {
+  background: #fff;
+}
+main > section.section.dark {
+  color: #173342;
+}
+main > section.section.dark .section-heading h2,
+main > section.section.dark .case-feature h3 {
+  color: #173342;
+}
+main > section.section.dark .eyebrow,
+main > section.section.dark .case-kicker {
+  color: #075c80 !important;
+}
+main > section.section.dark .case-feature {
+  border: 1px solid #dce8ed;
+  background: #fff;
+}
+main > section.section.dark .case-feature p {
+  color: #435663;
+}
+main .home-process article,
+main .contact-panel,
+main .g1d-detail-entry,
+main .home-product-grid .research-product-card .product-visual {
+  background: #fff;
+}
+main .contact-panel {
+  border: 1px solid #dce8ed;
+}
