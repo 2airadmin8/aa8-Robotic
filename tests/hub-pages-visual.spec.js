@@ -260,8 +260,8 @@ for (const width of [1440, 1280, 390, 360]) {
   });
 }
 
-// HOME-13 P0: one public case SSOT, no unsupported delivery/completion assertion.
-// This test fails on the prior home/cases/detail pages claiming "納品済み".
+// HOME-13 P0: public SSOT reconciled against verified September delivery.
+// Completion of university acceptance must NOT be inferred from delivery.
 test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({page}) => {
   const response=await page.request.get(base+'/data/case-evidence.json');
   expect(response.status()).toBe(200);
@@ -269,25 +269,30 @@ test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({
   const record=master.cases.find(x=>x.id==='keio-selection');
   expect(record).toBeTruthy();
   expect(record.status).toBe('in_progress');
-  expect(record.statusLabel).toBe('進行中');
-  expect(record.progress.filter(x=>x.state==='done').length).toBe(2);
+  expect(record.statusLabel).toBe('納品・初期確認完了');
+  expect(record.progress.filter(x=>x.state==='done').length).toBe(5);
+  expect(record.progress.find(x=>x.order===6)?.state).toBe('pending');
+  expect(record.title).not.toContain('慶應義塾大学');
   for (const path of ['index.html','cases.html','cases/keio-selection.html']) {
     const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
     expect(res.status()).toBe(200);
-    await expect(page.locator('main .status.status-preparing').first()).toHaveText(record.statusLabel);
+    await expect(page.locator('main .status.status-active').first()).toHaveText(record.statusLabel);
     const html=await page.locator('main').innerText();
     expect(html).not.toContain('現在は納品済みです');
     expect(html).not.toContain('慶應義塾大学');
     expect(await page.title()).not.toContain('慶應義塾大学');
     expect(html).not.toContain('正式発注を経て現在は納品済み');
+    expect(html).toContain('納品・初期確認');
+    expect(html).not.toContain('正式発注・納品・検収の完了は公開確認待ち');
     if(path!=='index.html') {
       const steps=page.locator('.case-progress-panel .progress-list li.is-done');
       await expect(steps.first()).toBeVisible();
-      expect(await steps.count()).toBe(2);
+      expect(await steps.count()).toBe(5);
       await expect(page.locator('.case-caution')).toContainText('未確認');
     }
     if(path==='cases/keio-selection.html') {
-      await expect(page.locator('.specs tr').filter({hasText:'納品状況'})).toContainText('未確認');
+      await expect(page.locator('.specs tr').filter({hasText:'納品状況'})).toContainText('納品・初期確認完了');
+      await expect(page.locator('.specs tr').filter({hasText:'大学側正式検収'})).toContainText('未確認');
     }
   }
 });
