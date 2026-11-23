@@ -1,11 +1,14 @@
 (() => {
   'use strict';
 
-  const siteOrigin = 'https://2airadmin8.github.io';
-  const siteBase = '/aa8-Robotic/';
+  // Custom-domain production is the only published URL authority.
+  // Legacy /aa8-Robotic/ paths are redirects, never asset/schema bases.
+  const siteOrigin = 'https://robotics.air-admin8.co.jp';
+  const siteBase = '/';
+  const legacyBase = '/aa8-Robotic/';
   const canonicalBase = `${siteOrigin}${siteBase}`;
   const path = window.location.pathname;
-  const relativePath = path.startsWith(siteBase) ? path.slice(siteBase.length) : path.replace(/^\//, '');
+  const relativePath = path.startsWith(legacyBase) ? path.slice(legacyBase.length) : path.replace(/^\//, '');
   const cleanPath = relativePath || 'index.html';
 
   injectBrowserIdentity();
@@ -34,7 +37,7 @@
     'manufacturers/agibot.html': { name: 'AgiBot', type: 'Brand' },
     'use-cases/vla-data-collection.html': { name: 'VLA・模倣学習データ収集', type: 'Service' },
     'support/university-procurement.html': { name: '大学研究用AIロボット導入・購買支援', type: 'Service' },
-    'cases/keio-selection.html': { name: '慶應義塾大学向け選定・見積支援', type: 'Article' },
+    'cases/keio-selection.html': { name: '大学研究向けロボット選定・納品支援', type: 'Article' },
   };
 
   const page = pageMap[cleanPath] || {
@@ -51,14 +54,7 @@
     alternateName: 'AirAdmin8 Robotics',
     url: canonicalBase,
     email: 'airobot@robotics.air-admin8.co.jp',
-    address: {
-      '@type': 'PostalAddress',
-      postalCode: '100-0004',
-      addressRegion: '東京都',
-      addressLocality: '千代田区',
-      streetAddress: '大手町一丁目9番2号 大手町フィナンシャルシティ グランキューブ18階',
-      addressCountry: 'JP',
-    },
+    // Avoid unverified hard-coded office addresses in public structured data.
   }, 'organization-schema');
 
   injectJsonLd(createPageSchema(page), 'page-schema');
