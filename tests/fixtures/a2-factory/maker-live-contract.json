@@ -1,0 +1,514 @@
+{
+  "schema": "aa8-maker-source-contract-v1",
+  "source_url": "https://www.unitree.com/A2/",
+  "manufacturer_id": "unitree",
+  "adapter": "unitree-a2-html-v1",
+  "models": [
+    "A2",
+    "A2-PRO"
+  ],
+  "baseline_status": "CAPTURED_FROM_OFFICIAL_SOURCE__TRANSLATIONS_PENDING_INDEPENDENT_REVIEW",
+  "categories": [
+    {
+      "source_name": "Mechanical Parameters",
+      "rows": [
+        {
+          "id": "立位寸法",
+          "source_label": "Size (Standing)",
+          "models": {
+            "A2": "820mm x 440mm x 570mm",
+            "A2-PRO": "820mm x 440mm x 570mm"
+          },
+          "approved_display": {
+            "A2": "820 × 440 × 570 mm",
+            "A2-PRO": "820 × 440 × 570 mm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "伏臥寸法",
+          "source_label": "Size (Lying Prone)",
+          "models": {
+            "A2": "720mm x 550mm x 220mm",
+            "A2-PRO": "720mm x 550mm x 220mm"
+          },
+          "approved_display": {
+            "A2": "720 × 550 × 220 mm",
+            "A2-PRO": "720 × 550 × 220 mm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "本体材質",
+          "source_label": "Material",
+          "models": {
+            "A2": "Aluminum Alloy + High-Strength Engineering Plastic",
+            "A2-PRO": "Aluminum Alloy + High-Strength Engineering Plastic"
+          },
+          "approved_display": {
+            "A2": "アルミ合金＋高強度エンジニアリングプラスチック",
+            "A2-PRO": "アルミ合金＋高強度エンジニアリングプラスチック"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "電池除外重量",
+          "source_label": "Weight (without battery)",
+          "models": {
+            "A2": "About 35kg",
+            "A2-PRO": "About 35kg"
+          },
+          "approved_display": {
+            "A2": "約35 kg",
+            "A2-PRO": "約35 kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "電池装着重量",
+          "source_label": "Weight (with battery)",
+          "models": {
+            "A2": "About 42kg",
+            "A2-PRO": "About 42kg"
+          },
+          "approved_display": {
+            "A2": "約42 kg",
+            "A2-PRO": "約42 kg"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "関節自由度",
+          "source_label": "Degrees of Freedom (Joint Motors)",
+          "models": {
+            "A2": "12",
+            "A2-PRO": "12"
+          },
+          "approved_display": {
+            "A2": "12 DoF",
+            "A2-PRO": "12 DoF"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "関節軸受",
+          "source_label": "Joint Bearings",
+          "models": {
+            "A2": "Industrial-grade crossed roller bearings (high precision, high load capacity)",
+            "A2-PRO": "Industrial-grade crossed roller bearings (high precision, high load capacity)"
+          },
+          "approved_display": {
+            "A2": "産業用クロスローラーベアリング（高精度・高荷重対応）",
+            "A2-PRO": "産業用クロスローラーベアリング（高精度・高荷重対応）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "関節モーター",
+          "source_label": "Joint Motors",
+          "models": {
+            "A2": "Low-inertia, high-speed inner rotor PMSM (enhanced response & heat dissipation)",
+            "A2-PRO": "Low-inertia, high-speed inner rotor PMSM (enhanced response & heat dissipation)"
+          },
+          "approved_display": {
+            "A2": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）",
+            "A2-PRO": "低慣性・高速インナーロータPMSM（応答性・放熱性を強化）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "最大関節トルク",
+          "source_label": "Max Joint Torque",
+          "models": {
+            "A2": "About 180 N·m",
+            "A2-PRO": "About 180 N·m"
+          },
+          "approved_display": {
+            "A2": "約180 N·m",
+            "A2-PRO": "約180 N·m"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "関節可動域",
+          "source_label": "Range of Motion",
+          "models": {
+            "A2": "body：-58~58° thigh：-134°~180°/-89°~225° shank：-158°~-30°",
+            "A2-PRO": "body：-58~58° thigh：-134°~180°/-89°~225° shank：-158°~-30°"
+          },
+          "approved_display": {
+            "A2": "胴体：−58～58°／大腿：−134～180°・−89～225°／下腿：−158～−30°",
+            "A2-PRO": "胴体：−58～58°／大腿：−134～180°・−89～225°／下腿：−158～−30°"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Electrical Characteristics",
+      "rows": [
+        {
+          "id": "電源電圧",
+          "source_label": "Supply Voltage",
+          "models": {
+            "A2": "50.4V",
+            "A2-PRO": "50.4V"
+          },
+          "approved_display": {
+            "A2": "50.4 V",
+            "A2-PRO": "50.4 V"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "関節エンコーダ",
+          "source_label": "Joint Encoder",
+          "models": {
+            "A2": "Dual encoders",
+            "A2-PRO": "Dual encoders"
+          },
+          "approved_display": {
+            "A2": "デュアルエンコーダ",
+            "A2-PRO": "デュアルエンコーダ"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "冷却方式",
+          "source_label": "Cooling System",
+          "models": {
+            "A2": "Local air Cooling",
+            "A2-PRO": "Local air Cooling"
+          },
+          "approved_display": {
+            "A2": "部分空冷",
+            "A2-PRO": "部分空冷"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "電源構成",
+          "source_label": "Power Supply",
+          "models": {
+            "A2": "Dual slots, dual batteries",
+            "A2-PRO": "Dual slots, dual batteries"
+          },
+          "approved_display": {
+            "A2": "2スロット・デュアルバッテリー",
+            "A2-PRO": "2スロット・デュアルバッテリー"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "バッテリー容量",
+          "source_label": "Battery Capacity",
+          "models": {
+            "A2": "Single Battery 9000mAh（453.6Wh） Dual Batteries 18000mAh（907.2Wh）",
+            "A2-PRO": "Single Battery 9000mAh（453.6Wh） Dual Batteries 18000mAh（907.2Wh）"
+          },
+          "approved_display": {
+            "A2": "1本9,000 mAh（453.6 Wh）／2本合計18,000 mAh（907.2 Wh）",
+            "A2-PRO": "1本9,000 mAh（453.6 Wh）／2本合計18,000 mAh（907.2 Wh）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "無線通信",
+          "source_label": "Wi-Fi 6, Bluetooth 5.2",
+          "models": {
+            "A2": "YES",
+            "A2-PRO": "YES"
+          },
+          "approved_display": {
+            "A2": "Wi-Fi 6／Bluetooth 5.2 対応",
+            "A2-PRO": "Wi-Fi 6／Bluetooth 5.2 対応"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "スピーカー",
+          "source_label": "Speaker",
+          "models": {
+            "A2": "YES",
+            "A2-PRO": "YES"
+          },
+          "approved_display": {
+            "A2": "搭載",
+            "A2-PRO": "搭載"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "マイク",
+          "source_label": "Microphone",
+          "models": {
+            "A2": "Microphone array",
+            "A2-PRO": "Microphone array"
+          },
+          "approved_display": {
+            "A2": "マイクアレイ",
+            "A2-PRO": "マイクアレイ"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "前照灯",
+          "source_label": "Front Light",
+          "models": {
+            "A2": "YES",
+            "A2-PRO": "YES"
+          },
+          "approved_display": {
+            "A2": "搭載",
+            "A2-PRO": "搭載"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "ワイヤレスベクトル追従モジュール",
+          "source_label": "Wireless vector follow module",
+          "models": {
+            "A2": "/ （Optional）",
+            "A2-PRO": "YES （Expanded）"
+          },
+          "approved_display": {
+            "A2": "オプション",
+            "A2-PRO": "拡張構成で搭載"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "GPS",
+          "source_label": "GPS",
+          "models": {
+            "A2": "/ （Optional）",
+            "A2-PRO": "YES （Expanded）"
+          },
+          "approved_display": {
+            "A2": "オプション",
+            "A2-PRO": "拡張構成で搭載"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "4G通信",
+          "source_label": "4G",
+          "models": {
+            "A2": "/ （Optional）",
+            "A2-PRO": "YES （Expanded）"
+          },
+          "approved_display": {
+            "A2": "オプション",
+            "A2-PRO": "拡張構成で搭載"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "センサー構成",
+          "source_label": "Sensor",
+          "models": {
+            "A2": "LiDAR × 1 + HD Camera × 1",
+            "A2-PRO": "LiDAR × 2 + HD Camera × 1"
+          },
+          "approved_display": {
+            "A2": "LiDAR ×1＋HDカメラ ×1",
+            "A2-PRO": "LiDAR ×2＋HDカメラ ×1"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "制御・演算",
+          "source_label": "Control & Compute",
+          "models": {
+            "A2": "Standard: 8-Core high-performance CPU (platform) + Intel Core i7 (user development)",
+            "A2-PRO": "Standard: 8-Core high-performance CPU (platform) + Intel Core i7 (user development) Optional: high computing power expansion dock"
+          },
+          "approved_display": {
+            "A2": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）",
+            "A2-PRO": "標準：高性能8コアCPU（本体制御）＋Intel Core i7（ユーザー開発）／高演算能力拡張Dockはオプション"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "外部インターフェース",
+          "source_label": "External Interfaces",
+          "models": {
+            "A2": "RS485 x 2 CAN x 2 Gigabit Ethernet x 2 USB3.0-TypeC(8-Core CPU) x 2 USB3.0-TypeC (Intel Core i7)x2 Power Output：12V / 24V / BAT",
+            "A2-PRO": "RS485 x 2 CAN x 2 Gigabit Ethernet x 2 USB3.0-TypeC(8-Core CPU) x 2 USB3.0-TypeC (Intel Core i7)x2 Power Output：12V / 24V / BAT"
+          },
+          "approved_display": {
+            "A2": "RS485×2／CAN×2／GbE×2／USB3.0 Type-C（8コアCPU側）×2＋（i7側）×2／12V・24V・BAT出力",
+            "A2-PRO": "RS485×2／CAN×2／GbE×2／USB3.0 Type-C（8コアCPU側）×2＋（i7側）×2／12V・24V・BAT出力"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Performance Metrics",
+      "rows": [
+        {
+          "id": "動作温度",
+          "source_label": "Operating Temperature",
+          "models": {
+            "A2": "-20℃～55℃",
+            "A2-PRO": "-20℃～55℃"
+          },
+          "approved_display": {
+            "A2": "−20～55°C",
+            "A2-PRO": "−20～55°C"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "歩行持続時間・距離",
+          "source_label": "Battery Life",
+          "models": {
+            "A2": "No Load： >5hours continuous walking, approx. 20km With 25kg Load： >3 hours continuous walking, approx. 12.5km",
+            "A2-PRO": "No Load： >5hours continuous walking, approx. 20km With 25kg Load： >3 hours continuous walking, approx. 12.5km"
+          },
+          "approved_display": {
+            "A2": "無積載：5時間超／約20 km。25 kg積載：3時間超／約12.5 km（メーカー試験条件）",
+            "A2-PRO": "無積載：5時間超／約20 km。25 kg積載：3時間超／約12.5 km（メーカー試験条件）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "最大立位静荷重",
+          "source_label": "Max Standing Load",
+          "models": {
+            "A2": "About 100kg",
+            "A2-PRO": "About 100kg"
+          },
+          "approved_display": {
+            "A2": "約100 kg（歩行積載ではない）",
+            "A2-PRO": "約100 kg（歩行積載ではない）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "連続歩行積載",
+          "source_label": "Continuous Walking Load",
+          "models": {
+            "A2": "About 25kg (Ideally, it can reach approximately 35 kg.)",
+            "A2-PRO": "About 25kg (Ideally, it can reach approximately 35 kg.)"
+          },
+          "approved_display": {
+            "A2": "約25 kg（理想条件では約35 kgに達する場合あり。通常保証値ではない）",
+            "A2-PRO": "約25 kg（理想条件では約35 kgに達する場合あり。通常保証値ではない）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "登坂能力",
+          "source_label": "Slope Walking Capability",
+          "models": {
+            "A2": "About 45°",
+            "A2-PRO": "About 45°"
+          },
+          "approved_display": {
+            "A2": "約45°",
+            "A2-PRO": "約45°"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "階段・段差",
+          "source_label": "Stair Climbing Capability",
+          "models": {
+            "A2": "Max Step Height: 30cm",
+            "A2-PRO": "Max Step Height: 30cm"
+          },
+          "approved_display": {
+            "A2": "最大段差高 約30 cm",
+            "A2-PRO": "最大段差高 約30 cm"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "最大乗越え高さ",
+          "source_label": "Max Climb Height",
+          "models": {
+            "A2": "About 0.5～1m",
+            "A2-PRO": "About 0.5～1m"
+          },
+          "approved_display": {
+            "A2": "約0.5～1 m",
+            "A2-PRO": "約0.5～1 m"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "走行速度",
+          "source_label": "Speed",
+          "models": {
+            "A2": "0–3.7 m/s (Up to ~5 m/s)",
+            "A2-PRO": "0–3.7 m/s (Up to ~5 m/s)"
+          },
+          "approved_display": {
+            "A2": "0～3.7 m/s（最高約5 m/s）",
+            "A2-PRO": "0～3.7 m/s（最高約5 m/s）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "防護等級",
+          "source_label": "Ingress Protection Rating",
+          "models": {
+            "A2": "IP56",
+            "A2-PRO": "IP56–IP67 (Core components rated IP67)"
+          },
+          "approved_display": {
+            "A2": "IP56",
+            "A2-PRO": "IP56～IP67（主要部品はIP67）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    },
+    {
+      "source_name": "Other",
+      "rows": [
+        {
+          "id": "スマートOTA更新",
+          "source_label": "Smart OTA Upgrade",
+          "models": {
+            "A2": "Continuous Upgrades",
+            "A2-PRO": "Continuous Upgrades"
+          },
+          "approved_display": {
+            "A2": "継続アップデート",
+            "A2-PRO": "継続アップデート"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "二次開発",
+          "source_label": "Secondary Development",
+          "models": {
+            "A2": "Supported",
+            "A2-PRO": "Supported"
+          },
+          "approved_display": {
+            "A2": "対応（SDK／ROS 2具体条件は要確認）",
+            "A2-PRO": "対応（SDK／ROS 2具体条件は要確認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        },
+        {
+          "id": "保証期間",
+          "source_label": "Warranty",
+          "models": {
+            "A2": "12 Months",
+            "A2-PRO": "12 Months"
+          },
+          "approved_display": {
+            "A2": "12か月（日本向け条件・窓口は要確認）",
+            "A2-PRO": "12か月（日本向け条件・窓口は要確認）"
+          },
+          "review_status": "TRANSLATION_REVIEW_PENDING"
+        }
+      ]
+    }
+  ]
+}

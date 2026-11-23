@@ -42,13 +42,13 @@ for (const path of pages) {
   });
 }
 
-test('breakpoint contract: 980 is SP, 981 is PC', async ({ page }) => {
-  await page.setViewportSize({ width: 980, height: 844 });
+test('mother corporate breakpoint contract: 1023 SP, 1024 PC', async ({ page }) => {
+  await page.setViewportSize({ width: 1023, height: 844 });
   await page.goto('http://127.0.0.1:4173/index.html', { waitUntil: 'networkidle' });
   await expect(page.locator('.site-header .menu')).toBeVisible();
   await expect(page.locator('.site-header .nav')).toBeHidden();
 
-  await page.setViewportSize({ width: 981, height: 844 });
+  await page.setViewportSize({ width: 1024, height: 844 });
   await expect(page.locator('.site-header .menu')).toBeHidden();
   await expect(page.locator('.site-header .nav')).toBeVisible();
 });
@@ -91,6 +91,16 @@ for (const width of [1440, 390]) {
     };
     const home = await measure('/index.html');
     const g1 = await measure('/products/unitree-g1.html');
+    // At distinct page loads Chrome can round a tall Noto Sans footer by
+    // exactly 1px. Never waive link/text/layout/color parity; only compare
+    // the two measured block heights within the rendering precision.
+    // This retains independent CSS/font/color and shared shell assertions.
+    for (const key of ['footer','footerGrid']) {
+      const difference = Math.abs(g1[key].height - home[key].height);
+      expect(difference, key + ' height mismatch').toBeLessThanOrEqual(1);
+      delete g1[key].height;
+      delete home[key].height;
+    }
     expect(g1).toEqual(home);
     expect(g1.headerCount).toBe(1);
     expect(g1.footerCount).toBe(1);

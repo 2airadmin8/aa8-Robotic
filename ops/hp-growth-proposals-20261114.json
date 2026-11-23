@@ -1,0 +1,100 @@
+{
+  "schema": "aa8-hp-growth-proposals-v1",
+  "period": {
+    "current": {
+      "name": "current",
+      "from": "2026-11-06",
+      "to": "2026-11-12"
+    },
+    "previous": {
+      "name": "previous",
+      "from": "2026-10-30",
+      "to": "2026-11-05"
+    }
+  },
+  "siteKPI": {
+    "current": {
+      "clicks": 8,
+      "impressions": 219,
+      "days": 7
+    },
+    "previous": {
+      "clicks": 4,
+      "impressions": 190,
+      "days": 7
+    }
+  },
+  "inquiryCoverage": {
+    "total": 17,
+    "withSourceProduct": 2,
+    "withSourceService": 0,
+    "withUtmSource": 1
+  },
+  "candidates": [
+    {
+      "type": "ATTRIBUTION_EVIDENCE_GAP",
+      "priority": "P1",
+      "title": "咨询来源归因不完整：先补验证，不改正式CRM",
+      "evidence": {
+        "inquiryRecords": 17,
+        "hasSourceProduct": 2,
+        "hasSourceService": 0,
+        "hasUtmSource": 1,
+        "source": "Google Sheets Inquiry Master 1dgoeLCBJVE0CXBGgizUwA-ozrRVvJw6Ng9gfGN0h8wI",
+        "caution": "包含测试/非有效线索，不能算真实客户成交转化"
+      },
+      "proposed_action": "只读核查正式产品CTA→contact预填与Inquiry Master字段映射；提交隔离回归和差异清单",
+      "success_measure": "下一周新增有效来源记录的字段完整率提升，测试记录单独统计",
+      "prohibited": "禁止直接写CRM、猜填缺失来源、把全部记录当有效商机",
+      "status": "PROPOSAL_ONLY_NO_PRODUCTION_WRITE"
+    },
+    {
+      "type": "PRODUCT_HIGH_IMPRESSION_ZERO_CLICK",
+      "priority": "P2",
+      "title": "高曝光但零点击的产品页：审核标题和搜索意图",
+      "evidence": {
+        "url": "https://robotics.air-admin8.co.jp/products/unitree-g1-d.html",
+        "current7d": {
+          "clicks": 0,
+          "impressions": 29
+        },
+        "previous7d": {
+          "clicks": 0,
+          "impressions": 27
+        },
+        "source": "GSC Master 03_Page 1VTLnGjyld_pNWBad-gJcPNqGy0jUnrDKiiU18S6OgbM",
+        "note": "仅建议人工审核，不证明排名或文案是原因"
+      },
+      "proposed_action": "核对搜索Query、title/description与真实研究选型价值，提出最小文案候选PR",
+      "success_measure": "未来完整7日的展示和点击变化；低样本不能保证增长",
+      "prohibited": "禁止改变厂家规格、价格、产品事实或共享视觉模板",
+      "status": "PROPOSAL_ONLY_NO_PRODUCTION_WRITE"
+    },
+    {
+      "type": "TECHNICAL_SEARCH_DEMAND",
+      "priority": "P2",
+      "title": "技术资料搜索需求：核对SDK／研究导线",
+      "evidence": {
+        "url": "https://robotics.air-admin8.co.jp/guides/agibot-sdk.html",
+        "current7d": {
+          "clicks": 1,
+          "impressions": 14
+        },
+        "previous7d": {
+          "clicks": 0,
+          "impressions": 1
+        },
+        "source": "GSC Master 03_Page 1VTLnGjyld_pNWBad-gJcPNqGy0jUnrDKiiU18S6OgbM"
+      },
+      "proposed_action": "只建议检查页面资源有效性、官方SDK出处和相关产品入口，不自动改内容",
+      "success_measure": "下一完整7日的有效点击与产品咨询来源字段变化",
+      "prohibited": "禁止承诺未验证的SDK兼容性、提供虚构下载",
+      "status": "PROPOSAL_ONLY_NO_PRODUCTION_WRITE"
+    }
+  ],
+  "candidateLimit": 3,
+  "sourceIsReadOnly": true,
+  "productionWriteAuthorized": false,
+  "businessRevenueProven": false,
+  "note": "Recommendations are NOT change approval. Recheck actual newest weekly data."
+}

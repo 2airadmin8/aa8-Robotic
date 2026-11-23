@@ -1,0 +1,103 @@
+{
+  "schema": "aa8-mother-brand-contract-v1",
+  "capturedAt": "2026-11-18",
+  "status": "DESIGN_CANDIDATE_ONLY",
+  "sources": [
+    {
+      "kind": "homepage_html",
+      "url": "https://www.air-admin8.co.jp/",
+      "sha256": "0c549e90adde717598080a462937ff3f494abe55dad8d3755a6a93ca74a1a6c0",
+      "dynamic": true,
+      "snapshotBytes": 117512
+    },
+    {
+      "kind": "theme_css",
+      "url": "https://www.air-admin8.co.jp/aa82022/wp-content/themes/AirAdmin8/style.css?20261118-0543",
+      "sha256": "c2d5aaa83cc779b9ebcde05b8c412a1d4029b89a390c43d866d6cfee51d3064f"
+    },
+    {
+      "kind": "menu_js",
+      "url": "https://www.air-admin8.co.jp/aa82022/wp-content/themes/AirAdmin8/assets/js/common.js",
+      "sha256": "ba8109f36eb6b1da50ab7faf47c45c0484ba187eb99c9cc14860f6d09c6ffd54"
+    },
+    {
+      "kind": "logo_header",
+      "url": "https://www.air-admin8.co.jp/aa82022/wp-content/themes/AirAdmin8/assets/img/common/header/header-logo.png",
+      "sha256": "48df7262444a80d0c78c0a09c2346308c04b8da28007516f4764c72e88ae116d"
+    },
+    {
+      "kind": "logo_footer",
+      "url": "https://www.air-admin8.co.jp/aa82022/wp-content/themes/AirAdmin8/assets/img/common/footer/footer-nav-top-left__logo.png",
+      "sha256": "39cf36ca97037bee279883665f7367b55cd29583f435d979455c1070fbce39f2"
+    }
+  ],
+  "tokens": {
+    "deepBlue": "#0069b5",
+    "primaryBlue": "#009bd2",
+    "teal": "#00b2bc",
+    "bodyInk": "#333333",
+    "footerSurface": "#f4f8fa",
+    "fontFamily": "Noto Sans JP",
+    "desktopBodyPx": 16,
+    "mobileBodyPx": 15,
+    "letterSpacingEm": 0.05,
+    "desktopNavPx": 14,
+    "mobileNavPx": 16,
+    "brandLogoDesktopPx": 220,
+    "brandLogoMobilePx": 190,
+    "breakpointMobileMaxPx": 1023,
+    "headerContactHeightPx": 40,
+    "headerContactWidthPx": 130,
+    "headerContactRadiusPx": 21,
+    "footerMaxWidthPx": 1280,
+    "footerBorderRadiusPx": 18,
+    "footerNavColumns": "1.45fr .8fr 1.15fr .75fr",
+    "footerNavGapPx": 24,
+    "footerInnerPaddingPx": [
+      28,
+      34
+    ]
+  },
+  "motherMenuLabels": [
+    "HOME",
+    "製品一覧",
+    "導入事例",
+    "会社情報",
+    "サポート",
+    "コラム",
+    "採用情報",
+    "お問い合わせ"
+  ],
+  "motherFooterSections": [
+    "サービス",
+    "導入・事例",
+    "サポート・セキュリティ",
+    "会社情報"
+  ],
+  "mobileMenu": {
+    "type": "full-viewport-overlay",
+    "colors": [
+      "#00b2bc",
+      "#009bd2",
+      "#0069b5"
+    ],
+    "threeBarButton": true,
+    "originalJqueryEventOwner": "assets/js/common.js",
+    "recommendedAdaptation": "scoped native JS, keyboard Escape, focus trap, body scroll lock"
+  },
+  "copyGates": {
+    "currentIsmsStatusMustBeVerified": true,
+    "currentPostalAddressMustBeVerified": true,
+    "doNotCopyOutdatedStatements": true
+  },
+  "ownership": {
+    "shell": "assets/css/shared-layout.css",
+    "pageExpression": "assets/css/main-site-experience.css",
+    "sku": "existing factory CSS",
+    "data": "data/products.json",
+    "menuRuntime": "assets/js/mobile-qa.js",
+    "menuLegacyFallback": "assets/js/site.js"
+  },
+  "staging": "Existing Draft PR #180; no main merge, no Pages deployment, no Production CRM write",
+  "snapshotPolicy": "Homepage WordPress HTML is dynamically rendered; source SHA identifies a capture only. Theme CSS, common JS and both logos use pinned SHA256."
+}

@@ -799,3 +799,13 @@ main.g1-page > section.g1-section.g1-final-cta > .g1-shell{
   font-size:16px;font-weight:800;line-height:1;padding-left:3px;
   box-shadow:0 2px 8px rgba(10,28,40,.16);pointer-events:none;
 }
+
+/* V3.3 mother-font regression / independent real Chrome 360px measurement.
+ * Standard Noto Sans JP + 0.05em body tracking wrapped one G1 model paragraph:
+ * 865.09375px instead of approved 840px. Do not change product facts/font family. */
+@media (max-width:375px) {
+  main.g1-page[data-product-id="unitree-g1"] #models
+    .g1-model-grid article:first-child p:not(.g1-kicker) {
+    letter-spacing:0;
+  }
+}

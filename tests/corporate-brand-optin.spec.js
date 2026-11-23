@@ -1,0 +1,132 @@
+// Exact mother-site Corporate V1 opt-in regression.
+// Browser rewrites ONLY the temporary response body class; no published page is modified.
+const { test, expect } = require('@playwright/test');
+const BASE = 'http://127.0.0.1:4173';
+async function openOptIn(page, width) {
+  await page.setViewportSize({width, height: 844});
+  await page.route(BASE + '/index.html', async route => {
+    const response = await route.fetch();
+    let html = await response.text();
+    if (!/<body\b/i.test(html)) throw Error('Corporate QA: missing body');
+    html = html.replace(/<body([^>]*)>/i, (_, attrs) => {
+      const match = /\bclass=(["'])(.*?)\1/i.exec(attrs);
+      if (match) return '<body' + attrs.replace(match[0],
+        'class=' + match[1] + match[2] + ' aa8-corporate-v1' + match[1]) + '>';
+      return '<body' + attrs + ' class="aa8-corporate-v1">';
+    });
+    await route.fulfill({response,body:html});
+  });
+  await page.goto(BASE + '/index.html', {waitUntil:'networkidle'});
+  await expect(page.locator('body.aa8-corporate-v1')).toHaveCount(1);
+  await expect(page.locator("script[data-aa8-menu-runtime='true']")).toHaveCount(0);
+}
+for (const width of [1440,1024]) {
+  test('corporate PC header/footer and brand tokens ' + width, async ({page}) => {
+    await openOptIn(page,width);
+    await expect(page.locator('header.site-header .nav')).toBeVisible();
+    await expect(page.locator('header.site-header .menu')).toBeHidden();
+    const s=await page.evaluate(()=>{
+      const root=getComputedStyle(document.documentElement);
+      const header=getComputedStyle(document.querySelector('.site-header'));
+      const footer=getComputedStyle(document.querySelector('.footer'));
+      return {blue:root.getPropertyValue('--aa8-corp-primary').trim(),deep:root.getPropertyValue('--aa8-corp-deep').trim(),ink:header.color,footer:footer.backgroundColor};
+    });
+    expect(s.blue).toBe('#009bd2');
+    expect(s.deep).toBe('#0069b5');
+    expect(s.ink).toBe('rgb(51, 51, 51)');
+    expect(s.footer).toBe('rgb(244, 248, 250)');
+    // PC1440 reproduces the mother site's 220px brand / 130x40 contact CTA.
+    // At 1024 retain the responsive layout rather than forcing oversized geometry.
+    if (width === 1440) {
+      const dimensions = await page.evaluate(() => {
+        const brand = document.querySelector('.site-header .brand').getBoundingClientRect();
+        const cta = document.querySelector('.site-header .nav-cta').getBoundingClientRect();
+        return {
+          brandWidth: Math.round(brand.width),
+          ctaWidth: Math.round(cta.width),
+          ctaHeight: Math.round(cta.height),
+        };
+      });
+      expect(dimensions).toEqual({brandWidth: 220, ctaWidth: 130, ctaHeight: 40});
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+  });
+}
+for (const width of [1023,390,360]) {
+  test('corporate SP full-viewport menu and focus contract '+width, async ({page})=>{
+    await openOptIn(page,width);
+    const toggle=page.locator('.site-header .menu');
+    const nav=page.locator('.site-header .nav');
+    await expect(toggle).toBeVisible();
+    await expect(nav).toBeHidden();
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded','true');
+    await expect(nav).toBeVisible();
+    await expect(nav.locator('a').first()).toHaveCSS('color','rgb(255, 255, 255)');
+    await expect(page.locator('body')).toHaveClass(/aa8-corporate-menu-open/);
+    const navStyle=await nav.evaluate(el=>({
+      position:getComputedStyle(el).position,
+      background:getComputedStyle(el).backgroundImage,
+      width:Math.round(el.getBoundingClientRect().width)
+    }));
+    expect(navStyle.position).toBe('fixed');
+    expect(navStyle.background).toContain('linear-gradient');
+    expect(navStyle.width).toBeLessThanOrEqual(width+2);
+    const last=nav.locator('a').last();
+    await expect(last).toBeVisible();
+    await last.focus();
+    await page.keyboard.press('Tab');
+    await expect(toggle).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(nav).toBeHidden();
+    await expect(toggle).toHaveAttribute('aria-expanded','false');
+    await expect(toggle).toBeFocused();
+    await expect(page.locator('body')).not.toHaveClass(/aa8-corporate-menu-open/);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+2);
+  });
+}
+
+/* Same existing browser suite. Validate real layout/typography at all
+ * original WordPress breakpoints; not just that a footer exists. */
+for(const width of [1440,1024,1023,768,767,390,360]){
+  test('corporate mother footer actual dimensions '+width,async({page})=>{
+    await openOptIn(page,width);
+    const footer=page.locator('footer.footer[data-shared-layout="footer"]');
+    await expect(footer).toHaveCount(1);
+    await expect(footer.locator('.footer-links__column')).toHaveCount(4);
+    const v=await footer.evaluate(el=>{
+      const get=s=>el.querySelector(s);
+      const style=s=>getComputedStyle(get(s));
+      const rect=s=>get(s).getBoundingClientRect();
+      return {
+        surface:getComputedStyle(el).backgroundColor,
+        card:style('.footer-shell').backgroundColor,
+        cardRadius:Math.round(parseFloat(style('.footer-shell').borderTopLeftRadius)),
+        cardWidth:Math.round(rect('.footer-shell').width),
+        logoWidth:Math.round(rect('.aa8-main-logo').width),
+        navColumns:style('.footer-links').gridTemplateColumns.split(' ').filter(Boolean).length,
+        firstTitleColor:style('.footer-links__title').color,
+        firstTitleFont:parseFloat(style('.footer-links__title').fontSize),
+        titleFont:style('.footer-links__title').fontFamily,
+        bottomBorder:style('.footer-bottom').borderTopColor,
+        scroll:document.documentElement.scrollWidth-innerWidth,
+        titleTexts:[...el.querySelectorAll('.footer-links__title')].map(x=>x.textContent.trim()),
+        inlineStyles:el.querySelectorAll('style').length
+      };
+    });
+    expect(v.surface).toBe('rgb(244, 248, 250)');
+    expect(v.card).toBe('rgb(255, 255, 255)');
+    expect(v.cardRadius).toBe(width<=767?14:18);
+    expect(v.cardWidth).toBeLessThanOrEqual(width+1);
+    if(width===1440)expect(v.cardWidth).toBe(1280);
+    expect(v.logoWidth).toBe(width<=767?205:240);
+    expect(v.navColumns).toBe(width<=767?1:width<=1023?2:4);
+    expect(v.firstTitleColor).toBe('rgb(0, 105, 181)');
+    expect(v.firstTitleFont).toBe(16);
+    expect(v.titleFont).toContain('Noto Sans JP');
+    expect(v.bottomBorder).toBe('rgba(0, 105, 181, 0.42)');
+    expect(v.titleTexts).toEqual(['製品・サービス','導入・事例','研究・サポート','会社情報']);
+    expect(v.inlineStyles).toBe(0);
+    expect(v.scroll).toBeLessThanOrEqual(2);
+  });
+}

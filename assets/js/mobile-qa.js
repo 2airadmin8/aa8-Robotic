@@ -3,6 +3,7 @@
 
   const menuButton = document.querySelector('.menu');
   const navigation = document.querySelector('.nav');
+  const corporateShell = document.body.classList.contains('aa8-corporate-v1');
 
   if (menuButton && navigation) {
     menuButton.setAttribute('aria-label', 'メニューを開閉する');
@@ -11,6 +12,10 @@
       const isOpen = navigation.classList.contains('open');
       menuButton.setAttribute('aria-expanded', String(isOpen));
       document.body.classList.toggle('nav-is-open', isOpen);
+      if (corporateShell) {
+        document.body.classList.toggle('aa8-corporate-menu-open', isOpen);
+        menuButton.setAttribute('aria-label', isOpen ? 'メニューを閉じる' : 'メニューを開く');
+      }
     };
 
     const closeNavigation = () => {
@@ -32,9 +37,24 @@
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && navigation.classList.contains('open')) {
+      if (!navigation.classList.contains('open')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
         closeNavigation();
         menuButton.focus();
+        return;
+      }
+      if (!corporateShell || event.key !== 'Tab') return;
+      const links = [...navigation.querySelectorAll('a[href]')]
+        .filter(node => node.getClientRects().length);
+      const focusOrder = [menuButton, ...links];
+      const first = focusOrder[0], last = focusOrder[focusOrder.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     });
 
@@ -45,7 +65,9 @@
     });
 
     window.addEventListener('resize', () => {
-      if (window.matchMedia('(min-width: 981px)').matches) closeNavigation();
+      // Corporate mother-site breakpoint is 1023px; legacy pages remain 980px.
+      const minDesktop = corporateShell ? 1024 : 981;
+      if (window.innerWidth >= minDesktop) closeNavigation();
     });
 
     syncNavigationState();

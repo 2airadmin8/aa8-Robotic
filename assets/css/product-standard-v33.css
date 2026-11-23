@@ -1,0 +1,120 @@
+/* AirAdmin8 Robotics | Product Visual Standard V3.3.
+ * Mother site's live CSS defines brand/typography, Product V3.1 retains all
+ * product architecture/facts/CTAs. Specs neutral white/grey is CEO requirement.
+ * Single V3.3 specifications-surface CSS owner. Preview branch only.
+ */
+:root {
+  --aa8-v33-spec-white: #ffffff;
+  --aa8-v33-spec-group: #eeeeee;
+  --aa8-v33-spec-stripe: #f5f5f5;
+  --aa8-v33-spec-border: #d9d9d9;
+  --aa8-v33-spec-ink: #333333;
+}
+body.aa8-corporate-v1 {
+  font-family: var(--aa8-corp-font-ja, "Noto Sans JP", sans-serif);
+  color: var(--aa8-corp-ink, #333333);
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] {
+  --g1-blue: var(--aa8-corp-primary, #009bd2);
+  --g1-ink: var(--aa8-corp-ink, #333333);
+  --g1-muted: #555555;
+  --g1-line: var(--aa8-v33-spec-border);
+  font-family: var(--aa8-corp-font-ja, "Noto Sans JP", sans-serif) !important;
+  color: var(--aa8-corp-ink, #333333);
+  background-color: #ffffff;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  :is(h1,h2,h3,h4,p,li,dt,dd,th,td,a,button,label,summary,small,figcaption) {
+  font-family: var(--aa8-corp-font-ja, "Noto Sans JP", sans-serif) !important;
+}
+/* Original mother-site Latin display fallback, without changing Japanese body. */
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  :is(.g1-kicker,.eyebrow,.g1d-eyebrow,.section-eyebrow) {
+  font-family: "Poppins", var(--aa8-corp-font-ja, sans-serif) !important;
+}
+/* Product-specific hero/CTA designs are preserved. Only factual spec surfaces
+ * and parameter tables get a pure-white section and neutral table palette. */
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  :is(#specifications,#spec,#specs,.g1-specifications) {
+  color: var(--aa8-v33-spec-ink) !important;
+  background-color: var(--aa8-v33-spec-white) !important;
+  background-image: none !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] section:has(table) {
+  background-color: var(--aa8-v33-spec-white) !important;
+  background-image: none !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  :is(#specifications,#spec,#specs,.g1-specifications) :is(h2,h3) {
+  color: var(--aa8-v33-spec-ink) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  :is(.g1-table-wrap,.h2-table-scroll,.g1d-spec) {
+  border-color: var(--aa8-v33-spec-border) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table {
+  background-color: var(--aa8-v33-spec-white) !important;
+  border-color: var(--aa8-v33-spec-border) !important;
+  color: var(--aa8-v33-spec-ink);
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table :is(th,td) {
+  border-color: var(--aa8-v33-spec-border) !important;
+  color: var(--aa8-v33-spec-ink) !important;
+  overflow-wrap: anywhere;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table thead tr,
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table thead th {
+  background-color: var(--aa8-v33-spec-white) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table tbody tr {
+  background-color: var(--aa8-v33-spec-white) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] table tbody tr:nth-child(even) {
+  background-color: var(--aa8-v33-spec-stripe) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  table tbody tr:not(.g1-spec-group,.a2-category-row,.x2-category-row)
+  > :is(th,td) {
+  background-color: transparent !important;
+}
+/* Group headings remain #eee even if their row index is even. */
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  table tbody tr:is(.g1-spec-group,.a2-category-row,.x2-category-row,.spec-group,.group-row) {
+  background-color: var(--aa8-v33-spec-group) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  table tbody tr:is(.g1-spec-group,.a2-category-row,.x2-category-row,.spec-group,.group-row)
+  > :is(th,td) {
+  background-color: var(--aa8-v33-spec-group) !important;
+}
+/* X2 EDU's approved <p>-based spec rows stay semantically intact. */
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] #specs .spec-table {
+  background: var(--aa8-v33-spec-white) !important;
+  color: var(--aa8-v33-spec-ink) !important;
+  border: 1px solid var(--aa8-v33-spec-border) !important;
+  box-shadow: none !important;
+  border-radius: 2px !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"] #specs .spec-table p {
+  background: var(--aa8-v33-spec-white) !important;
+  border-color: var(--aa8-v33-spec-border) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  #specs .spec-table p:nth-of-type(even) {
+  background: var(--aa8-v33-spec-stripe) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  #specs .spec-table :is(span,b,small) {
+  color: var(--aa8-v33-spec-ink) !important;
+}
+body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+  #specs .spec-table > small {
+  background: var(--aa8-v33-spec-white) !important;
+  border-color: var(--aa8-v33-spec-border) !important;
+}
+@media (max-width:780px) {
+  body.aa8-corporate-v1 main[data-aa8-visual-version="3.3"]
+    table tbody tr:not(.g1-spec-group,.a2-category-row,.x2-category-row) > :is(th,td) {
+    background-color: transparent !important;
+  }
+}

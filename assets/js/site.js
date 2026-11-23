@@ -43,21 +43,56 @@
   // ------------------------------------------------------------
   // モバイルナビゲーション
   // ------------------------------------------------------------
-  const menuButton = document.querySelector('.menu');
-  const navigation = document.querySelector('.nav');
+  const menuButton = document.querySelector('.site-header .menu');
+  const navigation = document.querySelector('.site-header .nav');
+  const corporateShell = document.body.classList.contains('aa8-corporate-v1');
 
   if (menuButton && navigation) {
+    const setMenuOpen = (open, restoreFocus = false) => {
+      navigation.classList.toggle('open', open);
+      menuButton.setAttribute('aria-expanded', String(open));
+      if (corporateShell) {
+        document.body.classList.toggle('aa8-corporate-menu-open', open);
+        menuButton.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+      }
+      if (restoreFocus) menuButton.focus();
+    };
+
     menuButton.addEventListener('click', () => {
-      const isOpen = navigation.classList.toggle('open');
-      menuButton.setAttribute('aria-expanded', String(isOpen));
+      setMenuOpen(!navigation.classList.contains('open'));
     });
 
     navigation.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        navigation.classList.remove('open');
-        menuButton.setAttribute('aria-expanded', 'false');
-      });
+      link.addEventListener('click', () => setMenuOpen(false));
     });
+
+    document.addEventListener('keydown', (event) => {
+      if (!navigation.classList.contains('open')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setMenuOpen(false, true);
+        return;
+      }
+      if (!corporateShell || event.key !== 'Tab') return;
+      const links = [...navigation.querySelectorAll('a[href]')]
+        .filter((node) => node.getClientRects().length);
+      const order = [menuButton, ...links];
+      if (order.length < 2) return;
+      const first = order[0], last = order[order.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    });
+
+    if (corporateShell) {
+      const desktop = window.matchMedia('(min-width:1024px)');
+      const closeAtDesktop = () => { if (desktop.matches) setMenuOpen(false); };
+      if (typeof desktop.addEventListener === 'function')
+        desktop.addEventListener('change', closeAtDesktop);
+      closeAtDesktop();
+    }
   }
 
   // ------------------------------------------------------------

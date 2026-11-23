@@ -80,7 +80,9 @@ LEGACY_PATTERNS = {
 }
 
 SOURCE_SCAN_SUFFIXES = {".html", ".css", ".xml", ".js", ".json"}
-SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes"}
+SOURCE_SCAN_EXCLUDED_ROOTS = {".git", ".github", "_site", "scripts", "includes", "docs", "ops"}
+PRIVATE_PUBLISH_DIRS = {"docs", "ops"}
+PRIVATE_PUBLISH_FILES = {"data/hp-page-family-contract-v1.json"}
 
 
 def is_legacy_redirect(path: Path) -> bool:
@@ -133,6 +135,18 @@ def verify_source_hygiene(errors: list[str]) -> None:
                 errors.append(f"{label} remains in publishable source: {relative}")
 
 
+def verify_private_artifacts_absent(errors: list[str]) -> None:
+    """No internal governance, business metric snapshots or private contracts
+    may enter the public Pages artifact; protects both PR CI and manual deploy.
+    """
+    for directory in sorted(PRIVATE_PUBLISH_DIRS):
+        if (OUTPUT / directory).exists():
+            errors.append(f"internal folder published: {directory}")
+    for filename in sorted(PRIVATE_PUBLISH_FILES):
+        if (OUTPUT / filename).exists():
+            errors.append(f"internal file published: {filename}")
+
+
 def main() -> int:
     errors: list[str] = []
     # Both PR CI and the existing manual-only Pages deploy must pass this
@@ -157,6 +171,8 @@ def main() -> int:
     if not OUTPUT.is_dir():
         errors.append("_site does not exist")
         return fail(errors)
+
+    verify_private_artifacts_absent(errors)
 
     for item in REQUIRED_FILES:
         path = OUTPUT / item
@@ -274,6 +290,20 @@ def main() -> int:
         if count_shared_element(text, "footer", "footer") != 1:
             errors.append(f"shared footer count is not 1: {relative}")
 
+    # Universal local-asset dependency gate for all 13 currently published
+    # product pages and any future public products/*.html.  This reuses the
+    # exact same recursive HTML+CSS walker as isolated Vercel Preview.
+    from verify_preview_bundle import referenced_assets
+    for path in html_files:
+        relative=path.relative_to(OUTPUT)
+        if relative.parts[0] != "products":
+            continue
+        try:
+            referenced_assets(path.read_text(encoding="utf-8"),
+                              OUTPUT, relative.as_posix())
+        except (ValueError, OSError, UnicodeError) as exc:
+            errors.append(f"product bundle required asset missing: {relative}: {exc}")
+
     inspect_files = [
         path for path in OUTPUT.rglob("*")
         if path.is_file()
@@ -316,6 +346,35 @@ def main() -> int:
         return fail(errors)
 
     print(f"Release verification PASSED: {len(html_files)} HTML page(s), {len(ALLOWED_WORKFLOWS)} workflow(s), clean publishable source tree.")
+    # The existing Vercel Review project runs this LAST during its Git build.
+    # Only the original A2 isolated preview branch may materialize draft pages.
+    # Generate the same complete fixture set *after* release verification as
+    # existing PR CI, so every HTML and linked asset has identical source bytes.
+    # GitHub Pages, Vercel Production, and every other branch remain untouched.
+    import os
+    import subprocess
+    if (os.environ.get("VERCEL_ENV") == "preview"
+            and os.environ.get("VERCEL_GIT_COMMIT_REF")
+                == "feat/unitree-a2-real-factory-preview-20261114"):
+        revision = os.environ.get("VERCEL_GIT_COMMIT_SHA", "")
+        if not re.fullmatch(r"[0-9a-f]{40}", revision):
+            return fail(["A2 Vercel Preview exact Git SHA missing; no draft publish"])
+        fixtures = sorted((ROOT / "tests" / "fixtures").glob("*/product.json"))
+        if not fixtures or not (ROOT / "tests" / "fixtures" / "a2-factory" / "product.json").is_file():
+            return fail(["A2 Vercel Preview approved draft fixture missing"])
+        for fixture in fixtures:
+            target = OUTPUT / (fixture.parent.name + "-preview.html")
+            subprocess.run([
+                sys.executable, str(ROOT / "scripts" / "product_factory.py"),
+                "generate", "--draft-product", str(fixture),
+                "--mode", "preview", "--output", str(target),
+            ], cwd=ROOT, check=True)
+        from verify_preview_bundle import prepare
+        result = prepare(OUTPUT, [OUTPUT / (f.parent.name + "-preview.html")
+                                  for f in fixtures], revision)
+        if result.get("preview_count") != len(fixtures):
+            return fail(["A2 Vercel Preview bundle incomplete"])
+        print(f"Vercel isolated A2 Review Preview published: {len(fixtures)} exact-SHA draft pages; production HOLD.")
     return 0
 
 

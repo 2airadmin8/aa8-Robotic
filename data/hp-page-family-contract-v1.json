@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "aa8-hp-page-family-contract-v1",
+  "designAuthority": "Figma Product Page Standard V3.2 (visual reference)",
+  "contentAuthority": "Product Page Standard V3.1 (semantic roles)",
+  "rendererAuthority": "Existing G1 Factory V1 for opted-in products only",
+  "shared": {
+    "header": "includes/site-header.html",
+    "footer": "includes/site-footer.html",
+    "css": "assets/css/shared-layout.css",
+    "productSSOT": "data/products.json",
+    "catalogSize": 13,
+    "requiredRoles": [
+      "identity",
+      "hero",
+      "capabilities",
+      "useCases",
+      "mediaProvenance",
+      "specifications",
+      "resources",
+      "implementation",
+      "faq",
+      "related",
+      "inquiry"
+    ],
+    "optionalRoles": [
+      "modelComparison"
+    ],
+    "requiredBrowsers": [
+      1440,
+      390,
+      360
+    ]
+  },
+  "families": {
+    "biped": {
+      "description": "humanoid research and commercial robots",
+      "baselineProduct": "unitree-h2-plus",
+      "legacyPageStandard": "humanoid",
+      "candidateRequired": [
+        "officialSource",
+        "specifications",
+        "safety",
+        "sdkCompatibility",
+        "useCaseEvidence"
+      ],
+      "verification": "real product regression supported"
+    },
+    "biped_accessory": {
+      "description": "humanoid compatible add-on hardware",
+      "baselineProduct": null,
+      "legacyPageStandard": null,
+      "candidateRequired": [
+        "officialSource",
+        "hostModelIds",
+        "revision",
+        "mounting",
+        "interface",
+        "safety",
+        "warranty"
+      ],
+      "verification": "CONTRACT_ONLY_NO_VERIFIED_REAL_ACCESSORY"
+    },
+    "quadruped": {
+      "description": "quadruped mobility systems",
+      "baselineProduct": "unitree-go2-edu",
+      "legacyPageStandard": "quadruped",
+      "candidateRequired": [
+        "officialSource",
+        "payload",
+        "terrain",
+        "autonomy",
+        "communication",
+        "safety"
+      ],
+      "verification": "real legacy-page regression supported"
+    },
+    "quadruped_accessory": {
+      "description": "quadruped compatible add-on hardware",
+      "baselineProduct": null,
+      "legacyPageStandard": null,
+      "candidateRequired": [
+        "officialSource",
+        "hostModelIds",
+        "revision",
+        "mounting",
+        "power",
+        "interface",
+        "safety"
+      ],
+      "verification": "CONTRACT_ONLY_NO_VERIFIED_REAL_ACCESSORY"
+    }
+  },
+  "legacyOutOfScope": {
+    "mobile-manipulation": "Preserve all legacy pages and their unique content: do not misclassify as humanoid or quadruped accessory."
+  },
+  "releasePolicy": {
+    "newAccessories": "HOLD until actual manufacturer evidence, compatibility and independent QA available",
+    "noNewSKUByContract": true,
+    "crm": "PAUSED",
+    "pages": "manual_only"
+  }
+}

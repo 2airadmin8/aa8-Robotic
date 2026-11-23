@@ -3,7 +3,41 @@ name: PR CI
 on:
   pull_request:
     branches: [main]
+  # Independent policy runs from trusted main, never candidate PR source.
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+    branches: [main]
+  issue_comment:
+    types: [created]
+  # Trusted-main-only opt-in CEO issue READY intake, not a new workflow.
+  issues:
+    types: [labeled]
+  # Reuse Vercel's native Git integration notification, not a second webhook,
+  # scheduler, Runner or Workflow. Repository dispatch runs from trusted main.
+  repository_dispatch:
+    types: [vercel.deployment.ready]
   workflow_dispatch:
+    inputs:
+      autofix_pr:
+        description: 'Original Draft PR number for verified AI retry'
+        type: string
+        required: false
+      autofix_head:
+        description: 'Exact new candidate HEAD SHA'
+        type: string
+        required: false
+      autofix_base:
+        description: 'Exact PR base SHA'
+        type: string
+        required: false
+      feedback_comment_id:
+        description: 'Authenticated CEO rejection comment ID for any eligible Draft product PR'
+        type: string
+        required: false
+      review_source_comment_id:
+        description: 'Original CEO rejection ID for post-repair SHA/QA/Preview handoff only'
+        type: string
+        required: false
 
 permissions:
   contents: read
@@ -12,23 +46,414 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
-  group: pr-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: pr-ci-${{ github.event_name }}-${{ github.event.client_payload.id || github.event.pull_request.number || github.event.issue.number || github.ref }}
+  # CEO comment events for one PR are serialized; no duplicate dispatch races.
+  cancel-in-progress: ${{ github.event_name != 'issue_comment' && github.event_name != 'issues' && github.event_name != 'repository_dispatch' }}
 
 jobs:
+  # P0-B: Existing ci.yml only. Bootstrap to protected main is separately
+  # CEO-controlled; disabled by default and does not run DeepSeek or a writer.
+  # Global concurrency serializes claims ACROSS issues; independent workers
+  # must never treat the comment marker as an atomic mutex by itself.
+  factory-ready-wakeup:
+    if: >-
+      ${{ github.event_name == 'issues' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'READY' &&
+          github.actor == '2airadmin8' &&
+          vars.AA8_FACTORY_READY_ENABLED == 'true' }}
+    concurrency:
+      group: aa8-hp-ready-global-claim
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout trusted protected main only, no persistent credentials
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate CEO READY scope and reserve single global lease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          READY_ISSUE: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/198" > /tmp/aa8_ready_pr.json
+          gh api "repos/$GITHUB_REPOSITORY/issues/$READY_ISSUE" > /tmp/aa8_ready_issue.json
+          # Review all governance leases; no fresh marker means a free claim.
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/129/comments?per_page=100" > /tmp/aa8_ready_leases.json
+          python scripts/factory_gate_router.py ready-preflight             --event "$GITHUB_EVENT_PATH"             --pr-file /tmp/aa8_ready_pr.json             --issue-file /tmp/aa8_ready_issue.json             --lease-comments /tmp/aa8_ready_leases.json             --run-id "$GITHUB_RUN_ID"             --out /tmp/aa8_ready_preflight.json
+          lease="$(python -c 'import json;print(json.load(open("/tmp/aa8_ready_preflight.json"))["lease_marker"])')"
+          gh api -X POST "repos/$GITHUB_REPOSITORY/issues/129/comments"             -f body="$lease CEO-authenticated READY claim prepared on trusted main. DeepSeek NOT_RUN; auto_commit=false; Production HOLD."             > /tmp/aa8_ready_receipt.json
+          # This job is intentionally not a writer or model executor. Bootstrapping
+          # only the trusted entry cannot silently start arbitrary AI edits.
+          echo 'READY_CLAIM_PREPARED_WRITER_HOLD: single issue lease recorded; no commit, no dispatch.' >> "$GITHUB_STEP_SUMMARY"
+
+  # POLICY-TRUSTED: BASE branch only, never untrusted candidate code.
+  # Require this status in branch protection after its first live execution.
+  policy-independent-gate:
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout approved main policy ONLY
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check live PR metadata, design documents and changed files
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py audit
+          python -m unittest discover -s tests -p 'test_hp_governance_quality_gate.py' -q
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" > /tmp/aa8_policy_changed_files.json
+          python scripts/hp_governance_quality_gate.py pr --event "$GITHUB_EVENT_PATH" --files /tmp/aa8_policy_changed_files.json
+          echo "Trusted main policy passed; technical QA and release approval remain separate." >> "$GITHUB_STEP_SUMMARY"
+
+  # Trusted default-branch router; never check out untrusted PR code with a write token.
+  feedback-router:
+    if: >-
+      ${{ github.event_name == 'issue_comment' && github.event.action == 'created' &&
+          github.event.issue.pull_request && github.actor == '2airadmin8' &&
+          github.event.comment.user.id == 211299962 &&
+          startsWith(github.event.comment.body, '<!-- AA8-CEO-RETURNED sha=') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+      actions: write
+    steps:
+      - name: Checkout trusted default branch only
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify live CEO comment and Draft PR, dispatch existing CI once
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NO: ${{ github.event.issue.number }}
+          FEEDBACK_ID: ${{ github.event.comment.id }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$ISSUE_NO" > /tmp/aa8_live_feedback_pr.json
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$FEEDBACK_ID" > /tmp/aa8_live_feedback_comment.json
+          python scripts/factory_feedback_rework.py route \
+            --event-file "$GITHUB_EVENT_PATH" --pr-file /tmp/aa8_live_feedback_pr.json \
+            --comment-file /tmp/aa8_live_feedback_comment.json \
+            --out /tmp/aa8_trusted_feedback_route.json
+          pr="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['pr'])")"
+          head="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['sha'])")"
+          base="$(python -c "import json;print(json.load(open('/tmp/aa8_trusted_feedback_route.json'))['base'])")"
+          # Persist a durable per-comment lease before dispatch; any repeated
+          # event sees this marker and fails closed instead of creating another run.
+          marker="<!-- AA8-CEO-FEEDBACK-ROUTED comment_id=$FEEDBACK_ID -->"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments?per_page=100" --jq '.[].body' > /tmp/aa8_prior_feedback_comments.txt
+          if grep -Fq -- "$marker" /tmp/aa8_prior_feedback_comments.txt; then
+            echo "HOLD: feedback comment already routed; no repeat dispatch"
+            exit 2
+          fi
+          gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NO/comments" \
+            -f body="$marker CEO comment accepted for single bounded Factory CI dispatch. No merge or Production authorization." \
+            > /tmp/aa8_feedback_routed_ack.json
+          gh workflow run ci.yml --ref main -f autofix_pr="$pr" \
+            -f autofix_head="$head" -f autofix_base="$base" \
+            -f feedback_comment_id="$FEEDBACK_ID"
+          echo "CEO feedback #$FEEDBACK_ID routed once: Draft PR #$pr HEAD $head; main/Production HOLD." >> "$GITHUB_STEP_SUMMARY"
+  # Trusted main-side post-deploy gate. Vercel's linked GitHub app supplies
+  # repository_dispatch, but NEVER grants permission to run untrusted PR code
+  # with a Vercel API secret. Missing CI evidence, token, or event = HOLD.
+  # Activation requires this workflow to land on protected main AND a scoped
+  # GitHub VERCEL_TOKEN secret; neither is assumed from an isolated Draft PR.
+  preview-postdeploy-readback:
+    if: >-
+      ${{ github.event_name == 'repository_dispatch' &&
+          github.event.action == 'vercel.deployment.ready' &&
+          github.event.client_payload.project.id == 'prj_vH6kcA1vFU6FPCm3skNdpudINkEh' &&
+          github.event.client_payload.environment == 'preview' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    permissions:
+      contents: read
+      actions: read
+      statuses: write
+    steps:
+      - name: Checkout trusted protected branch only
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Validate Vercel event and exact source commit
+        id: event
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,re
+          from pathlib import Path
+          event=json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
+          data=event.get('client_payload') or {}
+          sha=(data.get('git') or {}).get('sha')
+          did=data.get('id')
+          project=(data.get('project') or {}).get('id')
+          if (project!='prj_vH6kcA1vFU6FPCm3skNdpudINkEh'
+              or data.get('environment')!='preview'
+              or not isinstance(sha,str) or not re.fullmatch(r'[0-9a-f]{40}',sha)
+              or not isinstance(did,str) or not re.fullmatch(r'dpl_[A-Za-z0-9]+',did)):
+              raise SystemExit('PREVIEW_POSTDEPLOY_HOLD: invalid Vercel event identity')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              print('sha='+sha,file=out)
+              print('deployment_id='+did,file=out)
+          PY
+          # A real commit MUST exist in the same authorized GitHub repository.
+          verified_sha="$(sed -n 's/^sha=//p' "$GITHUB_OUTPUT")"
+          test "${#verified_sha}" -eq 40
+          gh api "repos/$GITHUB_REPOSITORY/commits/$verified_sha" --jq .sha >/dev/null
+
+      - name: Mark deployed SHA pending until full verified Vercel readback
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA" -f state=pending -f context=aa8-preview-postdeploy -f description='Vercel exact file tree readback pending; CEO still HOLD' >/dev/null
+
+      - name: Wait boundedly for SUCCESSFUL exact-SHA PR CI manifest (no PR code checkout)
+        id: artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          # A Git-native Vercel Preview can become READY before PR CI finishes.
+          # Never invent a manifest, use another SHA, or accept a merely uploaded
+          # artifact from a still-running / failed CI. Bounded wait; then HOLD.
+          chosen_run=""
+          for attempt in $(seq 1 24); do
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$EXPECTED_SHA&event=pull_request&per_page=100" > "$RUNNER_TEMP/aa8-ci-runs.json"
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100&name=aa8-preview-bundle-$EXPECTED_SHA" > "$RUNNER_TEMP/aa8-artifact-search.json"
+            chosen_run="$(python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          runs=json.loads((root/"aa8-ci-runs.json").read_text()).get("workflow_runs",[])
+          assets=json.loads((root/"aa8-artifact-search.json").read_text()).get("artifacts",[])
+          sha=os.environ["EXPECTED_SHA"]
+          valid_runs={r.get("id"):r for r in runs
+              if r.get("head_sha")==sha and r.get("event")=="pull_request"
+              and r.get("name")=="PR CI" and r.get("status")=="completed"
+              and r.get("conclusion")=="success"}
+          matching=[a for a in assets
+              if a.get("name")=="aa8-preview-bundle-"+sha and not a.get("expired")
+              and (a.get("workflow_run") or {}).get("head_sha")==sha
+              and (a.get("workflow_run") or {}).get("id") in valid_runs]
+          if matching:
+              newest=max(matching,key=lambda a:a.get("created_at",""))
+              print((newest.get("workflow_run") or {})["id"])
+          PY
+          )"
+            if [[ "$chosen_run" =~ ^[0-9]+$ ]]; then
+              break
+            fi
+            if (( attempt < 24 )); then
+              sleep 20
+            fi
+          done
+          if ! [[ "$chosen_run" =~ ^[0-9]+$ ]]; then
+            echo "PREVIEW_POSTDEPLOY_HOLD: no SUCCESSFUL exact-HEAD pull_request CI with matching manifest artifact" >&2
+            exit 2
+          fi
+          mkdir -p "$RUNNER_TEMP/aa8-preview-review"
+          gh run download "$chosen_run" --repo "$GITHUB_REPOSITORY" \
+            --name "aa8-preview-bundle-$EXPECTED_SHA" --dir "$RUNNER_TEMP/aa8-preview-review"
+          test -s "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          manifest=json.loads((Path(os.environ["RUNNER_TEMP"])/"aa8-preview-review"/"aa8-preview-bundle-manifest.json").read_text())
+          if manifest.get("revision")!=os.environ["EXPECTED_SHA"]:
+              raise SystemExit("PREVIEW_POSTDEPLOY_HOLD: downloaded CI manifest has wrong exact HEAD")
+          PY
+
+      - name: Verify exact Vercel project + deployed source file tree
+        id: verified
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+          DEPLOYMENT_ID: ${{ steps.event.outputs.deployment_id }}
+        run: |
+          set -euo pipefail
+          # No token => FAIL, never SKIP / assumed-ready.
+          python scripts/preview_postdeploy_bridge.py             --deployment-id "$DEPLOYMENT_ID"             --expected-sha "$SOURCE_SHA"             --manifest "$RUNNER_TEMP/aa8-preview-review/aa8-preview-bundle-manifest.json"             --evidence "$RUNNER_TEMP/aa8-preview-postdeploy-proof.json"
+
+      - name: Mark deployment verification failure as hard HOLD on exact SHA
+        if: ${{ failure() && steps.event.outcome == 'success' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA" -f state=failure -f context=aa8-preview-postdeploy -f description='Vercel Preview source/asset gate HOLD - no CEO review READY' -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+          echo 'HOLD: Vercel preview file-tree verification incomplete/failed.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Mark exact verified commit only (after authenticated Vercel PASS)
+        if: ${{ steps.verified.outcome == 'success' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.event.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SOURCE_SHA"             -f state=success -f context=aa8-preview-postdeploy             -f description='Vercel deployed file-tree SHA verified; CEO review remains separate'             -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >/dev/null
+          echo 'Verified exact SHA manifest vs actual deployed files; not CEO or Production approval.' >> "$GITHUB_STEP_SUMMARY"
+
   build-and-verify:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      factory_scope: ${{ steps.gate_handoff.outputs.factory_scope }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.autofix_head || github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
+      # Existing CI: no new Runner or workflow. Scoped PRs need a traceable
+      # business need -> frozen design -> implementation/tests -> stop rule.
+      - name: PM/CTO design-to-code governance and bounded change intake
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py audit
+          python -m unittest discover -s tests -p 'test_hp_governance_quality_gate.py' -q
+          if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then
+            test -n "$PR_NUMBER"
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" > /tmp/aa8_policy_changed_files.json
+            python scripts/hp_governance_quality_gate.py pr --event "$GITHUB_EVENT_PATH" --files /tmp/aa8_policy_changed_files.json
+          fi
+
+      - name: Verify exact repair CI dispatch, same PR and Draft
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.autofix_pr }}
+          EXPECTED_HEAD: ${{ inputs.autofix_head }}
+          EXPECTED_BASE: ${{ inputs.autofix_base }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > /tmp/aa8_original_pr.json
+          python - <<'PY'
+          import json,os,re
+          p=json.load(open('/tmp/aa8_original_pr.json'))
+          expected=os.environ['EXPECTED_HEAD']
+          if not re.fullmatch(r'[a-f0-9]{40}', expected):
+              raise SystemExit('HOLD: invalid SHA')
+          if (p['state']!='open' or not p['draft']
+              or p['head']['sha']!=expected
+              or p['base']['sha']!=os.environ['EXPECTED_BASE']
+              or p['head']['repo']['full_name']!=os.environ['GITHUB_REPOSITORY']
+              or p['base']['ref']!='main'):
+              raise SystemExit('HOLD: original PR ref, HEAD or base changed')
+          print('Verified same Draft PR and exact new HEAD')
+          PY
+
+
+      # Isolated real authentication check: no source/customer data, no logging keys.
+      - name: DeepSeek PAIHP secret real API smoke
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 173 && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: bash
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,urllib.request,urllib.error
+          key=os.environ.get('DEEPSEEK_API_KEY','')
+          if not key:
+              raise SystemExit('HOLD: DEEPSEEK_API_KEY_PAIHP not supplied to Actions')
+          def call(url,payload=None):
+              req=urllib.request.Request(
+                  url,
+                  data=json.dumps(payload).encode('utf-8') if payload is not None else None,
+                  headers={'Authorization':'Bearer '+key,
+                           'Content-Type':'application/json',
+                           'User-Agent':'AirAdmin8-Factory-DeepSeek-Probe'},
+                  method='POST' if payload is not None else 'GET')
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as response:
+                      if response.status!=200:
+                          raise SystemExit('HOLD: DeepSeek unexpected HTTP '+str(response.status))
+                      return json.loads(response.read(120000).decode('utf-8'))
+              except urllib.error.HTTPError as e:
+                  raise SystemExit('HOLD: DeepSeek HTTP '+str(e.code)) from None
+              except urllib.error.URLError:
+                  raise SystemExit('HOLD: DeepSeek connection failure') from None
+          models=call('https://api.deepseek.com/models')
+          if 'deepseek-flash' not in [x.get('id') for x in models.get('data',[])]:
+              raise SystemExit('HOLD: deepseek-flash not listed for credential')
+          result=call('https://api.deepseek.com/chat/completions',
+              {'model':'deepseek-flash',
+               'messages':[{'role':'user','content':'Reply with OK only.'}],
+               'thinking':{'type':'disabled'},'max_tokens':16,'stream':False})
+          choices=result.get('choices') or []
+          if not choices or not isinstance(choices[0].get('message',{}).get('content'),str):
+              raise SystemExit('HOLD: DeepSeek chat response malformed')
+          print('DEEPSEEK_PAIHP_REAL_AUTH_PASS model=deepseek-flash; no secret or response printed')
+          PY
+
       - name: Regression gate for manual-only production release
+        id: regression
         shell: bash
         run: |
           set -euo pipefail
@@ -36,6 +461,26 @@ jobs:
           python -m unittest discover -s tests -p 'test_build_ignores_dependencies.py' -v
           python -m unittest discover -s tests -p 'test_h2x_social_meta.py' -v
           python -m unittest discover -s tests -p 'test_product_factory.py' -v
+          python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_router.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_policy.py' -v
+          python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
+          python -m unittest discover -s tests -p 'test_preview_bundle_universal.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
+          python -m unittest discover -s tests -p 'test_a2_factory_pilot.py' -v
+          python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
+          python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
+          python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
+          python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
+          python scripts/hp_design_contract.py
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python -m unittest discover -s tests -p 'test_recent_product_seo.py' -v
@@ -51,10 +496,24 @@ jobs:
       - name: Verify shared CSS ownership
         id: css_owner
         shell: bash
+        env:
+          CSS_POLICY_EVENT: ${{ github.event_name }}
+          CSS_POLICY_BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
         run: |
           set -euo pipefail
           python -m py_compile scripts/verify_shared_css_ownership.py
           python scripts/verify_shared_css_ownership.py
+          # New shared CSS selector conflicts are mandatory PR/repair failures.
+          # Existing X2 EDU/G1 inline overrides remain visible in the report.
+          if [[ "$CSS_POLICY_EVENT" == "pull_request" ||
+                ( "$CSS_POLICY_EVENT" == "workflow_dispatch" && -n "$CSS_POLICY_BASE_SHA" ) ]]; then
+            if ! [[ "$CSS_POLICY_BASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "HOLD: exact trusted base SHA required for shared CSS delta gate"
+              exit 2
+            fi
+            git fetch --no-tags --depth=1 origin "$CSS_POLICY_BASE_SHA"
+            python scripts/verify_shared_css_ownership.py --strict-new --base-sha "$CSS_POLICY_BASE_SHA"
+          fi
 
       - name: Build release candidate
         id: build
@@ -114,6 +573,8 @@ jobs:
       - name: Verify PC/SP navigation in real browser
         id: browser
         shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.autofix_head || github.sha }}
         run: |
           set -euo pipefail
           python -m http.server 4173 --directory _site > /tmp/aa8-http.log 2>&1 &
@@ -128,12 +589,87 @@ jobs:
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
           # CI-only synthetic product; preview never reaches Pages production artifact.
           python tests/prepare_product_factory_qa.py
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js --reporter=line
+          # All existing and future Product Factory draft fixtures share this
+          # one generation path. Fail closed if any candidate cannot build.
+          python - <<'PY_FACTORY_PREVIEWS'
+          from pathlib import Path
+          import subprocess
+          fixtures=sorted(Path("tests/fixtures").glob("*/product.json"))
+          if not fixtures:
+              raise SystemExit("PREVIEW_BUNDLE_HOLD: no draft product fixtures")
+          for source in fixtures:
+              target=Path("_site")/(source.parent.name+"-preview.html")
+              subprocess.run(["python","scripts/product_factory.py","generate",
+                  "--draft-product",str(source),"--mode","preview",
+                  "--output",str(target)],check=True)
+          PY_FACTORY_PREVIEWS
+          # Pre-deploy Gate: exact asset hashes are mandatory in this existing
+          # CI workflow. Post-deployment must compare with actual Vercel Files.
+          python scripts/verify_preview_bundle.py --site _site --revision "$PR_HEAD_SHA" --emit /tmp/aa8-preview-bundle-manifest.json
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js tests/a2-factory-preview.spec.js tests/corporate-brand-optin.spec.js --reporter=line
 
+      - name: Preserve exact Preview assets manifest for Vercel post-deploy Gate
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa8-preview-bundle-${{ github.event.pull_request.head.sha }}
+          path: /tmp/aa8-preview-bundle-manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Preserve A2 independent PC/SP real-page screenshots
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-qa-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Preserve X2 exact SHA PC/SP Figma screenshot evidence
+        if: ${{ always() && github.event_name == 'pull_request' && github.event.pull_request.number == 173 }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: x2-figma-visual-${{ github.event.pull_request.head.sha }}
+          path: x2-qa-artifacts/
+          if-no-files-found: error
+          retention-days: 30
       - name: Ensure build does not modify tracked source
         id: source_clean
         shell: bash
         run: git diff --exit-code
+
+      # Same existing PR CI; no polling, second Factory, or production permission.
+      - name: Factory gate handoff (all internal product PRs)
+        if: ${{ always() && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
+        id: gate_handoff
+        shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
+          RESULT_REGRESSION: ${{ steps.regression.outcome }}
+          RESULT_BUILD: ${{ steps.build.outcome }}
+          RESULT_BROWSER: ${{ steps.browser.outcome }}
+          RESULT_RELEASE: ${{ steps.release.outcome }}
+          RESULT_SOURCE_CLEAN: ${{ steps.source_clean.outcome }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 origin "$PR_BASE" "$PR_HEAD"
+          git diff --name-only "$PR_BASE" "$PR_HEAD" > changed-product-paths.txt
+          python scripts/factory_gate_router.py             --head-sha "$PR_HEAD" --pr "$PR_NUMBER"             --changed-paths changed-product-paths.txt             --regression "$RESULT_REGRESSION" --build "$RESULT_BUILD"             --browser "$RESULT_BROWSER" --release "$RESULT_RELEASE"             --source-clean "$RESULT_SOURCE_CLEAN"             --out gate-handoff
+          cat gate-handoff/gate-handoff.md >> "$GITHUB_STEP_SUMMARY"
+          factory_scope="$(python -c "import json;print(json.load(open('gate-handoff/gate-handoff.json'))['scope']['work_scope'])")"
+          echo "factory_scope=$factory_scope" >> "$GITHUB_OUTPUT"
+
+      - name: Preserve Factory gate handoff evidence
+        if: ${{ always() && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-gate-handoff-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: gate-handoff/
+          if-no-files-found: error
+          retention-days: 30
 
       - name: 表示チェックリスト
         if: always()
@@ -160,6 +696,495 @@ jobs:
             echo "| リンク・画像・旧パス除去 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| Sitemap・robots・SEO構造 | $(status_icon '${{ steps.release.outcome }}') |"
             echo "| BuildによるSource汚染なし | $(status_icon '${{ steps.source_clean.outcome }}') |"
+            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.number }}" = "180" ]; then
+              echo "| A2 15项CEO视觉签核 | VISUAL_HOLD（截图证据不等于独立视觉验收） |"
+              echo "| A2 日文厂家事实真人签核 | FACT_HOLD（技术对照不等于真人批准） |"
+            fi
             echo ""
             echo "Commit: \`${GITHUB_SHA}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # Separate hosted runner on the same exact PR head: technical cross-check only.
+  # It does NOT constitute independent Figma, business, or CEO QA approval.
+  separate-technical-qa:
+    needs: build-and-verify
+    if: ${{ needs.build-and-verify.result == 'success' && needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' && needs.build-and-verify.outputs.factory_scope != '' && ((github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact PR HEAD on separate runner
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Separate technical QA / regress all existing products
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_product_factory.py' -v
+          python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -v
+          python -m unittest discover -s tests -p 'test_factory_gate_router.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_policy.py' -v
+          python -m unittest discover -s tests -p 'test_deepseek_autofix.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_workflow.py' -v
+          python -m unittest discover -s tests -p 'test_factory_autofix_integration.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -v
+          python -m unittest discover -s tests -p 'test_factory_feedback_preview.py' -v
+          python -m unittest discover -s tests -p 'test_preview_postdeploy_bridge.py' -v
+          python -m unittest discover -s tests -p 'test_hp_design_contract.py' -v
+          python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
+          python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
+          python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
+          python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
+          python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
+          python scripts/hp_design_contract.py
+          python scripts/product_factory.py audit
+      # A2 screenshots re-audited on the existing separate technical QA runner.
+      # Evidenced screenshot bytes NEVER imply independent CEO visual approval.
+      - name: Download exact-HEAD A2 screenshots for independent evidence check
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        uses: actions/download-artifact@v4
+        with:
+          name: a2-visual-proof-${{ github.event.pull_request.head.sha }}
+          path: a2-independent-screenshots/
+
+      - name: Verify 15 A2 redline screenshot sets (visual approval HOLD)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 180 }}
+        shell: bash
+        env:
+          A2_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          python scripts/hp_governance_quality_gate.py visual-evidence --head-sha "$A2_HEAD" --screenshots a2-independent-screenshots --out separate-qa-evidence/a2-visual-gate.json
+          echo '## A2 CEO 15-redline gate' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Exact-SHA screenshot integrity PASS on separate runner.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'VISUAL HOLD: original-image comparison and P0/P1 closure NOT_ATTESTED.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Technical CI and SHA verification cannot authorize design signoff.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Record separate technical QA evidence
+        shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
+        run: |
+          set -euo pipefail
+          mkdir -p separate-qa-evidence
+          python - <<'PY'
+          import json,os,pathlib,datetime
+          sha=os.environ['PR_HEAD']
+          if len(sha)!=40:
+              raise SystemExit('invalid PR head SHA')
+          result={
+             'schema_version':'factory-separate-technical-qa-v1',
+             'checked_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+             'pr':int(os.environ['PR_NUMBER']),
+             'head_sha':sha,
+             'runner':'fresh github-hosted ubuntu-24.04',
+             'scope':'Technical regression of existing Product Master and pilot; not visual signoff',
+             'technical_regression':'PASS',
+             'design_visual_approval':'HOLD',
+             'business_e2e':'HOLD',
+             'human_independent_qa':'HOLD',
+             'ceo_approval':'HOLD',
+             'auto_ai_developer_wakeup':'NOT_CONNECTED',
+             'production_release':'HOLD'}
+          pathlib.Path('separate-qa-evidence/report.json').write_text(json.dumps(result,indent=2)+'\n')
+          PY
+      - name: Preserve separate technical QA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-separate-qa-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: separate-qa-evidence/
+          if-no-files-found: error
+          retention-days: 30
+
+  # Disabled by default. Enable only with valid DEEPSEEK_API_KEY_PAIHP Actions secret
+  # and explicit repo variable AA8_FACTORY_AUTOFIX_ENABLED=true.
+  ai-autofix-propose:
+    needs: build-and-verify
+    if: >-
+      ${{
+        always() &&
+        (
+          (
+            vars.AA8_FACTORY_AUTOFIX_ENABLED == 'true' &&
+            (github.event.pull_request.number || inputs.autofix_pr != '') &&
+            needs.build-and-verify.result == 'failure' &&
+            needs.build-and-verify.outputs.factory_scope != '' &&
+            needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) &&
+            (
+              (github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) ||
+              (github.event_name == 'workflow_dispatch' && inputs.autofix_pr != '' && inputs.autofix_head != '')
+            )
+          ) ||
+          (
+            github.event_name == 'workflow_dispatch' &&
+            inputs.autofix_pr != '' &&
+            inputs.feedback_comment_id != '' &&
+            inputs.autofix_head != '' &&
+            inputs.autofix_base != '' &&
+            needs.build-and-verify.result == 'success' &&
+            needs.build-and-verify.outputs.factory_scope != '' &&
+            needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            (github.actor == '2airadmin8' || github.actor == 'github-actions[bot]')
+          )
+        )
+      }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read
+      issues: read
+      pull-requests: read
+    outputs:
+      has_patch: ${{ steps.patch.outputs.has_patch }}
+    steps:
+      - name: Checkout failed PR exact HEAD, no write credentials
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Download precise CI gate failure
+        uses: actions/download-artifact@v4
+        with:
+          name: factory-gate-handoff-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: failed-gate
+      - name: Validate original PR, maximum 3 attempts and protected scope
+        shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          GH_TOKEN: ${{ github.token }}
+          FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
+          SOURCE_ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          # Get policy/model scripts from trusted main, not untrusted PR code.
+          test "$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.base.sha')" = "$PR_BASE"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            PR_BRANCH="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.ref')"
+          fi
+          mkdir -p /tmp/aa8_trusted_factory
+          for name in factory_autofix_policy.py deepseek_factory_autofix.py factory_feedback_rework.py; do
+            git show "${PR_BASE}:scripts/$name" > "/tmp/aa8_trusted_factory/$name"
+          done
+          git log --format=%B "$PR_BASE..HEAD" > repair-history.txt
+          python /tmp/aa8_trusted_factory/factory_autofix_policy.py preflight \
+            --pr "$PR_NUMBER" --sha "$PR_HEAD" --branch "$PR_BRANCH" \
+            --actor "$SOURCE_ACTOR" --repo "$GITHUB_REPOSITORY" \
+            --scope "$FACTORY_SCOPE" --history-file repair-history.txt \
+            --out repair-preflight.json
+          test -s failed-gate/gate-handoff.json
+          cp /tmp/aa8_trusted_factory/factory_autofix_policy.py /tmp/aa8_autofix_policy.py
+      - name: Verify CEO rework comment and exact PR SHA
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.feedback_comment_id != '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
+          EXPECTED_SHA: ${{ inputs.autofix_head }}
+          PR_NUMBER: ${{ inputs.autofix_pr }}
+        run: |
+          set -euo pipefail
+          [[ "$FEEDBACK_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'HOLD: invalid feedback id'; exit 2; }
+          gh api "repos/$GITHUB_REPOSITORY/issues/comments/$FEEDBACK_ID" > feedback-comment.json
+          python /tmp/aa8_trusted_factory/factory_feedback_rework.py verify --comment-file feedback-comment.json \
+            --comment-id "$FEEDBACK_ID" --sha "$EXPECTED_SHA" --pr "$PR_NUMBER" --out verified-feedback.json
+          test -s verified-feedback.json
+      - name: Reproduce CI failure without AI credentials
+        if: ${{ inputs.feedback_comment_id == '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > reproduced-failure.log
+          failed=0
+          for suite in test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
+            if ! python -m unittest discover -s tests -p "$suite" -q >> reproduced-failure.log 2>&1; then
+              failed=1
+            fi
+          done
+          if test "$failed" -ne 1; then
+            echo 'HOLD: Unable to reproduce an actual unit failure without AI key'
+            exit 2
+          fi
+          test -s reproduced-failure.log
+
+      - name: DeepSeek API - propose minimal source repair
+        shell: bash
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
+          DEEPSEEK_AUTOFIX_MODEL: deepseek-flash
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
+        run: |
+          set -euo pipefail
+          test -n "$DEEPSEEK_API_KEY" || { echo 'HOLD: DEEPSEEK_API_KEY missing'; exit 2; }
+          if test -n "${FEEDBACK_ID:-}"; then
+            python /tmp/aa8_trusted_factory/factory_feedback_rework.py propose --root . \
+              --base-sha "$PR_BASE" --feedback-json verified-feedback.json \
+              --out deepseek-proposal.json --patch-out candidate-fix.patch
+          else
+            python /tmp/aa8_trusted_factory/deepseek_factory_autofix.py --root . \
+              --base-sha "$PR_BASE" --gate-json failed-gate/gate-handoff.json \
+              --failure-log reproduced-failure.log --out deepseek-proposal.json \
+              --patch-out candidate-fix.patch
+          fi
+
+      - name: Check proposed patch with immutable pre-AI guard
+        id: patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Consume the exact patch already validated and saved by the
+          # unprivileged DeepSeek proposer; do NOT reconstruct a git diff.
+          test -s candidate-fix.patch
+          python /tmp/aa8_autofix_policy.py patch-check             --patch candidate-fix.patch --out candidate-policy.json
+          echo 'has_patch=true' >> "$GITHUB_OUTPUT"
+      - name: Preserve DeepSeek proposal as non-executable patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-ai-proposal-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: |
+            candidate-fix.patch
+            candidate-policy.json
+            deepseek-proposal.json
+          if-no-files-found: error
+          retention-days: 14
+
+  # Separate runner: run code and regression without DeepSeek key or write token.
+  ai-autofix-validate:
+    needs: [build-and-verify, ai-autofix-propose]
+    if: ${{ always() && needs.ai-autofix-propose.result == 'success' && needs.ai-autofix-propose.outputs.has_patch == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    outputs:
+      accepted: ${{ steps.validate.outputs.accepted }}
+    steps:
+      - name: Checkout failed PR exact HEAD, read-only
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Retrieve AI patch from same run
+        uses: actions/download-artifact@v4
+        with:
+          name: factory-ai-proposal-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: proposed-fix
+      - name: Validate patch and rerun source regressions without write token
+        id: validate
+        shell: bash
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+        run: |
+          set -euo pipefail
+          git show "${PR_BASE}:scripts/factory_autofix_policy.py" > /tmp/aa8_trusted_patch_policy.py
+          python /tmp/aa8_trusted_patch_policy.py patch-check \
+            --patch proposed-fix/candidate-fix.patch --out validated-policy.json
+          git apply --check proposed-fix/candidate-fix.patch
+          git apply --index proposed-fix/candidate-fix.patch
+          python -m unittest discover -s tests -p 'test_product_factory.py' -q
+          python -m unittest discover -s tests -p 'test_x2_pilot_factory.py' -q
+          python -m unittest discover -s tests -p 'test_factory_feedback_rework.py' -q
+          python -m unittest discover -s tests -p 'test_factory_gate_router.py' -q
+          python -m unittest discover -s tests -p 'test_factory_autofix_policy.py' -q
+          python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -q
+          git diff --cached --check
+          cp proposed-fix/candidate-fix.patch validated-fix.patch
+          echo 'accepted=true' >> "$GITHUB_OUTPUT"
+      - name: Persist validated, source-only patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-ai-validated-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: |
+            validated-fix.patch
+            validated-policy.json
+          if-no-files-found: error
+          retention-days: 14
+
+  # The sole privileged writer. Does NOT receive the DeepSeek API key.
+  ai-autofix-commit:
+    needs: [build-and-verify, ai-autofix-propose, ai-autofix-validate]
+    if: ${{ always() && needs.ai-autofix-validate.result == 'success' && needs.ai-autofix-validate.outputs.accepted == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: read
+    steps:
+      - name: Checkout original PR HEAD
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Download only the independently validated patch
+        uses: actions/download-artifact@v4
+        with:
+          name: factory-ai-validated-${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          path: validated
+      - name: Lease original Draft PR HEAD, commit same branch, dispatch fresh CI
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.autofix_pr }}
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+          FEEDBACK_ID: ${{ inputs.feedback_comment_id }}
+          FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > /tmp/aa8_live_pr.json
+          python - <<'PY'
+          import json,os,re
+          p=json.load(open('/tmp/aa8_live_pr.json'))
+          if (p['state'] != 'open' or not p['draft']
+              or p['head']['sha'] != os.environ['EXPECTED_SHA']
+              or p['head']['repo']['full_name'] != os.environ['GITHUB_REPOSITORY']):
+              raise SystemExit('HOLD: PR changed or left Draft state')
+          branch=p['head']['ref']
+          if (not re.fullmatch(r'(?:feat|fix|draft|chore)/[A-Za-z0-9._/-]+',branch)
+              or '..' in branch or '//' in branch):
+              raise SystemExit('HOLD: unsafe PR branch')
+          open('/tmp/aa8_target_branch','w').write(branch)
+          PY
+          branch="$(cat /tmp/aa8_target_branch)"
+          git fetch --no-tags origin "$branch"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_SHA"
+          git apply --check validated/validated-fix.patch
+          git apply --index validated/validated-fix.patch
+          git diff --cached --check
+          # No repository-controlled Python or tests are executed in this
+          # privileged writer job. Only the independently validated patch is
+          # read as data; provenance and retry counts are rechecked inline.
+          python - <<'PY'
+          import json,os,re,subprocess,pathlib
+          policy=json.load(open('validated/validated-policy.json'))
+          if policy.get('status')!='PATCH_ACCEPTED_FOR_ISOLATED_TEST' or policy.get('release')!='HOLD':
+              raise SystemExit('HOLD: validated patch status invalid')
+          expected=sorted(policy.get('files',[]))
+          staged=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
+          if not expected or sorted(staged)!=expected or len(expected)>8:
+              raise SystemExit('HOLD: staged files differ from validated artifact')
+          base_sha=json.load(open('/tmp/aa8_live_pr.json'))['base']['sha']
+          history=subprocess.check_output(['git','log','--format=%B',base_sha+'..HEAD'],text=True)
+          matches=[int(v) for v in re.findall(r'(?im)^AA8-AUTOFIX-ATTEMPT:\s*(\d+)\s*$',history)]
+          if any(n<1 or n>3 for n in matches):
+              raise SystemExit('HOLD: invalid previous repair marker')
+          attempt=max(matches,default=0)+1
+          if attempt>3:
+              raise SystemExit('HOLD: repair budget 3 exhausted')
+          pathlib.Path('/tmp/aa8_attempt').write_text(str(attempt))
+          PY
+          attempt="$(cat /tmp/aa8_attempt)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -c core.hooksPath=/dev/null commit             -m "fix(factory): bounded AI repair for original PR #$PR_NUMBER"             -m "AA8-AUTOFIX-ATTEMPT: $attempt"
+          git push origin "HEAD:refs/heads/$branch"
+          # GITHUB_TOKEN pushes do not trigger PR CI; explicitly dispatch CI.
+          new_head="$(git rev-parse HEAD)"
+          pr_base="$(python -c "import json;print(json.load(open('/tmp/aa8_live_pr.json'))['base']['sha'])")"
+          if test -n "${FEEDBACK_ID:-}"; then
+            gh workflow run ci.yml --ref main -f autofix_pr="$PR_NUMBER" \
+              -f autofix_head="$new_head" -f autofix_base="$pr_base" \
+              -f review_source_comment_id="$FEEDBACK_ID"
+          else
+            gh workflow run ci.yml --ref main -f autofix_pr="$PR_NUMBER" \
+              -f autofix_head="$new_head" -f autofix_base="$pr_base"
+          fi
+          echo "Autofix attempt $attempt; original PR #$PR_NUMBER updated to $new_head. Production HOLD." >> "$GITHUB_STEP_SUMMARY"
+
+  # Fresh SHA -> exact CI + separate QA -> VERIFIED public Vercel Preview -> CEO.
+  # Runs on trusted main after a real authenticated feedback-driven bot commit.
+  ceo-feedback-preview-handoff:
+    needs: [build-and-verify, separate-technical-qa]
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' && inputs.review_source_comment_id != '' &&
+          needs.build-and-verify.result == 'success' && needs.separate-technical-qa.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    permissions:
+      contents: read
+      deployments: read
+      pull-requests: read
+      issues: write
+    steps:
+      - name: Checkout trusted main handoff implementation
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify new bot SHA and Preview, notify CEO in the original PR
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_PR: ${{ inputs.autofix_pr }}
+          TARGET_SHA: ${{ inputs.autofix_head }}
+          SOURCE_COMMENT_ID: ${{ inputs.review_source_comment_id }}
+        run: |
+          set -euo pipefail
+          python scripts/factory_feedback_preview.py \
+            --repo "$GITHUB_REPOSITORY" --pr "$TARGET_PR" \
+            --sha "$TARGET_SHA" --comment-id "$SOURCE_COMMENT_ID" \
+            --run-id "$GITHUB_RUN_ID"
+  # One-off evidence only: actual DeepSeek source fix in disposable Git repo.
+  # No PR push token, no production data, not the global autofix entrypoint.
+  deepseek-isolated-repair-proof:
+    needs: build-and-verify
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.number == 173 && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository && needs.build-and-verify.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout exact Draft PR SHA without write credentials
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: AI finds and fixes isolated broken Python test
+        shell: bash
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY_PAIHP }}
+        run: |
+          set -euo pipefail
+          python tests/deepseek_real_isolated_pilot.py deepseek-isolated-evidence
+      - name: Save real AI repair evidence, no Github writes
+        uses: actions/upload-artifact@v4
+        with:
+          name: deepseek-real-repair-pilot-${{ github.event.pull_request.head.sha }}
+          path: deepseek-isolated-evidence/
+          if-no-files-found: error
+          retention-days: 14

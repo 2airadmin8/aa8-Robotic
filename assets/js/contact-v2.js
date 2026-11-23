@@ -14,24 +14,6 @@
   const submissionKey = 'airadmin8-contact-submission-v1';
   const params = new URLSearchParams(window.location.search);
 
-  // Accept only canonical same-origin product pages; never trust arbitrary source_page.
-  function resolveSourcePage() {
-    const candidates = [params.get('source_page'), document.referrer];
-    for (const candidate of candidates) {
-      if (!candidate) continue;
-      try {
-        const url = new URL(candidate, window.location.origin);
-        const path = url.pathname;
-        const slug = path.startsWith('/products/') && path.endsWith('.html')
-          ? path.slice('/products/'.length, -'.html'.length) : '';
-        if (url.origin === window.location.origin && /^[a-z0-9-]+$/.test(slug)) {
-          return url.origin + url.pathname;
-        }
-      } catch (_) { /* Reject invalid input and continue. */ }
-    }
-    return window.location.href;
-  }
-
   const source = {
     product: params.get('product') || '',
     maker: params.get('maker') || '',
@@ -321,6 +303,24 @@
     if (status) status.textContent = message;
   }
 
+  // Preserve the approved official source page (including local Preview QA).
+  // Reject external/referrer spoofing, path injection and query/hash leakage.
+  function verifiedSourcePage() {
+    const allowedOrigins = new Set([window.location.origin, 'https://robotics.air-admin8.co.jp']);
+    for (const candidate of [params.get('source_page'), document.referrer]) {
+      if (!candidate) continue;
+      try {
+        const url = new URL(candidate, window.location.origin);
+        if (allowedOrigins.has(url.origin) &&
+            /^\/products\/[a-z0-9-]+\.html$/.test(url.pathname) &&
+            !url.search && !url.hash && !url.username && !url.password) {
+          return url.origin + url.pathname;
+        }
+      } catch (_) { /* Reject invalid input and continue. */ }
+    }
+    return window.location.origin + window.location.pathname;
+  }
+
   function applyPrefill() {
     const productField = form.elements.namedItem('product');
     const categoryField = form.elements.namedItem('category');
@@ -332,7 +332,7 @@
       source_service: source.service,
       source_theme: source.theme,
       source_case: source.caseId,
-      source_page: resolveSourcePage(),
+      source_page: verifiedSourcePage(),
     };
 
     Object.entries(sourceMap).forEach(([name, value]) => {
