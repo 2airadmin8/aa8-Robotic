@@ -98,10 +98,10 @@ for(const viewport of sizes){
 const v15Base=(process.env.V15_BASE_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
 const v15Pages=[
  {path:'index.html',marker:'.hero-grid-v2',sections:10,heroPc:700,heroSp:940,hasDark:true,
-  headings:['AIロボット導入支援を、4段階で進めます','研究テーマ・現場用途からAIロボットを探す',
-   '研究用AIロボットの代表製品','選定だけで終わらない、AIロボット導入支援',
-   'AIロボット導入支援の実績を、具体的なプロセスとともにご紹介します',
-   'SDK・ROS・VLAの公式資料を確認できます','AIロボット導入支援でよくある質問',
+  headings:['AIロボット導入までの流れ','研究テーマ・現場用途からAIロボットを探す',
+   'AIロボットの代表製品','選定から運用までの導入支援',
+   'AIロボット導入支援の実績',
+   'SDK・ROS・VLAの技術資料','よくある質問',
    'AIロボットの製品が未定でも相談できます']},
  {path:'cases.html',marker:'.case-proof-card',sections:6,heroPc:570,heroSp:960,hasDark:true,
   headings:['ページ内の情報を4段階で表示','AIロボット導入支援事例','標準支援例',
@@ -192,4 +192,59 @@ for(const width of [1440,390]){
    await expect(page).toHaveURL(/\/index\.html(?:\?.*)?$/);
   });
  }
+}
+
+// Issue #200: CEO annotated home screenshot regression, read-only browser checks.
+for (const width of [1440, 1280, 390, 360]) {
+  test('HOME #200 cards, links and accessible case CTA / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const cards=page.locator('.home-product-grid .research-product-card');
+    await expect(cards).toHaveCount(3);
+    await expect(page.locator('.hero-trust-note')).toHaveCount(0);
+    await expect(page.locator('.home-process article')).toHaveCount(4);
+    await expect(page.locator('.category-lineup figcaption a')).toHaveCount(3);
+    await expect(page.locator('.g1d-detail-entry')).toHaveCount(1);
+    await expect(page.locator('.case-feature .text-link')).toBeVisible();
+    const details=await page.evaluate(()=>{
+      const cards=[...document.querySelectorAll('.home-product-grid .research-product-card')];
+      const links=[...document.querySelectorAll('.category-lineup figcaption a')];
+      const cta=document.querySelector('.case-feature .text-link');
+      const style=getComputedStyle(cta);
+      const rgb=(c)=>c.match(/\d+/g).slice(0,3).map(Number);
+      const luminance=(c)=>rgb(c).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4})
+        .reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+      const a=luminance(style.color),b=luminance(style.backgroundColor);
+      const contrast=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+      return {
+        ids:cards.map(x=>x.id),
+        details:cards.map(x=>x.querySelector('.product-link')?.getAttribute('href')),
+        visiblePrimary:cards.every(x=>getComputedStyle(x.querySelector('.product-link')).display!=='none'),
+        invisibleDuplicate:cards.every(x=>getComputedStyle(x.querySelector('.product-consult-link')).display==='none'),
+        invisiblePills:cards.every(x=>getComputedStyle(x.querySelector('.product-condition-meta')).display==='none'),
+        makerCount:cards.map(x=>x.querySelectorAll('.product-maker').length),
+        noCategoryDuplicate:cards.every(x=>!x.querySelector('.product-category-label')),
+        introAllVisible:cards.every(x=>getComputedStyle(x.querySelector('.product-summary')).overflow==='visible'),
+        caseContrast:contrast,
+        caseUrl:cta.getAttribute('href'),
+        categoryAllInViewport:links.every(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth+1;}),
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(details.ids).toEqual(['unitree-g1-d','agibot-g2','unitree-g1']);
+    expect(details.details).toEqual([
+      'products/unitree-g1-d.html','products/agibot-g2.html','products/unitree-g1.html'
+    ]);
+    expect(details.visiblePrimary).toBe(true);
+    expect(details.invisibleDuplicate).toBe(true);
+    expect(details.invisiblePills).toBe(true);
+    expect(details.noCategoryDuplicate).toBe(true);
+    expect(details.makerCount).toEqual([1,1,1]);
+    expect(details.introAllVisible).toBe(true);
+    expect(details.caseContrast).toBeGreaterThanOrEqual(4.5);
+    expect(details.caseUrl).toBe('cases/keio-selection.html');
+    expect(details.categoryAllInViewport).toBe(true);
+    expect(details.overflow).toBeLessThanOrEqual(1);
+  });
 }
