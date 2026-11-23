@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import shutil
 import sys
 from dataclasses import asdict, dataclass
@@ -90,14 +91,37 @@ class DocumentParser(HTMLParser):
 
 
 def iter_source_files() -> list[Path]:
+    """Fail closed: only Git-indexed files in this checkout may be published.
+
+    Working directories often contain untracked preview HTML and QA artifacts.
+    A directory denylist alone cannot distinguish them from reviewed sources.
+    The index also includes newly added files on a development branch, while
+    the protected CI checkout contains only exact-commit reviewed sources.
+    """
+    try:
+        listing = subprocess.run(
+            ["git", "ls-files", "--cached", "--full-name", "-z"],
+            cwd=ROOT, check=True, capture_output=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError("BUILD_SOURCE_HOLD: Git index unavailable") from exc
     files: list[Path] = []
-    for path in ROOT.rglob("*"):
-        if not path.is_file():
+    for raw in listing.stdout.split(b"\0"):
+        if not raw:
             continue
-        relative = path.relative_to(ROOT)
+        relative = Path(raw.decode("utf-8"))
+        if relative.is_absolute() or ".." in relative.parts:
+            raise RuntimeError(f"BUILD_SOURCE_HOLD: unsafe Git path {relative}")
         if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
+        path = ROOT / relative
+        if path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent != ROOT.parent):
+            raise RuntimeError(f"BUILD_SOURCE_HOLD: symlink source {relative}")
+        if not path.is_file():
+            raise RuntimeError(f"BUILD_SOURCE_HOLD: indexed source missing {relative}")
         files.append(path)
+    if not files:
+        raise RuntimeError("BUILD_SOURCE_HOLD: no indexed public sources")
     return files
 
 
@@ -107,8 +131,10 @@ def parse_document(path: Path) -> DocumentParser:
     return parser
 
 
-def validate_json(fatal_errors: list[str]) -> None:
-    for path in ROOT.rglob("*.json"):
+def validate_json(fatal_errors: list[str], source_files: list[Path] | None = None) -> None:
+    for path in source_files if source_files is not None else iter_source_files():
+        if path.suffix.lower() != ".json":
+            continue
         relative = path.relative_to(ROOT)
         if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
@@ -118,9 +144,11 @@ def validate_json(fatal_errors: list[str]) -> None:
             fatal_errors.append(f"JSON error: {relative}: {exc}")
 
 
-def validate_html(findings: list[str]) -> list[PageResult]:
+def validate_html(findings: list[str], source_files: list[Path] | None = None) -> list[PageResult]:
     results: list[PageResult] = []
-    for path in ROOT.rglob("*.html"):
+    for path in source_files if source_files is not None else iter_source_files():
+        if path.suffix.lower() != ".html":
+            continue
         relative = path.relative_to(ROOT)
         if any(part in EXCLUDED_DIRS for part in relative.parts) or relative in EXCLUDED_INTERNAL_FILES:
             continue
@@ -285,7 +313,7 @@ def build_html(html: str, relative: Path) -> str:
     return html
 
 
-def build_output(page_results: list[PageResult], findings: list[str]) -> None:
+def build_output(page_results: list[PageResult], findings: list[str], source_files: list[Path] | None = None) -> None:
     for source in (HEADER_SOURCE, FOOTER_SOURCE, SOURCE_GUIDE_PDF):
         if not source.is_file():
             raise FileNotFoundError(f"Missing required source: {source.relative_to(ROOT)}")
@@ -293,7 +321,7 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
         shutil.rmtree(OUTPUT)
     OUTPUT.mkdir(parents=True)
 
-    for source in iter_source_files():
+    for source in source_files if source_files is not None else iter_source_files():
         relative = source.relative_to(ROOT)
         destination = OUTPUT / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -320,8 +348,13 @@ def build_output(page_results: list[PageResult], findings: list[str]) -> None:
 def main() -> int:
     fatal_errors: list[str] = []
     findings: list[str] = []
-    validate_json(fatal_errors)
-    pages = validate_html(findings)
+    try:
+        source_files = iter_source_files()
+    except (RuntimeError, UnicodeError) as exc:
+        print(f"FATAL: {exc}")
+        return 1
+    validate_json(fatal_errors, source_files)
+    pages = validate_html(findings, source_files)
     for finding in findings:
         print(f"QA: {finding}")
     if fatal_errors:
@@ -329,7 +362,7 @@ def main() -> int:
             print(f"FATAL: {error}")
         return 1
     try:
-        build_output(pages, findings)
+        build_output(pages, findings, source_files)
     except Exception as exc:  # noqa: BLE001
         print(f"FATAL: Build failed: {exc}")
         return 1
