@@ -15,6 +15,7 @@
 
   document.querySelectorAll('[data-product-list]').forEach((root) => {
     const enhance = () => {
+      const isHomeGrid = root.classList.contains('home-product-grid');
       const cards = [...root.querySelectorAll('.research-product-card')];
       if (!cards.length) return false;
 
@@ -31,7 +32,7 @@
 
         const body = card.querySelector('.product-body');
         const maker = card.querySelector('.product-maker');
-        if (body && maker && !body.querySelector('.product-category-label')) {
+        if (!isHomeGrid && body && maker && !body.querySelector('.product-category-label')) {
           const category = document.createElement('p');
           category.className = 'product-category-label';
           category.textContent = inferCategory(card);
@@ -40,6 +41,14 @@
 
         const imageNote = card.querySelector('.image-note');
         if (imageNote) imageNote.textContent = '参考イメージ';
+        // Keep the required placeholder disclosure, but away from the robot image.
+        if (isHomeGrid && imageNote && body) {
+          const disclosure = document.createElement('small');
+          disclosure.className = 'home-product-image-note';
+          disclosure.textContent = '※画像は参考イメージ';
+          body.querySelector('.product-summary')?.insertAdjacentElement('afterend', disclosure);
+          imageNote.remove();
+        }
 
         if (card.id === 'unitree-g1-d') {
           card.classList.add('is-featured-detail-ready');
@@ -48,7 +57,11 @@
             link.setAttribute('href', g1dDetailUrl);
           });
           const detailLink = card.querySelector('.product-link');
-          if (detailLink) detailLink.textContent = '詳細製品ページを見る →';
+          if (detailLink) detailLink.textContent = '製品詳細を見る →';
+        }
+        if (isHomeGrid) {
+          const detailLink = card.querySelector('.product-link');
+          if (detailLink) detailLink.textContent = '製品詳細を見る →';
         }
       });
 
@@ -67,7 +80,7 @@
         const entry = document.createElement('a');
         entry.className = 'g1d-detail-entry';
         entry.href = g1dDetailUrl;
-        entry.innerHTML = '<span><small>NEW PRODUCT DETAIL</small><strong>Unitree G1-D 詳細製品ページ</strong><em>実機構成・データ収集・モデル学習・大学導入条件を確認</em></span><b>詳しく見る →</b>';
+        entry.innerHTML = '<span><small>注目製品</small><strong>Unitree G1-D</strong><em>研究・データ収集向けの製品詳細</em></span><b>製品詳細を見る →</b>';
         const summary = root.previousElementSibling;
         if (summary?.classList.contains('product-list-summary')) {
           summary.insertAdjacentElement('beforebegin', entry);
