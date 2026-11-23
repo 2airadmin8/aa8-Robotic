@@ -128,3 +128,16 @@ main .home-product-grid .research-product-card .product-visual {
 main .contact-panel {
   border: 1px solid #dce8ed;
 }
+
+/* HOME-18 full-build CSS precedence:
+   main-site-experience.css is injected after source CSS during the release
+   asset fingerprint stage. Keep homepage pure white in the actual artifact,
+   and override its legacy dark-band !important heading rule ONLY here. */
+body:has(main .hero-grid-v2) main > section {
+  background: #fff !important;
+  background-image: none !important;
+}
+body:has(main .hero-grid-v2) main > section.section.dark .section-heading h2,
+body:has(main .hero-grid-v2) main > section.section.dark .case-feature h3 {
+  color: #173342 !important;
+}
