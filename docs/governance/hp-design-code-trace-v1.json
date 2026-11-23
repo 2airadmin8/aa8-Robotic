@@ -127,7 +127,8 @@
       "implementation": [
         "scripts/product_page_standard_v31.py",
         "contact.html",
-        "assets/js/product-cards-v2.js"
+        "assets/js/product-cards-v2.js",
+        "assets/js/contact-v2.js"
       ],
       "tests": [
         "tests/test_product_cta_schema_20261104.py",
@@ -153,7 +154,9 @@
       "implementation": [
         "scripts/hp_growth_evidence.py",
         "scripts/hp_factory_efficiency.py",
-        "assets/js/seo.js"
+        "assets/js/seo.js",
+        "scripts/inject_structured_data.py",
+        "assets/js/manufacturer-relations.js"
       ],
       "tests": [
         "tests/test_hp_growth_evidence.py",
