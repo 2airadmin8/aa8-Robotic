@@ -49,3 +49,24 @@
     line-height: 1.72;
   }
 }
+
+
+/* HOME-14: a readable case CTA on the blue section, including focus state. */
+.case-feature .text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: #063c63;
+  text-decoration: none;
+}
+.case-feature .text-link:hover { color: #063c63; background: #fff; }
+.case-feature .text-link:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
