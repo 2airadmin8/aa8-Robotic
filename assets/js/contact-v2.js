@@ -26,6 +26,7 @@
 
   const sourceConfig = {
     poc: { category: 'PoC設計', label: 'PoC設計' },
+    catalog: { category: 'その他', label: 'メーカー製品カタログ請求' },
     'university-procurement': { category: '見積・大学購買', label: '大学購買支援' },
     'vla-data-collection': { category: 'VLA・模倣学習データ収集', label: 'VLA・模倣学習データ収集' },
     data: { category: 'VLA・模倣学習データ収集', label: 'データ収集・VLA' },
@@ -302,23 +303,22 @@
     if (status) status.textContent = message;
   }
 
-  // Product Factory CTA preserves the canonical source_page, not merely
-  // the preview/referrer address. Never accept arbitrary external URL values.
+  // Preserve the approved official source page (including local Preview QA).
+  // Reject external/referrer spoofing, path injection and query/hash leakage.
   function verifiedSourcePage() {
-    const requested = params.get('source_page');
-    if (requested) {
+    const allowedOrigins = new Set([window.location.origin, 'https://robotics.air-admin8.co.jp']);
+    for (const candidate of [params.get('source_page'), document.referrer]) {
+      if (!candidate) continue;
       try {
-        const url = new URL(requested);
-        if (url.origin === 'https://robotics.air-admin8.co.jp' &&
+        const url = new URL(candidate, window.location.origin);
+        if (allowedOrigins.has(url.origin) &&
             /^\/products\/[a-z0-9-]+\.html$/.test(url.pathname) &&
             !url.search && !url.hash && !url.username && !url.password) {
-          return url.href;
+          return url.origin + url.pathname;
         }
-      } catch (error) {
-        // Invalid untrusted source_page: preserve legacy referrer fallback.
-      }
+      } catch (_) { /* Reject invalid input and continue. */ }
     }
-    return document.referrer || window.location.href;
+    return window.location.origin + window.location.pathname;
   }
 
   function applyPrefill() {
@@ -344,6 +344,9 @@
     if (productField && source.maker && !productField.value) productField.value = source.maker;
     if (useCaseField && source.useCase) useCaseField.value = source.useCase;
     if (messageField && source.message) messageField.value = source.message;
+    if (source.service === 'catalog' && messageField && !messageField.value) {
+      messageField.value = `${source.product || '対象製品'}のメーカー製品カタログを希望します。公開版と提供条件をご案内ください。`;
+    }
 
     const config = sourceConfig[source.service] || sourceConfig[source.theme];
     if (categoryField && config?.category) categoryField.value = config.category;
