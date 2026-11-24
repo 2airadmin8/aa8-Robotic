@@ -39,9 +39,10 @@ class TestAutofixPolicy(unittest.TestCase):
     self.assertIn("assets/css/product-cards-v2.css",p["allowed_paths"])
     self.assertNotIn("assets/js/seo.js",p["allowed_paths"])
     for allowed in ("assets/css/home-hero.css","assets/css/product-cards-v2.css",
-                    "assets/js/product-cards-v2.js","tests/hub-pages-visual.spec.js"):
+                    "assets/css/main-site-experience.css"):
      self.assertEqual(validate_patch(patch(allowed),scope=scope)["files"],[allowed])
     for denied in ("assets/js/seo.js","assets/js/contact-v2.js",
+                   "assets/js/product-cards-v2.js","tests/hub-pages-visual.spec.js",
                    "scripts/product_factory.py","data/products.json",
                    "products/unitree-g1.html"):
      with self.subTest(path=denied),self.assertRaises(ValueError):
