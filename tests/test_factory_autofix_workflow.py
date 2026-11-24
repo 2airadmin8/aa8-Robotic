@@ -41,6 +41,12 @@ class TestAutofixWorkflow(unittest.TestCase):
   self.assertIn("policy.get('scope')!=os.environ['FACTORY_SCOPE']",writer)
   self.assertIn('separate-technical-qa:',WF)
   self.assertIn("needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE'",independent)
+  self.assertIn('Independent UI final-artifact browser QA',independent)
+  self.assertIn("factory_scope == 'HOME_PAGE'",independent)
+  self.assertIn("factory_scope == 'UI_SHARED'",independent)
+  self.assertIn('tests/hub-pages-visual.spec.js --reporter=line',independent)
+  self.assertIn('home-ui-exact-sha.txt',independent)
+  self.assertIn('home-ui-',independent)
  def test_deepseek_key_only_in_unprivileged_proposal(self):
   propose=job('ai-autofix-propose')
   val=job('ai-autofix-validate')
