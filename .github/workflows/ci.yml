@@ -745,6 +745,51 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
           python scripts/hp_design_contract.py
           python scripts/product_factory.py audit
+      # Same separate hosted QA job; real Chromium on final site only for UI.
+      - name: Independent UI final-artifact browser QA
+        if: ${{ needs.build-and-verify.outputs.factory_scope == 'HOME_PAGE' || needs.build-and-verify.outputs.factory_scope == 'UI_SHARED' }}
+        shell: bash
+        env:
+          PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}
+        run: |
+          set -euo pipefail
+          test "${#PR_HEAD}" -eq 40
+          python scripts/build_site.py >/dev/null
+          python scripts/generate_glossary.py >/dev/null
+          python scripts/generate_legacy_redirects.py >/dev/null
+          python scripts/inject_static_meta.py >/dev/null
+          python scripts/inject_structured_data.py >/dev/null
+          python scripts/apply_site_assets.py >/dev/null
+          python scripts/verify_asset_fingerprints.py >/dev/null
+          python scripts/verify_glossary.py >/dev/null
+          python scripts/verify_display.py >/dev/null
+          python scripts/verify_release.py >/dev/null
+          npm install --no-save @playwright/test@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+          python -m http.server 4183 --bind 127.0.0.1 --directory _site > /tmp/aa8-ui-independent.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sleep 2
+          curl -fsS http://127.0.0.1:4183/index.html >/dev/null
+          HUB_QA_BASE_URL=http://127.0.0.1:4183 V15_BASE_URL=http://127.0.0.1:4183 \
+            npx playwright test tests/hub-pages-visual.spec.js --reporter=line
+          mkdir -p separate-qa-evidence
+          node - <<'JS_UI_EVIDENCE'
+          const {chromium}=require('@playwright/test');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            for(const width of [1440,390,360]){
+              const page=await browser.newPage({viewport:{width,height:900},deviceScaleFactor:1});
+              const res=await page.goto('http://127.0.0.1:4183/index.html',{waitUntil:'networkidle'});
+              if(res.status()!==200)throw Error('Independent screenshot request failed');
+              await page.screenshot({path:'separate-qa-evidence/home-ui-'+width+'.png',fullPage:true});
+              await page.close();
+            }
+            await browser.close();
+            console.log('HOME_UI_EXACT_SHA_SCREENSHOTS_CAPTURED');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS_UI_EVIDENCE
+          printf '%s\n' "$PR_HEAD" > separate-qa-evidence/home-ui-exact-sha.txt
       # A2 screenshots re-audited on the existing separate technical QA runner.
       # Evidenced screenshot bytes NEVER imply independent CEO visual approval.
       - name: Download exact-HEAD A2 screenshots for independent evidence check
