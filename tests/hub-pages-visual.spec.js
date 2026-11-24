@@ -384,3 +384,47 @@ for(const width of [1440,390]){
     expect(broken,'404 assets in public site build').toEqual([]);
   });
 }
+
+// Issue #200 HOME-06-R1: independently detect the SP tag collision visible
+// in the live 2026-11-24 screenshots despite the earlier 27/27 DOM suite.
+for (const width of [1440, 640, 390, 360]) {
+  test('HOME #200 maker/ribbon never overlap or wrap / '+width, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    const response=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const cards=page.locator('.home-product-grid .research-product-card');
+    await expect(cards).toHaveCount(3);
+    const layout=await page.evaluate(()=>{
+      const inside=(rect,container)=>rect.left>=container.left-1
+        && rect.right<=container.right+1
+        && rect.top>=container.top-1
+        && rect.bottom<=container.bottom+1;
+      return [...document.querySelectorAll('.home-product-grid .research-product-card')].map(card=>{
+        const ribbon=card.querySelector('.product-priority-ribbon');
+        const maker=card.querySelector('.home-product-maker');
+        const visual=card.querySelector('.product-visual');
+        const a=ribbon.getBoundingClientRect(),b=maker.getBoundingClientRect();
+        const v=visual.getBoundingClientRect();
+        const area=Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))
+          *Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+        return {id:card.id, makerText:maker.textContent.trim(),
+          tagInside:inside(a,v),makerInside:inside(b,v),
+          intersectionArea:area,
+          makerNoWrap:getComputedStyle(maker).whiteSpace==='nowrap',
+          makerOverflow:maker.scrollWidth-maker.clientWidth,
+          makerHeight:b.height};
+      });
+    });
+    expect(layout.map(x=>x.makerText)).toEqual(['Unitree','AgiBot','Unitree']);
+    for(const item of layout){
+      expect(item.tagInside, item.id+' ribbon leaves image column').toBe(true);
+      expect(item.makerInside, item.id+' maker leaves image column').toBe(true);
+      expect(item.intersectionArea, item.id+' maker/ribbon overlap').toBeLessThanOrEqual(.5);
+      if(width<=640){
+        expect(item.makerNoWrap, item.id+' manufacturer wraps on SP').toBe(true);
+        expect(item.makerOverflow, item.id+' manufacturer clips').toBeLessThanOrEqual(1);
+        expect(item.makerHeight, item.id+' manufacturer label too tall').toBeLessThanOrEqual(26);
+      }
+    }
+  });
+}

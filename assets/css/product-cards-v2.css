@@ -412,3 +412,30 @@ body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1
 @media(max-width:390px){
   .home-product-grid .research-product-card { grid-template-columns: 102px minmax(0,1fr); }
 }
+
+/* HOME-06-R1 / Issue #200: SP manufacturer badge and purpose ribbon must not
+   overlap in the 102px / 118px image column. Scope to homepage catalog only;
+   never affect product-detail cards or the 13-SKU shared catalog design. */
+@media (max-width: 640px) {
+  .home-product-grid .product-priority-ribbon {
+    top: 8px;
+    left: 8px;
+    right: auto;
+    box-sizing: border-box;
+    max-width: 90px;
+    padding: 4px 5px;
+    font-size: 9px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .home-product-grid .product-visual .home-product-maker {
+    top: 46px;
+    right: 5px;
+    max-width: none;
+    padding: 3px 5px;
+    font-size: 10px;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+}
