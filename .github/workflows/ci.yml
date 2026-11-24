@@ -803,7 +803,7 @@ jobs:
           python scripts/product_factory.py audit
       # Same separate hosted QA job; real Chromium on final site only for UI.
       - name: Independent UI final-artifact browser QA
-        if: ${{ needs.build-and-verify.outputs.factory_scope == 'HOME_PAGE' || needs.build-and-verify.outputs.factory_scope == 'UI_SHARED' }}
+        if: ${{ needs.build-and-verify.outputs.factory_scope == 'HOME_PAGE' || needs.build-and-verify.outputs.factory_scope == 'UI_SHARED' || needs.build-and-verify.outputs.factory_scope == 'GLOBAL_FACTORY' }}
         shell: bash
         env:
           PR_HEAD: ${{ github.event.pull_request.head.sha || inputs.autofix_head }}

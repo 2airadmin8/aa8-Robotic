@@ -89,6 +89,9 @@ class QualityContractTests(unittest.TestCase):
         c=(ROOT/".github/workflows/ci.yml").read_text("utf-8")
         self.assertIn("tests/ui-quality-contract.spec.js",c)
         self.assertIn("ui-quality-evidence-",c)
+        independent=c.split("- name: Independent UI final-artifact browser QA",1)[1].split("- name: Download exact-HEAD A2",1)[0]
+        self.assertIn("factory_scope == 'GLOBAL_FACTORY'",independent)
+        self.assertIn("tests/ui-quality-contract.spec.js",independent)
         self.assertIn("QG_HOLD: missing exact HEAD viewport report",c)
         self.assertIn("ui-quality-evidence/summary.json",c) if "ui-quality-evidence/summary.json" in c else self.assertIn('out/"summary.json"',c)
         self.assertIn("PR_HEAD_SHA",c)
