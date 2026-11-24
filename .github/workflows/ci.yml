@@ -477,6 +477,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_hp_ui_quality_contract.py' -v
           python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
           python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
@@ -606,7 +607,61 @@ jobs:
           # Pre-deploy Gate: exact asset hashes are mandatory in this existing
           # CI workflow. Post-deployment must compare with actual Vercel Files.
           python scripts/verify_preview_bundle.py --site _site --revision "$PR_HEAD_SHA" --emit /tmp/aa8-preview-bundle-manifest.json
-          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js tests/a2-factory-preview.spec.js tests/corporate-brand-optin.spec.js --reporter=line
+          npx playwright test tests/header-navigation.spec.js tests/contact-inquiry.spec.js tests/g1-figma-design.spec.js tests/product-card-image-sources.spec.js tests/product-list-visual.spec.js tests/hub-pages-visual.spec.js tests/ui-quality-contract.spec.js tests/g1plus-product.spec.js tests/h2d-product.spec.js tests/h2-product.spec.js tests/h2x-product.spec.js tests/model-template-ssot.spec.js tests/h2x-g1-fidelity.spec.js tests/product-factory-visual.spec.js tests/x2-pilot-preview.spec.js tests/x2-figma-fidelity.spec.js tests/x2-cta-inquiry-v129.spec.js tests/unitree-h2plus-factory.spec.js tests/agibot-a3ultra-factory.spec.js tests/product-standard-v31.spec.js tests/product-cta-llmo-20261104.spec.js tests/related-products-alignment-20261104.spec.js tests/hp-shared-governance.spec.js tests/a2-factory-preview.spec.js tests/corporate-brand-optin.spec.js --reporter=line
+
+          # P0: no automatic PASS unless all 55 page×viewport report rows
+          # belong to the exact CI HEAD. Writing/design/facts remain HOLD.
+          python - <<'PY_UI_QUALITY'
+          import json,os
+          from pathlib import Path
+          contract=json.loads(Path("docs/governance/hp-ui-quality-contract-v1.json").read_text("utf8"))
+          out=Path("ui-quality-evidence")
+          expected_pages=[x["path"] for x in contract["pageMatrix"]]
+          head=os.environ["PR_HEAD_SHA"]
+          passed=0
+          for width in contract["mandatoryViewports"]:
+              report=out/("report-"+str(width)+".json")
+              if not report.is_file():
+                  raise SystemExit("QG_HOLD: missing exact HEAD viewport report: "+str(report))
+              data=json.loads(report.read_text("utf8"))
+              if data.get("revision")!=head or data.get("overall")!="MACHINE_PASS":
+                  raise SystemExit("QG_HOLD: stale or incomplete UI report "+str(width))
+              rows=data.get("pages",[])
+              if [p.get("path") for p in rows]!=expected_pages or any(p.get("result")!="MACHINE_PASS" for p in rows):
+                  raise SystemExit("QG_HOLD: missing/reordered/failed page QA "+str(width))
+              passed+=len(rows)
+          for path in contract["screenshotEvidence"]["pages"]:
+              for width in contract["screenshotEvidence"]["viewports"]:
+                  shot=out/("page-"+path.replace("/","__").replace(".html","")+"-"+str(width)+".png")
+                  if not shot.is_file() or shot.stat().st_size<1000:
+                      raise SystemExit("QG_HOLD: missing genuine PC/SP screenshot "+str(shot))
+          expected=len(expected_pages)*len(contract["mandatoryViewports"])
+          if passed!=expected:
+              raise SystemExit("QG_HOLD: screenshot/DOM matrix incomplete")
+          result={"contract":contract["schemaVersion"],"head_sha":head,
+                  "machine_qa":"PASS","page_viewport_checks":passed,
+                  "negative_collision_probe":"PASS","design_visual_approval":"HOLD",
+                  "business_facts":"HOLD","writing_changes":"CEO_APPROVAL_REQUIRED",
+                  "production_release":"HOLD"}
+          (out/"summary.json").write_text(json.dumps(result,indent=2)+"\n","utf8")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf8") as f:
+              f.write("\n## QG-V1.0 UI pre-release quality\n")
+              f.write(f"Exact HEAD: {head} | page×viewport: {passed}/{expected} PASS\n")
+              f.write("Independent human/Figma, maker facts and writing approvals: HOLD (not machine approved).\n")
+          print("UI_QUALITY_COMPLETE",passed,"SHA",head)
+          PY_UI_QUALITY
+
+      # QG-V1.0 existing-PR evidence. This is machine QA, not CEO/Figma approval.
+      - name: Preserve PC/SP UI quality report and screenshots
+        if: ${{ always() && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-quality-evidence-${{ github.event.pull_request.head.sha }}
+          path: |
+            ui-quality-evidence/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Preserve exact Preview assets manifest for Vercel post-deploy Gate
         if: ${{ github.event_name == 'pull_request' }}
@@ -740,6 +795,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_hp_growth_evidence.py' -v
           python -m unittest discover -s tests -p 'test_hp_factory_efficiency.py' -v
           python -m unittest discover -s tests -p 'test_hp_governance_policy.py' -v
+          python -m unittest discover -s tests -p 'test_hp_ui_quality_contract.py' -v
           python -m unittest discover -s tests -p 'test_corporate_brand_v1_candidate.py' -v
           python -m unittest discover -s tests -p 'test_shared_css_owner_delta.py' -v
           python -m unittest discover -s tests -p 'test_hp_private_publish.py' -v
@@ -772,7 +828,9 @@ jobs:
           sleep 2
           curl -fsS http://127.0.0.1:4183/index.html >/dev/null
           HUB_QA_BASE_URL=http://127.0.0.1:4183 V15_BASE_URL=http://127.0.0.1:4183 \
-            npx playwright test tests/hub-pages-visual.spec.js --reporter=line
+            npx playwright test tests/hub-pages-visual.spec.js tests/ui-quality-contract.spec.js --reporter=line
+            mkdir -p separate-qa-evidence/ui-quality
+            cp -R ui-quality-evidence/. separate-qa-evidence/ui-quality/
           mkdir -p separate-qa-evidence
           node - <<'JS_UI_EVIDENCE'
           const {chromium}=require('@playwright/test');
@@ -991,7 +1049,7 @@ jobs:
             curl -fsS http://127.0.0.1:4173/index.html >/dev/null ||
               { echo 'HOLD: no real UI preview' >&2; exit 2; }
             if HUB_QA_BASE_URL=http://127.0.0.1:4173 V15_BASE_URL=http://127.0.0.1:4173 \
-                 npx playwright test tests/hub-pages-visual.spec.js --reporter=line >> reproduced-failure.log 2>&1; then
+                 npx playwright test tests/hub-pages-visual.spec.js tests/ui-quality-contract.spec.js --reporter=line >> reproduced-failure.log 2>&1; then
               echo 'HOLD: UI browser regression did not reproduce' >&2
               exit 2
             fi
@@ -1119,7 +1177,7 @@ jobs:
             trap 'kill "$server_pid" 2>/dev/null || true' EXIT
             sleep 2
             HUB_QA_BASE_URL=http://127.0.0.1:4174 V15_BASE_URL=http://127.0.0.1:4174 \
-              npx playwright test tests/hub-pages-visual.spec.js --reporter=line
+              npx playwright test tests/hub-pages-visual.spec.js tests/ui-quality-contract.spec.js --reporter=line
           fi
           git diff --cached --check
           cp proposed-fix/candidate-fix.patch validated-fix.patch

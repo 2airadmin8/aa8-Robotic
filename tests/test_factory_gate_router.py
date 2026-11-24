@@ -95,6 +95,13 @@ class UniversalGateTest(unittest.TestCase):
   self.assertTrue(shared["all_13_public_product_regression_required"])
   self.assertEqual(route(200,SHA,self.outcomes(browser="skipped"),shared,"date")["state"],"HOLD_EVIDENCE")
   self.assertEqual(route(200,SHA,self.outcomes(browser="failure"),shared,"date")["state"],"RETURN_TO_DEV")
+  self.assertIn("index.html",shared["affected_pages"])
+  self.assertIn("products/unitree-g1.html",shared["affected_pages"])
+  self.assertGreaterEqual(shared["affected_page_count"],13)
+  self.assertEqual(len(shared["quality_rule_ids"]),8)
+  home=discover(ROOT,["index.html"])
+  self.assertEqual(home["affected_pages"],["index.html","products.html"])
+  self.assertEqual(home["affected_page_count"],2)
  def test_ambiguous_product_master_or_global_source_cannot_become_ui_repair(self):
   self.assertEqual(discover(ROOT,["data/products.json","index.html"])["work_scope"],"INPUT_REQUIRED")
   self.assertEqual(discover(ROOT,["scripts/product_factory.py","index.html"])["work_scope"],"GLOBAL_FACTORY")

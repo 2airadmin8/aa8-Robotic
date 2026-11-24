@@ -28,6 +28,7 @@ SHARED_UI_PATHS = frozenset({
     "assets/css/main-site-experience.css",
     "assets/js/seo.js",
     "assets/css/corporate-header.css",
+    "tests/ui-quality-contract.spec.js",
 })
 
 
@@ -54,7 +55,10 @@ def discover(root, paths):
             ambiguous.append(filename)
         home_change = home_change or filename in HOME_PAGE_PATHS
         shared_ui_change = shared_ui_change or filename in SHARED_UI_PATHS
-        if filename in {"scripts/factory_gate_router.py",
+        if filename in {"includes/site-header.html", "includes/site-footer.html",
+                        "assets/js/mobile-qa.js",
+                        "docs/governance/hp-ui-quality-contract-v1.json",
+                        "scripts/factory_gate_router.py",
                         "scripts/factory_autofix_policy.py",
                         "scripts/deepseek_factory_autofix.py",
                         "scripts/product_factory.py", "scripts/product_page_standard_v31.py",
@@ -80,6 +84,31 @@ def discover(root, paths):
              "MULTI_PRODUCT" if len(found) > 1 else "PRODUCT" if found else
              "HOME_PAGE" if home_change else
              "NO_PRODUCT_SCOPE")
+    # G0 impact analysis is run BEFORE a repair can be proposed.
+    # Shared CSS/header/footer changes fan out across EVERY public Product
+    # Master page, not merely the one from a CEO screenshot.
+    contract_file = root / "docs/governance/hp-ui-quality-contract-v1.json"
+    if scope in ("UI_SHARED", "HOME_PAGE", "GLOBAL_FACTORY"):
+        check(contract_file.is_file(), "UI_QUALITY_CONTRACT_MISSING")
+        quality = json.loads(contract_file.read_text(encoding="utf8"))
+        check(quality.get("schemaVersion") == "aa8-ui-quality-contract-v1",
+              "UI_QUALITY_CONTRACT_INVALID")
+        check(len(quality.get("pageMatrix", [])) >= 10 and quality.get("rules"),
+              "UI_QUALITY_RULES_INCOMPLETE")
+        hubs = [item["path"] for item in quality["pageMatrix"]]
+        if scope == "HOME_PAGE":
+            affected_pages = ["index.html", "products.html"]
+        else:
+            affected_pages = list(dict.fromkeys(
+                hubs + [p["detailPage"] for p in official.values()
+                        if p.get("detailPage")]))
+        quality_rule_ids = [row["id"] for row in quality["rules"]]
+    else:
+        affected_pages = (["products.html"] + [
+            official[x]["detailPage"] for x in sorted(found)
+            if x in official and official[x].get("detailPage")
+        ]) if found else []
+        quality_rule_ids = []
     facts = {}
     for pid, (obj, fixture) in pilots.items():
         if pid not in found:
@@ -111,6 +140,10 @@ def discover(root, paths):
     return {"ids": sorted(found), "global_factory_change": global_change,
             "ambiguous": ambiguous, "master_count": len(official), "fixture_count": len(pilots),
             "work_scope": scope, "pilot_fact_quality": facts,
+            "quality_contract": "docs/governance/hp-ui-quality-contract-v1.json",
+            "quality_rule_ids": quality_rule_ids,
+            "affected_pages": affected_pages,
+            "affected_page_count": len(affected_pages),
             "home_ui_regression_required": home_change or shared_ui_change,
             "all_13_public_product_regression_required": global_change or shared_ui_change}
 
@@ -266,6 +299,9 @@ def summary(data):
         "",
         "PR: #" + str(data["pr"]) + " | exact SHA: " + data["head_sha"],
         "Scope: " + data["scope"]["work_scope"] + " | Products: " + ", ".join(data["scope"]["ids"]),
+        "Pre-repair impact: " + str(data["scope"].get("affected_page_count", 0))
+            + " pages | QG rules: " + ",".join(data["scope"].get("quality_rule_ids", [])),
+        "Affected pages: " + ", ".join(data["scope"].get("affected_pages", [])),
         "State: " + data["state"] + " | Blocking: " + data["blocking_gate"],
         "Next owner: " + data["next_owner"],
         "Next: " + data["next_action"],
