@@ -13,7 +13,7 @@
 
 .hero .hero-copy h1 {
   max-width: 620px;
-  font-size: clamp(2.65rem, 4vw, 3.75rem);
+  font-size: clamp(2rem, 3.4vw, 3.125rem);
   line-height: 1.08;
   letter-spacing: -.035em;
 }
@@ -41,11 +41,103 @@
   }
 
   .hero .hero-copy h1 {
-    font-size: clamp(2.2rem, 10vw, 2.9rem);
+    font-size: clamp(1.9rem, 8vw, 2.05rem);
   }
 
   .hero .hero-copy .lead {
     font-size: .94rem;
     line-height: 1.72;
   }
+}
+
+
+/* HOME-14: a readable case CTA on the blue section, including focus state. */
+.case-feature .text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: #063c63;
+  text-decoration: none;
+}
+.case-feature .text-link:hover { color: #063c63; background: #fff; }
+.case-feature .text-link:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+/* HOME-17: homepage section rhythm. Do not override shared header/footer
+   or the other pages' design contracts. */
+main > section.section .section-heading h2,
+main > section.section .contact-panel h2 {
+  font-size: clamp(1.65rem, 2.5vw, 2.375rem);
+  line-height: 1.25;
+}
+main > section.section {
+  padding-top: 44px;
+  padding-bottom: 44px;
+}
+@media(max-width:640px){
+  main > section.section {
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+}
+
+/* HOME-18 / MARK-032 — CEO background contract (2026-11-23).
+   HOME PAGE only: every main section and major surface is solid #fff.
+   Colored CTAs/labels remain functional contrast accents, not backgrounds.
+   Do not alter shared Corporate header/footer or product page styling. */
+body { background: #fff; }
+main > section { background: #fff; }
+main > section.hero,
+main > section.section,
+main > section.section.muted,
+main > section.section.dark {
+  background: #fff;
+}
+main > section.section.dark {
+  color: #173342;
+}
+main > section.section.dark .section-heading h2,
+main > section.section.dark .case-feature h3 {
+  color: #173342;
+}
+main > section.section.dark .eyebrow,
+main > section.section.dark .case-kicker {
+  color: #075c80 !important;
+}
+main > section.section.dark .case-feature {
+  border: 1px solid #dce8ed;
+  background: #fff;
+}
+main > section.section.dark .case-feature p {
+  color: #435663;
+}
+main .home-process article,
+main .contact-panel,
+main .g1d-detail-entry,
+main .home-product-grid .research-product-card .product-visual {
+  background: #fff;
+}
+main .contact-panel {
+  border: 1px solid #dce8ed;
+}
+
+/* HOME-18 full-build CSS precedence:
+   main-site-experience.css is injected after source CSS during the release
+   asset fingerprint stage. Keep homepage pure white in the actual artifact,
+   and override its legacy dark-band !important heading rule ONLY here. */
+body:has(main .hero-grid-v2) main > section {
+  background: #fff !important;
+  background-image: none !important;
+}
+body:has(main .hero-grid-v2) main > section.section.dark .section-heading h2,
+body:has(main .hero-grid-v2) main > section.section.dark .case-feature h3 {
+  color: #173342 !important;
 }

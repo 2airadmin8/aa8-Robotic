@@ -89,13 +89,17 @@
         "scripts/verify_shared_css_ownership.py",
         "assets/css/site.css",
         "assets/css/main-site-experience.css",
-        "assets/css/product-standard-v33.css"
+        "assets/css/product-standard-v33.css",
+        "assets/css/hero-lineup.css",
+        "assets/css/home-hero.css",
+        "assets/css/product-cards-v2.css"
       ],
       "tests": [
         "tests/test_hp_design_contract.py",
         "tests/hp-shared-governance.spec.js",
         "tests/test_shared_css_owner_delta.py",
-        "tests/test_corporate_brand_v1_candidate.py"
+        "tests/test_corporate_brand_v1_candidate.py",
+        "tests/hub-pages-visual.spec.js"
       ]
     },
     {
@@ -122,7 +126,9 @@
       "designDoc": "docs/governance/01_HP_ADAPTER_V1.md",
       "implementation": [
         "scripts/product_page_standard_v31.py",
-        "contact.html"
+        "contact.html",
+        "assets/js/product-cards-v2.js",
+        "assets/js/contact-v2.js"
       ],
       "tests": [
         "tests/test_product_cta_schema_20261104.py",
@@ -147,11 +153,15 @@
       "designDoc": "docs/governance/03_MEASUREMENT_BASELINE.md",
       "implementation": [
         "scripts/hp_growth_evidence.py",
-        "scripts/hp_factory_efficiency.py"
+        "scripts/hp_factory_efficiency.py",
+        "assets/js/seo.js",
+        "scripts/inject_structured_data.py",
+        "assets/js/manufacturer-relations.js"
       ],
       "tests": [
         "tests/test_hp_growth_evidence.py",
-        "tests/test_hp_factory_efficiency.py"
+        "tests/test_hp_factory_efficiency.py",
+        "tests/hub-pages-visual.spec.js"
       ]
     },
     {

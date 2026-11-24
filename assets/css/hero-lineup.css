@@ -1,4 +1,4 @@
-@import url("./review-fixes-20260731.css?v=20260731-1");
+/* Legacy imported review-fixes CSS no longer exists. Current component rules live here. */
 
 /* =========================================================
    トップページ：ロボットカテゴリ統合ビジュアル
@@ -297,5 +297,33 @@
 
   .home-process article {
     padding: 16px;
+  }
+}
+
+
+/* HOME-02: exactly three aligned interactive category cells below the line art. */
+.category-lineup figcaption {
+  gap: 0;
+  margin-top: 0;
+  border-top: 1px solid #dce8ed;
+}
+.category-lineup figcaption a {
+  min-width: 0;
+  min-height: 48px;
+  padding: 6px 5px;
+  border: 0;
+  border-right: 1px solid #dce8ed;
+  border-radius: 0;
+  text-align: center;
+}
+.category-lineup figcaption a:last-child { border-right: 0; }
+.category-lineup figcaption a:focus-visible {
+  outline: 3px solid #0069b5;
+  outline-offset: -3px;
+}
+@media(max-width:640px){
+  .category-lineup figcaption a {
+    min-height: 44px;
+    font-size: .72rem;
   }
 }

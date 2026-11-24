@@ -42,7 +42,7 @@
   };
 
   const caseLabels = {
-    'keio-selection': '慶應義塾大学向け選定・見積支援事例',
+    'keio-selection': '大学研究向け選定・納品支援事例',
   };
 
   // Legacy versions retained a token even after a completed submission.

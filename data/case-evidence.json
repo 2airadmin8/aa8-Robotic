@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-16",
+  "updatedAt": "2026-11-23",
   "disclosureRules": {
     "allowedEvidenceLevels": ["confirmed", "organized", "pending", "not_public"],
     "allowedCaseStatuses": ["planning", "in_progress", "completed", "archived"],
@@ -11,17 +11,18 @@
   "cases": [
     {
       "id": "keio-selection",
-      "title": "慶應義塾大学向け選定・正式見積・購買支援",
+      "title": "大学研究向け選定・正式見積・納品支援",
       "detailPage": "cases/keio-selection.html",
       "status": "in_progress",
-      "statusLabel": "進行中",
+      "statusLabel": "納品・初期確認完了",
       "customerType": "大学研究機関",
-      "publicDisclaimer": "大学または研究室によるAirAdmin8の推奨・認定を意味しません。納品・検収完了事例ではありません。",
+      "publicDisclaimer": "大学または研究室によるAirAdmin8の推奨・認定を意味しません。2026年9月の納品・初期確認は当社記録で確認済みですが、大学側の正式検収完了は確認できていません。",
       "scope": [
         "候補・構成整理",
         "正式見積条件整理",
         "大学購買条件整理",
-        "物流・規制確認項目整理"
+        "物流・規制確認項目整理",
+        "納品・初期確認対応"
       ],
       "evidence": [
         {
@@ -35,14 +36,19 @@
           "description": "Unitree G1-D、ハンド、予備バッテリー、付属品、納品先・設置場所の整理"
         },
         {
+          "level": "confirmed",
+          "label": "納品・初期確認",
+          "description": "2026年9月の納品、国内用電源コード引渡し・接続確認、初期確認事項を当社業務記録で確認。大学側の正式検収完了とは区別"
+        },
+        {
           "level": "organized",
           "label": "AirAdmin8整理事項",
           "description": "見積項目、購買確認事項、検収条件、物流・規制リスク、次の確認事項"
         },
         {
           "level": "pending",
-          "label": "正式確定前",
-          "description": "正式発注、在庫、最終納期、保証、電池輸送資料、無線運用、納品・検収日程"
+          "label": "正式検収状況",
+          "description": "大学側の正式検収・受領確認の完了は当社公開用証拠では未確認"
         },
         {
           "level": "not_public",
@@ -53,9 +59,10 @@
       "progress": [
         {"order": 1, "label": "研究用途・候補整理", "state": "done"},
         {"order": 2, "label": "正式見積条件整理", "state": "done"},
-        {"order": 3, "label": "大学内部購買手続き", "state": "current"},
-        {"order": 4, "label": "正式発注・納期確定", "state": "pending"},
-        {"order": 5, "label": "納品・検収", "state": "pending"}
+        {"order": 3, "label": "大学購買条件整理", "state": "done"},
+        {"order": 4, "label": "正式発注・納期確定", "state": "done"},
+        {"order": 5, "label": "納品・初期確認", "state": "done"},
+        {"order": 6, "label": "大学側正式検収", "state": "pending"}
       ]
     }
   ]

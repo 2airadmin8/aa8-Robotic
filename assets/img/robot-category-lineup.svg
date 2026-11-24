@@ -12,8 +12,8 @@
     </filter>
   </defs>
 
-  <rect x="1" y="1" width="1198" height="558" rx="36" fill="#ffffff" stroke="#d9e5ea" stroke-width="2"/>
-  <path d="M400 72V525M800 72V525" stroke="#d9e5ea" stroke-width="2" stroke-dasharray="8 12"/>
+  <!-- HOME-02: no hard picture boxes or dashed category separators;
+       CSS figcaption provides aligned interactive category labels. -->
   <path d="M70 525H1130" stroke="#c8dbe3" stroke-width="3"/>
 
   <!-- 人型ロボット -->

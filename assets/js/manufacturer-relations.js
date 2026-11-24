@@ -12,7 +12,7 @@
       ],
       resources: '../resources.html?maker=unitree',
       caseLink: '../cases/keio-selection.html',
-      caseLabel: '慶應義塾大学向け選定・見積支援',
+      caseLabel: '大学研究向け選定・納品支援',
     },
     agibot: {
       name: 'AgiBot', page: '../manufacturers/agibot.html', products: ['agibot-g2', 'agibot-x2-edu'],

@@ -61,6 +61,10 @@ for(const viewport of sizes){
     await page.setViewportSize(viewport);
     const res=await page.goto(target('products.html'),{waitUntil:'networkidle'});
     expect(res.status()).toBe(200);
+    // Data-backed cards render asynchronously after the document. A zero-card
+    // result is still a failure after a bounded wait, never accepted as PASS.
+    await expect.poll(async()=>page.locator('[data-product-list] .research-product-card').count(),
+      {timeout:15000,intervals:[150,300,700,1200]}).toBeGreaterThanOrEqual(6);
     const m=await page.evaluate(()=>{
       const hero=document.querySelector('.product-page-hero');
       const cards=[...document.querySelectorAll('.priority-category')];
@@ -98,10 +102,10 @@ for(const viewport of sizes){
 const v15Base=(process.env.V15_BASE_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
 const v15Pages=[
  {path:'index.html',marker:'.hero-grid-v2',sections:10,heroPc:700,heroSp:940,hasDark:true,
-  headings:['AIロボット導入支援を、4段階で進めます','研究テーマ・現場用途からAIロボットを探す',
-   '研究用AIロボットの代表製品','選定だけで終わらない、AIロボット導入支援',
-   'AIロボット導入支援の実績を、具体的なプロセスとともにご紹介します',
-   'SDK・ROS・VLAの公式資料を確認できます','AIロボット導入支援でよくある質問',
+  headings:['AIロボット導入までの流れ','研究テーマ・現場用途からAIロボットを探す',
+   'AIロボットの代表製品','選定から運用までの導入支援',
+   'AIロボット導入支援の実績',
+   'SDK・ROS・VLAの技術資料','よくある質問',
    'AIロボットの製品が未定でも相談できます']},
  {path:'cases.html',marker:'.case-proof-card',sections:6,heroPc:570,heroSp:960,hasDark:true,
   headings:['ページ内の情報を4段階で表示','AIロボット導入支援事例','標準支援例',
@@ -173,10 +177,10 @@ for(const width of [1440,390]){
     expect(formTitle).toBeLessThanOrEqual(width===1440?36.1:29.1);
    }
    if(def.hasDark){
-    expect(m.darkColor).toBe('rgb(255, 255, 255)');
+    expect(m.darkColor).toBe(def.path==='index.html'?'rgb(23, 51, 66)':'rgb(255, 255, 255)');
     expect(m.darkSize).toBeLessThanOrEqual(width===1440?38.1:27.1);
    }
-   if(def.path==='index.html')expect(m.darkCaseColor).toBe('rgb(255, 255, 255)');
+   if(def.path==='index.html')expect(m.darkCaseColor).toBe('rgb(23, 51, 66)');
    if(def.path==='cases.html'){
     expect(m.casesAxisCount).toBe(4);
     expect(m.casesAxis).toBe(width===1440?4:1);
@@ -192,4 +196,191 @@ for(const width of [1440,390]){
    await expect(page).toHaveURL(/\/index\.html(?:\?.*)?$/);
   });
  }
+}
+
+// Issue #200: CEO annotated home screenshot regression, read-only browser checks.
+for (const width of [1440, 1280, 390, 360]) {
+  test('HOME #200 cards, links and accessible case CTA / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
+    expect(response.status()).toBe(200);
+    const cards=page.locator('.home-product-grid .research-product-card');
+    await expect(cards).toHaveCount(3);
+    await expect(page.locator('.hero-trust-note')).toHaveCount(0);
+    await expect(page.locator('.home-process article')).toHaveCount(4);
+    await expect(page.locator('.category-lineup figcaption a')).toHaveCount(3);
+    await expect(page.locator('.g1d-detail-entry')).toHaveCount(1);
+    await expect(page.locator('.case-feature .text-link')).toBeVisible();
+    const details=await page.evaluate(()=>{
+      const cards=[...document.querySelectorAll('.home-product-grid .research-product-card')];
+      const links=[...document.querySelectorAll('.category-lineup figcaption a')];
+      const cta=document.querySelector('.case-feature .text-link');
+      const style=getComputedStyle(cta);
+      const rgb=(c)=>c.match(/\d+/g).slice(0,3).map(Number);
+      const luminance=(c)=>rgb(c).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4})
+        .reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);
+      const a=luminance(style.color),b=luminance(style.backgroundColor);
+      const contrast=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+      return {
+        ids:cards.map(x=>x.id),
+        details:cards.map(x=>x.querySelector('.product-link')?.getAttribute('href')),
+        visiblePrimary:cards.every(x=>getComputedStyle(x.querySelector('.product-link')).display!=='none'),
+        invisibleDuplicate:cards.every(x=>getComputedStyle(x.querySelector('.product-consult-link')).display==='none'),
+        invisiblePills:cards.every(x=>getComputedStyle(x.querySelector('.product-condition-meta')).display==='none'),
+        makerCount:cards.map(x=>x.querySelectorAll('.product-maker').length),
+        makerBadges:cards.map(x=>x.querySelector('.product-visual .home-product-maker')?.textContent.trim()),
+        makerBadgePlacement:cards.every(x=>{
+          const image=x.querySelector('.product-visual').getBoundingClientRect();
+          const maker=x.querySelector('.home-product-maker').getBoundingClientRect();
+          return maker.left>=image.left+image.width*.45 && maker.right<=image.right+1
+            && maker.top>=image.top && maker.bottom<=image.top+65;
+        }),
+        bodyMakerHidden:cards.every(x=>getComputedStyle(x.querySelector('.product-maker')).display==='none'),
+        noCategoryDuplicate:cards.every(x=>!x.querySelector('.product-category-label')),
+        introAllVisible:cards.every(x=>getComputedStyle(x.querySelector('.product-summary')).overflow==='visible'),
+        caseContrast:contrast,
+        caseUrl:cta.getAttribute('href'),
+        categoryAllInViewport:links.every(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth+1;}),
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(details.ids).toEqual(['unitree-g1-d','agibot-g2','unitree-g1']);
+    expect(details.details).toEqual([
+      'products/unitree-g1-d.html','products/agibot-g2.html','products/unitree-g1.html'
+    ]);
+    expect(details.visiblePrimary).toBe(true);
+    expect(details.invisibleDuplicate).toBe(true);
+    expect(details.invisiblePills).toBe(true);
+    expect(details.noCategoryDuplicate).toBe(true);
+    expect(details.makerCount).toEqual([1,1,1]);
+    expect(details.makerBadges).toEqual(['Unitree','AgiBot','Unitree']);
+    expect(details.makerBadgePlacement).toBe(true);
+    expect(details.bodyMakerHidden).toBe(true);
+    expect(details.introAllVisible).toBe(true);
+    expect(details.caseContrast).toBeGreaterThanOrEqual(4.5);
+    expect(details.caseUrl).toBe('cases/keio-selection.html');
+    expect(details.categoryAllInViewport).toBe(true);
+    expect(details.overflow).toBeLessThanOrEqual(1);
+  });
+}
+
+// HOME-13 P0: public SSOT reconciled against verified September delivery.
+// Completion of university acceptance must NOT be inferred from delivery.
+test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({page}) => {
+  const response=await page.request.get(base+'/data/case-evidence.json');
+  expect(response.status()).toBe(200);
+  const master=await response.json();
+  const record=master.cases.find(x=>x.id==='keio-selection');
+  expect(record).toBeTruthy();
+  expect(record.status).toBe('in_progress');
+  expect(record.statusLabel).toBe('納品・初期確認完了');
+  expect(record.progress.filter(x=>x.state==='done').length).toBe(5);
+  expect(record.progress.find(x=>x.order===6)?.state).toBe('pending');
+  expect(record.title).not.toContain('慶應義塾大学');
+  for (const path of ['index.html','cases.html','cases/keio-selection.html']) {
+    const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
+    expect(res.status()).toBe(200);
+    const caseStatusSelector=path==='index.html'
+      ? '.case-feature .status'
+      : path==='cases.html'
+        ? '.case-proof-featured .case-status-line .status'
+        : '.hub-hero .status';
+    await expect(page.locator(caseStatusSelector)).toHaveText(record.statusLabel);
+    const html=await page.locator('main').innerText();
+    expect(html).not.toContain('現在は納品済みです');
+    expect(html).not.toContain('慶應義塾大学');
+    expect(await page.title()).not.toContain('慶應義塾大学');
+    expect(html).not.toContain('正式発注を経て現在は納品済み');
+    expect(html).toContain('納品・初期確認');
+    expect(html).not.toContain('正式発注・納品・検収の完了は公開確認待ち');
+    if(path!=='index.html') {
+      const steps=page.locator('.case-progress-panel .progress-list li.is-done');
+      await expect(steps.first()).toBeVisible();
+      expect(await steps.count()).toBe(5);
+      await expect(page.locator('.case-caution')).toContainText('未確認');
+    }
+    if(path==='cases/keio-selection.html') {
+      await expect(page.locator('.specs tr').filter({hasText:'納品状況'})).toContainText('納品・初期確認完了');
+      await expect(page.locator('.specs tr').filter({hasText:'大学側正式検収'})).toContainText('未確認');
+    }
+  }
+});
+
+// HOME-18 / MARK-032: pure-white homepage background contract.
+for (const width of [1440, 1280, 390, 360]) {
+  test('HOME #200 pure-white main backgrounds / '+width, async ({page}) => {
+    await page.setViewportSize({width, height:900});
+    const result=await page.goto(base+'/index.html',{waitUntil:'networkidle'});
+    expect(result.status()).toBe(200);
+    // The actual product image is inserted by async SSOT renderer. Wait until
+    // present instead of evaluating a null node under multi-worker CI load.
+    await expect(page.locator('.home-product-grid .product-visual').first()).toBeVisible({timeout:15000});
+    const styles=await page.evaluate(()=>{
+      const bg=(s)=>getComputedStyle(document.querySelector(s)).backgroundColor;
+      const color=(s)=>getComputedStyle(document.querySelector(s)).color;
+      return {
+        allSections:[...document.querySelectorAll('main > section')].map(x=>getComputedStyle(x).backgroundColor),
+        hero:bg('main > section.hero'),
+        caseSection:bg('main > section.dark'),
+        casePanel:bg('main .case-feature'),
+        process:bg('main .home-process article'),
+        contact:bg('main .contact-panel'),
+        productVisual:bg('main .home-product-grid .product-visual'),
+        caseHeading:color('main > section.dark h2'),
+        caseBody:color('main .case-feature p'),
+        ctaBg:bg('main .case-feature .text-link'),
+        overflow:document.documentElement.scrollWidth-innerWidth
+      };
+    });
+    expect(styles.allSections.every(x=>x==='rgb(255, 255, 255)')).toBe(true);
+    for (const key of ['hero','caseSection','casePanel','process','contact','productVisual']) {
+      expect(styles[key],key).toBe('rgb(255, 255, 255)');
+    }
+    expect(styles.caseHeading).toBe('rgb(23, 51, 66)');
+    expect(styles.caseBody).not.toBe('rgb(255, 255, 255)');
+    expect(styles.ctaBg).not.toBe('rgb(255, 255, 255)');
+    expect(styles.overflow).toBeLessThanOrEqual(1);
+  });
+}
+
+// HOME #200 P0: Final release artifact must not load legacy GitHub Pages
+// assets or publish stale customer identity/address through browser JSON-LD.
+for(const width of [1440,390]){
+  test('HOME #200 SEO asset status + canonical schema / '+width,async({page})=>{
+    await page.setViewportSize({width,height:900});
+    const paths=['index.html','cases/keio-selection.html','products/unitree-g1.html'];
+    const broken=[];
+    page.on('response',r=>{
+      const url=new URL(r.url());
+      if(url.origin===new URL(base).origin && url.pathname.includes('/assets/') && r.status()===404){
+        broken.push(url.pathname);
+      }
+    });
+    for(const path of paths){
+      const res=await page.goto(base+'/'+path,{waitUntil:'networkidle'});
+      expect(res.status()).toBe(200);
+      const d=await page.evaluate(()=>{
+        const parse=id=>{const n=document.getElementById(id);return n?JSON.parse(n.textContent):null};
+        const org=parse('organization-schema');
+        const pageData=parse('page-schema');
+        return {
+          scripts:[...document.querySelectorAll('script[src]')].map(x=>new URL(x.src).pathname),
+          styles:[...document.querySelectorAll('link[rel=stylesheet]')].map(x=>new URL(x.href).pathname),
+          canonical:document.querySelector('link[rel=canonical]')?.href,
+          org,
+          pageData
+        };
+      });
+      expect(d.org, 'organization schema missing').toBeTruthy();
+      expect(d.org.url).toBe('https://robotics.air-admin8.co.jp/');
+      // The release meta injector may supply the verified Corporate address.
+      // Reject the former hardcoded Otemachi office rather than deleting it.
+      expect(JSON.stringify(d.org.address || {})).not.toContain('大手町');
+      expect(JSON.stringify(d.org.address || {})).not.toContain('千代田区');
+      expect(d.canonical).toBe('https://robotics.air-admin8.co.jp/'+(path==='index.html'?'':path));
+      expect([...d.scripts,...d.styles].some(u=>u.startsWith('/aa8-Robotic/assets/'))).toBe(false);
+      expect(JSON.stringify(d.pageData)).not.toContain('慶應義塾大学');
+    }
+    expect(broken,'404 assets in public site build').toEqual([]);
+  });
 }
