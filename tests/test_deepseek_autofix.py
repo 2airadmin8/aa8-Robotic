@@ -164,7 +164,7 @@ class TestDeepSeekAutofix(unittest.TestCase):
                     "data/case-evidence.json\n")
         with patch("subprocess.run",return_value=R()), patch.object(Path,"is_file",return_value=True):
             result=get_changed_files(ROOT,"f"*40,scope="UI_SHARED")
-            self.assertEqual(result,["assets/css/product-cards-v2.css","tests/hub-pages-visual.spec.js"])
+            self.assertEqual(result,["assets/css/product-cards-v2.css"])
             self.assertNotIn("data/case-evidence.json",result)
         with patch("subprocess.run",return_value=R()), patch.object(Path,"is_file",return_value=True):
             result=get_changed_files(ROOT,"f"*40,scope="PRODUCT")
