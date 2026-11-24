@@ -818,6 +818,10 @@ jobs:
             needs.build-and-verify.result == 'failure' &&
             needs.build-and-verify.outputs.factory_scope != '' &&
             needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            ((
+              needs.build-and-verify.outputs.factory_scope != 'HOME_PAGE' &&
+              needs.build-and-verify.outputs.factory_scope != 'UI_SHARED'
+            ) || vars.AA8_UI_AUTOFIX_ENABLED == 'true') &&
             (github.actor == '2airadmin8' || (github.actor == 'github-actions[bot]' && github.event_name == 'workflow_dispatch')) &&
             (
               (github.event_name == 'pull_request' && github.event.pull_request.draft == true && github.event.pull_request.head.repo.full_name == github.repository) ||
@@ -833,6 +837,10 @@ jobs:
             needs.build-and-verify.result == 'success' &&
             needs.build-and-verify.outputs.factory_scope != '' &&
             needs.build-and-verify.outputs.factory_scope != 'NO_PRODUCT_SCOPE' &&
+            ((
+              needs.build-and-verify.outputs.factory_scope != 'HOME_PAGE' &&
+              needs.build-and-verify.outputs.factory_scope != 'UI_SHARED'
+            ) || vars.AA8_UI_AUTOFIX_ENABLED == 'true') &&
             (github.actor == '2airadmin8' || github.actor == 'github-actions[bot]')
           )
         )
@@ -909,20 +917,54 @@ jobs:
       - name: Reproduce CI failure without AI credentials
         if: ${{ inputs.feedback_comment_id == '' }}
         shell: bash
+        env:
+          FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
         run: |
           set -euo pipefail
           : > reproduced-failure.log
-          failed=0
-          for suite in test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
-            if ! python -m unittest discover -s tests -p "$suite" -q >> reproduced-failure.log 2>&1; then
-              failed=1
+          if [[ "$FACTORY_SCOPE" == "HOME_PAGE" || "$FACTORY_SCOPE" == "UI_SHARED" ]]; then
+            # A failed Chromium download/network is NOT a UI bug. Only an
+            # actually reproduced real browser failure can reach DeepSeek.
+              python scripts/build_site.py >/dev/null || { echo "HOLD: UI build failed at build_site.py" >&2; exit 2; }
+              python scripts/generate_glossary.py >/dev/null || { echo "HOLD: UI build failed at generate_glossary.py" >&2; exit 2; }
+              python scripts/generate_legacy_redirects.py >/dev/null || { echo "HOLD: UI build failed at generate_legacy_redirects.py" >&2; exit 2; }
+              python scripts/inject_static_meta.py >/dev/null || { echo "HOLD: UI build failed at inject_static_meta.py" >&2; exit 2; }
+              python scripts/inject_structured_data.py >/dev/null || { echo "HOLD: UI build failed at inject_structured_data.py" >&2; exit 2; }
+              python scripts/apply_site_assets.py >/dev/null || { echo "HOLD: UI build failed at apply_site_assets.py" >&2; exit 2; }
+              python scripts/verify_asset_fingerprints.py >/dev/null || { echo "HOLD: UI build failed at verify_asset_fingerprints.py" >&2; exit 2; }
+              python scripts/verify_glossary.py >/dev/null || { echo "HOLD: UI build failed at verify_glossary.py" >&2; exit 2; }
+              python scripts/verify_display.py >/dev/null || { echo "HOLD: UI build failed at verify_display.py" >&2; exit 2; }
+              python scripts/verify_release.py >/dev/null || { echo "HOLD: UI build failed at verify_release.py" >&2; exit 2; }
+            npm install --no-save @playwright/test@1.55.0 >/dev/null 2>&1 ||
+              { echo 'HOLD: UI browser dependency installation failed' >&2; exit 2; }
+            npx playwright install --with-deps chromium >/dev/null 2>&1 ||
+              { echo 'HOLD: UI Chromium setup failed (environment, not CSS)' >&2; exit 2; }
+            python -m http.server 4173 --bind 127.0.0.1 --directory _site > /tmp/aa8-ui-repro-server.log 2>&1 &
+            server_pid=$!
+            trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+            sleep 2
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null ||
+              { echo 'HOLD: no real UI preview' >&2; exit 2; }
+            if HUB_QA_BASE_URL=http://127.0.0.1:4173 V15_BASE_URL=http://127.0.0.1:4173 \
+                 npx playwright test tests/hub-pages-visual.spec.js --reporter=line >> reproduced-failure.log 2>&1; then
+              echo 'HOLD: UI browser regression did not reproduce' >&2
+              exit 2
             fi
-          done
-          if test "$failed" -ne 1; then
-            echo 'HOLD: Unable to reproduce an actual unit failure without AI key'
-            exit 2
+            echo 'CI_BROWSER_FAIL: actual UI regression reproduced in isolated Chromium' >> reproduced-failure.log
+          else
+            : > reproduced-failure.log
+            failed=0
+            for suite in test_release_trigger.py test_build_ignores_dependencies.py test_h2x_social_meta.py test_product_factory.py test_x2_pilot_factory.py test_factory_gate_handoff.py test_factory_gate_router.py test_factory_autofix_policy.py test_factory_autofix_workflow.py test_factory_autofix_integration.py test_product_standard_v31.py test_official_media_provenance.py test_recent_product_seo.py test_product_cta_schema_20261104.py test_related_products_heading_20261104.py; do
+              if ! python -m unittest discover -s tests -p "$suite" -q >> reproduced-failure.log 2>&1; then
+                failed=1
+              fi
+            done
+            if test "$failed" -ne 1; then
+              echo 'HOLD: Unable to reproduce an actual unit failure without AI key'
+              exit 2
+            fi
+            test -s reproduced-failure.log
           fi
-          test -s reproduced-failure.log
 
       - name: DeepSeek API - propose minimal source repair
         shell: bash
@@ -953,7 +995,9 @@ jobs:
           # Consume the exact patch already validated and saved by the
           # unprivileged DeepSeek proposer; do NOT reconstruct a git diff.
           test -s candidate-fix.patch
-          python /tmp/aa8_autofix_policy.py patch-check             --patch candidate-fix.patch --out candidate-policy.json
+          python /tmp/aa8_autofix_policy.py patch-check \
+            --patch candidate-fix.patch --scope "${{ needs.build-and-verify.outputs.factory_scope }}" \
+            --out candidate-policy.json
           echo 'has_patch=true' >> "$GITHUB_OUTPUT"
       - name: Preserve DeepSeek proposal as non-executable patch
         uses: actions/upload-artifact@v4
@@ -997,11 +1041,13 @@ jobs:
         shell: bash
         env:
           PR_BASE: ${{ github.event.pull_request.base.sha || inputs.autofix_base }}
+          FACTORY_SCOPE: ${{ needs.build-and-verify.outputs.factory_scope }}
         run: |
           set -euo pipefail
           git show "${PR_BASE}:scripts/factory_autofix_policy.py" > /tmp/aa8_trusted_patch_policy.py
           python /tmp/aa8_trusted_patch_policy.py patch-check \
-            --patch proposed-fix/candidate-fix.patch --out validated-policy.json
+            --patch proposed-fix/candidate-fix.patch --scope "$FACTORY_SCOPE" \
+            --out validated-policy.json
           git apply --check proposed-fix/candidate-fix.patch
           git apply --index proposed-fix/candidate-fix.patch
           python -m unittest discover -s tests -p 'test_product_factory.py' -q
@@ -1010,6 +1056,26 @@ jobs:
           python -m unittest discover -s tests -p 'test_factory_gate_router.py' -q
           python -m unittest discover -s tests -p 'test_factory_autofix_policy.py' -q
           python -m unittest discover -s tests -p 'test_factory_gate_handoff.py' -q
+          if [[ "$FACTORY_SCOPE" == "HOME_PAGE" || "$FACTORY_SCOPE" == "UI_SHARED" ]]; then
+            python scripts/build_site.py >/dev/null
+            python scripts/generate_glossary.py >/dev/null
+            python scripts/generate_legacy_redirects.py >/dev/null
+            python scripts/inject_static_meta.py >/dev/null
+            python scripts/inject_structured_data.py >/dev/null
+            python scripts/apply_site_assets.py >/dev/null
+            python scripts/verify_asset_fingerprints.py >/dev/null
+            python scripts/verify_glossary.py >/dev/null
+            python scripts/verify_display.py >/dev/null
+            python scripts/verify_release.py >/dev/null
+            npm install --no-save @playwright/test@1.55.0 >/dev/null
+            npx playwright install --with-deps chromium >/dev/null
+            python -m http.server 4174 --bind 127.0.0.1 --directory _site > /tmp/aa8-ui-validate-server.log 2>&1 &
+            server_pid=$!
+            trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+            sleep 2
+            HUB_QA_BASE_URL=http://127.0.0.1:4174 V15_BASE_URL=http://127.0.0.1:4174 \
+              npx playwright test tests/hub-pages-visual.spec.js --reporter=line
+          fi
           git diff --cached --check
           cp proposed-fix/candidate-fix.patch validated-fix.patch
           echo 'accepted=true' >> "$GITHUB_OUTPUT"
@@ -1086,6 +1152,8 @@ jobs:
           policy=json.load(open('validated/validated-policy.json'))
           if policy.get('status')!='PATCH_ACCEPTED_FOR_ISOLATED_TEST' or policy.get('release')!='HOLD':
               raise SystemExit('HOLD: validated patch status invalid')
+          if policy.get('scope')!=os.environ['FACTORY_SCOPE']:
+              raise SystemExit('HOLD: patch scope differs from trusted CI classification')
           expected=sorted(policy.get('files',[]))
           staged=subprocess.check_output(['git','diff','--cached','--name-only'],text=True).splitlines()
           if not expected or sorted(staged)!=expected or len(expected)>8:

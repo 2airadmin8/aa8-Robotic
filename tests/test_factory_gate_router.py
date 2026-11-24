@@ -26,6 +26,14 @@ class UniversalGateTest(unittest.TestCase):
   x=discover(ROOT,["products/unitree-g1.html","products/agibot-g2.html"])
   self.assertEqual(x["ids"],["agibot-g2","unitree-g1"])
   self.assertEqual(x["work_scope"],"MULTI_PRODUCT")
+ def test_governance_source_is_global_not_unmonitored(self):
+  for path in ("scripts/factory_gate_router.py",
+               "scripts/factory_autofix_policy.py",
+               "scripts/deepseek_factory_autofix.py"):
+   with self.subTest(path=path):
+    scope=discover(ROOT,[path])
+    self.assertEqual(scope["work_scope"],"GLOBAL_FACTORY")
+    self.assertEqual(route(200,SHA,self.outcomes(),scope,"date")["state"],"WAIT_FACTORY_QA")
  def test_global_change_routes_all_master_to_qa_scope(self):
   x=discover(ROOT,["scripts/product_factory.py"])
   self.assertEqual(x["work_scope"],"GLOBAL_FACTORY")
@@ -66,6 +74,31 @@ class UniversalGateTest(unittest.TestCase):
           for x in route(180,SHA,self.outcomes(),mixed,"date")["product_gates"]}
   self.assertEqual(status["unitree-a2"],"NOT_ATTESTED")
   self.assertEqual(status["unitree-g1-d"],"EXISTING_PUBLIC_PRODUCT_NOT_REATTESTED_IN_THIS_PR")
+ def test_homepage_and_shared_ui_are_never_silently_skipped(self):
+  examples=[
+   (["index.html"],"HOME_PAGE"),
+   (["assets/css/home-hero.css"],"HOME_PAGE"),
+   (["assets/css/product-cards-v2.css"],"UI_SHARED"),
+   (["assets/js/product-cards-v2.js","index.html"],"UI_SHARED"),
+   (["tests/hub-pages-visual.spec.js"],"HOME_PAGE"),
+  ]
+  for changed,scope in examples:
+   with self.subTest(changed=changed):
+    s=discover(ROOT,changed)
+    self.assertEqual(s["work_scope"],scope)
+    self.assertTrue(s["home_ui_regression_required"])
+    out=route(200,SHA,self.outcomes(),s,"date")
+    self.assertEqual(out["state"],"WAIT_UI_INDEPENDENT_QA")
+    self.assertEqual(out["blocking_gate"],"G2")
+    self.assertEqual(out["release"],"HOLD")
+  shared=discover(ROOT,["assets/css/product-cards-v2.css"])
+  self.assertTrue(shared["all_13_public_product_regression_required"])
+  self.assertEqual(route(200,SHA,self.outcomes(browser="skipped"),shared,"date")["state"],"HOLD_EVIDENCE")
+  self.assertEqual(route(200,SHA,self.outcomes(browser="failure"),shared,"date")["state"],"RETURN_TO_DEV")
+ def test_ambiguous_product_master_or_global_source_cannot_become_ui_repair(self):
+  self.assertEqual(discover(ROOT,["data/products.json","index.html"])["work_scope"],"INPUT_REQUIRED")
+  self.assertEqual(discover(ROOT,["scripts/product_factory.py","index.html"])["work_scope"],"GLOBAL_FACTORY")
+  self.assertEqual(discover(ROOT,["README.md"])["work_scope"],"NO_PRODUCT_SCOPE")
  def test_no_product_change_never_fabricates_agent(self):
   x=discover(ROOT,["README.md"])
   self.assertEqual(x["work_scope"],"NO_PRODUCT_SCOPE")

@@ -30,13 +30,33 @@ class TestAutofixPolicy(unittest.TestCase):
              {"branch":"feat/../../bad"},{"sha":"bad"},{"scope":"NO_PRODUCT_SCOPE"}]:
    with self.subTest(kw=kw),self.assertRaises(ValueError):
     preflight(**(BASE|kw))
+ def test_ui_patch_scope_is_exactly_whitelisted(self):
+  for scope in ("HOME_PAGE","UI_SHARED"):
+   with self.subTest(scope=scope):
+    p=preflight(**(BASE|{"scope":scope}))
+    self.assertEqual(p["attempt"],1)
+    self.assertEqual(p["release"],"HOLD")
+    self.assertIn("assets/css/product-cards-v2.css",p["allowed_paths"])
+    self.assertNotIn("assets/js/seo.js",p["allowed_paths"])
+    for allowed in ("assets/css/home-hero.css","assets/css/product-cards-v2.css",
+                    "assets/js/product-cards-v2.js","tests/hub-pages-visual.spec.js"):
+     self.assertEqual(validate_patch(patch(allowed),scope=scope)["files"],[allowed])
+    for denied in ("assets/js/seo.js","assets/js/contact-v2.js",
+                   "scripts/product_factory.py","data/products.json",
+                   "products/unitree-g1.html"):
+     with self.subTest(path=denied),self.assertRaises(ValueError):
+      validate_patch(patch(denied),scope=scope)
+  with self.assertRaises(ValueError):
+   preflight(**(BASE|{"scope":"NO_PRODUCT_SCOPE"}))
  def test_valid_narrow_patch(self):
   v=validate_patch(patch())
   self.assertEqual(v["files"],["scripts/x2_example.py"])
   self.assertEqual(v["added"],1);self.assertEqual(v["deleted"],1)
  def test_bad_paths_and_workflows_denied(self):
   for path in (".github/workflows/ci.yml","data/products.json","scripts/.env",
-               "tests/../../secret.py","assets/img/cat.png","scripts/factory_autofix_policy.py"):
+               "tests/../../secret.py","assets/img/cat.png","scripts/factory_autofix_policy.py",
+               "scripts/factory_gate_router.py",
+               "scripts/preview_postdeploy_bridge.py"):
    with self.subTest(path=path),self.assertRaises(ValueError):
     validate_patch(patch(path))
  def test_patch_header_cannot_hide_protected_target(self):
