@@ -12,16 +12,14 @@ BRANCH_RE=re.compile(r"^(?:feat|fix|draft|chore)/[a-zA-Z0-9._/-]+$")
 TRAILER_RE=re.compile(r"(?im)^AA8-AUTOFIX-ATTEMPT:\s*(\d+)\s*$")
 DIFF_RE=re.compile(r"^diff --git a/([a-zA-Z0-9_./-]+) b/([a-zA-Z0-9_./-]+)$")
 MAX_ATTEMPTS=3
-# UI repairs are opt-in, CSS/JS-only, and cannot edit facts, tracking,
-# release controls, source masters, or even page HTML.
+# UI auto repair pilot is CSS-only; test/JS edits cannot be used to silence
+# failing assertions or alter facts. JS needs a separate human-reviewed PR.
 UI_SCOPES = frozenset({"HOME_PAGE", "UI_SHARED"})
 UI_AUTOFIX_FILES = frozenset({
     "assets/css/home-hero.css",
     "assets/css/hero-lineup.css",
     "assets/css/product-cards-v2.css",
     "assets/css/main-site-experience.css",
-    "assets/js/product-cards-v2.js",
-    "tests/hub-pages-visual.spec.js",
 })
 
 MAX_FILES=8
