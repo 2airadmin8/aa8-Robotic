@@ -431,7 +431,7 @@ body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1
     text-wrap: balance;
   }
   .home-product-grid .product-visual .home-product-maker {
-    top: 46px;
+    top: 43px;
     right: 5px;
     max-width: none;
     padding: 3px 5px;
