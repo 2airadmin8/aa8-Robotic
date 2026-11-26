@@ -216,13 +216,46 @@ for (const width of [1440, 1280, 390, 360]) {
       await expect(link).toBeVisible();
       await expect(link).toHaveAttribute('href', 'products.html?filter=' + filter + '#lineup');
     }
-    // MARK-23/24: the support heading has no redundant right-hand link.
-    const supportHeading = page.locator('main .section-heading').filter({
-      has: page.getByText('SUPPORT MENU', {exact: true})
+    // MARK-05/06/23/25/30/31: preserve the approved redline resolution.
+    // Update expectations together with any separately approved future copy.
+    const sectionHeading = marker => page.locator('main .section-heading').filter({
+      has: page.getByText(marker, {exact: true})
     });
-    await expect(supportHeading.getByRole('heading', {level: 2})).toHaveText('選定から運用までの導入支援');
+    for (const [marker, text] of [
+      ['IMPLEMENTATION PROCESS', 'AIロボット導入までの流れ'],
+      ['ROBOT COMPARISON', 'AIロボットの代表製品'],
+      ['SUPPORT MENU', '選定から運用までの導入支援'],
+      ['CASE & EVIDENCE', 'AIロボット導入支援の実績'],
+      ['TECHNICAL RESOURCES', 'SDK・ROS・VLAの技術資料'],
+      ['FAQ', 'よくある質問']
+    ]) {
+      const title = sectionHeading(marker).getByRole('heading', {level: 2});
+      await expect(title).toBeVisible();
+      await expect(title).toHaveText(text);
+    }
+    // MARK-24: no redundant heading link, and all three distinct service links remain.
+    const supportHeading = sectionHeading('SUPPORT MENU');
     await expect(supportHeading.locator('a')).toHaveCount(0);
-    await expect(page.locator('.g1d-detail-entry')).toHaveCount(1);
+    const serviceLinks = supportHeading.locator('..').locator('a.service-card');
+    await expect(serviceLinks).toHaveCount(3);
+    for (const [index, path] of [
+      'support/university-procurement.html', 'support.html#poc', 'use-cases/vla-data-collection.html'
+    ].entries()) {
+      await expect(serviceLinks.nth(index)).toHaveAttribute('href', path);
+    }
+    // MARK-07: the featured G1-D entry must be one visible, working detail link.
+    const feature = page.locator('.g1d-detail-entry');
+    await expect(feature).toHaveCount(1);
+    const featureLink = page.locator('a.g1d-detail-entry, .g1d-detail-entry a');
+    await expect(featureLink).toBeVisible();
+    await expect(featureLink).toHaveAttribute('href', 'products/unitree-g1-d.html');
+    // MARK-15: exactly one visible G1 summary and no repeated sentence inside it.
+    const g1Summary = page.locator('.home-product-grid #unitree-g1 .product-summary');
+    await expect(g1Summary).toHaveCount(1);
+    await expect(g1Summary).toBeVisible();
+    const g1Sentences = (await g1Summary.innerText()).split('。').map(s => s.trim()).filter(Boolean);
+    expect(g1Sentences.length).toBeGreaterThan(0);
+    expect(new Set(g1Sentences).size).toBe(g1Sentences.length);
     await expect(page.locator('.case-feature .text-link')).toBeVisible();
     const details=await page.evaluate(()=>{
       const cards=[...document.querySelectorAll('.home-product-grid .research-product-card')];
@@ -282,6 +315,25 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(details.overflow).toBeLessThanOrEqual(1);
   });
 }
+
+// MARK-02–04: correct href alone is insufficient if the receiving page ignores the filter.
+test('HOME #200 category links apply the destination filter / 390', async ({page}) => {
+  await page.setViewportSize({width:390,height:900});
+  for (const [index, filter, productId] of [
+    [0, 'humanoid', 'unitree-g1'],
+    [1, 'quadruped', 'unitree-go2-edu'],
+    [2, 'arm', 'tianji-marvin']
+  ]) {
+    const home = await page.goto(base+'/index.html');
+    expect(home.status()).toBe(200);
+    await page.locator('.category-lineup figcaption a').nth(index).click();
+    await expect(page).toHaveURL(base+'/products.html?filter='+filter+'#lineup');
+    await expect(page.locator('#lineup [data-product-filter="'+filter+'"]')).toHaveClass(/\bis-active\b/);
+    await expect(page.locator('#lineup [data-product-list] #'+productId)).toBeVisible();
+    const otherProduct = filter === 'humanoid' ? 'unitree-go2-edu' : 'unitree-g1';
+    await expect(page.locator('#lineup [data-product-list] #'+otherProduct)).toBeHidden();
+  }
+});
 
 // HOME-13 P0: public SSOT reconciled against verified September delivery.
 // Completion of university acceptance must NOT be inferred from delivery.
