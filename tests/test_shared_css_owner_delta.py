@@ -1,4 +1,5 @@
 """New shared CSS overrides fail; existing historical site debt stays visible."""
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -115,6 +116,70 @@ class SharedCSSOwnerDeltaTests(unittest.TestCase):
         )
         self.assertEqual(len(rules), 1)
         self.assertIn("nav.nav.open", rules[0][1])
+
+
+class GeneratedStylesheetGateTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+        scripts = self.root / "scripts"
+        scripts.mkdir()
+        self.gate = scripts / "verify_asset_fingerprints.py"
+        self.gate.write_bytes((ROOT / "scripts" / self.gate.name).read_bytes())
+        self.site = self.root / "_site"
+        self.refs = {}
+        for asset in (
+            "assets/css/main-site-experience.css",
+            "assets/css/shared-layout.css",
+            "assets/js/main-site-experience.js",
+        ):
+            p = self.site / asset
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(asset, encoding="utf-8")
+            version = hashlib.sha256(p.read_bytes()).hexdigest()[:12]
+            self.refs[asset] = f"../{asset}?v={version}"
+        self.page = self.site / "products/new-sku.html"
+        self.page.parent.mkdir()
+        self.shared = self.refs["assets/css/shared-layout.css"]
+
+    def run_gate(self, candidate):
+        main = self.refs["assets/css/main-site-experience.css"]
+        runtime = self.refs["assets/js/main-site-experience.js"]
+        self.page.write_text(
+            f'<html><head><link rel="stylesheet" href="{main}">{candidate}'
+            f'</head><body><script src="{runtime}" defer></script></body></html>',
+            encoding="utf-8",
+        )
+        return subprocess.run([sys.executable, str(self.gate)], capture_output=True, text=True)
+
+    def test_complete_reference_passes_and_regains_pass_after_negative(self):
+        good = f'<link rel="stylesheet" href="{self.shared}">'
+        self.assertEqual(self.run_gate(good).returncode, 0)
+        failed = self.run_gate("")
+        self.assertEqual(failed.returncode, 1, failed.stdout + failed.stderr)
+        self.assertIn("products/new-sku.html", failed.stdout.replace("\\", "/"))
+        self.assertIn("expected exactly one active stylesheet", failed.stdout)
+        self.assertEqual(self.run_gate(good).returncode, 0)
+
+    def test_fingerprint_in_nonapplying_markup_is_not_a_stylesheet(self):
+        good = f'<link rel="stylesheet" href="{self.shared}">'
+        cases = {
+            "preload": f'<link rel="preload" as="style" href="{self.shared}">',
+            "comment": f'<!-- {good} -->',
+            "template": f'<template>{good}</template>',
+            "noscript": f'<noscript>{good}</noscript>',
+            "wrong-path": good.replace("../assets/", "assets/"),
+            "disabled": good.replace("<link ", "<link disabled "),
+            "print-only": good.replace("<link ", '<link media="print" '),
+            "duplicate": good + good,
+        }
+        for name, markup in cases.items():
+            with self.subTest(name=name):
+                result = self.run_gate(markup)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("expected exactly one active stylesheet", result.stdout)
+                self.assertIn("shared-layout.css", result.stdout)
 
 
 if __name__ == "__main__":

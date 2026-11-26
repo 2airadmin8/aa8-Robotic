@@ -24,6 +24,20 @@ function fits(inner,outer){
  return inner.left>=outer.left-1&&inner.right<=outer.right+1&&
         inner.top>=outer.top-1&&inner.bottom<=outer.bottom+1;
 }
+function sharedShellState(){
+ const match=new URL('/assets/css/shared-layout.css',location.origin);
+ const sheets=[...document.querySelectorAll('head link[rel~="stylesheet"][href]')].filter(link=>{
+  const url=new URL(link.href);
+  return url.origin===match.origin&&url.pathname===match.pathname&&
+    !link.relList.contains('alternate')&&!link.disabled&&link.sheet&&!link.sheet.disabled&&
+    (!link.media||matchMedia(link.media).matches);
+ });
+ const header=document.querySelector('header.site-header[data-shared-layout="header"]');
+ const footer=document.querySelector('footer[data-shared-layout="footer"]');
+ const visible=node=>!!node&&node.getBoundingClientRect().height>0&&
+  getComputedStyle(node).visibility==='visible';
+ return {activeCss:sheets.length,headerVisible:visible(header),footerVisible:visible(footer)};
+}
 function collectBadges(){
  const rectangleOverlap=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*
                              Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
@@ -79,6 +93,8 @@ for(const width of contract.mandatoryViewports){
      expect(res&&res.status(),item.path+' page HTTP status').toBe(200);
      await expect(page.locator('header.site-header[data-shared-layout="header"]'),item.path+' shared header').toHaveCount(1);
      await expect(page.locator('footer[data-shared-layout="footer"]'),item.path+' shared footer').toHaveCount(1);
+     expect(await page.evaluate(sharedShellState),item.path+' active shared CSS and visible shell')
+      .toEqual({activeCss:1,headerVisible:true,footerVisible:true});
      await expect(page.locator('main h1'),item.path+' exactly one H1').toHaveCount(1);
      await page.evaluate(async()=>{
        await document.fonts.ready;
@@ -177,4 +193,22 @@ test('QG-V1 negative probe detects intentional SP maker collision',async({page})
  const after=await page.evaluate(collectBadges);
  expect(after.some(x=>x.overlappingArea>contract.makerBadges.maxOverlapAreaPx2),
   'NEGATIVE TEST INVALID: original overlapping badge no longer detected').toBe(true);
+});
+
+// These DOM-only negatives run on the isolated CI artifact, not on production.
+test('QG-V1 rejects unloaded common CSS and a visually overridden header',async({page})=>{
+ await page.setViewportSize({width:390,height:900});
+ await page.goto(rootUrl+'/products/unitree-g1.html',{waitUntil:'networkidle'});
+ const expected={activeCss:1,headerVisible:true,footerVisible:true};
+ expect(await page.evaluate(sharedShellState)).toEqual(expected);
+ const css=page.locator('head link[rel~="stylesheet"][href*="shared-layout.css?"]');
+ await expect(css).toHaveCount(1);
+ await css.evaluate(link=>{link.disabled=true;});
+ expect((await page.evaluate(sharedShellState)).activeCss,'missing applied common CSS must be detected').toBe(0);
+ await page.reload({waitUntil:'networkidle'});
+ expect(await page.evaluate(sharedShellState)).toEqual(expected);
+ await page.addStyleTag({content:'header{display:none!important}'});
+ const overridden=await page.evaluate(sharedShellState);
+ expect(overridden.activeCss,'common CSS stayed loaded during the override').toBe(1);
+ expect(overridden.headerVisible,'local override must be detected in the browser').toBe(false);
 });
