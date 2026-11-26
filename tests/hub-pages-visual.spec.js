@@ -236,7 +236,9 @@ for (const width of [1440, 1280, 390, 360]) {
     // MARK-24: no redundant heading link, and all three distinct service links remain.
     const supportHeading = sectionHeading('SUPPORT MENU');
     await expect(supportHeading.locator('a')).toHaveCount(0);
-    const serviceLinks = supportHeading.locator('..').locator('a.service-card');
+    const supportSection = supportHeading.locator('xpath=ancestor::section[1]');
+    await expect(supportSection.locator('a')).toHaveCount(3);
+    const serviceLinks = supportSection.locator('a.service-card');
     await expect(serviceLinks).toHaveCount(3);
     for (const [index, path] of [
       'support/university-procurement.html', 'support.html#poc', 'use-cases/vla-data-collection.html'
@@ -313,6 +315,61 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(details.caseUrl).toBe('cases/keio-selection.html');
     expect(details.categoryAllInViewport).toBe(true);
     expect(details.overflow).toBeLessThanOrEqual(1);
+  });
+}
+
+for (const width of [360, 390]) {
+  test('HOME #200 MARK-14 long model and SDK tokens wrap / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(base+'/index.html');
+    expect(response.status()).toBe(200);
+    const summaries=page.locator('.home-product-grid .research-product-card .product-summary');
+    await expect(summaries).toHaveCount(3);
+    const results=await summaries.evaluateAll(elements=>{
+      const tokens=[
+        'AA8ModelIdentifier'.repeat(6),
+        'SDK_API_BINDING_'.repeat(7),
+        'ROBOTICS_CONTROLLER_INTERFACE_'.repeat(4)
+      ];
+      function measure(summary) {
+        const range=document.createRange();
+        range.selectNodeContents(summary);
+        const rects=[...range.getClientRects()];
+        const box=summary.getBoundingClientRect();
+        const card=summary.closest('.research-product-card').getBoundingClientRect();
+        const style=getComputedStyle(summary);
+        return {
+          card:summary.closest('.research-product-card').id,
+          lines:rects.length,
+          excess:Math.max(0,...rects.map(r=>Math.max(box.left-r.left,r.right-box.right,card.left-r.left,r.right-card.right))),
+          bottomExcess:Math.max(0,...rects.map(r=>r.bottom-box.bottom)),
+          widthOverflow:summary.scrollWidth-summary.clientWidth,
+          heightOverflow:summary.scrollHeight-summary.clientHeight,
+          clamped:style.webkitLineClamp!=='none'
+        };
+      }
+      const original=elements.map((e,i)=>{
+        e.textContent=tokens[i];
+        return measure(e);
+      });
+      // Negative control: remove just the protective CSS rule in this browser page.
+      const broken=elements.map(e=>{
+        e.style.setProperty('overflow-wrap','normal','important');
+        return measure(e);
+      });
+      return {original,broken};
+    });
+    for (const result of results.original) {
+      expect(result.lines,result.card+' must wrap').toBeGreaterThan(1);
+      expect(result.excess,result.card+' scrolls beyond the card/summary').toBeLessThanOrEqual(1);
+      expect(result.widthOverflow,result.card+' summary overflows horizontally').toBeLessThanOrEqual(1);
+      expect(result.heightOverflow,result.card+' summary is clipped vertically').toBeLessThanOrEqual(1);
+      expect(result.bottomExcess,result.card+' last line is clipped').toBeLessThanOrEqual(1);
+      expect(result.clamped,result.card+' summary is line-clamped').toBe(false);
+    }
+    for (const result of results.broken) {
+      expect(result.excess,result.card+' negative control should detect overflow').toBeGreaterThan(1);
+    }
   });
 }
 
