@@ -6,6 +6,7 @@ import hashlib
 import re
 from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import quote, urljoin, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "_site"
@@ -14,18 +15,20 @@ ASSETS = (
     "assets/css/shared-layout.css",
     "assets/js/main-site-experience.js",
 )
+SITE_ORIGIN = "https://robotics.air-admin8.co.jp"
 
 
 class StylesheetLinks(HTMLParser):
-    """Collect real stylesheet links in the head, excluding inert markup."""
+    """Collect effective link candidates and their placement, excluding inert markup."""
 
     INERT = {"template", "noscript", "textarea", "title", "xmp", "iframe"}
 
     def __init__(self) -> None:
         super().__init__()
         self.in_head = False
+        self.base_href = False
         self.inert: list[str] = []
-        self.active: list[str] = []
+        self.active: list[tuple[str, bool]] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag in self.INERT:
@@ -37,14 +40,20 @@ class StylesheetLinks(HTMLParser):
             self.in_head = True
         elif tag == "body":
             self.in_head = False
-        elif tag == "link" and self.in_head:
+        elif tag == "base" and any(name == "href" for name, _ in attrs):
+            self.base_href = True
+        elif tag == "link":
             fields = dict(attrs)
             if len(fields) != len(attrs) or "disabled" in fields:
                 return
             rel = set((fields.get("rel") or "").lower().split())
             media = (fields.get("media") or "").strip().lower()
-            if rel == {"stylesheet"} and media in ("", "all") and fields.get("href"):
-                self.active.append(fields["href"])
+            mime = (fields.get("type") or "").strip().lower()
+            if (
+                rel == {"stylesheet"} and media in ("", "all")
+                and mime in ("", "text/css") and fields.get("href")
+            ):
+                self.active.append((fields["href"], self.in_head))
 
     def handle_endtag(self, tag: str) -> None:
         if self.inert:
@@ -60,6 +69,18 @@ def digest(relative: str) -> str:
     if not path.is_file():
         raise SystemExit(f"Missing fingerprint target: {relative}")
     return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+
+
+def same_asset_path(href: str, page_url: str, asset: str) -> bool:
+    """Compare location without query/hash to catch unversioned or stale duplicates."""
+    try:
+        target = urlsplit(urljoin(page_url, href))
+    except ValueError:
+        return False
+    return (
+        target.netloc.lower() == urlsplit(SITE_ORIGIN).netloc
+        and target.path == f"/{asset}"
+    )
 
 
 def main() -> int:
@@ -78,14 +99,19 @@ def main() -> int:
         links = StylesheetLinks()
         links.feed(text)
         links.close()
+        if links.base_href:
+            errors.append(f"base href is not allowed with generated relative references: {relative}")
+        page_url = f"{SITE_ORIGIN}/{quote(relative.as_posix())}"
         prefix = "../" * (len(relative.parents) - 1)
         for asset, version in expected.items():
             if asset.endswith(".css"):
                 href = f"{prefix}{asset}?v={version}"
-                count = links.active.count(href)
-                if count != 1:
+                count = links.active.count((href, True))
+                total = sum(same_asset_path(link, page_url, asset) for link, _ in links.active)
+                if count != 1 or total != 1:
                     errors.append(
-                        f"expected exactly one active stylesheet {href}, found {count}: {relative}"
+                        f"expected exactly one active stylesheet {href} in head, "
+                        f"found {count} canonical and {total} references to its path: {relative}"
                     )
                 continue
             name = re.escape(Path(asset).name)

@@ -143,12 +143,12 @@ class GeneratedStylesheetGateTests(unittest.TestCase):
         self.page.parent.mkdir()
         self.shared = self.refs["assets/css/shared-layout.css"]
 
-    def run_gate(self, candidate):
+    def run_gate(self, candidate, body=""):
         main = self.refs["assets/css/main-site-experience.css"]
         runtime = self.refs["assets/js/main-site-experience.js"]
         self.page.write_text(
             f'<html><head><link rel="stylesheet" href="{main}">{candidate}'
-            f'</head><body><script src="{runtime}" defer></script></body></html>',
+            f'</head><body>{body}<script src="{runtime}" defer></script></body></html>',
             encoding="utf-8",
         )
         return subprocess.run([sys.executable, str(self.gate)], capture_output=True, text=True)
@@ -172,6 +172,7 @@ class GeneratedStylesheetGateTests(unittest.TestCase):
             "wrong-path": good.replace("../assets/", "assets/"),
             "disabled": good.replace("<link ", "<link disabled "),
             "print-only": good.replace("<link ", '<link media="print" '),
+            "wrong-type": good.replace("<link ", '<link type="text/plain" '),
             "duplicate": good + good,
         }
         for name, markup in cases.items():
@@ -180,6 +181,28 @@ class GeneratedStylesheetGateTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertIn("expected exactly one active stylesheet", result.stdout)
                 self.assertIn("shared-layout.css", result.stdout)
+
+    def test_stale_or_unversioned_duplicate_is_blocked_even_with_correct_hash(self):
+        good = f'<link rel="stylesheet" href="{self.shared}">'
+        stale = self.shared.split("?")[0]
+        cases = [
+            (f'<link rel="stylesheet" href="{stale}">', ""),
+            (f'<link rel="stylesheet" href="{stale}?v=stale">', ""),
+            ("", '<link rel="stylesheet" href="/assets/css/shared-layout.css?v=stale">'),
+        ]
+        for head, body in cases:
+            with self.subTest(head=head, body=body):
+                result = self.run_gate(good + head, body)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("2 references to its path", result.stdout)
+        self.assertEqual(self.run_gate(good).returncode, 0)
+
+    def test_base_href_cannot_redirect_a_canonical_relative_stylesheet(self):
+        good = f'<link rel="stylesheet" type="text/css" href="{self.shared}">'
+        result = self.run_gate('<base href="/different/path/">' + good)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("base href is not allowed", result.stdout)
+        self.assertEqual(self.run_gate('<base target="_self">' + good).returncode, 0)
 
 
 if __name__ == "__main__":
