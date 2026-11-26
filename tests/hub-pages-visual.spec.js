@@ -208,7 +208,20 @@ for (const width of [1440, 1280, 390, 360]) {
     await expect(cards).toHaveCount(3);
     await expect(page.locator('.hero-trust-note')).toHaveCount(0);
     await expect(page.locator('.home-process article')).toHaveCount(4);
-    await expect(page.locator('.category-lineup figcaption a')).toHaveCount(3);
+    // MARK-02–04: each category must retain its own filter and anchor.
+    const categoryLinks = page.locator('.category-lineup figcaption a');
+    await expect(categoryLinks).toHaveCount(3);
+    for (const [index, filter] of ['humanoid', 'quadruped', 'arm'].entries()) {
+      const link = categoryLinks.nth(index);
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute('href', 'products.html?filter=' + filter + '#lineup');
+    }
+    // MARK-23/24: the support heading has no redundant right-hand link.
+    const supportHeading = page.locator('main .section-heading').filter({
+      has: page.getByText('SUPPORT MENU', {exact: true})
+    });
+    await expect(supportHeading.getByRole('heading', {level: 2})).toHaveText('選定から運用までの導入支援');
+    await expect(supportHeading.locator('a')).toHaveCount(0);
     await expect(page.locator('.g1d-detail-entry')).toHaveCount(1);
     await expect(page.locator('.case-feature .text-link')).toBeVisible();
     const details=await page.evaluate(()=>{
@@ -237,7 +250,13 @@ for (const width of [1440, 1280, 390, 360]) {
         }),
         bodyMakerHidden:cards.every(x=>getComputedStyle(x.querySelector('.product-maker')).display==='none'),
         noCategoryDuplicate:cards.every(x=>!x.querySelector('.product-category-label')),
-        introAllVisible:cards.every(x=>getComputedStyle(x.querySelector('.product-summary')).overflow==='visible'),
+        introAllVisible:cards.every(x=>{
+          const summary=x.querySelector('.product-summary');
+          const style=getComputedStyle(summary);
+          return style.overflow==='visible' && style.webkitLineClamp==='none'
+            && summary.scrollWidth<=summary.clientWidth+1
+            && summary.scrollHeight<=summary.clientHeight+1;
+        }),
         caseContrast:contrast,
         caseUrl:cta.getAttribute('href'),
         categoryAllInViewport:links.every(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth+1;}),
