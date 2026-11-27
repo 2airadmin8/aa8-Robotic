@@ -51,7 +51,7 @@ def card(product: dict[str, object], prefix: str) -> str:
     contact = f"{prefix}contact.html?product={esc(product.get('name'))}"
 
     return f'''<article id="{esc(product.get('id'))}" class="product-card research-product-card" data-product-groups="{esc(groups)}" data-product-maker="{esc(product.get('manufacturerId'))}">
-  <a class="product-visual" href="{esc(detail_page)}" aria-label="{esc(product.get('name'))}の詳細を見る">
+  <a class="product-visual" href="{esc(detail_page)}" tabindex="-1" aria-label="{esc(product.get('name'))}の詳細を見る">
     <img src="{esc(image)}" alt="{esc(product.get('imageAlt'))}" loading="lazy">
     {placeholder}
   </a>
@@ -60,7 +60,7 @@ def card(product: dict[str, object], prefix: str) -> str:
       <p class="product-maker">{esc(product.get('manufacturerName'))}</p>
       <span class="status status-{esc(product.get('status'))}">{esc(product.get('statusLabel'))}</span>
     </div>
-    <h3><a href="{esc(detail_page)}">{esc(product.get('name'))}</a></h3>
+    <h3><a href="{esc(detail_page)}" tabindex="-1">{esc(product.get('name'))}</a></h3>
     <p class="product-summary">{esc(product.get('summary'))}</p>
     <div class="feature-list">{features}</div>
     <div class="meta product-condition-meta">
@@ -70,7 +70,7 @@ def card(product: dict[str, object], prefix: str) -> str:
     <p class="use-labels">{esc('・'.join(str(value) for value in use_labels))}</p>
     {note}
     <div class="product-card-actions">
-      <a class="product-link" href="{esc(detail_page)}">詳細を見る →</a>
+      <a class="product-link" href="{esc(detail_page)}" aria-label="{esc(product.get('name'))}の製品詳細を見る">詳細を見る →</a>
       <a class="product-consult-link" href="{contact}">研究用途を相談</a>
     </div>
   </div>

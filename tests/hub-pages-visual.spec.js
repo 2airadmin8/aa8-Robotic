@@ -393,6 +393,80 @@ test('HOME #200 category links apply the destination filter / 390', async ({page
 });
 
 
+
+// Keep one sequential detail stop per card. The picture and heading remain
+// native links, while the catalog's compare and consultation stay keyboard reachable.
+for (const width of [1440,390,360]) {
+  test('product cards have one keyboard detail stop / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    for (const isCatalog of [false,true]) {
+      const here = isCatalog ? 'products.html' : 'index.html';
+      await page.goto(base+'/'+here);
+      const grid = page.locator(isCatalog ? '.product-lineup-grid' : '.home-product-grid');
+      const cards = grid.locator('.research-product-card:visible');
+      await expect(cards.first()).toHaveAttribute('data-product-order',/^\d+$/);
+      if (isCatalog) await expect(cards.first().locator('[data-compare-checkbox]')).toBeVisible();
+      else await expect(cards).toHaveCount(3);
+      // Start exactly before the unchanged production grid; every subsequent
+      // move uses the actual browser keyboard order, not programmatic focus.
+      await grid.evaluate(root=>{
+        for (const [id,position] of [['qa-before-product-grid','beforebegin'],['qa-after-product-grid','afterend']]) {
+          const marker=document.createElement('button');
+          marker.id=id;
+          marker.type='button';
+          marker.textContent=id;
+          root.insertAdjacentElement(position,marker);
+        }
+      });
+      await page.locator('#qa-before-product-grid').focus();
+      let finalHref, finalModel;
+      for (const card of await cards.all()) {
+        const model=(await card.locator('h3').innerText()).trim();
+        const detail=card.locator('.product-link');
+        const href=await detail.getAttribute('href');
+        const consult=card.locator('.product-consult-link');
+        await expect(card.locator('a.product-visual')).toHaveAttribute('href',href);
+        await expect(card.locator('h3 a')).toHaveAttribute('href',href);
+        if (isCatalog) {
+          await page.keyboard.press('Tab');
+          // On narrow screens Chromium may focus the horizontally scrollable chips.
+          if (await card.locator('.feature-list:focus').count()) await page.keyboard.press('Tab');
+          await expect(card.locator('[data-compare-checkbox]')).toBeFocused();
+        }
+        await page.keyboard.press('Tab');
+        await expect(detail).toBeFocused();
+        await expect.poll(()=>detail.evaluate(el=>el.matches(':focus-visible'))).toBe(true);
+        await expect(detail).toHaveAccessibleName(model+'の製品詳細を見る');
+        if (isCatalog) {
+          await page.keyboard.press('Tab');
+          await expect(consult).toBeFocused();
+          finalHref=await consult.getAttribute('href');
+          finalModel=model;
+        } else finalHref=href;
+      }
+      await page.keyboard.press('Tab');
+      await expect(page.locator('#qa-after-product-grid')).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(url=>{
+        const expected=new URL(finalHref,base+'/');
+        return url.pathname===expected.pathname && url.searchParams.get('product')===expected.searchParams.get('product');
+      });
+      if (isCatalog) await expect(page.locator('input[name="product"]')).toHaveValue(finalModel);
+      else if (width===390) {
+        for (const selector of ['a.product-visual','h3 a']) {
+          await page.goto(base+'/index.html');
+          const link=page.locator('.home-product-grid .research-product-card').first().locator(selector);
+          await expect(link).toBeVisible();
+          const target=await link.getAttribute('href');
+          await link.click();
+          await expect(page).toHaveURL(base+'/'+target);
+        }
+      }
+    }
+  });
+}
+
 // HOME: an official GitHub entry must resolve to verified-source direct links,
 // not merely an HTTP 200 or a manufacturer download landing page.
 for (const {width,height} of sizes) {

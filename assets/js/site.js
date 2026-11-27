@@ -151,7 +151,7 @@
 
         return `
           <article id="${item.id}" class="product-card research-product-card" data-product-groups="${filterGroups}" data-product-maker="${item.manufacturerId}">
-            <a class="product-visual" href="${item.detailPage}" aria-label="${item.name}の詳細を見る">
+            <a class="product-visual" href="${item.detailPage}" tabindex="-1" aria-label="${item.name}の詳細を見る">
               <img src="${item.image}" alt="${item.imageAlt || `${item.name}の製品イメージ`}" loading="lazy">
               ${placeholderLabel}
             </a>
@@ -160,7 +160,7 @@
                 <p class="product-maker">${item.manufacturerName}</p>
                 <span class="status status-${item.status}">${item.statusLabel}</span>
               </div>
-              <h3><a href="${item.detailPage}">${item.name}</a></h3>
+              <h3><a href="${item.detailPage}" tabindex="-1">${item.name}</a></h3>
               <p class="product-summary">${item.summary}</p>
               <div class="feature-list">
                 ${featureLabels.map((label) => `<span>${label}</span>`).join('')}
@@ -172,7 +172,7 @@
               <p class="use-labels">${useLabels.join('・')}</p>
               ${note}
               <div class="product-card-actions">
-                <a class="product-link" href="${item.detailPage}">詳細を見る →</a>
+                <a class="product-link" href="${item.detailPage}" aria-label="${item.name}の製品詳細を見る">詳細を見る →</a>
                 <a class="product-consult-link" href="contact.html?product=${encodeURIComponent(item.name)}">研究用途を相談</a>
               </div>
             </div>
