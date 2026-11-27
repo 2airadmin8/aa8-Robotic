@@ -380,6 +380,8 @@ body:has(.product-page-hero) .research-product-card:is(#unitree-g1-d,#unitree-g1
   margin: 0 !important;
   overflow: visible;
   -webkit-line-clamp: unset;
+  /* MARK-14: long model names and SDK identifiers must wrap in narrow cards. */
+  overflow-wrap: anywhere;
   line-height: 1.6;
 }
 .home-product-grid .product-card-actions {

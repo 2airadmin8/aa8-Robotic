@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "aa8-ui-quality-contract-v1",
+  "ownerIssue": "https://github.com/2airadmin8/aa8-Robotic/issues/200",
+  "type": "CI_MACHINE_CHECKABLE_CONTRACT_NOT_FIGMA_PIXEL_APPROVAL",
+  "authorities": {
+    "designTrace": "docs/governance/hp-design-code-trace-v1.json",
+    "corporateTokens": "ops/brand-preview/figma-product-v33-tokens.json",
+    "motherSite": "ops/brand-preview/mother-site-contract-v1.json",
+    "referenceFigma": "https://www.figma.com/design/uo56l51NgUqit4976LV6P2"
+  },
+  "pageMatrix": [
+    {
+      "path": "index.html",
+      "category": "home",
+      "requireHomeCards": true,
+      "requireMainContactCTA": true
+    },
+    {
+      "path": "products.html",
+      "category": "hub",
+      "requireMainContactCTA": true
+    },
+    {
+      "path": "use-cases.html",
+      "category": "hub"
+    },
+    {
+      "path": "support.html",
+      "category": "hub"
+    },
+    {
+      "path": "cases.html",
+      "category": "hub"
+    },
+    {
+      "path": "resources.html",
+      "category": "hub"
+    },
+    {
+      "path": "faq.html",
+      "category": "hub"
+    },
+    {
+      "path": "contact.html",
+      "category": "hub"
+    },
+    {
+      "path": "products/unitree-g1-d.html",
+      "category": "product",
+      "requireMainContactCTA": true
+    },
+    {
+      "path": "products/agibot-g2.html",
+      "category": "product",
+      "requireMainContactCTA": true
+    },
+    {
+      "path": "products/unitree-g1.html",
+      "category": "product",
+      "requireMainContactCTA": true
+    }
+  ],
+  "mandatoryViewports": [
+    1440,
+    1280,
+    640,
+    390,
+    360
+  ],
+  "rules": [
+    {
+      "id": "QG-01",
+      "name": "document and shared shell",
+      "expected": "exactly one visible main H1, one Corporate header and footer; no runtime errors",
+      "scope": "all"
+    },
+    {
+      "id": "QG-02",
+      "name": "no horizontal overflow",
+      "expected": "document scrollWidth <= viewportWidth+1",
+      "scope": "all"
+    },
+    {
+      "id": "QG-03",
+      "name": "same-origin assets",
+      "expected": "zero HTTP >=400 for same-origin assets and failed image decode",
+      "scope": "all"
+    },
+    {
+      "id": "QG-04",
+      "name": "home white canvas",
+      "expected": "every main direct child section computed background equals Corporate page white token",
+      "scope": "home"
+    },
+    {
+      "id": "QG-05",
+      "name": "home product cards",
+      "expected": "3 cards exactly in documented order; badges within image, manufacturer single-line, no overlapping purpose badges",
+      "scope": "home"
+    },
+    {
+      "id": "QG-06",
+      "name": "home CTA",
+      "expected": "2 hero links visible, >=44px high on SP; correct internal destination and case CTA contrast >=4.5:1",
+      "scope": "home"
+    },
+    {
+      "id": "QG-07",
+      "name": "product inquiry CTA",
+      "expected": "product link to contact form exists; no actual form submit in test",
+      "scope": "product"
+    },
+    {
+      "id": "QG-08",
+      "name": "same-SHA evidence",
+      "expected": "screenshots and report generated from final build after postprocessing; human visual approval separately held",
+      "scope": "all"
+    }
+  ],
+  "makerBadges": {
+    "cardIds": [
+      "unitree-g1-d",
+      "agibot-g2",
+      "unitree-g1"
+    ],
+    "expectedMakers": [
+      "Unitree",
+      "AgiBot",
+      "Unitree"
+    ],
+    "maxOverlapAreaPx2": 0.5
+  },
+  "mobileHeroMinCtaHeightPx": 44,
+  "caseCtaMinContrast": 4.5,
+  "maxHorizontalOverflowPx": 1,
+  "maxAutoRepair": 3,
+  "autoFixPolicy": "OFF_UNLESS_EXISTING_FACTORY_AUTOFIX_ENABLED_AND_UI_AUTOFIX_ENABLED",
+  "protectedApprovals": {
+    "writing": "CEO_APPROVED_ITEM_IDS_REQUIRED",
+    "customerOrMakerFacts": "INDEPENDENT_EVIDENCE_REQUIRED",
+    "manualVisualFigma": "HOLD_UNLESS_SEPARATELY_APPROVED",
+    "production": "CEO_EXACT_SHA_SINGLE_MANUAL_ONLY"
+  },
+  "screenshotEvidence": {
+    "pages": [
+      "index.html",
+      "products.html",
+      "products/unitree-g1.html"
+    ],
+    "viewports": [
+      1440,
+      390
+    ],
+    "retentionDays": 14
+  }
+}

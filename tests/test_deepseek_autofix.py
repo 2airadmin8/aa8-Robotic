@@ -109,12 +109,66 @@ class TestDeepSeekAutofix(unittest.TestCase):
             self.assertEqual(validate_patch(patch_bytes)["files"],
                              ["tests/test_factory_autofix_live_probe.py"])
             self.assertIn("return a+b",target.read_text("utf8"))
+    def test_mock_ui_fail_to_bounded_fix_end_to_end(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            css=root/"assets/css/product-cards-v2.css"
+            css.parent.mkdir(parents=True)
+            css.write_text(".home-product-maker { max-width: 48%; }\n","utf8")
+            def git(*args):
+                return subprocess.check_output(["git","-C",str(root),*args],text=True).strip()
+            git("init","-q")
+            git("config","user.name","isolated-qa")
+            git("config","user.email","qa@example.invalid")
+            git("add","assets/css/product-cards-v2.css")
+            git("commit","-qm","good baseline")
+            base=git("rev-parse","HEAD")
+            css.write_text(".home-product-maker { max-width: 15%; }\n","utf8")
+            git("add","assets/css/product-cards-v2.css")
+            git("commit","-qm","synthetic SP maker wrapping regression")
+            sha=git("rev-parse","HEAD")
+            gate={"state":"RETURN_TO_DEV","release":"HOLD","blocking_gate":"CI",
+                  "pr":500,"head_sha":sha,"scope":{"work_scope":"UI_SHARED"},
+                  "ci_outcomes":{"browser":"failure"}}
+            mocked=json.dumps({"edits":[{
+                "path":"assets/css/product-cards-v2.css",
+                "find":"max-width: 15%;", "replace":"max-width: none; white-space: nowrap;"
+            }]})
+            with patch("deepseek_factory_autofix.request_deepseek",return_value=mocked):
+                out=propose(root,base,gate,"CI_BROWSER_FAIL: real overlapping maker label",
+                            "mock-only-no-api","deepseek-flash",patch_out=root/"repair.patch")
+            self.assertEqual(out["status"],"PROPOSED_FOR_INDEPENDENT_QA")
+            result=validate_patch((root/"repair.patch").read_bytes(),scope="UI_SHARED")
+            self.assertEqual(result["scope"],"UI_SHARED")
+            self.assertEqual(result["files"],["assets/css/product-cards-v2.css"])
+            self.assertIn("white-space: nowrap",css.read_text("utf8"))
+            self.assertEqual(out["release"],"HOLD")
+            with patch("deepseek_factory_autofix.request_deepseek",return_value=json.dumps({
+                "edits":[{"path":"assets/js/seo.js","find":"x","replace":"y"}]})):
+                with self.assertRaisesRegex(ValueError,"unlisted|no bounded edit"):
+                    propose(root,base,gate,"CI_BROWSER_FAIL: real overlapping maker label",
+                            "mock-only-no-api","deepseek-flash")
     def test_no_deepseek_key_fails_closed(self):
         with self.assertRaises(ValueError):
             request_deepseek([],"","deepseek-v4-pro")
     def test_guard_denies_editing_own_engine(self):
         with self.assertRaises(ValueError):
             validate_path("scripts/deepseek_factory_autofix.py")
+    def test_ui_deepseek_receives_only_safe_changed_components(self):
+        class R:
+            returncode=0
+            stdout=("assets/css/product-cards-v2.css\n"
+                    "assets/js/seo.js\n"
+                    "tests/hub-pages-visual.spec.js\n"
+                    "data/case-evidence.json\n")
+        with patch("subprocess.run",return_value=R()), patch.object(Path,"is_file",return_value=True):
+            result=get_changed_files(ROOT,"f"*40,scope="UI_SHARED")
+            self.assertEqual(result,["assets/css/product-cards-v2.css"])
+            self.assertNotIn("data/case-evidence.json",result)
+        with patch("subprocess.run",return_value=R()), patch.object(Path,"is_file",return_value=True):
+            result=get_changed_files(ROOT,"f"*40,scope="PRODUCT")
+            self.assertIn("assets/js/seo.js",result)
     def test_many_changed_files_need_a_specific_failing_filename(self):
         from unittest.mock import patch
         class R:

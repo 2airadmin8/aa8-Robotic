@@ -16,7 +16,8 @@ import sys
 import urllib.error
 import urllib.request
 
-from factory_autofix_policy import MAX_FILES, MAX_PATCH_BYTES, validate_patch, validate_path
+from factory_autofix_policy import (MAX_FILES, MAX_PATCH_BYTES, UI_AUTOFIX_FILES,
+                                    UI_SCOPES, validate_patch, validate_path)
 
 ENDPOINT = "https://api.deepseek.com/chat/completions"
 ALLOWED_MODELS = {"deepseek-v4-pro", "deepseek-flash"}
@@ -35,7 +36,7 @@ def require(condition: bool, message: str) -> None:
 def clean_failure(text: str) -> str:
     return REDACT.sub("[REDACTED]", text)[-MAX_LOG_CHARACTERS:]
 
-def get_changed_files(root: Path, base_sha: str) -> list[str]:
+def get_changed_files(root: Path, base_sha: str, scope: str | None = None) -> list[str]:
     require(re.fullmatch("[0-9a-f]{40}", base_sha) is not None, "Invalid base SHA")
     result = subprocess.run(
         ["git", "diff", "--name-only", base_sha, "HEAD"],
@@ -47,6 +48,8 @@ def get_changed_files(root: Path, base_sha: str) -> list[str]:
     for path in filenames:
         try:
             validate_path(path)
+            if scope in UI_SCOPES and path not in UI_AUTOFIX_FILES:
+                continue
             if (root / path).is_file():
                 allow.append(path)
         except ValueError:
@@ -165,7 +168,8 @@ def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model
     previous = os.environ.get("AA8_AUTOFIX_FAILURE_LOG")
     try:
         os.environ["AA8_AUTOFIX_FAILURE_LOG"] = failure
-        files = get_changed_files(root, base_sha)
+        scope = (gate.get("scope") or {}).get("work_scope")
+        files = get_changed_files(root, base_sha, scope=scope)
     finally:
         if previous is None:
             os.environ.pop("AA8_AUTOFIX_FAILURE_LOG", None)
@@ -184,7 +188,7 @@ def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model
     prompt = json.dumps(
         {"task": "Correct the independently reproduced CI test failure",
          "gate": {"pr":gate.get("pr"), "sha":gate.get("head_sha"),
-                  "outcomes":gate.get("ci_outcomes")},
+                  "outcomes":gate.get("ci_outcomes"), "work_scope":scope},
          "failure_log": clean_failure(failure),
          "allowed_files": source},
         ensure_ascii=False
@@ -198,7 +202,7 @@ def propose(root: Path, base_sha: str, gate: dict, failure: str, key: str, model
     diff = subprocess.run(["git", "diff", "--binary", "HEAD", "--", *changed],
                           cwd=root, capture_output=True, check=False, timeout=15)
     require(diff.returncode == 0, "Cannot form generated patch")
-    guard = validate_patch(diff.stdout)
+    guard = validate_patch(diff.stdout, scope=scope)
     require(sorted(guard["files"]) == changed, "Diff files differ from DeepSeek edits")
     if patch_out is not None:
         # Single SSOT: exact diff validated during AI generation is persisted

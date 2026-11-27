@@ -99,7 +99,8 @@
         "tests/hp-shared-governance.spec.js",
         "tests/test_shared_css_owner_delta.py",
         "tests/test_corporate_brand_v1_candidate.py",
-        "tests/hub-pages-visual.spec.js"
+        "tests/hub-pages-visual.spec.js",
+        "tests/ui-quality-contract.spec.js"
       ]
     },
     {
@@ -174,14 +175,24 @@
         ".github/workflows/ci.yml",
         "scripts/factory_feedback_preview.py",
         "scripts/verify_preview_bundle.py",
-        "scripts/preview_postdeploy_bridge.py"
+        "scripts/preview_postdeploy_bridge.py",
+        "scripts/factory_gate_router.py",
+        "scripts/factory_autofix_policy.py",
+        "scripts/deepseek_factory_autofix.py",
+        "docs/governance/hp-ui-quality-contract-v1.json"
       ],
       "tests": [
         "tests/test_hp_governance_quality_gate.py",
         "tests/test_hp_governance_policy.py",
         "tests/test_factory_feedback_preview.py",
         "tests/test_preview_bundle_universal.py",
-        "tests/test_preview_postdeploy_bridge.py"
+        "tests/test_preview_postdeploy_bridge.py",
+        "tests/test_factory_gate_router.py",
+        "tests/test_factory_autofix_policy.py",
+        "tests/test_deepseek_autofix.py",
+        "tests/test_factory_autofix_workflow.py",
+        "tests/ui-quality-contract.spec.js",
+        "tests/test_hp_ui_quality_contract.py"
       ]
     }
   ],

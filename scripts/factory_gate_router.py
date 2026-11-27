@@ -12,6 +12,26 @@ ROOT = Path(__file__).resolve().parents[1]
 STEPS = ("regression", "build", "browser", "release", "source_clean")
 OUTCOMES = {"success", "failure", "cancelled", "skipped", "unknown"}
 
+# Home/Corporate shared UI belongs to the EXISTING Factory gate, not a new
+# product SKU or a parallel runner. Explicit paths only: unknown changes stay
+# NO_PRODUCT_SCOPE, and Product Master changes remain INPUT_REQUIRED.
+HOME_PAGE_PATHS = frozenset({
+    "index.html",
+    "assets/css/home-hero.css",
+    "assets/css/hero-lineup.css",
+    "assets/img/robot-category-lineup.svg",
+    "tests/hub-pages-visual.spec.js",
+})
+SHARED_UI_PATHS = frozenset({
+    "assets/css/product-cards-v2.css",
+    "assets/js/product-cards-v2.js",
+    "assets/css/main-site-experience.css",
+    "assets/js/seo.js",
+    "assets/css/corporate-header.css",
+    "tests/ui-quality-contract.spec.js",
+})
+
+
 def check(expr, msg):
     if not expr:
         raise ValueError(msg)
@@ -27,12 +47,21 @@ def discover(root, paths):
         check(obj.get("pageFactory", {}).get("releaseReady") is False, "Unsafe pilot releaseReady")
         pilots[pid] = (obj, file.relative_to(root).as_posix())
     found, ambiguous, global_change = set(), [], False
+    home_change, shared_ui_change = False, False
     for filename in paths:
         check(not filename.startswith("/") and "\\" not in filename and ".." not in Path(filename).parts,
               "Invalid changed path")
         if filename == "data/products.json":
             ambiguous.append(filename)
-        if filename in {"scripts/product_factory.py", "scripts/product_page_standard_v31.py",
+        home_change = home_change or filename in HOME_PAGE_PATHS
+        shared_ui_change = shared_ui_change or filename in SHARED_UI_PATHS
+        if filename in {"includes/site-header.html", "includes/site-footer.html",
+                        "assets/js/mobile-qa.js",
+                        "docs/governance/hp-ui-quality-contract-v1.json",
+                        "scripts/factory_gate_router.py",
+                        "scripts/factory_autofix_policy.py",
+                        "scripts/deepseek_factory_autofix.py",
+                        "scripts/product_factory.py", "scripts/product_page_standard_v31.py",
                         "scripts/templates/g1_factory_v1.html",
                         "assets/css/site.css", "assets/css/shared-layout.css",
                         "assets/css/g1-product.css", "assets/css/g1-factory-v1.css",
@@ -49,9 +78,37 @@ def discover(root, paths):
                 found.add(pid)
     # Shared Factory/source/template changes are GLOBAL, even when the same
     # PR also carries one A2 fixture. The previous label falsely said PRODUCT.
-    scope = ("GLOBAL_FACTORY" if global_change else
+    scope = ("INPUT_REQUIRED" if ambiguous else
+             "GLOBAL_FACTORY" if global_change else
+             "UI_SHARED" if shared_ui_change else
              "MULTI_PRODUCT" if len(found) > 1 else "PRODUCT" if found else
-             "INPUT_REQUIRED" if ambiguous else "NO_PRODUCT_SCOPE")
+             "HOME_PAGE" if home_change else
+             "NO_PRODUCT_SCOPE")
+    # G0 impact analysis is run BEFORE a repair can be proposed.
+    # Shared CSS/header/footer changes fan out across EVERY public Product
+    # Master page, not merely the one from a CEO screenshot.
+    contract_file = root / "docs/governance/hp-ui-quality-contract-v1.json"
+    if scope in ("UI_SHARED", "HOME_PAGE", "GLOBAL_FACTORY"):
+        check(contract_file.is_file(), "UI_QUALITY_CONTRACT_MISSING")
+        quality = json.loads(contract_file.read_text(encoding="utf8"))
+        check(quality.get("schemaVersion") == "aa8-ui-quality-contract-v1",
+              "UI_QUALITY_CONTRACT_INVALID")
+        check(len(quality.get("pageMatrix", [])) >= 10 and quality.get("rules"),
+              "UI_QUALITY_RULES_INCOMPLETE")
+        hubs = [item["path"] for item in quality["pageMatrix"]]
+        if scope == "HOME_PAGE":
+            affected_pages = ["index.html", "products.html"]
+        else:
+            affected_pages = list(dict.fromkeys(
+                hubs + [p["detailPage"] for p in official.values()
+                        if p.get("detailPage")]))
+        quality_rule_ids = [row["id"] for row in quality["rules"]]
+    else:
+        affected_pages = (["products.html"] + [
+            official[x]["detailPage"] for x in sorted(found)
+            if x in official and official[x].get("detailPage")
+        ]) if found else []
+        quality_rule_ids = []
     facts = {}
     for pid, (obj, fixture) in pilots.items():
         if pid not in found:
@@ -83,7 +140,12 @@ def discover(root, paths):
     return {"ids": sorted(found), "global_factory_change": global_change,
             "ambiguous": ambiguous, "master_count": len(official), "fixture_count": len(pilots),
             "work_scope": scope, "pilot_fact_quality": facts,
-            "all_13_public_product_regression_required": global_change}
+            "quality_contract": "docs/governance/hp-ui-quality-contract-v1.json",
+            "quality_rule_ids": quality_rule_ids,
+            "affected_pages": affected_pages,
+            "affected_page_count": len(affected_pages),
+            "home_ui_regression_required": home_change or shared_ui_change,
+            "all_13_public_product_regression_required": global_change or shared_ui_change}
 
 def route(pr, sha, outcomes, scope, at):
     check(isinstance(pr, int) and pr > 0, "Invalid PR number")
@@ -104,6 +166,12 @@ def route(pr, sha, outcomes, scope, at):
     elif scope["ambiguous"]:
         state, gate, owner, action = ("INPUT_REQUIRED", "G0", "Product Master owner",
                                      "Determine specific changed ProductIDs; cannot infer from Master diff alone")
+    elif scope["work_scope"] in ("HOME_PAGE", "UI_SHARED"):
+        state, gate, owner, action = (
+            "WAIT_UI_INDEPENDENT_QA", "G2",
+            "AA8-N-015 independent QA workstation",
+            "Check real final-artifact home PC1440/1280 SP640/390/360, "
+            "all card bounding boxes, screenshots and links at exact HEAD")
     elif scope["global_factory_change"]:
         state, gate, owner, action = ("WAIT_FACTORY_QA", "G4", "AA8-N-015 independent QA workstation",
                                      "Inspect all 13 Master products and cross-product regressions on exact HEAD")
@@ -231,6 +299,9 @@ def summary(data):
         "",
         "PR: #" + str(data["pr"]) + " | exact SHA: " + data["head_sha"],
         "Scope: " + data["scope"]["work_scope"] + " | Products: " + ", ".join(data["scope"]["ids"]),
+        "Pre-repair impact: " + str(data["scope"].get("affected_page_count", 0))
+            + " pages | QG rules: " + ",".join(data["scope"].get("quality_rule_ids", [])),
+        "Affected pages: " + ", ".join(data["scope"].get("affected_pages", [])),
         "State: " + data["state"] + " | Blocking: " + data["blocking_gate"],
         "Next owner: " + data["next_owner"],
         "Next: " + data["next_action"],

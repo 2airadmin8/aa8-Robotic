@@ -229,6 +229,10 @@ main > section:nth-of-type(3) {
   box-shadow: 0 16px 44px rgba(11, 49, 67, 0.08);
 }
 
+.resource-card[hidden] {
+  display: none;
+}
+
 .resource-card-topline {
   display: flex;
   justify-content: space-between;

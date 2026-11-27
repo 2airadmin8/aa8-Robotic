@@ -12,11 +12,24 @@ BRANCH_RE=re.compile(r"^(?:feat|fix|draft|chore)/[a-zA-Z0-9._/-]+$")
 TRAILER_RE=re.compile(r"(?im)^AA8-AUTOFIX-ATTEMPT:\s*(\d+)\s*$")
 DIFF_RE=re.compile(r"^diff --git a/([a-zA-Z0-9_./-]+) b/([a-zA-Z0-9_./-]+)$")
 MAX_ATTEMPTS=3
+# UI auto repair pilot is CSS-only; test/JS edits cannot be used to silence
+# failing assertions or alter facts. JS needs a separate human-reviewed PR.
+UI_SCOPES = frozenset({"HOME_PAGE", "UI_SHARED"})
+UI_AUTOFIX_FILES = frozenset({
+    "assets/css/home-hero.css",
+    "assets/css/hero-lineup.css",
+    "assets/css/product-cards-v2.css",
+    "assets/css/main-site-experience.css",
+})
+
 MAX_FILES=8
 MAX_LINES=300
 MAX_PATCH_BYTES=120000
 PREFIXES=("scripts/","tests/","products/","assets/css/","assets/js/")
-PROTECTED=("scripts/factory_autofix_policy.py","scripts/deepseek_factory_autofix.py",".github/","data/","secrets/","assets/js/analytics-events.js")
+PROTECTED=("scripts/factory_autofix_policy.py","scripts/deepseek_factory_autofix.py",
+           "scripts/factory_gate_router.py","scripts/hp_governance_quality_gate.py",
+           "scripts/preview_postdeploy_bridge.py","scripts/factory_feedback_rework.py",
+           ".github/","data/","secrets/","assets/js/analytics-events.js")
 SUFFIXES=(".py",".js",".css",".html",".json",".md",".txt")
 def check(condition:bool,message:str):
     if not condition: raise ValueError(message)
@@ -35,14 +48,15 @@ def preflight(*,pr:int,sha:str,branch:str,actor:str,scope:str,history:str,repo:s
     check(bool(BRANCH_RE.fullmatch(branch)) and ".." not in branch and "//" not in branch,
           "Non-feature or unsafe branch")
     check(actor in {"2airadmin8","PAI-airadmin8","github-actions[bot]"},"Untrusted actor")
-    check(scope in {"PRODUCT","MULTI_PRODUCT","GLOBAL_FACTORY"},"No eligible Factory scope")
+    check(scope in {"PRODUCT","MULTI_PRODUCT","GLOBAL_FACTORY"} | UI_SCOPES,"No eligible Factory scope")
     count=attempt_count(history)
     check(count < MAX_ATTEMPTS, "Repair attempt limit reached")
     return {"schema_version":"factory-ai-autofix-preflight-v1",
             "pr":pr,"head_sha":sha,"branch":branch,"actor":actor,
             "attempt":count+1,"max_attempts":MAX_ATTEMPTS,
             "status":"READY_TO_PROPOSE_NOT_AUTHORIZED_TO_MERGE",
-            "release":"HOLD","allowed_paths":list(PREFIXES),
+            "release":"HOLD","scope":scope,
+            "allowed_paths":sorted(UI_AUTOFIX_FILES) if scope in UI_SCOPES else list(PREFIXES),
             "prohibited":"workflow/main/master/production/CRM writes"}
 
 def validate_path(path:str)->None:
@@ -54,7 +68,10 @@ def validate_path(path:str)->None:
     check(not any(path.startswith(prefix) for prefix in PROTECTED),"Protected file changed")
     check(path.endswith(SUFFIXES),"Binary/non-source extension rejected")
 
-def validate_patch(raw:bytes)->dict:
+def validate_patch(raw:bytes, *, scope:str|None=None)->dict:
+    if scope is not None:
+        check(scope in {"PRODUCT", "MULTI_PRODUCT", "GLOBAL_FACTORY"} | UI_SCOPES,
+              "Unexpected patch scope")
     check(0<len(raw)<=MAX_PATCH_BYTES,"Empty or excessive patch")
     text=raw.decode("utf-8","strict")
     check(not any(x in text for x in ["GIT binary patch","Binary files ","rename from ","rename to ","deleted file mode","old mode ","new mode ","Submodule "]),"Binary/rename/delete/mode change forbidden")
@@ -65,6 +82,8 @@ def validate_patch(raw:bytes)->dict:
             check(m is not None and m.group(1)==m.group(2),"Diff path mismatch")
             current=m.group(1)
             validate_path(current)
+            if scope in UI_SCOPES:
+                check(current in UI_AUTOFIX_FILES, "UI repair outside the exact safe component allowlist")
             changed.append(current)
         elif line.startswith("--- "):
             check(current is not None, "Source header without diff")
@@ -85,7 +104,8 @@ def validate_patch(raw:bytes)->dict:
     check(changed and len(set(changed))==len(changed) and len(changed)<=MAX_FILES,"Invalid file count")
     check(plus+minus<=MAX_LINES,"Excessive patch lines")
     return {"schema_version":"factory-ai-autofix-patch-v1","status":"PATCH_ACCEPTED_FOR_ISOLATED_TEST",
-            "files":changed,"added":plus,"deleted":minus,"merge":False,"release":"HOLD"}
+            "files":changed,"added":plus,"deleted":minus,
+            "scope":scope or "EXISTING_PRODUCT", "merge":False,"release":"HOLD"}
 
 def main():
     p=argparse.ArgumentParser()
@@ -98,6 +118,7 @@ def main():
     a.add_argument("--out",type=Path,required=True)
     b=sub.add_parser("patch-check")
     b.add_argument("--patch",type=Path,required=True)
+    b.add_argument("--scope",required=False)
     b.add_argument("--out",type=Path,required=True)
     args=p.parse_args()
     try:
@@ -105,7 +126,7 @@ def main():
             obj=preflight(pr=args.pr,sha=args.sha,branch=args.branch,actor=args.actor,
                           scope=args.scope,repo=args.repo,history=args.history_file.read_text("utf8"))
         else:
-            obj=validate_patch(args.patch.read_bytes())
+            obj=validate_patch(args.patch.read_bytes(),scope=args.scope)
         args.out.parent.mkdir(parents=True,exist_ok=True)
         args.out.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n",encoding="utf8")
         print(json.dumps({"status":obj["status"],"release":"HOLD"}))

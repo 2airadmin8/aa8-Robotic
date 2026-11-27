@@ -208,8 +208,56 @@ for (const width of [1440, 1280, 390, 360]) {
     await expect(cards).toHaveCount(3);
     await expect(page.locator('.hero-trust-note')).toHaveCount(0);
     await expect(page.locator('.home-process article')).toHaveCount(4);
-    await expect(page.locator('.category-lineup figcaption a')).toHaveCount(3);
-    await expect(page.locator('.g1d-detail-entry')).toHaveCount(1);
+    // MARK-02–04: each category must retain its own filter and anchor.
+    const categoryLinks = page.locator('.category-lineup figcaption a');
+    await expect(categoryLinks).toHaveCount(3);
+    for (const [index, filter] of ['humanoid', 'quadruped', 'arm'].entries()) {
+      const link = categoryLinks.nth(index);
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute('href', 'products.html?filter=' + filter + '#lineup');
+    }
+    // MARK-05/06/23/25/30/31: preserve the approved redline resolution.
+    // Update expectations together with any separately approved future copy.
+    const sectionHeading = marker => page.locator('main .section-heading').filter({
+      has: page.getByText(marker, {exact: true})
+    });
+    for (const [marker, text] of [
+      ['IMPLEMENTATION PROCESS', 'AIロボット導入までの流れ'],
+      ['ROBOT COMPARISON', 'AIロボットの代表製品'],
+      ['SUPPORT MENU', '選定から運用までの導入支援'],
+      ['CASE & EVIDENCE', 'AIロボット導入支援の実績'],
+      ['TECHNICAL RESOURCES', 'SDK・ROS・VLAの技術資料'],
+      ['FAQ', 'よくある質問']
+    ]) {
+      const title = sectionHeading(marker).getByRole('heading', {level: 2});
+      await expect(title).toBeVisible();
+      await expect(title).toHaveText(text);
+    }
+    // MARK-24: no redundant heading link, and all three distinct service links remain.
+    const supportHeading = sectionHeading('SUPPORT MENU');
+    await expect(supportHeading.locator('a')).toHaveCount(0);
+    const supportSection = supportHeading.locator('xpath=ancestor::section[1]');
+    await expect(supportSection.locator('a')).toHaveCount(3);
+    const serviceLinks = supportSection.locator('a.service-card');
+    await expect(serviceLinks).toHaveCount(3);
+    for (const [index, path] of [
+      'support/university-procurement.html', 'support.html#poc', 'use-cases/vla-data-collection.html'
+    ].entries()) {
+      await expect(serviceLinks.nth(index)).toHaveAttribute('href', path);
+    }
+    // MARK-07: the featured G1-D entry must be one visible, working detail link.
+    const feature = page.locator('.g1d-detail-entry');
+    await expect(feature).toHaveCount(1);
+    const featureLink = page.locator('a.g1d-detail-entry, .g1d-detail-entry a');
+    await expect(featureLink).toBeVisible();
+    await expect(featureLink).toHaveAttribute('href', 'products/unitree-g1-d.html');
+    // MARK-15: exactly one visible G1 summary and no repeated sentence inside it.
+    const g1Summary = page.locator('.home-product-grid #unitree-g1 .product-summary');
+    await expect(g1Summary).toHaveCount(1);
+    await expect(g1Summary).toBeVisible();
+    const g1Sentences = (await g1Summary.innerText()).split('。').map(s => s.trim()).filter(Boolean);
+    expect(g1Sentences.length).toBeGreaterThan(0);
+    expect(new Set(g1Sentences).size).toBe(g1Sentences.length);
     await expect(page.locator('.case-feature .text-link')).toBeVisible();
     const details=await page.evaluate(()=>{
       const cards=[...document.querySelectorAll('.home-product-grid .research-product-card')];
@@ -237,7 +285,13 @@ for (const width of [1440, 1280, 390, 360]) {
         }),
         bodyMakerHidden:cards.every(x=>getComputedStyle(x.querySelector('.product-maker')).display==='none'),
         noCategoryDuplicate:cards.every(x=>!x.querySelector('.product-category-label')),
-        introAllVisible:cards.every(x=>getComputedStyle(x.querySelector('.product-summary')).overflow==='visible'),
+        introAllVisible:cards.every(x=>{
+          const summary=x.querySelector('.product-summary');
+          const style=getComputedStyle(summary);
+          return style.overflow==='visible' && style.webkitLineClamp==='none'
+            && summary.scrollWidth<=summary.clientWidth+1
+            && summary.scrollHeight<=summary.clientHeight+1;
+        }),
         caseContrast:contrast,
         caseUrl:cta.getAttribute('href'),
         categoryAllInViewport:links.every(x=>{const r=x.getBoundingClientRect();return r.width>0&&r.left>=0&&r.right<=innerWidth+1;}),
@@ -261,6 +315,224 @@ for (const width of [1440, 1280, 390, 360]) {
     expect(details.caseUrl).toBe('cases/keio-selection.html');
     expect(details.categoryAllInViewport).toBe(true);
     expect(details.overflow).toBeLessThanOrEqual(1);
+  });
+}
+
+for (const width of [360, 390]) {
+  test('HOME #200 MARK-14 long model and SDK tokens wrap / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    const response=await page.goto(base+'/index.html');
+    expect(response.status()).toBe(200);
+    const summaries=page.locator('.home-product-grid .research-product-card .product-summary');
+    await expect(summaries).toHaveCount(3);
+    const results=await summaries.evaluateAll(elements=>{
+      const tokens=[
+        'AA8ModelIdentifier'.repeat(6),
+        'SDK_API_BINDING_'.repeat(7),
+        'ROBOTICS_CONTROLLER_INTERFACE_'.repeat(4)
+      ];
+      function measure(summary) {
+        const range=document.createRange();
+        range.selectNodeContents(summary);
+        const rects=[...range.getClientRects()];
+        const box=summary.getBoundingClientRect();
+        const card=summary.closest('.research-product-card').getBoundingClientRect();
+        const style=getComputedStyle(summary);
+        return {
+          card:summary.closest('.research-product-card').id,
+          lines:rects.length,
+          excess:Math.max(0,...rects.map(r=>Math.max(box.left-r.left,r.right-box.right,card.left-r.left,r.right-card.right))),
+          bottomExcess:Math.max(0,...rects.map(r=>r.bottom-box.bottom)),
+          widthOverflow:summary.scrollWidth-summary.clientWidth,
+          heightOverflow:summary.scrollHeight-summary.clientHeight,
+          clamped:style.webkitLineClamp!=='none'
+        };
+      }
+      const original=elements.map((e,i)=>{
+        e.textContent=tokens[i];
+        return measure(e);
+      });
+      // Negative control: remove just the protective CSS rule in this browser page.
+      const broken=elements.map(e=>{
+        e.style.setProperty('overflow-wrap','normal','important');
+        return measure(e);
+      });
+      return {original,broken};
+    });
+    for (const result of results.original) {
+      expect(result.lines,result.card+' must wrap').toBeGreaterThan(1);
+      expect(result.excess,result.card+' scrolls beyond the card/summary').toBeLessThanOrEqual(1);
+      expect(result.widthOverflow,result.card+' summary overflows horizontally').toBeLessThanOrEqual(1);
+      expect(result.heightOverflow,result.card+' summary is clipped vertically').toBeLessThanOrEqual(1);
+      expect(result.bottomExcess,result.card+' last line is clipped').toBeLessThanOrEqual(1);
+      expect(result.clamped,result.card+' summary is line-clamped').toBe(false);
+    }
+    for (const result of results.broken) {
+      expect(result.excess,result.card+' negative control should detect overflow').toBeGreaterThan(1);
+    }
+  });
+}
+
+// MARK-02–04: correct href alone is insufficient if the receiving page ignores the filter.
+test('HOME #200 category links apply the destination filter / 390', async ({page}) => {
+  await page.setViewportSize({width:390,height:900});
+  for (const [index, filter, productId] of [
+    [0, 'humanoid', 'unitree-g1'],
+    [1, 'quadruped', 'unitree-go2-edu'],
+    [2, 'arm', 'tianji-marvin']
+  ]) {
+    const home = await page.goto(base+'/index.html');
+    expect(home.status()).toBe(200);
+    await page.locator('.category-lineup figcaption a').nth(index).click();
+    await expect(page).toHaveURL(base+'/products.html?filter='+filter+'#lineup');
+    await expect(page.locator('#lineup [data-product-filter="'+filter+'"]')).toHaveClass(/\bis-active\b/);
+    await expect(page.locator('#lineup [data-product-list] #'+productId)).toBeVisible();
+    const otherProduct = filter === 'humanoid' ? 'unitree-go2-edu' : 'unitree-g1';
+    await expect(page.locator('#lineup [data-product-list] #'+otherProduct)).toBeHidden();
+  }
+});
+
+
+
+// Keep one sequential detail stop per card. The picture and heading remain
+// native links, while the catalog's compare and consultation stay keyboard reachable.
+for (const width of [1440,390,360]) {
+  test('product cards have one keyboard detail stop / '+width, async ({page}) => {
+    await page.setViewportSize({width,height:900});
+    for (const isCatalog of [false,true]) {
+      const here = isCatalog ? 'products.html' : 'index.html';
+      await page.goto(base+'/'+here);
+      const grid = page.locator(isCatalog ? '.product-lineup-grid' : '.home-product-grid');
+      const cards = grid.locator('.research-product-card:visible');
+      await expect(cards.first()).toHaveAttribute('data-product-order',/^\d+$/);
+      if (isCatalog) await expect(cards.first().locator('[data-compare-checkbox]')).toBeVisible();
+      else await expect(cards).toHaveCount(3);
+      // Start exactly before the unchanged production grid; every subsequent
+      // move uses the actual browser keyboard order, not programmatic focus.
+      await grid.evaluate(root=>{
+        for (const [id,position] of [['qa-before-product-grid','beforebegin'],['qa-after-product-grid','afterend']]) {
+          const marker=document.createElement('button');
+          marker.id=id;
+          marker.type='button';
+          marker.textContent=id;
+          root.insertAdjacentElement(position,marker);
+        }
+      });
+      await page.locator('#qa-before-product-grid').focus();
+      let finalHref, finalModel;
+      for (const card of await cards.all()) {
+        const model=(await card.locator('h3').innerText()).trim();
+        const detail=card.locator('.product-link');
+        const href=await detail.getAttribute('href');
+        const consult=card.locator('.product-consult-link');
+        await expect(card.locator('a.product-visual')).toHaveAttribute('href',href);
+        await expect(card.locator('h3 a')).toHaveAttribute('href',href);
+        if (isCatalog) {
+          await page.keyboard.press('Tab');
+          // On narrow screens Chromium may focus the horizontally scrollable chips.
+          if (await card.locator('.feature-list:focus').count()) await page.keyboard.press('Tab');
+          await expect(card.locator('[data-compare-checkbox]')).toBeFocused();
+        }
+        await page.keyboard.press('Tab');
+        await expect(detail).toBeFocused();
+        await expect.poll(()=>detail.evaluate(el=>el.matches(':focus-visible'))).toBe(true);
+        await expect(detail).toHaveAccessibleName(model+'の製品詳細を見る');
+        if (isCatalog) {
+          await page.keyboard.press('Tab');
+          await expect(consult).toBeFocused();
+          finalHref=await consult.getAttribute('href');
+          finalModel=model;
+        } else finalHref=href;
+      }
+      await page.keyboard.press('Tab');
+      await expect(page.locator('#qa-after-product-grid')).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(url=>{
+        const expected=new URL(finalHref,base+'/');
+        return url.pathname===expected.pathname && url.searchParams.get('product')===expected.searchParams.get('product');
+      });
+      if (isCatalog) await expect(page.locator('input[name="product"]')).toHaveValue(finalModel);
+      else if (width===390) {
+        for (const selector of ['a.product-visual','h3 a']) {
+          await page.goto(base+'/index.html');
+          const link=page.locator('.home-product-grid .research-product-card').first().locator(selector);
+          await expect(link).toBeVisible();
+          const target=await link.getAttribute('href');
+          await link.click();
+          await expect(page).toHaveURL(base+'/'+target);
+        }
+      }
+    }
+  });
+}
+
+
+test.describe('HOME cards in the delivered HTML without JavaScript', () => {
+  test.use({javaScriptEnabled:false});
+  for (const width of [1440,390,360]) {
+    test('homepage product details are usable without JavaScript / '+width, async ({page}) => {
+      await page.setViewportSize({width,height:900});
+      const html=await page.goto(base+'/index.html');
+      expect(html.ok()).toBe(true);
+      const grid=page.locator('.home-product-grid');
+      await expect(grid).toHaveAttribute('data-prerendered-products','true');
+      const cards=grid.locator('.research-product-card');
+      await expect(cards).toHaveCount(3);
+      const models=[
+        ['Unitree G1-D','Unitree','products/unitree-g1-d.html'],
+        ['AgiBot G2','AgiBot','products/agibot-g2.html'],
+        ['Unitree G1','Unitree','products/unitree-g1.html']
+      ];
+      for (const [i,[name,maker,href]] of models.entries()) {
+        const card=cards.nth(i);
+        await expect(card.getByRole('heading',{name})).toBeVisible();
+        await expect(card.locator('.home-product-maker')).toHaveText(maker);
+        await expect(card.locator('.home-product-maker')).toBeVisible();
+        await expect(card.locator('.product-summary')).toBeVisible();
+        await expect(card.locator('.product-summary')).not.toBeEmpty();
+        const image=card.locator('img');
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(()=>image.evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
+        await expect(card.locator('.product-link')).toHaveAttribute('href',href);
+      }
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+      await cards.first().getByRole('link',{name:'Unitree G1-Dの製品詳細を見る'}).click();
+      await expect(page).toHaveURL(base+'/products/unitree-g1-d.html');
+    });
+  }
+});
+
+// HOME: an official GitHub entry must resolve to verified-source direct links,
+// not merely an HTTP 200 or a manufacturer download landing page.
+for (const {width,height} of sizes) {
+  test('HOME catches official GitHub routing regression / '+width, async ({page}) => {
+    await page.setViewportSize({width,height});
+    const result = await page.request.get(base+'/data/resources.json');
+    expect(result.ok()).toBe(true);
+    const {resources} = await result.json();
+    const valid = resources.filter(({sourceLabel,url}) => {
+      if (sourceLabel !== '公式GitHub' || !url) return false;
+      const target = new URL(url);
+      return target.protocol === 'https:' && target.hostname === 'github.com';
+    });
+    const expected = valid.map(x=>x.url).sort();
+    expect(expected.length).toBeGreaterThan(0);
+    expect(valid.some(x=>x.id==='unitree-ros2')).toBe(true);
+    await page.goto(base+'/index.html');
+    const entry = page.locator('.resource-list a').filter({hasText:/^\s*公式GitHub\s*$/});
+    await expect(entry).toHaveCount(1);
+    await entry.click();
+    await expect(page).toHaveURL(base+'/resources.html?type=github#resource-search');
+    await expect(page.locator('select[name="type"]')).toHaveValue('github');
+    await expect(page.locator('[data-resource-count]')).toHaveText(String(expected.length));
+    const visible = page.locator('.resource-card:visible a.resource-open-link');
+    await expect(visible).toHaveCount(expected.length);
+    expect((await visible.evaluateAll(links=>links.map(link=>link.href))).sort()).toEqual(expected);
+
+    // The previously published bookmark should still surface direct repositories.
+    await page.goto(base+'/resources.html?keyword=GitHub#resource-search');
+    await expect(page.locator('.resource-card:visible a[href="https://github.com/unitreerobotics/unitree_ros2"]')).toBeVisible();
   });
 }
 

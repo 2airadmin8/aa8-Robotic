@@ -16,12 +16,14 @@
   document.querySelectorAll('[data-product-list]').forEach((root) => {
     const enhance = () => {
       const isHomeGrid = root.classList.contains('home-product-grid');
+      const featured = (root.dataset.featuredProducts || '').trim().split(/\s+/).filter(Boolean);
+      const homeOrder = new Map(featured.map((id, index) => [id, index + 1]));
       const cards = [...root.querySelectorAll('.research-product-card')];
       if (!cards.length) return false;
 
       cards.forEach((card) => {
         const config = priorityMap[card.id] || { order: 99, label: '比較対象' };
-        card.dataset.productOrder = String(config.order);
+        card.dataset.productOrder = String(isHomeGrid ? (homeOrder.get(card.id) ?? config.order) : config.order);
 
         if (!card.querySelector('.product-priority-ribbon')) {
           const ribbon = document.createElement('span');

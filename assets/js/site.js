@@ -136,7 +136,11 @@
       const limit = Number(root.dataset.limit || 0);
       const excluded = new Set((root.dataset.excludeProducts || '').split(/\s+/).filter(Boolean));
       const products = data.products.filter((item) => item.visibility === 'public' && !excluded.has(item.id));
-      const visibleProducts = limit > 0 ? products.slice(0, limit) : products;
+      const featured = (root.dataset.featuredProducts || '').trim().split(/\s+/).filter(Boolean);
+      const publicById = new Map(products.map((item) => [item.id, item]));
+      const visibleProducts = featured.length
+        ? featured.map((id) => publicById.get(id)).filter(Boolean)
+        : limit > 0 ? products.slice(0, limit) : products;
 
       root.innerHTML = visibleProducts.map((item) => {
         const filterGroups = (item.filterGroups || [item.categoryId]).join(' ');
@@ -151,7 +155,7 @@
 
         return `
           <article id="${item.id}" class="product-card research-product-card" data-product-groups="${filterGroups}" data-product-maker="${item.manufacturerId}">
-            <a class="product-visual" href="${item.detailPage}" aria-label="${item.name}の詳細を見る">
+            <a class="product-visual" href="${item.detailPage}" tabindex="-1" aria-label="${item.name}の詳細を見る">
               <img src="${item.image}" alt="${item.imageAlt || `${item.name}の製品イメージ`}" loading="lazy">
               ${placeholderLabel}
             </a>
@@ -160,7 +164,7 @@
                 <p class="product-maker">${item.manufacturerName}</p>
                 <span class="status status-${item.status}">${item.statusLabel}</span>
               </div>
-              <h3><a href="${item.detailPage}">${item.name}</a></h3>
+              <h3><a href="${item.detailPage}" tabindex="-1">${item.name}</a></h3>
               <p class="product-summary">${item.summary}</p>
               <div class="feature-list">
                 ${featureLabels.map((label) => `<span>${label}</span>`).join('')}
@@ -172,7 +176,7 @@
               <p class="use-labels">${useLabels.join('・')}</p>
               ${note}
               <div class="product-card-actions">
-                <a class="product-link" href="${item.detailPage}">詳細を見る →</a>
+                <a class="product-link" href="${item.detailPage}" aria-label="${item.name}の製品詳細を見る">詳細を見る →</a>
                 <a class="product-consult-link" href="contact.html?product=${encodeURIComponent(item.name)}">研究用途を相談</a>
               </div>
             </div>
@@ -255,8 +259,10 @@
         const filtered = resources.filter((item) => {
           const makerMatch = maker === 'all' || item.makerId === maker;
           const productMatch = product === 'all' || item.productGroups.includes(product);
-          const typeMatch = type === 'all' || item.types.includes(type);
-          const searchableText = [item.title, item.description, item.makerName, item.language, ...(item.keywords || [])].join(' ').toLowerCase();
+          const typeMatch = type === 'github'
+            ? isOfficialGitHubResource(item)
+            : type === 'all' || item.types.includes(type);
+          const searchableText = [item.title, item.description, item.makerName, item.language, item.sourceLabel, ...(item.keywords || [])].join(' ').toLowerCase();
           const keywordMatch = !keyword || searchableText.includes(keyword);
           return makerMatch && productMatch && typeMatch && keywordMatch;
         });
@@ -324,6 +330,16 @@
       }
     }
   });
+
+  function isOfficialGitHubResource(item) {
+    if (item.sourceLabel !== '公式GitHub' || !item.url) return false;
+    try {
+      const url = new URL(item.url);
+      return url.protocol === 'https:' && url.hostname === 'github.com';
+    } catch {
+      return false;
+    }
+  }
 
   function createResourceCard(item) {
     const typeLabels = item.types.map((type) => `<span>${resourceTypeLabel(type)}</span>`).join('');
