@@ -467,6 +467,42 @@ for (const width of [1440,390,360]) {
   });
 }
 
+
+test.describe('HOME cards in the delivered HTML without JavaScript', () => {
+  test.use({javaScriptEnabled:false});
+  for (const width of [1440,390,360]) {
+    test('homepage product details are usable without JavaScript / '+width, async ({page}) => {
+      await page.setViewportSize({width,height:900});
+      const html=await page.goto(base+'/index.html');
+      expect(html.ok()).toBe(true);
+      const grid=page.locator('.home-product-grid');
+      await expect(grid).toHaveAttribute('data-prerendered-products','true');
+      const cards=grid.locator('.research-product-card');
+      await expect(cards).toHaveCount(3);
+      const models=[
+        ['Unitree G1-D','Unitree','products/unitree-g1-d.html'],
+        ['AgiBot G2','AgiBot','products/agibot-g2.html'],
+        ['Unitree G1','Unitree','products/unitree-g1.html']
+      ];
+      for (const [i,[name,maker,href]] of models.entries()) {
+        const card=cards.nth(i);
+        await expect(card.getByRole('heading',{name})).toBeVisible();
+        await expect(card.locator('.home-product-maker')).toHaveText(maker);
+        await expect(card.locator('.home-product-maker')).toBeVisible();
+        await expect(card.locator('.product-summary')).toBeVisible();
+        await expect(card.locator('.product-summary')).not.toBeEmpty();
+        const image=card.locator('img');
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(()=>image.evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
+        await expect(card.locator('.product-link')).toHaveAttribute('href',href);
+      }
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(width+1);
+      await cards.first().getByRole('link',{name:'Unitree G1-Dの製品詳細を見る'}).click();
+      await expect(page).toHaveURL(base+'/products/unitree-g1-d.html');
+    });
+  }
+});
+
 // HOME: an official GitHub entry must resolve to verified-source direct links,
 // not merely an HTTP 200 or a manufacturer download landing page.
 for (const {width,height} of sizes) {

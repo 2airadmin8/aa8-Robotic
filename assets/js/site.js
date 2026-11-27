@@ -136,7 +136,11 @@
       const limit = Number(root.dataset.limit || 0);
       const excluded = new Set((root.dataset.excludeProducts || '').split(/\s+/).filter(Boolean));
       const products = data.products.filter((item) => item.visibility === 'public' && !excluded.has(item.id));
-      const visibleProducts = limit > 0 ? products.slice(0, limit) : products;
+      const featured = (root.dataset.featuredProducts || '').trim().split(/\s+/).filter(Boolean);
+      const publicById = new Map(products.map((item) => [item.id, item]));
+      const visibleProducts = featured.length
+        ? featured.map((id) => publicById.get(id)).filter(Boolean)
+        : limit > 0 ? products.slice(0, limit) : products;
 
       root.innerHTML = visibleProducts.map((item) => {
         const filterGroups = (item.filterGroups || [item.categoryId]).join(' ');

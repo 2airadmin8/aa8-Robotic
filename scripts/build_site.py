@@ -17,6 +17,11 @@ from dataclasses import asdict, dataclass
 from html.parser import HTMLParser
 from pathlib import Path
 
+if __package__:
+    from .prerender_product_cards import render_html as render_product_cards
+else:
+    from prerender_product_cards import render_html as render_product_cards
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 EXCLUDED_DIRS = {".git", ".github", "_site", "scripts", "includes", "tests", "docs", "ops", "node_modules", "test-results", "playwright-report"}
@@ -326,7 +331,13 @@ def build_output(page_results: list[PageResult], findings: list[str], source_fil
         destination = OUTPUT / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         if source.suffix.lower() == ".html":
-            destination.write_text(build_html(source.read_text(encoding="utf-8"), relative), encoding="utf-8")
+            markup = build_html(source.read_text(encoding="utf-8"), relative)
+            if relative == Path("index.html") and "home-product-grid" in markup:
+                catalog = json.loads((ROOT / "data" / "products.json").read_text(encoding="utf-8"))
+                markup, grids = render_product_cards(markup, relative, catalog["products"])
+                if grids != 1:
+                    raise ValueError("Expected one homepage product grid for pre-rendering")
+            destination.write_text(markup, encoding="utf-8")
         else:
             shutil.copy2(source, destination)
 
