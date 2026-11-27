@@ -255,8 +255,10 @@
         const filtered = resources.filter((item) => {
           const makerMatch = maker === 'all' || item.makerId === maker;
           const productMatch = product === 'all' || item.productGroups.includes(product);
-          const typeMatch = type === 'all' || item.types.includes(type);
-          const searchableText = [item.title, item.description, item.makerName, item.language, ...(item.keywords || [])].join(' ').toLowerCase();
+          const typeMatch = type === 'github'
+            ? isOfficialGitHubResource(item)
+            : type === 'all' || item.types.includes(type);
+          const searchableText = [item.title, item.description, item.makerName, item.language, item.sourceLabel, ...(item.keywords || [])].join(' ').toLowerCase();
           const keywordMatch = !keyword || searchableText.includes(keyword);
           return makerMatch && productMatch && typeMatch && keywordMatch;
         });
@@ -324,6 +326,16 @@
       }
     }
   });
+
+  function isOfficialGitHubResource(item) {
+    if (item.sourceLabel !== '公式GitHub' || !item.url) return false;
+    try {
+      const url = new URL(item.url);
+      return url.protocol === 'https:' && url.hostname === 'github.com';
+    } catch {
+      return false;
+    }
+  }
 
   function createResourceCard(item) {
     const typeLabels = item.types.map((type) => `<span>${resourceTypeLabel(type)}</span>`).join('');

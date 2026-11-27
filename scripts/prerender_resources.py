@@ -54,6 +54,7 @@ def render_card(item: dict[str, object]) -> str:
         f'<article id="resource-{esc(item.get("id"))}" class="resource-card" '
         f'data-resource-id="{esc(item.get("id"))}" '
         f'data-resource-maker="{esc(item.get("makerId"))}" '
+        f'data-resource-source="{esc(item.get("sourceLabel"))}" '
         f'data-resource-products="{esc(" ".join(item.get("productGroups", [])))}" '
         f'data-resource-types="{esc(" ".join(item.get("types", [])))}">'
         '<div class="resource-card-topline">'

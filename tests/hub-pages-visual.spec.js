@@ -392,6 +392,40 @@ test('HOME #200 category links apply the destination filter / 390', async ({page
   }
 });
 
+
+// HOME: an official GitHub entry must resolve to verified-source direct links,
+// not merely an HTTP 200 or a manufacturer download landing page.
+for (const {width,height} of sizes) {
+  test('HOME catches official GitHub routing regression / '+width, async ({page}) => {
+    await page.setViewportSize({width,height});
+    const result = await page.request.get(base+'/data/resources.json');
+    expect(result.ok()).toBe(true);
+    const {resources} = await result.json();
+    const valid = resources.filter(({sourceLabel,url}) => {
+      if (sourceLabel !== '公式GitHub' || !url) return false;
+      const target = new URL(url);
+      return target.protocol === 'https:' && target.hostname === 'github.com';
+    });
+    const expected = valid.map(x=>x.url).sort();
+    expect(expected.length).toBeGreaterThan(0);
+    expect(valid.some(x=>x.id==='unitree-ros2')).toBe(true);
+    await page.goto(base+'/index.html');
+    const entry = page.locator('.resource-list a').filter({hasText:/^\s*公式GitHub\s*$/});
+    await expect(entry).toHaveCount(1);
+    await entry.click();
+    await expect(page).toHaveURL(base+'/resources.html?type=github#resource-search');
+    await expect(page.locator('select[name="type"]')).toHaveValue('github');
+    await expect(page.locator('[data-resource-count]')).toHaveText(String(expected.length));
+    const visible = page.locator('.resource-card:visible a.resource-open-link');
+    await expect(visible).toHaveCount(expected.length);
+    expect((await visible.evaluateAll(links=>links.map(link=>link.href))).sort()).toEqual(expected);
+
+    // The previously published bookmark should still surface direct repositories.
+    await page.goto(base+'/resources.html?keyword=GitHub#resource-search');
+    await expect(page.locator('.resource-card:visible a[href="https://github.com/unitreerobotics/unitree_ros2"]')).toBeVisible();
+  });
+}
+
 // HOME-13 P0: public SSOT reconciled against verified September delivery.
 // Completion of university acceptance must NOT be inferred from delivery.
 test('HOME #200 P0 cross-page case disclosure follows evidence master', async ({page}) => {

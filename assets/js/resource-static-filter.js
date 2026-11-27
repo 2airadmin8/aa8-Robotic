@@ -48,9 +48,12 @@
       const products = (card.dataset.resourceProducts || '').split(/\s+/).filter(Boolean);
       const types = (card.dataset.resourceTypes || '').split(/\s+/).filter(Boolean);
       const searchableText = normalise(card.textContent);
+      const link = card.querySelector('.resource-open-link');
+      const isOfficialGitHub = card.dataset.resourceSource === '公式GitHub'
+        && link?.protocol === 'https:' && link.hostname === 'github.com';
       const visible = (maker === 'all' || makers === maker)
         && (product === 'all' || products.includes(product))
-        && (type === 'all' || types.includes(type))
+        && (type === 'github' ? isOfficialGitHub : type === 'all' || types.includes(type))
         && (!keyword || searchableText.includes(keyword));
 
       card.hidden = !visible;
