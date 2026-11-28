@@ -31,12 +31,14 @@ jobs:
       # Release policy: production deployments may only run by explicit dispatch.
       # If the push trigger is accidentally restored, the self-gate below must fail
       # before an artifact is published.
-      - name: Verify manual-only production release gate
+      - name: Verify manual-only production release and Factory OFF
         shell: bash
+        env:
+          AA8_FACTORY_AUTOFIX_ENABLED: ${{ vars.AA8_FACTORY_AUTOFIX_ENABLED }}
         run: |
           set -euo pipefail
           python -m unittest discover -s tests -p test_release_trigger.py -v
-          python scripts/verify_release_trigger.py --runtime-event
+          python scripts/verify_release_trigger.py --runtime-event --require-autofix-off
           python -m unittest discover -s tests -p 'test_product_standard_v31.py' -v
           python -m unittest discover -s tests -p 'test_official_media_provenance.py' -v
           python scripts/product_page_standard_v31.py --check
@@ -119,6 +121,19 @@ jobs:
     environment:
       name: github-pages
     steps:
+      # Separate fail-closed check immediately before any Production Pages deployment.
+      - name: Verify Factory OFF before deploy
+        shell: bash
+        env:
+          AA8_FACTORY_AUTOFIX_ENABLED: ${{ vars.AA8_FACTORY_AUTOFIX_ENABLED }}
+        run: |
+          set -euo pipefail
+          if [ "${AA8_FACTORY_AUTOFIX_ENABLED:-}" != "false" ]; then
+            echo "::error::HOLD: Factory autofix variable missing, unreadable or not explicitly OFF"
+            exit 1
+          fi
+          echo "FACTORY_AUTOFIX_OFF=PASS"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
