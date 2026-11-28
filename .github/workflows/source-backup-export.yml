@@ -1,0 +1,42 @@
+name: Source Backup Export
+
+on:
+  push:
+    branches:
+      - backup-export/20260818
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  export-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+
+      - name: Create source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export
+          zip -r export/aa8-Robotic_source_20260818_pre-phase1.zip . \
+            -x '.git/*' '_site/*' 'export/*'
+          sha256sum export/aa8-Robotic_source_20260818_pre-phase1.zip \
+            > export/aa8-Robotic_source_20260818_pre-phase1.sha256
+
+      - name: Upload source backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aa8-Robotic-source-backup-20260818
+          path: export/*
+          if-no-files-found: error
+          retention-days: 30
