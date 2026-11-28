@@ -2,8 +2,9 @@
 """Attach required shared assets to the generated site.
 
 This script never edits CSS rules, header/footer markup, canonical URLs, or content.
-It normalizes approved CSS, JavaScript, and icon references and appends a
-content hash so browsers cannot keep stale shared navigation assets.
+It normalizes approved CSS, JavaScript, and icon references. CSS/JavaScript and
+Apple touch icons use content hashes for cache busting; the search favicon keeps
+a stable URL so search engines can re-crawl the same favicon location reliably.
 """
 from __future__ import annotations
 
@@ -89,7 +90,7 @@ def main() -> int:
             re.I,
         )
         markup = icon_pattern.sub("", markup)
-        icon = versioned_asset(prefix, ASSETS["favicon"])
+        icon = f"{prefix}{ASSETS['favicon']}"
         apple = versioned_asset(prefix, ASSETS["apple_touch_icon"])
         icon_block = (
             f'<link rel="icon" type="image/svg+xml" sizes="any" href="{icon}" data-aa8-brand-icon="true">\n'
